@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="title" content="블루크랩 아카데미 학사관리시스템">
+    <meta name="subject" content="blue-crab-LMS">
+    <meta name="publisher" content="blue-crab Team">
+    <meta name="location" content="Osan Korea">
+    <meta name="author" content="blue-crab Team">
+    <meta name="author-Date" content="2025-10">
+    <meta name="copyright" content="blue-crab">
+    <meta name="description" content="blue-crab-LMS">
+    <meta name="keyword" content="blue-crab, blue-crab-academy">
+    <meta name="classification" content="LMS Web App">
+    <meta name="robots" content="index, follow">   
+
+    <title>블루크랩 아카데미 학사관리시스템</title>
+
+    <!-- favicon start-->
+    <link rel="apple-touch-icon" sizes="57x57" href="/favicon/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/favicon/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/favicon/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/favicon/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/favicon/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/favicon/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/favicon/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/favicon/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192"  href="/favicon/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/favicon/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/favicon/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+    <!-- favicon end-->
+
+    <!-- ===================PWA Settings start=================== -->
+    <!-- Web Browser UI settings -->
+    <!-- <meta name="apple-mobile-web-app-capable" content="yes"> -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <!-- Status Bar styles setting -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- App names -->
+    <meta name="apple-mobile-web-app-title" content="Blue Crab Academy - LMS">
+    <!-- App icon -->
+    <link rel="apple-touch-icon" href="/favicon/apple-icon-152x152.png">
+
+    <!-- Service Worker settings start -->
+    <!-- 해당 파일은 Setting값 맞춘거니 변경 금지 -->
+    <link rel="manifest" href="manifest.json">
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+        .then((reg) => {
+          // console.log('서비스 워커가 등록됨.');
+        });
+      };
+    </script>
+    <!-- Service Worker settings end -->
+    <!-- ===================PWA Settings end=================== -->
+     
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

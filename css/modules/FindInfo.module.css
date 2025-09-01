@@ -1,0 +1,26 @@
+@charset "utf-8";
+
+.wrap{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px;    
+    border-radius: 15px;
+    background: #fff;
+    max-width: 500px;
+    max-height: 250px;
+    width: 100%;    
+}
+
+.wrap > h2{
+    text-align: center;
+    display: block;
+    padding: 5px;
+    border-bottom: 1px solid #ccc;
+    font-weight: bold;
+    font-size: var(--font-large);
+}
+
+.div{
+    
+}
