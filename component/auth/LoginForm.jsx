@@ -3,9 +3,7 @@ import { Link, Router, Route, Routes } from 'react-router-dom';
 import { FaSpinner } from 'react-icons/fa';
 import { UseUser } from '../../hook/UseUser';
 
-
 import LoginFrm from '../../css/modules/LoginForm.module.css';
-import FindInfo from './FindInfo';
 
 function LoginForm() {
     const { login, isLoading, error, clearError, isAuthenticated } = UseUser();
@@ -81,24 +79,7 @@ function LoginForm() {
         </div>
 
         <div className={LoginFrm.sub}>
-            <Router>
-                <Routes>
-                    <Route 
-                        className="subBtn id" 
-                        path='./FindInfo' 
-                        componenet={<FindInfo/>} 
-                        onClick={FindInfo(true)}>
-                    </Route>
 
-                    <Route
-                        className="subBtn pw"
-                        path='./FindInfo' 
-                        componenet={<FindInfo/>}
-                        onClick={FindInfo(false)}>
-                        비밀번호찾기
-                    </Route>
-                </Routes>
-            </Router>
         </div>
     </div>
     );

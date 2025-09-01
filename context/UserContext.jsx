@@ -1,7 +1,5 @@
 import React, { createContext, useReducer, useEffect } from 'react';
 
-import { apiUrl } from '../component/auth/AuthFunc';
-
 // 초기 상태
 const initialState = {
   user: null,
@@ -67,13 +65,13 @@ export function UserProvider({ children }) {
 
   // 컴포넌트 마운트 시 저장된 유저 정보 불러오기
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
+    const savedUser = sessionStorage.getItem('user');
     if (savedUser) {
       try {
         const user = JSON.parse(savedUser);
         dispatch({ type: LOGIN_SUCCESS, payload: user });
       } catch (error) {
-        localStorage.removeItem('user');
+        sessionStorage.removeItem('user');
       }
     }
   }, []);
@@ -81,19 +79,23 @@ export function UserProvider({ children }) {
   // 로그인 함수
   const login = async (email, password) => {
     dispatch({ type: LOGIN_START });
-    try {
-        const url = apiUrl('/api/auth/login');
+    
+    const dt = {username: email, password: password};
 
-        const res = await fetch(url, {
+    try {
+        const URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/auth/login';
+
+        const res = await fetch(URL, {
           method: 'POST',
-          credentials: "include",
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            username: email,
-            password: password
-          }),
+          credentials: "same-origin",
+          mode: "cors",
+          cache: 'no-cache',
+          headers: { 'Content-Type': 'application/json'},
+          body: JSON.stringify(dt),
         });
-        const ct = res.headers.get('content-type') || '';
+
+        console.log(res);
+        const ct = res.headers.get('Content-type') || '';
         const data = ct.includes('application/json') ? await res.json() : await res.text();
 
         // response 
@@ -103,7 +105,8 @@ export function UserProvider({ children }) {
           if (typeof data === 'object' && data?.refreshToken) sessionStorage.setItem('refreshToken', data.refreshToken);
 
           console.log('✅ 로그인 성공', data);
-          localStorage.setItem('user', JSON.stringify(user));
+          sessionStorage.setItem('user', JSON.stringify(user));
+          console.log(sessionStorage.user);
           dispatch({ type: LOGIN_SUCCESS, payload: user });
           return data, { success: true };
           
@@ -120,7 +123,7 @@ export function UserProvider({ children }) {
 
   // 로그아웃 함수
   const logout = () => {
-    localStorage.removeItem('user');
+    sessionStorage.removeItem('user');
     dispatch({ type: LOGOUT });
   };
 
