@@ -94,7 +94,7 @@ export function UserProvider({ children }) {
           body: JSON.stringify(dt),
         });
 
-        console.log(res);
+        // console.log(res);
         const ct = res.headers.get('Content-type') || '';
         const data = ct.includes('application/json') ? await res.json() : await res.text();
 
@@ -104,10 +104,10 @@ export function UserProvider({ children }) {
           if (typeof data === 'object' && data?.accessToken) sessionStorage.setItem('accessToken', data.accessToken);
           if (typeof data === 'object' && data?.refreshToken) sessionStorage.setItem('refreshToken', data.refreshToken);
 
-          console.log('✅ 로그인 성공', data);
-          sessionStorage.setItem('user', JSON.stringify(user));
-          console.log(sessionStorage.user);
-          dispatch({ type: LOGIN_SUCCESS, payload: user });
+          // console.log('✅ 로그인 성공', data);
+          sessionStorage.setItem('user', JSON.stringify(data));
+          // console.log(sessionStorage.user);
+          dispatch({ type: LOGIN_SUCCESS, payload: data });
           return data, { success: true };
           
         } else {
