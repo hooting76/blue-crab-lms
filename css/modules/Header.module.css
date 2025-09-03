@@ -1,0 +1,52 @@
+@charset "utf-8";
+
+header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 10px;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: white;
+}
+
+h1{
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+    margin: 0;
+    color: #3c56d5;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.logoImg{
+    display: block;
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+}
+
+.logoImg > img{
+    width: 100%;
+    height: auto;
+}
+
+.userInfo > p{
+    color: #333;
+    font-size: 13px;
+}
+
+.userName{
+    font-weight: bold;
+    color: #3c56d5;
+    font-size: 13px;
+}
+
+.logoutBtn{
+    background: #4F8FC4;
+    color: white;
+    border-radius: 10px;
+    padding: 8px 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
