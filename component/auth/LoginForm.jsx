@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Link, Router, Route, Routes } from 'react-router-dom';
 import { FaSpinner } from 'react-icons/fa';
 import { UseUser } from '../../hook/UseUser';
 
@@ -46,6 +45,7 @@ function LoginForm() {
                     name='frm_id'
                     id='frm_id'
                     placeholder="ex) example@google.com"
+                    readOnly = {isLoading}
                 />
             </div>
 
@@ -59,12 +59,13 @@ function LoginForm() {
                     onKeyDown={handleKeyPress}
                     name='frm_pw'
                     id='frm_pw'
+                    readOnly = {isLoading}
                 />
             </div>
 
         {/* 에러 메시지 */}
         {error && (
-            <div className="err">
+            <div className={LoginFrm.error} >
                 {error}
             </div>
         )}
@@ -73,13 +74,16 @@ function LoginForm() {
             <button
                 onClick={handleLogin}
                 disabled={isLoading || !email || !password}
-                className={LoginFrm.submit}>
+                className={LoginFrm.submit}
+            >
                 {isLoading ? <FaSpinner /> : '로그인'}
             </button>
         </div>
 
         <div className={LoginFrm.sub}>
-
+            {/* 아이디/비밀번호 찾기 */}
+            <span>아이디찾기</span>
+            <span>비밀번호찾기</span>
         </div>
     </div>
     );
