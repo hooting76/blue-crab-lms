@@ -11,6 +11,7 @@ import Header from '../component/common/Header';
 import LoadingSpinner from '../component/common/LoadingSpinner';
 import LoginForm from '../component/auth/LoginForm';
 import UserDashboard from '../component/auth/UserDashboard';
+import Footer from '../component/common/Footer';
 
 // css
 import '../css/App.css';
@@ -33,11 +34,7 @@ function AppContent() {
       </div>
       
       {/* 푸터 */}
-      <footer className="footer">
-        <div>
-          <p>copyright © 2025 Blue-Crab Team allrights reserved</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
