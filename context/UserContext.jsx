@@ -1,4 +1,5 @@
 import React, { createContext, useReducer, useEffect } from 'react';
+import { GetTokens } from '../component/auth/TokenAuth';
 
 // 초기 상태
 const initialState = {
@@ -65,13 +66,13 @@ export function UserProvider({ children }) {
 
   // 컴포넌트 마운트 시 저장된 유저 정보 불러오기
   useEffect(() => {
-    const savedUser = sessionStorage.getItem('user');
+    const savedUser = localStorage.getItem('user');
     if (savedUser) {
       try {
         const user = JSON.parse(savedUser);
         dispatch({ type: LOGIN_SUCCESS, payload: user });
       } catch (error) {
-        sessionStorage.removeItem('user');
+        localStorage.removeItem('user');
       }
     }
   }, []);
@@ -101,17 +102,17 @@ export function UserProvider({ children }) {
         // response 
         if (res.ok) {
           // token
-          if (typeof data === 'object' && data?.accessToken) sessionStorage.setItem('accessToken', data.accessToken);
-          if (typeof data === 'object' && data?.refreshToken) sessionStorage.setItem('refreshToken', data.refreshToken);
+          if (typeof data === 'object' && data?.accessToken) localStorage.setItem('accessToken', data.accessToken);
+          if (typeof data === 'object' && data?.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
 
           // console.log('✅ 로그인 성공', data);
-          sessionStorage.setItem('user', JSON.stringify(data));
+          localStorage.setItem('user', JSON.stringify(data));
           // console.log(sessionStorage.user);
           dispatch({ type: LOGIN_SUCCESS, payload: data });
           return data, { success: true };
           
         } else {
-          console.error('❌ 로그인 실패', res.status, data);
+          // console.error('❌ 로그인 실패', res.status, data);
           throw new Error('이메일 또는 비밀번호가 올바르지 않습니다.');
         } // response end
 
@@ -122,9 +123,33 @@ export function UserProvider({ children }) {
   };
 
   // 로그아웃 함수
-  const logout = () => {
-    sessionStorage.removeItem('user');
+  const logout = async() => {
     dispatch({ type: LOGOUT });
+    const tokens = GetTokens();
+    const { accessToken, refreshToken } = tokens;
+
+    // take a token from localStorage
+    try {
+      const response = await fetch('https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/auth/logout', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({ 
+          refreshToken: refreshToken 
+        })
+      });
+      const data = await response.json();
+      console.log('✅ 응답 데이터:', data);
+    } catch (error) {
+        // 네트워크 오류 시에도 클라이언트 토큰 삭제
+        localStorage.removeItem('user');
+        sessionStorage.removeItem('user');      
+    }
+    localStorage.removeItem('user');
+    sessionStorage.removeItem('user');
+    console.log('🏁 Redis 통합 로그아웃 테스트 완료');
   };
 
   // 에러 클리어 함수
