@@ -10,11 +10,22 @@ import { UseUser } from '../hook/UseUser';
 import Header from '../component/common/Header';
 import LoadingSpinner from '../component/common/LoadingSpinner';
 import LoginForm from '../component/auth/LoginForm';
-import UserDashboard from '../component/auth/UserDashboard'; // 로그인 후 메인 컴포넌트
+import UserDashboard from '../component/auth/UserDashboard';
 import Footer from '../component/common/Footer';
+import InAppFunction from '../component/common/InAppFunc';
 
 // css
 import '../css/App.css';
+
+// InApp filter function
+function InAppFilter(){
+  const userAgent = navigator.userAgent.toLowerCase();
+  const targetUrl = location.href;
+
+  return(
+    InAppFunction(userAgent, targetUrl)
+  );
+};
 
 // main app component
 function AppContent() {
@@ -42,6 +53,7 @@ function AppContent() {
 function App() {
   return (
     <UserProvider>
+      <InAppFilter />
       <AppContent />
     </UserProvider>
   );

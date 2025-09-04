@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 
-function InAppFunc(){
-  const userAgent = navigator.userAgent.toLowerCase(); // ok
-  let targetUrl   = location.href; // current url
+function InAppFunc(Agent, Url){
+  const userAgent = Agent;
+  const targetUrl = Url; // current url
 
   // Inapp Browser Exceptional
   if(userAgent.match(/kakaotalk/i)){
