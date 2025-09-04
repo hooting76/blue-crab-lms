@@ -5,6 +5,10 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
     plugins: [react()],
 
+    build: {
+      chunkSizeWarningLimit: 5000, // kb 단위
+    },
+
     define: {
       global: {},
     },
