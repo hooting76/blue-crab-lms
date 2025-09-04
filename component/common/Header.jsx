@@ -46,17 +46,21 @@ function Header() {
               </div>
               {/* user info end */}
             
+              <div className="btnCol">
+                <button
+                  onClick={() => alert('개인정보 수정 페이지는 현재 준비 중입니다.')}
+                  title="개인정보"
+                  className={HeaderCss.userInfoBtn}>
+                  개인정보
+                </button>
 
-              
-
-              <button 
-                onClick={logout} 
-                title="로그아웃" 
-                className={HeaderCss.logoutBtn}
-              >
-                로그아웃
-              </button>
-
+                <button 
+                  onClick={logout} 
+                  title="로그아웃" 
+                  className={HeaderCss.logoutBtn}>
+                  로그아웃
+                </button>
+              </div>
             </div>
           )}
           
