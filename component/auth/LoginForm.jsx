@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { FaSpinner } from 'react-icons/fa';
 import { UseUser } from '../../hook/UseUser';
 
 import LoginFrm from '../../css/modules/LoginForm.module.css';
@@ -9,13 +8,62 @@ function LoginForm() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
+    const [emailCheck, setEmailCheck] = useState(false);
+    const [pwCheck, setPwCheck]       = useState(false);
+
     if(isAuthenticated){
         alert('잘못된 접근입니다.');
-        return;
-    }
+        // 페이지 새로고침 
+        window.location.reload();
+    };
+
+    function handleInputChange(evt) {
+        // regexr
+        const regEmail  = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
+        const regPw     = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#.~_-])[A-Za-z\d@$!%*?&#.~_-]{8,20}$/i;
+        // 8 ~ 20 + 하나 이상의 대문자 + 하나의 소문자 + 하나의 숫자 + 하나의 특수 문자 정규식
+
+        // selector call value
+        let trgVal = evt.target.value;
+
+        // checking regEmail
+        if(evt.target.id === "frm_id"){
+            if(!regEmail.test(trgVal)){ //false
+                evt.target.style.border = "2px solid red";
+                if(!trgVal){
+                    evt.target.style.border = "1px solid #ccc";
+                }
+                setEmailCheck(false);
+            }else{// true
+                evt.target.style.border = "2px solid blue";
+                setEmailCheck(true);
+            };
+            setEmail(trgVal);
+        }else{
+            if(!regPw.test(trgVal)){ //false
+                evt.target.style.border = "2px solid red";
+                if(!trgVal){
+                    evt.target.style.border = "1px solid #ccc";
+                }
+                setPwCheck(false);
+            }else{// true
+                evt.target.style.border = "2px solid blue";
+                setPwCheck(true);
+            };
+            setPassword(trgVal);
+        };
+
+        evt.target.addEventListener("blur", () => {
+            evt.target.style.border = "1px solid #ccc";
+        });
+    };
 
     const handleLogin = async () => {
-        if (!email || !password) {
+        if (emailCheck && pwCheck) {
+            clearError();
+            await login(email, password);
+        }else{
+            alert('이메일과 비밀번호 형식을 확인해주세요.');
             return;
         }
         
@@ -23,10 +71,11 @@ function LoginForm() {
         await login(email, password);
     };
 
+    //enter key evt trigger
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
             handleLogin();
-        }
+        };
     };
 
     return (
@@ -40,7 +89,7 @@ function LoginForm() {
                 <input
                     type="text"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={handleInputChange}
                     onKeyDown={handleKeyPress}
                     name='frm_id'
                     id='frm_id'
@@ -55,12 +104,11 @@ function LoginForm() {
                 <input
                     type="password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={handleInputChange}
                     onKeyDown={handleKeyPress}
                     name='frm_pw'
                     id='frm_pw'
-                    readOnly = {isLoading}
-                />
+                    readOnly = {isLoading} />
             </div>
 
         {/* 에러 메시지 */}
@@ -74,14 +122,12 @@ function LoginForm() {
             <button
                 onClick={handleLogin}
                 disabled={isLoading || !email || !password}
-                className={LoginFrm.submit}
-            >
-                {isLoading ? <FaSpinner /> : '로그인'}
+                className={LoginFrm.submit}>
+                로그인
             </button>
         </div>
 
         <div className={LoginFrm.sub}>
-            {/* 아이디/비밀번호 찾기 */}
             <span>아이디찾기</span>
             <span>비밀번호찾기</span>
         </div>
