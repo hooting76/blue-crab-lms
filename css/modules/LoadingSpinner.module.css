@@ -1,0 +1,38 @@
+@charset "utf-8";
+
+.loading{
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    background: rgba(0,0,0,.5);
+}
+
+.spinner{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 21px;
+    color: white;
+    text-align: center;
+    position: relative;
+}
+
+.spinner > svg{ 
+    transform: rotate(0deg);
+    animation: spin 1s linear infinite;
+}
+
+.spinner > p{
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

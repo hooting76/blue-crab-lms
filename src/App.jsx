@@ -10,7 +10,7 @@ import { UseUser } from '../hook/UseUser';
 import Header from '../component/common/Header';
 import LoadingSpinner from '../component/common/LoadingSpinner';
 import LoginForm from '../component/auth/LoginForm';
-import UserDashboard from '../component/auth/UserDashboard';
+import UserDashboard from '../component/auth/UserDashboard'; // 로그인 후 메인 컴포넌트
 import Footer from '../component/common/Footer';
 
 // css
@@ -22,13 +22,13 @@ function AppContent() {
 
   // 로딩 중일 때
   if (isLoading) {
-    return <LoadingSpinner message="사용자 정보를 불러오는 중..." />;
+    return <LoadingSpinner/>
   }
 
   return (
     <div id="wrap">
       <Header />
-      
+
       <div id="content">
         {isAuthenticated ? <UserDashboard /> : <LoginForm />}
       </div>
