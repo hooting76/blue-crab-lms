@@ -30,6 +30,10 @@
     margin: 15px 0;
 }
 
+.frm_row:nth-child(2){
+    margin: 15px 0 0 0;
+}
+
 .frm_row > label{
     text-align: center;
     display: block;
@@ -50,6 +54,7 @@
     align-items: center;
     border-top: 1px solid #ccc;
     flex-wrap: nowrap;
+    margin-top: 7.5px;
 }
 
 .sub > span{
@@ -69,6 +74,7 @@
 
 .error{
     font-size: var(--font-small);
+    margin-top: 7.5px;
 }
 
 .submit{
@@ -76,8 +82,9 @@
     border-radius: 10px;
     background: #4084DD;
     color: #fff;
-    font-weight: bold;
-    padding: 10px;
+    padding: 5px 0;
     cursor: pointer; 
-    font-weight: bold;    
+    font-weight: bold;
+    font-size: 18px;    
+    margin-top: 7.5px;
 }
