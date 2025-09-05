@@ -42,11 +42,28 @@
 }
 
 .frm_row > input{
-    width: calc(100% - 70px);
+    width: calc(100% - 100px);
     padding: 5px;
     box-sizing: border-box;
+    border-radius: 7.5px;
+    border: 1px solid #ccc;
 }
 
+.frm_row:nth-child(3) > div{
+    width: calc(100% - 100px);
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+.frm_row:nth-child(3) > div > input{
+    box-sizing: border-box;
+    border-radius: 7.5px;
+    border: 1px solid #ccc;
+    width: calc(100% - 150px);
+    padding: 5px;
+}
 
 .sub{
     display: flex;
