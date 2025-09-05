@@ -52,10 +52,12 @@ function AppContent() {
 
 function App() {
   return (
-    <UserProvider>
+    <>
       <InAppFilter />
-      <AppContent />
-    </UserProvider>
+      <UserProvider>
+        <AppContent />
+      </UserProvider>
+    </>
   );
 }
 
