@@ -200,6 +200,13 @@
 		    <groupId>org.springframework.boot</groupId>
 		    <artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
+
+		<!-- JWT 기반 인증 시스템: Authentication 객체에서 JWT 토큰 정보 추출을 위해 필요 by 성태준 -->
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+		</dependency>		
+
 		
 	</dependencies>
 	
