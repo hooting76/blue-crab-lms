@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Implementation-Title: BlueCrab Backend Server
+Implementation-Version: 1.0.0
+Implementation-Vendor: BlueCrab.com
+Built-By: eGovFrame 4.3.0
+Build-Tool: Maven
+Spring-Boot-Version: 2.7.x
+Main-Class: BlueCrab.com.example.BlueCrabApplication
+

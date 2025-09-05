@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
+<Configuration status="WARN">
+    <Properties>
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [%t] [%c{1}] [%X{requestId}] [%X{requestMethod}] [%X{requestUri}] %m%n</Property>
+    </Properties>
+    
+    <Appenders>
+        <!-- 콘솔 출력 -->
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}" charset="UTF-8" />
+        </Console>
+        
+        <!-- 일반 애플리케이션 로그 파일 -->
+        <!-- 외장 톰캣: ${sys:catalina.base}/logs/ 또는 ${sys:user.home}/bluecrab/logs/ -->
+        <RollingFile name="fileAppender" fileName="${sys:catalina.base:-${sys:user.home}/bluecrab}/logs/bluecrab-app.log"
+                     filePattern="${sys:catalina.base:-${sys:user.home}/bluecrab}/logs/bluecrab-app-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}" charset="UTF-8" />
+            <Policies>
+                <!-- 매일 새 파일 생성 -->
+                <TimeBasedTriggeringPolicy />
+                <!-- 파일 크기가 5MB 초과 시 새 파일 생성 (10MB -> 5MB로 축소) -->
+                <SizeBasedTriggeringPolicy size="5MB" />
+            </Policies>
+            <!-- 최대 30개 파일 보관 -->
+            <DefaultRolloverStrategy max="30">
+                <!-- 압축된 파일만 보관 -->
+                <Delete basePath="${sys:catalina.base:-${sys:user.home}/bluecrab}/logs" maxDepth="1">
+                    <IfFileName glob="bluecrab-app-*.log.gz" />
+                    <IfLastModified age="30d" />
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+        
+        <!-- 인증/보안 관련 감사 로그 (별도 파일) -->
+        <RollingFile name="authAuditAppender" fileName="${sys:catalina.base:-${sys:user.home}/bluecrab}/logs/bluecrab-auth.log"
+                     filePattern="${sys:catalina.base:-${sys:user.home}/bluecrab}/logs/bluecrab-auth-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}" charset="UTF-8" />
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10 MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="90" /> <!-- 보안 로그는 더 오래 보관 -->
+        </RollingFile>
+        
+        <!-- 에러 로그 (별도 파일) -->
+        <RollingFile name="errorAppender" fileName="${sys:catalina.base:-${sys:user.home}/bluecrab}/logs/bluecrab-error.log"
+                     filePattern="${sys:catalina.base:-${sys:user.home}/bluecrab}/logs/bluecrab-error-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}" charset="UTF-8" />
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10 MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="60" />
+            <!-- ERROR 레벨 이상만 기록 -->
+            <LevelRangeFilter minLevel="ERROR" maxLevel="FATAL" onMatch="ACCEPT" onMismatch="DENY" />
+        </RollingFile>
+    </Appenders>
+    
+    <Loggers>
+        <!-- 인증/보안 관련 로거 (별도 파일로 기록) -->
+        <!-- DEBUG: 모든 로그 출력, INFO: 중요 정보만, WARN: 경고/오류만 -->
+        <Logger name="BlueCrab.com.example.controller.AuthController" level="DEBUG" additivity="false">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="fileAppender" />
+            <AppenderRef ref="authAuditAppender" />
+        </Logger>
+        
+        <!-- 요청 추적 인터셉터 -->
+        <Logger name="BlueCrab.com.example.interceptor.RequestTrackingInterceptor" level="DEBUG" additivity="false">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="fileAppender" />
+        </Logger>
+        
+        <Logger name="BlueCrab.com.example.service.AuthService" level="INFO" additivity="false">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="fileAppender" />
+            <AppenderRef ref="authAuditAppender" />
+        </Logger>
+        
+        <!-- 토큰 블랙리스트 서비스 -->
+        <Logger name="BlueCrab.com.example.service.TokenBlacklistService" level="INFO" additivity="false">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="fileAppender" />
+            <AppenderRef ref="authAuditAppender" />
+        </Logger>
+        
+        <Logger name="BlueCrab.com.example.security" level="INFO" additivity="false">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="fileAppender" />
+            <AppenderRef ref="authAuditAppender" />
+        </Logger>
+        
+        <!-- 전역 예외 처리기 -->
+        <Logger name="BlueCrab.com.example.exception.GlobalExceptionHandler" level="WARN" additivity="false">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="fileAppender" />
+            <AppenderRef ref="errorAppender" />
+        </Logger>
+        
+        <!-- 기존 설정들 -->
+        <Logger name="java.sql" level="INFO" additivity="false">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="fileAppender" />
+        </Logger>
+        
+        <Logger name="egovframework" level="DEBUG" additivity="false">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="fileAppender" />
+        </Logger>
+        
+        <Logger name="org.egovframe" level="DEBUG" additivity="false">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="fileAppender" />
+        </Logger>
+        
+        <!-- SQL 타이밍 로그 -->
+        <Logger name="jdbc.sqltiming" level="INFO" additivity="false">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="fileAppender" />
+        </Logger>
+        
+        <!-- 느린 쿼리 로거 -->
+        <Logger name="BlueCrab.com.example.util.SlowQueryLogger" level="WARN" additivity="false">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="fileAppender" />
+            <AppenderRef ref="errorAppender" /> <!-- 매우 느린 쿼리는 에러 로그에도 기록 -->
+        </Logger>
+        
+        <Logger name="org.springframework" level="INFO" additivity="false">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="fileAppender" />
+        </Logger>
+        
+        <!-- Spring Security 로그 레벨 조정 (운영환경) -->
+        <Logger name="org.springframework.security" level="WARN" additivity="false">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="fileAppender" />
+        </Logger>
+        
+        <!-- 루트 로거 -->
+        <Root level="INFO">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="fileAppender" />
+            <AppenderRef ref="errorAppender" />
+        </Root>
+    </Loggers>
+</Configuration>

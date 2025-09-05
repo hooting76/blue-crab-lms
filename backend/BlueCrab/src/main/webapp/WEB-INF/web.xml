@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+         http://java.sun.com/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
+
+    <display-name>BlueCrab Web Application</display-name>
+    
+    <!-- 
+    ===============================================
+    Tomcat CORS Filter Configuration
+    ===============================================
+    Nginx에서 CORS 설정을 제거하고 Tomcat에서 통합 관리
+    -->
+    
+    <!-- CORS Filter 정의 -->
+    <filter>
+        <filter-name>CorsFilter</filter-name>
+        <filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
+        
+        <!-- 허용할 Origin 도메인 설정 -->
+        <init-param>
+            <param-name>cors.allowed.origins</param-name>
+            <param-value>https://dtmch.synology.me:56000,https://bluecrab.chickenkiller.com</param-value>
+        </init-param>
+        
+        <!-- 허용할 HTTP 메서드 설정 -->
+        <init-param>
+            <param-name>cors.allowed.methods</param-name>
+            <param-value>GET,POST,PUT,DELETE,OPTIONS,PATCH</param-value>
+        </init-param>
+        
+        <!-- 허용할 요청 헤더 설정 (JWT 토큰 포함) -->
+        <init-param>
+            <param-name>cors.allowed.headers</param-name>
+            <param-value>Authorization,Content-Type,X-Requested-With,Accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers</param-value>
+        </init-param>
+        
+        <!-- 클라이언트에 노출할 응답 헤더 설정 -->
+        <init-param>
+            <param-name>cors.exposed.headers</param-name>
+            <param-value>Access-Control-Allow-Origin,Access-Control-Allow-Credentials</param-value>
+        </init-param>
+        
+        <!-- 인증 정보 포함 여부 (JWT 사용으로 false) -->
+        <init-param>
+            <param-name>cors.support.credentials</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        
+        <!-- Preflight 요청 캐시 시간 (초 단위) -->
+        <init-param>
+            <param-name>cors.preflight.maxage</param-name>
+            <param-value>3600</param-value>
+        </init-param>
+        
+        <!-- 요청 거부 시 HTTP 상태 코드 -->
+        <init-param>
+            <param-name>cors.request.decorate</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    
+    <!-- CORS Filter를 모든 API 요청에 적용 -->
+    <filter-mapping>
+        <filter-name>CorsFilter</filter-name>
+        <url-pattern>/api/*</url-pattern>
+    </filter-mapping>
+    
+    <!-- 모든 요청에 CORS 적용하려면 아래 주석 해제 -->
+    <!--
+    <filter-mapping>
+        <filter-name>CorsFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    -->
+
+</web-app>

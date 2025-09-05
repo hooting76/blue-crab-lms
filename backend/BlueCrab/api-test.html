@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlueCrab API 테스트 도구</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #34495e;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        input:focus, textarea:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px 5px 5px 0;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #2980b9;
+        }
+        
+        button.success {
+            background: #27ae60;
+        }
+        
+        button.success:hover {
+            background: #219a52;
+        }
+        
+        button.danger {
+            background: #e74c3c;
+        }
+        
+        button.danger:hover {
+            background: #c0392b;
+        }
+        
+        .response {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        
+        .token-info {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+        
+        .token-info.error {
+            background: #ffebee;
+            border-color: #f44336;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-success {
+            background: #4caf50;
+        }
+        
+        .status-error {
+            background: #f44336;
+        }
+        
+        .status-warning {
+            background: #ff9800;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🦀 BlueCrab API 테스트 도구</h1>
+            <p>JWT 기반 인증 API 테스트 및 디버깅</p>
+        </div>
+        
+        <div class="content">
+            <!-- 로그인 섹션 -->
+            <div class="section">
+                <h3>🔐 로그인 & 인증</h3>
+                
+                <div class="form-group">
+                    <label for="apiUrl">API 서버 URL</label>
+                    <input type="text" id="apiUrl" value="https://bluecrab.chickenkiller.com/BlueCrab-1.0.0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="username">사용자명 (이메일)</label>
+                    <input type="email" id="username" value="student@university.edu" placeholder="이메일 주소">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password" value="student123" placeholder="비밀번호">
+                </div>
+                
+                <button onclick="login()">로그인</button>
+                <button onclick="refreshToken()" class="success">토큰 갱신</button>
+                <button onclick="logout()" class="danger">로그아웃</button>
+                
+                <div id="tokenInfo" class="token-info" style="display: none;">
+                    <div><strong>로그인 상태:</strong> <span id="loginStatus">로그아웃</span></div>
+                    <div><strong>사용자:</strong> <span id="userInfo">-</span></div>
+                    <div><strong>토큰 만료:</strong> <span id="tokenExpiry">-</span></div>
+                </div>
+            </div>
+            
+            <!-- API 테스트 섹션 -->
+            <div class="section">
+                <h3>🧪 API 테스트</h3>
+                
+                <div class="form-group">
+                    <label for="testEndpoint">테스트할 엔드포인트</label>
+                    <select id="testEndpoint">
+                        <option value="/api/ping">Ping (인증 불필요)</option>
+                        <option value="/api/health">Health Check</option>
+                        <option value="/api/system-info">시스템 정보</option>
+                        <option value="/api/test">API 테스트</option>
+                        <option value="/api/test-auth">인증 테스트 (JWT 필요)</option>
+                        <option value="/api/users/stats">사용자 통계 (JWT 필요)</option>
+                        <option value="custom">커스텀 URL</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="customUrlGroup" style="display: none;">
+                    <label for="customUrl">커스텀 URL</label>
+                    <input type="text" id="customUrl" placeholder="/api/custom-endpoint">
+                </div>
+                
+                <div class="form-group">
+                    <label for="httpMethod">HTTP 메서드</label>
+                    <select id="httpMethod">
+                        <option value="GET">GET</option>
+                        <option value="POST">POST</option>
+                        <option value="PUT">PUT</option>
+                        <option value="DELETE">DELETE</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="requestBody">요청 본문 (JSON)</label>
+                    <textarea id="requestBody" rows="4" placeholder='{"key": "value"}'></textarea>
+                </div>
+                
+                <button onclick="testApi()">API 호출</button>
+                <button onclick="clearResponse()" class="danger">응답 지우기</button>
+            </div>
+        </div>
+        
+        <!-- 응답 섹션 -->
+        <div class="section" style="margin: 20px;">
+            <h3>📊 응답 결과</h3>
+            <div id="response" class="response">여기에 API 응답이 표시됩니다...</div>
+        </div>
+    </div>
+
+    <script>
+        // 전역 변수
+        let accessToken = localStorage.getItem('accessToken') || '';
+        let refreshTokenValue = localStorage.getItem('refreshToken') || '';
+        
+        // 페이지 로드 시 토큰 상태 확인
+        window.onload = function() {
+            updateTokenInfo();
+            
+            // 엔드포인트 선택 시 커스텀 URL 표시/숨김
+            document.getElementById('testEndpoint').addEventListener('change', function() {
+                const customGroup = document.getElementById('customUrlGroup');
+                if (this.value === 'custom') {
+                    customGroup.style.display = 'block';
+                } else {
+                    customGroup.style.display = 'none';
+                }
+            });
+        };
+        
+        // 로그인 함수
+        async function login() {
+            const apiUrl = document.getElementById('apiUrl').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                updateResponse('❌ 오류: 사용자명과 비밀번호를 입력해주세요.', 'error');
+                return;
+            }
+            
+            try {
+                updateResponse('🔄 로그인 중...', 'loading');
+                
+                const response = await fetch(`${apiUrl}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    accessToken = data.data.accessToken;
+                    refreshTokenValue = data.data.refreshToken;
+                    
+                    // 로컬 스토리지에 저장
+                    localStorage.setItem('accessToken', accessToken);
+                    localStorage.setItem('refreshToken', refreshTokenValue);
+                    localStorage.setItem('userInfo', JSON.stringify(data.data.userInfo));
+                    
+                    updateResponse(`✅ 로그인 성공!\n\n${JSON.stringify(data, null, 2)}`, 'success');
+                    updateTokenInfo();
+                } else {
+                    updateResponse(`❌ 로그인 실패: ${data.message}\n\n${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                updateResponse(`❌ 네트워크 오류: ${error.message}`, 'error');
+            }
+        }
+        
+        // 토큰 갱신 함수
+        async function refreshToken() {
+            if (!refreshTokenValue) {
+                updateResponse('❌ 오류: 리프레시 토큰이 없습니다. 먼저 로그인해주세요.', 'error');
+                return;
+            }
+            
+            const apiUrl = document.getElementById('apiUrl').value;
+            
+            try {
+                updateResponse('🔄 토큰 갱신 중...', 'loading');
+                
+                const response = await fetch(`${apiUrl}/api/auth/refresh`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${refreshTokenValue}`
+                    },
+                    body: JSON.stringify({
+                        refreshToken: refreshTokenValue
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    accessToken = data.data.accessToken;
+                    refreshTokenValue = data.data.refreshToken;
+                    
+                    localStorage.setItem('accessToken', accessToken);
+                    localStorage.setItem('refreshToken', refreshTokenValue);
+                    
+                    updateResponse(`✅ 토큰 갱신 성공!\n\n${JSON.stringify(data, null, 2)}`, 'success');
+                    updateTokenInfo();
+                } else {
+                    updateResponse(`❌ 토큰 갱신 실패: ${data.message}\n\n${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                updateResponse(`❌ 네트워크 오류: ${error.message}`, 'error');
+            }
+        }
+        
+        // 로그아웃 함수
+        function logout() {
+            accessToken = '';
+            refreshTokenValue = '';
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('userInfo');
+            
+            updateResponse('✅ 로그아웃 완료', 'success');
+            updateTokenInfo();
+        }
+        
+        // API 테스트 함수
+        async function testApi() {
+            const apiUrl = document.getElementById('apiUrl').value;
+            const endpoint = document.getElementById('testEndpoint').value;
+            const customUrl = document.getElementById('customUrl').value;
+            const method = document.getElementById('httpMethod').value;
+            const requestBody = document.getElementById('requestBody').value;
+            
+            let url = endpoint === 'custom' ? customUrl : endpoint;
+            if (!url.startsWith('/')) {
+                url = '/' + url;
+            }
+            
+            const fullUrl = `${apiUrl}${url}`;
+            
+            try {
+                updateResponse(`🔄 API 호출 중: ${method} ${url}`, 'loading');
+                
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                };
+                
+                // 인증이 필요한 엔드포인트인 경우 토큰 추가
+                if (url.includes('test-auth') || url.includes('users') || url.includes('admin')) {
+                    if (!accessToken) {
+                        updateResponse('❌ 오류: 이 API는 인증이 필요합니다. 먼저 로그인해주세요.', 'error');
+                        return;
+                    }
+                    options.headers['Authorization'] = `Bearer ${accessToken}`;
+                }
+                
+                // POST, PUT 요청인 경우 본문 추가
+                if ((method === 'POST' || method === 'PUT') && requestBody.trim()) {
+                    try {
+                        JSON.parse(requestBody); // JSON 유효성 검사
+                        options.body = requestBody;
+                    } catch (e) {
+                        updateResponse('❌ 오류: 요청 본문이 유효한 JSON 형식이 아닙니다.', 'error');
+                        return;
+                    }
+                }
+                
+                const response = await fetch(fullUrl, options);
+                const data = await response.json();
+                
+                const statusText = response.ok ? '✅ 성공' : '❌ 실패';
+                const result = `${statusText} (${response.status})\n\n${JSON.stringify(data, null, 2)}`;
+                
+                updateResponse(result, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                updateResponse(`❌ 네트워크 오류: ${error.message}`, 'error');
+            }
+        }
+        
+        // 응답 지우기
+        function clearResponse() {
+            document.getElementById('response').textContent = '여기에 API 응답이 표시됩니다...';
+            document.getElementById('response').className = 'response';
+        }
+        
+        // 응답 업데이트
+        function updateResponse(text, type = '') {
+            const responseEl = document.getElementById('response');
+            responseEl.textContent = text;
+            responseEl.className = `response ${type}`;
+        }
+        
+        // 토큰 정보 업데이트
+        function updateTokenInfo() {
+            const tokenInfoEl = document.getElementById('tokenInfo');
+            const loginStatusEl = document.getElementById('loginStatus');
+            const userInfoEl = document.getElementById('userInfo');
+            const tokenExpiryEl = document.getElementById('tokenExpiry');
+            
+            if (accessToken) {
+                tokenInfoEl.style.display = 'block';
+                tokenInfoEl.className = 'token-info';
+                
+                loginStatusEl.innerHTML = '<span class="status-indicator status-success"></span>로그인';
+                
+                const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+                userInfoEl.textContent = userInfo.name || userInfo.email || '정보 없음';
+                
+                // JWT 토큰에서 만료 시간 추출 (간단한 파싱)
+                try {
+                    const payload = JSON.parse(atob(accessToken.split('.')[1]));
+                    const expiry = new Date(payload.exp * 1000);
+                    tokenExpiryEl.textContent = expiry.toLocaleString();
+                    
+                    // 만료 시간이 가까우면 경고
+                    const now = new Date();
+                    const timeLeft = expiry - now;
+                    if (timeLeft < 5 * 60 * 1000) { // 5분 미만
+                        tokenInfoEl.className = 'token-info error';
+                        loginStatusEl.innerHTML = '<span class="status-indicator status-warning"></span>토큰 만료 임박';
+                    }
+                } catch (e) {
+                    tokenExpiryEl.textContent = '파싱 실패';
+                }
+            } else {
+                tokenInfoEl.style.display = 'none';
+            }
+        }
+        
+        // 5분마다 토큰 상태 확인
+        setInterval(updateTokenInfo, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
