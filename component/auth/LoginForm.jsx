@@ -27,7 +27,7 @@ function LoginForm() {
         let trgVal = evt.target.value;
 
         // checking regEmail
-        if(evt.target.id === "frm_id"){
+        if(evt.target.id == "frm_id"){
             if(!regEmail.test(trgVal)){ //false
                 evt.target.style.border = "2px solid red";
                 if(!trgVal){

@@ -47,6 +47,7 @@
     box-sizing: border-box;
     border-radius: 7.5px;
     border: 1px solid #ccc;
+    outline: none;
 }
 
 .frm_row:nth-child(3) > div{

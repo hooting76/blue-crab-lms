@@ -30,5 +30,9 @@ button {border: none;}
 /* 반응형 */
 video,img {width: 100%;}
 
+input:focus, input:focus-visible, input:focus-within{
+    border: none;
+}
+
 /* ---초기화 끝--- */
 
