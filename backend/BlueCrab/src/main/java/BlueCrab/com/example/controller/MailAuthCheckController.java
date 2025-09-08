@@ -550,4 +550,4 @@ public class MailAuthCheckController {
 		public LocalDateTime getTokenCreatedTime() { return tokenCreatedTime; }
 		// 토큰 생성 시간 반환
 	} // AuthData 클래스 끝
-}
+} // MailAuthCheckController 클래스 끝
