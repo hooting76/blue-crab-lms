@@ -1,15 +1,30 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { FaCircleLeft } from 'react-icons/fa6';
+
+import FindFunc from "./FindFunc";
 import FindinfoCss from '../../css/modules/findinfo.module.css';
 
-async function FindInfo(props){
-    // props check / true: id / false: pw
+function FindInfo(){
+    const location = useLocation();
+    const receiveData = location.state;
+
     // auth state check
-    const [useProps, setUseProps] = useState(props);
+    // useProps is true: id / false: pw
+    const [useProps, setUseProps] = useState();
     const [useEmail, setUseEmail] = useState('');
     const [userName, setUserName] = useState('');
     const [userPhone, setUserPhone] = useState('');
 
-    console.log(useProps);
+    if(useProps === undefined){
+        //if is undefined
+        setUseProps(receiveData.userPrs);
+    }else{
+        if(useProps != receiveData.userPrs){
+            setUseProps(receiveData.userPrs);
+        }
+    }
 
     const handlingInput = async() => {
         if(useProps == false){ // if find pw
@@ -24,14 +39,25 @@ async function FindInfo(props){
                 alert('입력값을 확인하세요.');
                 return;
             }else{
-               await FindFunc(null, userPhone, userName);
+                await FindFunc(null, userPhone, userName);
             }
         };
     };    
 
-    return(
+    return(<>
     <div className={FindinfoCss.wrap}>
-        <h2>{useProps ? '아이디찾기' : '비밀번호변경' }</h2>
+        <div className={FindinfoCss.backBtn}>
+            <Link to="/" >
+                <FaCircleLeft/>
+                <span>뒤로가기</span>
+            </Link>
+        </div>
+        <h2 className={FindinfoCss.h2}>
+            <span className={useProps ? null : FindinfoCss.off }><Link to="/FindInfo" state={{userPrs: true }}>아이디찾기</Link></span>
+
+            <span className={useProps ? FindinfoCss.off : null }><Link to="/FindInfo" state={{userPrs: false }}>비밀번호찾기</Link></span>
+        </h2>
+
         <div className={FindinfoCss.div}>
 
             {!useProps && (
@@ -44,7 +70,7 @@ async function FindInfo(props){
                         onChange={(e) => setUseEmail(e.target.value)}
                         id='frm_id'
                         placeholder="ex) example@google.com"
-                    />       
+                    />
                 </div>
             )}
 
@@ -78,7 +104,7 @@ async function FindInfo(props){
             </div>
         </div>
     </div>
-    );
+    </>);
 };
 
 export default FindInfo;

@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { UseUser } from '../../hook/UseUser';
+import FindInfo from './FindInfo';
+import { Link } from 'react-router-dom'; 
 
 import LoginFrm from '../../css/modules/LoginForm.module.css';
+
 
 function LoginForm() {
     const { login, isLoading, error, clearError, isAuthenticated } = UseUser();
@@ -78,6 +81,7 @@ function LoginForm() {
         };
     };
 
+
     return (
     <div className={LoginFrm.frm_wrap}>
         <h2 className={LoginFrm.h2}>로그인</h2>
@@ -126,10 +130,10 @@ function LoginForm() {
                 로그인
             </button>
         </div>
-
+        
         <div className={LoginFrm.sub}>
-            <span>아이디찾기</span>
-            <span>비밀번호찾기</span>
+            <span><Link to='/FindInfo' state={{userPrs: true }}>아이디찾기</Link></span>
+            <span><Link to='/FindInfo' state={{userPrs: false }}>비밀번호찾기</Link></span>
         </div>
     </div>
     );
