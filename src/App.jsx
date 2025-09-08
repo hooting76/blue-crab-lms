@@ -1,4 +1,5 @@
 import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // user state control
 import { UserProvider } from '../context/UserContext';
@@ -13,6 +14,13 @@ import LoginForm from '../component/auth/LoginForm';
 import UserDashboard from '../component/auth/UserDashboard';
 import Footer from '../component/common/Footer';
 import InAppFunction from '../component/common/InAppFunc';
+
+// 학교소개 페이지들
+import Introduction from '../component/common/Introduction';
+import PresidentSaysHi from '../component/common/Introduction/PresidentSaysHi';
+import WayHere from '../component/common/Introduction/WayHere';
+import Organization from '../component/common/Introduction/Organization';
+import BlueCrabHistory from '../component/common/Introduction/BlueCrabHistory';
 
 import Admin from './Admin';
 
@@ -50,16 +58,31 @@ function AppContent() {
   }
 
   return (
+    <BrowserRouter>
     <div id="wrap">
       <Header />
 
       <div id="content">
-        {isAuthenticated ? <UserDashboard /> : <LoginForm />}
+        {isAuthenticated ?
+        <Routes>
+          {/* 기본 페이지 */}
+          <Route path="/" element={<UserDashboard />} />
+          {/* 학교소개 페이지들 */}
+          <Route path="/Introduction/*" element={<Introduction />}>
+            <Route path="PresidentSaysHi" element={<PresidentSaysHi />} />
+            <Route path="WayHere" element={<WayHere />} />
+            <Route path="Organization" element={<Organization />} />
+            <Route path="BlueCrabHistory" element={<BlueCrabHistory />} />
+          </Route>
+
+        </Routes>
+        : <LoginForm/>}
       </div>
       
       {/* 푸터 */}
       <Footer />
     </div>
+    </BrowserRouter>
   );
 }
 

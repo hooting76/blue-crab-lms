@@ -1,0 +1,11 @@
+.introductiontitle {border-radius: 15px;
+                    padding: 30px;
+                    background-color: var(--white-color);
+                    text-align: center;
+                    justify-content: space-between;}
+
+#schoolIntroductionText {font-size: var(--font-large);}
+
+.introductiontitle span {margin-top: 20px;
+                        margin-left: 50px;
+                        margin-right: 50px;}
