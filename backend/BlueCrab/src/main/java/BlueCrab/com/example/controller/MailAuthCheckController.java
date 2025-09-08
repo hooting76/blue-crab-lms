@@ -69,6 +69,8 @@ import BlueCrab.com.example.util.RequestUtils;
 // 이 클래스가 REST API 컨트롤러임을 표시. JSON 응답을 자동으로 생성.
 @Slf4j
 // Lombok의 로깅 어노테이션
+
+// 이메일 인증 처리 컨트롤러 클래스
 public class MailAuthCheckController {
 	
 	@Autowired
