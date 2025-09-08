@@ -1,7 +1,7 @@
 // ====================== common: url str workspace ======================
 const BASE = 'https://bluecrab.chickenkiller.com';
 const CONTEXT = '/BlueCrab-1.0.0';
-export function apiUrl(path) {
+export default function apiUrl(path) {
   return new URL(
     [CONTEXT.replace(/\/+$/, ''), String(path).replace(/^\/+/, '')].join('/'),
     BASE.replace(/\/+$/, '') + '/'

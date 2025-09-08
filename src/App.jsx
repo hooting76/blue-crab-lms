@@ -14,6 +14,7 @@ import LoginForm from '../component/auth/LoginForm';
 import UserDashboard from '../component/auth/UserDashboard';
 import Footer from '../component/common/Footer';
 import InAppFunction from '../component/common/InAppFunc';
+import FindInfo from '../component/auth/FindInfo';
 
 // 학교소개 페이지들
 import Introduction from '../component/common/Introduction';
@@ -64,19 +65,25 @@ function AppContent() {
 
       <div id="content">
         {isAuthenticated ?
-        <Routes>
-          {/* 기본 페이지 */}
-          <Route path="/" element={<UserDashboard />} />
-          {/* 학교소개 페이지들 */}
-          <Route path="/Introduction/*" element={<Introduction />}>
-            <Route path="PresidentSaysHi" element={<PresidentSaysHi />} />
-            <Route path="WayHere" element={<WayHere />} />
-            <Route path="Organization" element={<Organization />} />
-            <Route path="BlueCrabHistory" element={<BlueCrabHistory />} />
-          </Route>
+          <Routes>
+            {/* 기본 페이지 */}
+            <Route path="/" element={<UserDashboard />} />
+            {/* 학교소개 페이지들 */}
+            <Route path="/Introduction/*" element={<Introduction />}>
+              <Route path="PresidentSaysHi" element={<PresidentSaysHi />} />
+              <Route path="WayHere" element={<WayHere />} />
+              <Route path="Organization" element={<Organization />} />
+              <Route path="BlueCrabHistory" element={<BlueCrabHistory />} />
+            </Route>
+          </Routes>
+          // isAuth end
 
-        </Routes>
-        : <LoginForm/>}
+        : // isAuth false start
+          <Routes>
+            <Route path="/" element={<LoginForm/>} />
+            <Route path="/FindInfo" element={<FindInfo/>}/>
+          </Routes>
+        }
       </div>
       
       {/* 푸터 */}

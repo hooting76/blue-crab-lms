@@ -1,5 +1,5 @@
 import React from 'react';
-import { apiurl } from '../auth/AuthFunc';
+import apiUrl from '../auth/AuthFunc';
 
 async function FindFunc(useEmail, userPhone, userName){
     let jsonBody = {
@@ -17,7 +17,7 @@ async function FindFunc(useEmail, userPhone, userName){
     const JsonBody = jsonBody;
 
     try {
-        const setUrl = apiurl('아이디/비밀번호찾기 api연결');
+        const setUrl = apiUrl('아이디/비밀번호찾기 api연결');
 
         // find id/pw api protocol
         const findRes = await fetch(setUrl, {
