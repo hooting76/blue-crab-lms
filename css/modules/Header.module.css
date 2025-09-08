@@ -9,14 +9,19 @@ header{
     color: white;
 }
 
-h1{
+.h1{
     display: flex;
     align-items: center;
     font-size: 1.5rem;
     margin: 0;
-    color: #3c56d5;
+    color: #387BB1;
+    font-weight: bold;
+}
+
+.h1 > span{
     font-weight: bold;
     cursor: pointer;
+    display: inline;
 }
 
 .logoImg{
@@ -59,4 +64,124 @@ h1{
     font-weight: bold;
     cursor: pointer;    
     margin-right: 5px;
+}
+
+.navMenu{
+    margin-left: 10px;
+    padding-left: 10px;
+    border-left: 1px solid #999;
+}
+
+.navMenu > ul{
+    list-style: none;
+    text-decoration: none;
+    display: flex;
+    gap: 15px;
+}
+
+.navMenu > ul > li{
+    list-style: none;
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.mobNavBtn{
+    display: none;
+    flex-direction: column;
+    width: 35px;
+    height: 35px;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+}
+
+header > div > span{
+    display: inline-block;
+    width: 100%;
+    height: 5px;
+    border-radius: 2.5px;
+    background: #333;
+    position: absolute;
+    left: 0;
+    z-index: -1;
+    transition: all .3s;
+    transform: rotate(0deg);
+}
+header > div > span:nth-child(1){
+    top: 0;
+}
+header > div > span:nth-child(2){
+    top: calc(50% - 5px);
+}
+header > div > span:nth-child(3){
+    top: calc(100% - 10px);
+}
+
+.mobMenu{
+    color: #333;
+    display: flex;
+    background: rgba(255, 255, 255, 0.9);
+    border-top: 1px solid #777;
+    overflow: hidden;
+    transition: all .3s;
+    height: 0px;
+}
+
+.mobMenu > ul{
+    width: 100%;
+    padding: 2.5px 0;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.mobMenu > ul > li{
+    width: 33%;
+    cursor: pointer;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    font-weight: bold;
+    transition: all .3s;
+}
+
+.mobMenu > ul > li:not(:last-child){
+    border-right: 1px solid #777;
+}
+
+
+/* media */
+@media (max-width:834px){
+    .mobNavBtn{
+        display: flex;
+    }
+    .navMenu{
+        display: none;
+    }
+}
+@media (max-width:768px){
+    
+}
+@media (max-width:600px){
+    
+}
+@media (max-width:425px){
+    .logoImg{
+        margin: 0;
+    }
+}
+@media (max-width:375px){
+    
+}
+@media (max-width:350px){
+    
+}
+@media (max-width:320px){
+    
 }
