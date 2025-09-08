@@ -1,6 +1,9 @@
 @charset "utf-8";
 
 /* ---초기화 시작--- */
+/* 모바일 환경에서 탭 했을때, 나타나는 하늘색 탭 클릭 효과 무효 처리 */
+*{-webkit-tap-highlight-color: transparent;}
+
 html,body{width:100%; height:100%; margin: 0; padding: 0; font-weight: normal; }
 
 /* 여백 초기화 */
