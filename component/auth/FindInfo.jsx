@@ -16,6 +16,7 @@ function FindInfo(){
     const [useEmail, setUseEmail] = useState('');
     const [userName, setUserName] = useState('');
     const [userPhone, setUserPhone] = useState('');
+    const [userCode, setUserCode] = useState('');
 
     if(useProps === undefined){
         //if is undefined
@@ -93,13 +94,33 @@ function FindInfo(){
                     value={userPhone} 
                     onChange={(evt) => setUserPhone(evt.target.value)} 
                     id="fd_phone" 
-                    placeholder='ex) 010-1234-5678' 
+                    placeholder='ex) 01012345678 / "-" 자 없이' 
                 />
             </div>
 
+            {/* 아이디찾기: 결과창
+                비밀번호찾기: 이메일 인증코드 */}
             <div className={FindinfoCss.row}>
-                <button className="findInfo" onClick={handlingInput}>
-                    {useProps ? '아이디찾기' : '비밀번호변경' }
+                {useProps 
+                ? (<p>조회된 결과 : <span>stu*****crab.ac.kr</span></p>) 
+                : (<>
+                    <label htmlFor={FindinfoCss.fd_code}>인증코드</label>
+                    <input
+                        type="text" 
+                        value={userCode} 
+                        onChange={(evt) => setUserCode(evt.target.value)} 
+                        id={FindinfoCss.fd_code} 
+                        placeholder='이메일 인증코드'
+                    />
+                    <span>05:00</span>
+                    <button className={FindinfoCss.sendCode}>코드 전송</button>
+                </>) 
+                }
+            </div>
+
+            <div className={FindinfoCss.row}>
+                <button className={FindinfoCss.findInfo} onClick={handlingInput}>
+                    {useProps ? '아이디찾기' : '비밀번호찾기' }
                 </button>
             </div>
         </div>
