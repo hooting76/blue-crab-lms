@@ -140,8 +140,10 @@ public class SecurityConfig {
                 // 성태준 추가, 이메일 인증 관련 API 보호
                 // "/sendMail" 엔드포인트는 인증된 사용자만 접근 가능하도록 설정
                 .requestMatchers("/sendMail").authenticated() // 이메일 인증 API 보호
-                // 메일 인증 엔드포인트는 인증 필요
-                .requestMatchers("/BlueCrab-1.0.0/sendMail").authenticated()
+                .requestMatchers("/BlueCrab-1.0.0/sendMail").authenticated() // 이메일 인증 API 보호
+                .requestMatchers("/verifyCode").authenticated() // 인증 코드 확인 API 보호
+                .requestMatchers("/BlueCrab-1.0.0/verifyCode").authenticated() // 인증 코드 확인 API 보호
+
 
 
                 // 🌐 기타 요청 처리
