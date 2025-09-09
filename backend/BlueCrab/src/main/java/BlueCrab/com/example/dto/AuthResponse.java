@@ -1,17 +1,23 @@
+// 작업자 : 성태준
 package BlueCrab.com.example.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/* 
- * 인증 요청에 대한 응답을 담는 DTO 클래스.
- */
+// ========== 인증 응답 DTO 클래스 ==========
 @Getter
 @Setter
+@NoArgsConstructor
 @AllArgsConstructor
-// @AllArgsConstructor : 모든 필드를 매개변수로 받는 생성자를 자동 생성하는 Lombok 어노테이션
 public class AuthResponse {
-    // 응답 메시지
     private String message = "인증이 완료 되었습니다.";
+    private Object data; // 추가 데이터를 위한 필드
+    
+    // ========== 메시지만 있는 생성자 ==========
+    public AuthResponse(String message) {
+        this.message = message;
+        this.data = null;
+    }
 }

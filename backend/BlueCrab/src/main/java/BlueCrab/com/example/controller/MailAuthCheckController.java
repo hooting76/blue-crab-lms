@@ -1,4 +1,4 @@
-/*
+/* 작업자 : 성태준
  * Spring MVC의 RESTful API 컨트롤러.
  * "/sendMail" : 메일 인증 코드를 생성하고 유저에게 메일 발송.
  * "/checkAuth" : 유저가 메일에서 전달 받은 인증 링크를 확인.
