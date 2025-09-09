@@ -61,7 +61,6 @@ public class MailAuthCheckController {
     @Autowired
     private EmailService emailService;
 	// 이메일 발송 서비스, 인증 코드 이메일 전송에 사용
-	
     
     // @Autowired
     // private BCryptPasswordEncoder bCryptPasswordEncoder;
