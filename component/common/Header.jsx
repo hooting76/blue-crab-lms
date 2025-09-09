@@ -48,7 +48,7 @@ function Header() {
   return (
   <>
     <header>
-      {/* {isAuthenticated && ( */}
+      {isAuthenticated && (
         <div 
           className={HeaderCss.mobNavBtn}
           onClick={FuncAniBtn}
@@ -57,7 +57,7 @@ function Header() {
           <span></span>
           <span></span>
         </div>
-      {/* )} */}
+      )}
       
         <h1 className={HeaderCss.h1}>
           <picture className={HeaderCss.logoImg} onClick={Reset}
