@@ -27,12 +27,15 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.Map;
 import java.util.Random;
+import java.util.Optional;
 
 // ========== 외부 라이브러리 임포트 ==========
 import lombok.extern.slf4j.Slf4j;
 
 // ========== 프로젝트 내부 클래스 임포트 ==========
 import BlueCrab.com.example.dto.AuthResponse;
+import BlueCrab.com.example.entity.UserTbl;
+import BlueCrab.com.example.repository.UserTblRepository;
 import BlueCrab.com.example.dto.AuthCodeVerifyRequest;
 import BlueCrab.com.example.service.EmailService;
 import BlueCrab.com.example.util.RequestUtils;
@@ -71,6 +74,11 @@ public class MailAuthCheckController {
     @Value("${app.domain}")
     private String domain;
 	// 애플리케이션 도메인, 이메일 내용에 사용
+
+	@Autowired
+	private UserTblRepository userTblRepository;
+	// 사용자 정보 조회를 위한 리포지토리
+	// DB에서 이메일로 사용자 이름을 조회하는데 사용
     
     // ========== 인증 설정 조회 API ==========
     @GetMapping("/api/auth/config")
@@ -282,38 +290,65 @@ public class MailAuthCheckController {
 		// 이메일, 현재 시간, UUID 조합으로 고유 세션 ID 생성
     } // generateAuthSessionId 끝
     
-    // ========== JWT에서 사용자 이름 추출 ==========
-    private String extractUserNameFromJWT(Authentication authentication) {
-		// JWT에서 사용자 이름을 추출하는 메서드
-        String userName = "학생";
-		// 사용자 이름의 기본값을 설정, 추후 JWT에서 실제 이름으로 대체
-		// 기본값을 설정함으로서 예외 상황에서도 안전하게 처리 가능
+// ========== JWT에서 사용자 이름 추출 (이름은 DB 참조 버전) ==========
+private String extractUserNameFromJWT(Authentication authentication) {
+	// JWT 대신 DB에서 사용자 이름을 조회하는 메서드
+	// JWT 토큰에 name 클레임이 없는 문제를 해결하기 위해 DB 직접 조회 방식 채택
+    String userName = "학생";
+	// 사용자 이름의 기본값을 설정, DB 조회 실패 시 안전하게 처리 가능
+	// 기본값을 설정함으로서 예외 상황에서도 안전하게 처리 가능
 
-		// try-catch 블록으로 예외 처리
-        try {
-            if (authentication.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt) {
-				// 인증 객체의 주체가 JWT인 경우
-                org.springframework.security.oauth2.jwt.Jwt jwt = 
-                    (org.springframework.security.oauth2.jwt.Jwt) authentication.getPrincipal();
-					// JWT 객체로 캐스팅
-                String jwtName = jwt.getClaimAsString("name");
-				// JWT 클레임에서 사용자 이름 추출
-                if (jwtName != null && !jwtName.trim().isEmpty()) {
-					// 이름이 유효한 경우
-                    userName = jwtName;
-					// 추출한 이름을 사용자 이름으로 설정
-                } // if(이름이 유효) 끝
-            } // if(인증 객체의 주체) 끝
+	// try-catch 블록으로 예외 처리
+    try {
+        String userEmail = authentication.getName();
+		// 인증된 사용자의 이메일 주소 추출
+		// JWT 토큰의 subject(sub) 클레임에서 가져옴
+        
+        if (userEmail != null && !userEmail.trim().isEmpty()) {
+			// 이메일이 유효한 경우에만 DB 조회 수행
+            Optional<UserTbl> userOptional = userTblRepository.findByUserEmail(userEmail);
+			// 이메일로 데이터베이스에서 사용자 정보 조회
+			// Optional을 사용하여 사용자가 존재하지 않을 경우 안전하게 처리
+            
+            if (userOptional.isPresent()) {
+				// 사용자가 존재하는 경우
+                UserTbl user = userOptional.get();
+				// Optional에서 실제 사용자 객체 추출
+                String dbUserName = user.getUserName();
+				// DB에서 조회한 사용자 이름
+                
+                if (dbUserName != null && !dbUserName.trim().isEmpty()) {
+					// DB에서 조회한 이름이 유효한 경우
+                    userName = dbUserName;
+					// 조회한 이름을 사용자 이름으로 설정
+                    log.debug("DB에서 사용자 이름 조회 성공 - 이메일: {}, 이름: {}", userEmail, userName);
+					// 성공 로그 기록
+                } else {
+					// DB에 이름이 없거나 빈 문자열인 경우
+                    log.debug("DB에 사용자 이름이 없음 - 이메일: {}, 기본값 사용", userEmail);
+					// 경고 로그 기록
+                } // if(DB 이름 유효성) 끝
+            } else {
+				// 사용자가 존재하지 않는 경우
+                log.warn("DB에서 사용자를 찾을 수 없음 - 이메일: {}, 기본값 사용", userEmail);
+				// 경고 로그 기록
+            } // if(사용자 존재) 끝
+        } else {
+			// 이메일이 null이거나 빈 문자열인 경우
+            log.warn("인증된 사용자 이메일이 없음, 기본값 사용");
+			// 경고 로그 기록
+        } // if(이메일 유효성) 끝
 
-		// 예외 발생 시 기본값 유지
-        } catch (Exception e) {
-            log.debug("JWT에서 사용자 이름 추출 실패, 기본값 사용: {}", e.getMessage());
-			// 디버그 로그 기록
-        } // try-catch 끝
-        return userName;
-		// 최종 사용자 이름 반환
-    } // extractUserNameFromJWT 끝
+	// 예외 발생 시 기본값 유지
+    } catch (Exception e) {
+        log.error("DB에서 사용자 이름 조회 중 오류 발생, 기본값 사용: {}", e.getMessage());
+		// 오류 로그 기록
+    } // try-catch 끝
     
+    return userName;
+	// 최종 사용자 이름 반환 (DB 조회 성공 시 실제 이름, 실패 시 기본값)
+} // extractUserNameFromJWT 끝
+
     // ========== 인증 코드 유효성 검증 ==========
     private boolean isInvalidAuthCode(String authCode) {
 		// 입력된 인증 코드의 유효성을 검증하는 메서드
