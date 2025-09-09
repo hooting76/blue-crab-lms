@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {useState } from 'react';
 import { UseUser } from '../../hook/UseUser';
+import { useNavigate } from "react-router-dom";
 import HeaderCss from '../../css/modules/Header.module.css';
 
 function FuncAniBtn(){
@@ -31,15 +32,23 @@ function FuncAniBtn(){
 
 function Header() {
   const { user, isAuthenticated, logout } = UseUser();
+  const navigate = useNavigate();
 
   const Reset = () => {
     window.location.replace('/');
   }
 
+  const [subMenu1Visibility, setSubMenu1Visibility] = useState("hidden");
+  const [subMenu2Visibility, setSubMenu2Visibility] = useState("hidden");
+  const showSubMenu1 = () => setSubMenu1Visibility("visible");
+  const hideSubMenu1 = () => setSubMenu1Visibility("hidden");
+  const showSubMenu2 = () => setSubMenu2Visibility("visible");
+  const hideSubMenu2 = () => setSubMenu2Visibility("hidden");
+
   return (
   <>
     <header>
-      {isAuthenticated && (
+      {/* {isAuthenticated && ( */}
         <div 
           className={HeaderCss.mobNavBtn}
           onClick={FuncAniBtn}
@@ -48,24 +57,66 @@ function Header() {
           <span></span>
           <span></span>
         </div>
-      )}
+      {/* )} */}
       
-        <h1 onClick={Reset} className={HeaderCss.h1}>
-          <picture className={HeaderCss.logoImg}>
+        <h1 className={HeaderCss.h1}>
+          <picture className={HeaderCss.logoImg} onClick={Reset}
+          onMouseOver={() => {hideSubMenu1(); hideSubMenu2();}}>
             <img src='./favicon/android-icon-72x72.png' alt='Logo'/>
           </picture>
           
-          <span>Blue-Crab LMS</span>
+          <span onMouseOver={() => {hideSubMenu1(); hideSubMenu2();}} onClick={Reset}>Blue-Crab LMS</span>
           {/* user menu */}
           {isAuthenticated &&(
           <div className={HeaderCss.navMenu}>
             <ul>
-              <li>학교소개</li>
-              <li>커뮤니티</li>
-              <li>마이페이지</li>
+              <li onMouseOver={() => {showSubMenu1(); hideSubMenu2();}}>학교소개</li>
+              <li onMouseOver={() => {hideSubMenu1(); showSubMenu2();}}>커뮤니티</li>
+              <li onMouseOver={() => {hideSubMenu1(); hideSubMenu2();}}>마이페이지</li>
             </ul>
+
+            <table
+                className={HeaderCss.navSubMenu1}
+                onMouseOver={showSubMenu1}
+                onMouseOut={hideSubMenu1}
+                style={{ visibility: subMenu1Visibility }}
+            >
+                <tbody>
+                    <tr>
+                        <td onClick={() => navigate("/Introduction/PresidentSaysHi")}>총장 인사</td>
+                    </tr>
+                    <tr>
+                        <td onClick={() => navigate("/Introduction/WayHere")}>오시는 길</td>
+                    </tr>
+                    <tr>
+                        <td onClick={() => navigate("/Introduction/Organization")}>학교 조직도</td>
+                    </tr>
+                    <tr>
+                        <td onClick={() => navigate("/Introduction/BlueCrabHistory")}>연혁</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <table
+                className={HeaderCss.navSubMenu2}
+                onMouseOver={showSubMenu2}
+                onMouseOut={hideSubMenu2}
+                style={{ visibility: subMenu2Visibility }}
+            >
+                <tbody>
+                    <tr>
+                        <td onClick={() => navigate("/Community/AcademyNotice")}>학사공지</td>
+                    </tr>
+                    <tr>
+                        <td onClick={() => navigate("/Community/AdminNotice")}>행정공지</td>
+                    </tr>
+                    <tr>
+                        <td onClick={() => navigate("/Community/EtcNotice")}>기타공지</td>
+                    </tr>
+                </tbody>
+            </table>
           </div>   
-          )}
+           )}
         </h1>
 
           {/* 로그인된 사용자 정보 */}
@@ -116,6 +167,7 @@ function Header() {
           
           {/* 로그인되지 않은 상태 */}
           {!isAuthenticated && ( null )}
+
     </header>
 
     {isAuthenticated && (
