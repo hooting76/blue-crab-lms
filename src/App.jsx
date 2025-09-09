@@ -18,10 +18,16 @@ import FindInfo from '../component/auth/FindInfo';
 
 // 학교소개 페이지들
 import Introduction from '../component/common/Introduction';
-import PresidentSaysHi from '../component/common/Introduction/PresidentSaysHi';
-import WayHere from '../component/common/Introduction/WayHere';
-import Organization from '../component/common/Introduction/Organization';
-import BlueCrabHistory from '../component/common/Introduction/BlueCrabHistory';
+import PresidentSaysHi from '../component/common/Introductions/PresidentSaysHi';
+import WayHere from '../component/common/Introductions/WayHere';
+import Organization from '../component/common/Introductions/Organization';
+import BlueCrabHistory from '../component/common/Introductions/BlueCrabHistory';
+
+// 커뮤니티 페이지들
+import Community from '../component/common/Community';
+import AcademyNotice from '../component/common/Communities/AcademyNotice';
+import AdminNotice from '../component/common/Communities/AdminNotice';
+import EtcNotice from '../component/common/Communities/EtcNotice';
 
 import Admin from './Admin';
 
@@ -75,8 +81,14 @@ function AppContent() {
               <Route path="Organization" element={<Organization />} />
               <Route path="BlueCrabHistory" element={<BlueCrabHistory />} />
             </Route>
+
+            <Route path="/Community/*" element={<Community />}>
+              <Route path="AcademyNotice" element={<AcademyNotice />} />
+              <Route path="AdminNotice" element={<AdminNotice />} />
+              <Route path="EtcNotice" element={<EtcNotice />} />
+            </Route>
           </Routes>
-          // isAuth end
+           // isAuth end
 
         : // isAuth false start
           <Routes>
