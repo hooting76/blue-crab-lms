@@ -3,6 +3,8 @@ package BlueCrab.com.example.controller;
 import BlueCrab.com.example.dto.AdminLoginRequest;
 import BlueCrab.com.example.dto.AdminLoginResponse;
 import BlueCrab.com.example.dto.ApiResponse;
+import BlueCrab.com.example.service.AdminService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import javax.servlet.http.HttpServletRequest;
@@ -25,12 +27,15 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("/api/admin")
 public class AdminController {
 
+    @Autowired
+    private AdminService adminService;
+
     /**
-     * 관리자 1차 로그인 (ID/PW 검증 + 이메일 인증 토큰 발급)
+     * 관리자 1차 로그인 (ID/PW 검증 + 세션 토큰 발급)
      * 
      * @param loginRequest 관리자 로그인 요청 (adminId, password)
      * @param request HTTP 요청 정보 (IP 추출용)
-     * @return 이메일 인증 토큰 및 안내 메시지
+     * @return 세션 토큰 및 안내 메시지
      */
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AdminLoginResponse>> adminLogin(
@@ -38,18 +43,12 @@ public class AdminController {
             HttpServletRequest request) {
 
         try {
-            // TODO: 실제 관리자 인증 서비스 구현 필요
-            // 1. AdminService.authenticate(adminId, password)
-            // 2. 이메일 인증 토큰 생성
-            // 3. 이메일 발송
-            // 4. AdminLoginResponse 반환
-
-            // 임시 응답 (테스트용)
-            AdminLoginResponse response = new AdminLoginResponse(
-                "이메일 인증이 필요합니다. 이메일을 확인해주세요.",
-                "temp-email-verification-token-12345",
-                600L  // 10분
-            );
+            // 클라이언트 IP 추출
+            String clientIp = getClientIpAddress(request);
+            
+            // 실제 관리자 인증 서비스 호출
+            AdminLoginResponse response = adminService.authenticateAndGenerateSessionToken(
+                loginRequest, clientIp);
 
             return ResponseEntity.ok(
                 ApiResponse.success("1차 인증이 완료되었습니다", response)
@@ -63,6 +62,24 @@ public class AdminController {
     }
 
     /**
+     * 클라이언트 IP 주소 추출
+     * 프록시 환경을 고려한 실제 IP 추출
+     */
+    private String getClientIpAddress(HttpServletRequest request) {
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+            return xForwardedFor.split(",")[0].trim();
+        }
+        
+        String xRealIp = request.getHeader("X-Real-IP");
+        if (xRealIp != null && !xRealIp.isEmpty()) {
+            return xRealIp;
+        }
+        
+        return request.getRemoteAddr();
+    }
+
+    /**
      * 관리자 이메일 인증 (2차 인증)
      * 
      * @param token 이메일 인증 토큰
@@ -72,15 +89,11 @@ public class AdminController {
     public ResponseEntity<ApiResponse<Object>> verifyEmail(@RequestParam String token) {
         
         try {
-            // TODO: 실제 이메일 토큰 검증 로직 구현 필요
-            // 1. Redis에서 토큰 검증
-            // 2. 토큰 만료 확인
-            // 3. JWT AccessToken 생성
-            // 4. 토큰 블랙리스트 처리
+            // 실제 이메일 토큰 검증 및 JWT 발급
+            Object jwtResponse = adminService.verifyEmailAndGenerateJwt(token);
 
-            // 임시 응답 (테스트용)
             return ResponseEntity.ok(
-                ApiResponse.success("이메일 인증이 완료되었습니다. JWT 토큰이 발급되었습니다.", null)
+                ApiResponse.success("이메일 인증이 완료되었습니다. JWT 토큰이 발급되었습니다.", jwtResponse)
             );
 
         } catch (Exception e) {

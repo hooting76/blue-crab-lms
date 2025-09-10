@@ -176,6 +176,41 @@ public class RedisService {
     }
 
     /**
+     * 세션 토큰 저장 (1차 로그인 성공 후)
+     * 
+     * @param token 세션 토큰
+     * @param adminId 관리자 ID
+     * @param expirationMinutes 만료 시간 (분)
+     */
+    public void storeSessionToken(String token, String adminId, int expirationMinutes) {
+        String key = "session_token:" + token;
+        redisTemplate.opsForValue().set(key, adminId, Duration.ofMinutes(expirationMinutes));
+        logger.info("Session token stored for admin: {}", adminId);
+    }
+
+    /**
+     * 세션 토큰으로 관리자 ID 조회
+     * 
+     * @param token 세션 토큰
+     * @return String 관리자 ID (토큰이 유효하지 않으면 null)
+     */
+    public String getAdminIdBySessionToken(String token) {
+        String key = "session_token:" + token;
+        return redisTemplate.opsForValue().get(key);
+    }
+
+    /**
+     * 세션 토큰 삭제
+     * 
+     * @param token 세션 토큰
+     */
+    public void deleteSessionToken(String token) {
+        String key = "session_token:" + token;
+        redisTemplate.delete(key);
+        logger.info("Session token deleted");
+    }
+
+    /**
      * Redis 연결 상태 확인
      * 
      * @return boolean Redis 연결 가능하면 true
