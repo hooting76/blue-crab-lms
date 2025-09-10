@@ -2,6 +2,7 @@ import React, {useState } from 'react';
 import { UseUser } from '../../hook/UseUser';
 import { useNavigate } from "react-router-dom";
 import HeaderCss from '../../css/modules/Header.module.css';
+import SessionTimer from './SessionTimer';
 
 function FuncAniBtn(){
   let lines = document.querySelectorAll('header > div > span');
@@ -40,10 +41,13 @@ function Header() {
 
   const [subMenu1Visibility, setSubMenu1Visibility] = useState("hidden");
   const [subMenu2Visibility, setSubMenu2Visibility] = useState("hidden");
+  const [subMenu3Visibility, setSubMenu3Visibility] = useState("hidden");
   const showSubMenu1 = () => setSubMenu1Visibility("visible");
   const hideSubMenu1 = () => setSubMenu1Visibility("hidden");
   const showSubMenu2 = () => setSubMenu2Visibility("visible");
   const hideSubMenu2 = () => setSubMenu2Visibility("hidden");
+  const showSubMenu3 = () => setSubMenu3Visibility("visible");
+  const hideSubMenu3 = () => setSubMenu3Visibility("hidden");
 
   return (
   <>
@@ -61,18 +65,18 @@ function Header() {
       
         <h1 className={HeaderCss.h1}>
           <picture className={HeaderCss.logoImg} onClick={Reset}
-          onMouseOver={() => {hideSubMenu1(); hideSubMenu2();}}>
+          onMouseOver={() => {hideSubMenu1(); hideSubMenu2(); hideSubMenu3();}}>
             <img src='./favicon/android-icon-72x72.png' alt='Logo'/>
           </picture>
           
-          <span onMouseOver={() => {hideSubMenu1(); hideSubMenu2();}} onClick={Reset}>Blue-Crab LMS</span>
+          <span onMouseOver={() => {hideSubMenu1(); hideSubMenu2(); hideSubMenu3();}} onClick={Reset}>Blue-Crab LMS</span>
           {/* user menu */}
           {isAuthenticated &&(
           <div className={HeaderCss.navMenu}>
             <ul>
-              <li onMouseOver={() => {showSubMenu1(); hideSubMenu2();}}>학교소개</li>
-              <li onMouseOver={() => {hideSubMenu1(); showSubMenu2();}}>커뮤니티</li>
-              <li onMouseOver={() => {hideSubMenu1(); hideSubMenu2();}}>마이페이지</li>
+              <li onMouseOver={() => {showSubMenu1(); hideSubMenu2(); hideSubMenu3();}}>학교소개</li>
+              <li onMouseOver={() => {hideSubMenu1(); showSubMenu2(); hideSubMenu3();}}>커뮤니티</li>
+              <li onMouseOver={() => {hideSubMenu1(); hideSubMenu2(); showSubMenu3();}}>마이페이지</li>
             </ul>
 
             <table
@@ -115,9 +119,38 @@ function Header() {
                     </tr>
                 </tbody>
             </table>
+
+            <table
+                className={HeaderCss.navSubMenu3}
+                onMouseOver={showSubMenu3}
+                onMouseOut={hideSubMenu3}
+                style={{ visibility: subMenu3Visibility }}
+            >
+                <tbody>
+                    <tr>
+                        <td onClick={() => navigate("/MyPage/ClassAttendingList")}>수강중인 과목</td>
+                    </tr>
+                    <tr>
+                        <td onClick={() => navigate("/MyPage/ClassAttendingProgress")}>과목별 진행사항</td>
+                    </tr>
+                    <tr>
+                        <td onClick={() => navigate("/MyPage/ClassAttendingNotice")}>수강과목 공지사항</td>
+                    </tr>
+                    <tr>
+                        <td onClick={() => navigate("/MyPage/Consult")}>실시간 상담</td>
+                    </tr>
+                </tbody>
+            </table>
           </div>   
-           )}
+        )}
         </h1>
+
+        {/* 세션타이머(15분). 로그인 중에만 활성화. 아직 만료시 로그아웃 로직 구현 안됨.*/}
+        {isAuthenticated && (
+        <div className={HeaderCss.sessionTimer}>
+        <SessionTimer/>
+        </div>
+        )}
 
           {/* 로그인된 사용자 정보 */}
           {isAuthenticated && (
