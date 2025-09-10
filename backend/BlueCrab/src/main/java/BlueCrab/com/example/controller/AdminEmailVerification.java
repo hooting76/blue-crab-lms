@@ -40,6 +40,7 @@ import BlueCrab.com.example.util.RequestUtils;
 public class AdminEmailVerification {
     // ========== 상수 정의 ==========
     private static final int AUTH_CODE_LENGTH = 6;
+    // 수정 시 AuthCodeVerifyRequest.java의 @Size 어노테이션 내용도 함께 수정 필요
     private static final int AUTH_CODE_EXPIRY_MINUTES = 5;
     private static final String AUTH_CODE_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final String AUTH_SESSION_PREFIX = "admin_email_auth_code:";
@@ -110,10 +111,18 @@ public class AdminEmailVerification {
         (@RequestBody AuthCodeVerifyRequest req, 
         Authentication authentication, 
         HttpServletRequest request) {
+        // ResponseEntity<AuthResponse> : 인증 검증 결과를 담아 반환하는 HTTP 응답 객체
+        // verifyAdminEmailAuthCode : 관리자 이메일 인증코드 검증 처리 메서드
+        // @RequestBody AuthCodeVerifyRequest req : 요청 본문에서 인증코드 정보를 담은 DTO
+        // Authentication authentication : 현재 인증된 사용자의 정보를 담고 있는 객체
+        // HttpServletRequest request : 현재 HTTP 요청에 대한 정보를 담고 있는 객체
         
         String email = authentication.getName();
+        // authentication.getName() : 현재 인증된 사용자의 이름(이메일)을 가져옴
         String clientIp = RequestUtils.getClientIpAddress(request);
+        // RequestUtils.getClientIpAddress(request) : 요청의 클라이언트 IP 주소를 가져옴
         AuthCodeData codeData = getAuthCodeDataFromRedis(email);
+        // getAuthCodeDataFromRedis : Redis에서 인증코드 데이터 조회 메서드 호출
         
         if (codeData == null || isCodeExpired(codeData.getCodeCreatedTime())) {
             // 인증코드가 없거나 만료된 경우
@@ -149,20 +158,26 @@ public class AdminEmailVerification {
             // 여기서 정식 토큰 발행 로직 호출(별도 서비스/담당자 구현)
             return ResponseEntity.ok(new AuthResponse("이메일 인증 성공!"));
             // 200 OK 응답과 함께 인증 성공 메시지 반환
-        } else {
+        } // if 인증코드가 일치하는 경우 끝 
+        else {
             // 인증코드가 일치하지 않는 경우
             log.info("Admin email auth failed - invalid code for email: {}", email);
             // 인증 실패 로그 기록
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new AuthResponse("인증코드가 올바르지 않습니다."));
-        }
+            // 401 응답 반환
+            // AuthResponse : 응답 메시지를 담는 DTO
+        } // if 인증코드가 일치하지 않는 경우 끝
+
     } // verifyAdminEmailAuthCode 메서드 끝
 
     // ========== 내부 유틸리티 메서드 ==========
 
     // 3. 인증코드 생성(숫자+영문 대문자 6자리)
     private String generateAuthCode() {
+        // String generateAuthCode() : 인증코드를 생성하여 반환하는 메서드
         StringBuilder code = new StringBuilder();
+        // StringBuilder code : 인증코드를 효율적으로 생성하기 위한 StringBuilder 객체
         for (int i = 0; i < AUTH_CODE_LENGTH; i++) {
             code.append(AUTH_CODE_CHARACTERS.charAt(secureRandom.nextInt(AUTH_CODE_CHARACTERS.length())));
         }
