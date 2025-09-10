@@ -7,6 +7,9 @@ package BlueCrab.com.example.controller;
 
 // ========== Spring Framework 관련 임포트 ==========
 import org.springframework.security.core.Authentication;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import javax.crypto.SecretKey;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -29,8 +32,8 @@ import lombok.extern.slf4j.Slf4j;
 
 // ========= 프로젝트 내부 임포트 ==========
 import BlueCrab.com.example.dto.AuthResponse;
-import BlueCrab.com.example.entity.UserTbl;
-import BlueCrab.com.example.repository.UserTblRepository;
+import BlueCrab.com.example.entity.AdminTbl;
+import BlueCrab.com.example.repository.AdminTblRepository;
 import BlueCrab.com.example.dto.AuthCodeVerifyRequest;
 import BlueCrab.com.example.service.EmailService;
 import BlueCrab.com.example.util.RequestUtils;
@@ -44,16 +47,35 @@ public class AdminEmailVerification {
     private static final int AUTH_CODE_EXPIRY_MINUTES = 5;
     private static final String AUTH_CODE_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final String AUTH_SESSION_PREFIX = "admin_email_auth_code:";
+    private static final String JWT_SECRET = "your-session-token-secret-key-should-be-at-least-256-bits-for-security";
+    private static final long ACCESS_TOKEN_EXPIRATION = 15 * 60 * 1000L; // 15분
+    private static final long REFRESH_TOKEN_EXPIRATION = 24 * 60 * 60 * 1000L; // 24시간
     
     // ========== 의존성 주입 ==========
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private BlueCrab.com.example.service.EmailVerificationService emailVerificationService;
+    // EmailService : 이메일 발송 기능을 담당하는 서비스 클래스
+    // Spring 컨테이너가 관리하는 EmailService bean이 자동으로 주입됨
+
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
+    // RedisTemplate<String, Object> : Redis와 상호작용하는 템플릿 클래스
+    // String : Redis 키의 타입
+    // Object : Redis 값의 타입
+
     @Autowired
-    private UserTblRepository userTblRepository;
+    private AdminTblRepository adminTblRepository;
+    // UserTblRepository : 사용자 테이블과 상호작용하는 JPA 리포지토리 인터페이스
+    // Spring Data JPA가 자동으로 구현체를 생성하여 주입함
+
     @Value("${app.domain}")
+    // @Value : application.properties 또는 application.yml 파일에서 설정 값을 주입받는 어노테이션
+    // "${app.domain}" : 설정 파일에서 "app.domain" 키에 해당하는 값을 주입받음
     private String domain;
+    // domain : 애플리케이션의 도메인 이름을 저장하는 필드
 
     // 인증코드 생성용 시큐어 랜덤 객체
     private static final SecureRandom secureRandom = new SecureRandom();
@@ -63,45 +85,76 @@ public class AdminEmailVerification {
     // ========== 1. 인증코드 요청 (임시토큰 기반) ==========
     @PostMapping("/api/admin/email-auth/request")
     // 관리자 이메일 인증코드 요청 엔드포인트
-    public ResponseEntity<AuthResponse> requestAdminEmailAuthCode
-                                        (Authentication authentication, HttpServletRequest request) {
-            // ResponseEntity<AuthResponse>  : 인증 요청 결과를 담아 반환하는 HTTP 응답 객체
-            // requestAdminEmailAuthCode : 관리자 이메일 인증코드 요청 처리 메서드
-            // Authentication authentication : 현재 인증된 사용자의 정보를 담고 있는 객체
-            // HttpServletRequest request : 현재 HTTP 요청에 대한 정보를 담고 있는 객체 
-        String email = authentication.getName(); // 임시토큰에서 추출
-        String clientIp = RequestUtils.getClientIpAddress(request); // 요청 IP 
-        Optional<UserTbl> adminOpt = userTblRepository.findByUserEmail(email); // DB 조회
+    public ResponseEntity<AuthResponse> requestAdminEmailAuthCode(
+        // ResponseEntity<AuthResponse> : 인증 요청 결과를 담아 반환하는 HTTP 응답 객체
+        // requestAdminEmailAuthCode : 관리자 이메일 인증코드 요청 처리 메서드
+        @RequestHeader("Authorization") String sessionToken,
+        HttpServletRequest request) {
+        // sessionToken: "Bearer <JWT>" 형식일 수 있으므로 "Bearer " 제거
+        // HttpServletRequest request : 현재 HTTP 요청에 대한 정보를 담고 있는 객체
+        if (sessionToken == null || !sessionToken.startsWith("Bearer ")) {
+            // 임시토큰이 없거나 유효하지 않은 경우
+            log.info("Admin email auth failed - missing or invalid session token");
+            // 임시토큰 누락 로그 기록
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new AuthResponse("임시토큰이 필요합니다."));
+                // 401 응답 반환
+                // AuthResponse : 응답 메시지를 담는 DTO
+        } // if 임시토큰이 없거나 유효하지 않은 경우 끝
+
+        String jwt = sessionToken.substring(7); 
+        // EmailVerificationService에서 adminId 추출
+        String email = emailVerificationService.extractAdminIdFromSessionToken(jwt);
+        // 이메일 인증 토큰에서 관리자 이메일 추출
+
+        if (email == null) {
+            // 이메일이 추출되지 않는 경우
+            log.info("email extraction failed");
+            // 이메일 추출 실패 로그 기록
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new AuthResponse("유효하지 않은 임시토큰입니다."));
+                // 401 응답 반환
+                // AuthResponse : 응답 메시지를 담는 DTO
+        } // if 이메일이 추출되지 않는 경우 끝
+
+        String clientIp = RequestUtils.getClientIpAddress(request);
+        // RequestUtils.getClientIpAddress(request) : 요청의 클라이언트 IP 주소를 가져옴
+        Optional<AdminTbl> adminOpt = adminTblRepository.findByAdminId(email);
+        // adminOpt : 이메일로 조회한 관리자 정보(Optional)
+        // adminTblRepository.findByAdminId(email) : 이메일로 관리자 정보를 조회하는 메서드 호출
 
         if (!adminOpt.isPresent()) {
-            // 관리자 계정이 없으면
+            // 관리자 계정이 없는 경우
+            log.info("Admin email auth failed - admin account not found for email: {}", email);
+            // 관리자 계정 없음 로그 기록
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new AuthResponse("관리자 계정을 찾을 수 없습니다."));
-            // 401 응답을 반환
-            // AuthResponse : 응답 메시지를 담는 DTO
-        } // if 문 끝
+                // 401 응답 반환
+                // AuthResponse : 응답 메시지를 담는 DTO
+        } // if 관리자 계정이 없는 경우 끝
 
+        AdminTbl admin = adminOpt.get();
+        // admin : 조회된 관리자 정보
+        // adminOpt.get() : Optional에서 실제 AdminTbl 객체를 꺼냄
         String authCode = generateAuthCode();
+        // authCode : 생성된 인증코드
         // generateAuthCode() : 인증코드 생성 메서드 호출
         LocalDateTime codeCreatedTime = LocalDateTime.now();
-        // 인증코드 생성 시간 기록
-        // LocalDateTime.now() : 현재 날짜와 시간을 가져오는 메서드 호출
+        // codeCreatedTime : 인증코드 생성 시각
+        // LocalDateTime.now() : 현재 시각을 가져옴
+
         saveAuthCodeToRedis(email, authCode, clientIp, codeCreatedTime);
-        // saveAuthCodeToRedis : Redis에 인증코드와 관련 정보 저장 메서드 호출
-        String emailContent = createEmailCodeContent(adminOpt.get().getUserName(), authCode);
-        // createEmailCodeContent : 이메일 본문 생성 메서드 호출
-        // adminOpt.get().getUserName() : 관리자 이름 조회
-        emailService.sendMIMEMessage
-        ("bluecrabacademy@gmail.com", email, "관리자 이메일 인증코드", emailContent);
-        // emailService.sendMIMEMessage : 이메일 발송 메서드 호출
-        // (발신자 주소, 수신자 주소, 제목, 본문 내용 전달)의 구조
-
-        log.info("관리자 인증코드 발송 - Email: {}, Code: {}", email, authCode);
-        // 인증코드 발송 로그 기록 (실제 운영시 코드 노출 주의)
-
-        return ResponseEntity.ok(new AuthResponse
-        ("인증코드가 발송되었습니다. %d분 이내에 인증을 완료해주세요.", AUTH_CODE_EXPIRY_MINUTES));
-        // 200 OK 응답과 함께 발송 완료 메시지 반환
+        // Redis에 인증코드 저장
+        // (이메일, 인증코드, 클라이언트 IP, 생성 시각)
+        
+    String emailContent = createEmailCodeContent(admin.getAdminName(), authCode);
+        // 이메일 본문 내용 생성
+        
+        emailService.sendMIMEMessage("bluecrabacademy@gmail.com", email, "관리자 이메일 인증코드", emailContent);
+        
+        log.info("Admin email auth code sent - Email: {}, Code: {}", email, authCode);
+        
+        return ResponseEntity.ok(new AuthResponse("인증코드가 발송되었습니다. %d분 이내에 인증을 완료해주세요.", AUTH_CODE_EXPIRY_MINUTES));
     } // requestAdminEmailAuthCode 메서드 끝
 
     // ========== 2. 인증코드 검증 ==========
@@ -152,22 +205,57 @@ public class AdminEmailVerification {
         if (codeData.getAuthCode().equalsIgnoreCase(req.getAuthCode().trim())) {
             // 인증코드가 일치하는 경우
             cleanupAuthCode(email);
-            // Redis에서 인증코드 데이터 삭제
             log.info("Admin email auth succeeded for email: {}", email);
-            // 인증 성공 로그 기록
-            // 여기서 정식 토큰 발행 로직 호출(별도 서비스/담당자 구현)
-            return ResponseEntity.ok(new AuthResponse("이메일 인증 성공!"));
-            // 200 OK 응답과 함께 인증 성공 메시지 반환
-        } // if 인증코드가 일치하는 경우 끝 
-        else {
+
+            // 관리자 정보 조회
+            Optional<AdminTbl> adminOpt = adminTblRepository.findByAdminId(email);
+            if (!adminOpt.isPresent()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new AuthResponse("관리자 계정을 찾을 수 없습니다."));
+            }
+            AdminTbl admin = adminOpt.get();
+            int adminSys = admin.getAdminSys() != null ? admin.getAdminSys() : 0;
+            SecretKey key = Keys.hmacShaKeyFor(JWT_SECRET.getBytes());
+            long now = System.currentTimeMillis();
+            String accessToken = Jwts.builder()
+                .claim("adminId", admin.getAdminId())
+                .claim("adminSys", adminSys)
+                .claim("name", admin.getAdminName())
+                .claim("type", "access")
+                .subject(admin.getAdminId())
+                .issuedAt(new java.util.Date(now))
+                .expiration(new java.util.Date(now + ACCESS_TOKEN_EXPIRATION))
+                .signWith(key, Jwts.SIG.HS256)
+                .compact();
+
+            String refreshToken = Jwts.builder()
+                .claim("adminId", admin.getAdminId())
+                .claim("adminSys", adminSys)
+                .claim("name", admin.getAdminName())
+                .claim("type", "refresh")
+                .subject(admin.getAdminId())
+                .issuedAt(new java.util.Date(now))
+                .expiration(new java.util.Date(now + REFRESH_TOKEN_EXPIRATION))
+                .signWith(key, Jwts.SIG.HS256)
+                .compact();
+
+            Map<String, Object> responseData = new java.util.HashMap<>();
+            responseData.put("accessToken", accessToken);
+            responseData.put("refreshToken", refreshToken);
+            responseData.put("adminSys", adminSys);
+            responseData.put("expiresIn", ACCESS_TOKEN_EXPIRATION / 1000);
+            responseData.put("adminId", admin.getAdminId());
+            responseData.put("name", admin.getAdminName());
+
+            AuthResponse response = new AuthResponse("이메일 인증 성공! 토큰이 발급되었습니다.");
+            response.setData(responseData);
+            return ResponseEntity.ok(response);
+        } else {
             // 인증코드가 일치하지 않는 경우
             log.info("Admin email auth failed - invalid code for email: {}", email);
-            // 인증 실패 로그 기록
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new AuthResponse("인증코드가 올바르지 않습니다."));
-            // 401 응답 반환
-            // AuthResponse : 응답 메시지를 담는 DTO
-        } // if 인증코드가 일치하지 않는 경우 끝
+        }
 
     } // verifyAdminEmailAuthCode 메서드 끝
 
@@ -210,7 +298,7 @@ public class AdminEmailVerification {
 
     // 6. 인증코드 만료 검사
     private boolean isCodeExpired(LocalDateTime codeCreatedTime) {
-        log.debug("Checking code expiry - Created: {}, Now: {}", codeCreatedTime, LocalDateTime.now());
+    log.debug("Checking code expiry - Created: {}, Now: {}", codeCreatedTime, LocalDateTime.now());
         // 인증코드 생성 시간과 현재 시간 비교
         return LocalDateTime.now().isAfter(codeCreatedTime.plusMinutes(AUTH_CODE_EXPIRY_MINUTES));
     } // isCodeExpired 메서드 끝
@@ -222,7 +310,7 @@ public class AdminEmailVerification {
         // AUTH_SESSION_PREFIX + email : 접두사 + 사용자 이메일
         redisTemplate.delete(key);
         // Redis에서 인증코드 데이터 삭제
-        log.debug("Deleted auth code data from Redis for email: {}", email);
+    log.debug("Deleted auth code data from Redis for email: {}", email);
         // 삭제 로그 기록
     } // cleanupAuthCode 메서드 끝
 

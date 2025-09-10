@@ -24,6 +24,17 @@ import javax.persistence.*;
 @Entity
 @Table(name = "ADMIN_TBL")
 public class AdminTbl {
+    // 성태준 추가: 관리자 이름 별도 필드
+    @Column(name = "ADMIN_NAME", nullable = false, length = 100)
+    private String adminName;
+
+    // 성태준 추가: 관리자 이름 getter/setter
+    public String getAdminName() {
+        return adminName;
+    }
+    public void setAdminName(String adminName) {
+        this.adminName = adminName;
+    }
     
     /**
      * 관리자 고유 식별자
