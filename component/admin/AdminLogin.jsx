@@ -4,6 +4,8 @@ import { UseAdmin } from "../../hook/UseAdmin";
 import LoginFrm from '../../css/modules/LoginForm.module.css';
 import AdminLoginCss from "../../css/modules/AdminLoginCss.module.css"
 
+import AdLoginAuth from "./auth/AdLoginAuth";
+
 export default function AdminLogin(){
     const { admin, isLoading, error, clearError, isAuthenticated} = UseAdmin();
 
@@ -67,8 +69,13 @@ export default function AdminLogin(){
                             onChange={handleInputChange}
                             name='frm_code'
                             id='frm_code'/> 
-                        <button className={AdminLoginCss.sendBtn}>코드 전송</button>
-                        <span>10:00</span>
+                        <button 
+                            className={AdminLoginCss.sendBtn} 
+                            onClick={({email, password}) => AdLoginAuth({email}, {password})}
+                        >
+                            {/* {console.log({email}, {password})} */}
+                            코드 전송
+                        </button>
                     </div>
                 </div>
 
