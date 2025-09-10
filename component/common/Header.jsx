@@ -2,6 +2,7 @@ import React, {useState } from 'react';
 import { UseUser } from '../../hook/UseUser';
 import { useNavigate } from "react-router-dom";
 import HeaderCss from '../../css/modules/Header.module.css';
+import SessionTimer from './SessionTimer';
 
 function FuncAniBtn(){
   let lines = document.querySelectorAll('header > div > span');
@@ -141,8 +142,15 @@ function Header() {
                 </tbody>
             </table>
           </div>   
-          )}
+        )}
         </h1>
+
+        {/* 세션타이머(15분). 로그인 중에만 활성화. 아직 만료시 로그아웃 로직 구현 안됨.*/}
+        {isAuthenticated && (
+        <div className={HeaderCss.sessionTimer}>
+        <SessionTimer/>
+        </div>
+        )}
 
           {/* 로그인된 사용자 정보 */}
           {isAuthenticated && (
