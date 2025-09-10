@@ -101,8 +101,8 @@ public class AdminEmailVerification {
                 // AuthResponse : 응답 메시지를 담는 DTO
         } // if 임시토큰이 없거나 유효하지 않은 경우 끝
 
-        String jwt = sessionToken.substring(7); 
-        // EmailVerificationService에서 adminId 추출
+        String jwt = sessionToken.substring(7);
+        // sessionToken.substring(7) : "Bearer " 부분 제거
         String email = emailVerificationService.extractAdminIdFromSessionToken(jwt);
         // 이메일 인증 토큰에서 관리자 이메일 추출
         // 본 컨트롤러의 핵심이자 근간, 첫 단추.
