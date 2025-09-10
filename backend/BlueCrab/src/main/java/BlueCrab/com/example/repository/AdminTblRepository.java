@@ -39,14 +39,6 @@ public interface AdminTblRepository extends JpaRepository<AdminTbl, Integer> {
     Optional<AdminTbl> findByAdminId(String adminId);
 
     /**
-     * 이메일로 관리자 정보 조회
-     * 
-     * @param email 관리자 이메일
-     * @return Optional<AdminTbl> 관리자 정보 (존재하지 않으면 empty)
-     */
-    Optional<AdminTbl> findByEmail(String email);
-
-    /**
      * 관리자 ID 존재 여부 확인
      * 관리자 등록 시 중복 체크용
      * 
@@ -55,58 +47,52 @@ public interface AdminTblRepository extends JpaRepository<AdminTbl, Integer> {
      */
     boolean existsByAdminId(String adminId);
 
-    /**
-     * 이메일 존재 여부 확인
-     * 관리자 등록 시 중복 체크용
-     * 
-     * @param email 관리자 이메일
-     * @return boolean 존재하면 true, 없으면 false
-     */
-    boolean existsByEmail(String email);
-
-    /**
+    // TODO: 계정 상태 관련 필드들이 AdminTbl 엔티티에 추가되면 아래 메서드들을 활성화할 예정
+    // 현재는 AdminTbl에 status, suspendUntil, lastLoginAt 필드가 없어 주석 처리
+    
+    /*
      * 특정 상태의 관리자 목록 조회
      * 
      * @param status 계정 상태 (active, suspended, banned)
      * @return List<AdminTbl> 해당 상태의 관리자 목록
      */
-    List<AdminTbl> findByStatus(String status);
+    // List<AdminTbl> findByStatus(String status);
 
-    /**
+    /*
      * 정지 기간이 만료된 관리자 계정 조회
      * 배치 작업에서 자동 복구에 사용
      * 
      * @param now 현재 시간
      * @return List<AdminTbl> 정지 기간이 만료된 관리자 목록
      */
-    @Query("SELECT a FROM AdminTbl a WHERE a.status = 'suspended' AND a.suspendUntil <= :now")
-    List<AdminTbl> findSuspendedUntilBefore(@Param("now") LocalDateTime now);
+    // @Query("SELECT a FROM AdminTbl a WHERE a.status = 'suspended' AND a.suspendUntil <= :now")
+    // List<AdminTbl> findSuspendedUntilBefore(@Param("now") LocalDateTime now);
 
-    /**
+    /*
      * 활성 상태의 관리자 수 조회
      * 통계용
      * 
      * @return long 활성 관리자 수
      */
-    @Query("SELECT COUNT(a) FROM AdminTbl a WHERE a.status = 'active'")
-    long countActiveAdmins();
+    // @Query("SELECT COUNT(a) FROM AdminTbl a WHERE a.status = 'active'")
+    // long countActiveAdmins();
 
-    /**
+    /*
      * 정지 상태의 관리자 수 조회
      * 통계용
      * 
      * @return long 정지된 관리자 수
      */
-    @Query("SELECT COUNT(a) FROM AdminTbl a WHERE a.status = 'suspended'")
-    long countSuspendedAdmins();
+    // @Query("SELECT COUNT(a) FROM AdminTbl a WHERE a.status = 'suspended'")
+    // long countSuspendedAdmins();
 
-    /**
+    /*
      * 특정 기간 이후에 마지막 로그인한 관리자 조회
      * 비활성 계정 관리용
      * 
      * @param date 기준 날짜
      * @return List<AdminTbl> 해당 기간 이후 로그인한 관리자 목록
      */
-    @Query("SELECT a FROM AdminTbl a WHERE a.lastLoginAt >= :date")
-    List<AdminTbl> findByLastLoginAtAfter(@Param("date") LocalDateTime date);
+    // @Query("SELECT a FROM AdminTbl a WHERE a.lastLoginAt >= :date")
+    // List<AdminTbl> findByLastLoginAtAfter(@Param("date") LocalDateTime date);
 }

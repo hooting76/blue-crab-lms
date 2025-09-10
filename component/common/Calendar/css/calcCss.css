@@ -29,3 +29,43 @@
     border-left: none;
     border-right: none;
 }
+
+.rbc-month-view{
+    cursor: pointer;
+    border-radius: 0 0 10px 10px;
+}
+.rbc-day-bg{
+    box-sizing: border-box;
+}
+.rbc-day-bg:hover{
+    border: 1px solid #4084dd;
+}
+.rbc-day-bg.rbc-today{
+    position: relative;
+    border: 1px solid #4084dd;
+    box-sizing: border-box;
+}
+.rbc-today::after{
+    content: 'Today!';
+    display: block;
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: fit-content;
+    height: fit-content;
+    background: #4084dd;
+    padding: 2.5px;
+    border-radius: 0 0 5px 0;
+}
+
+.zeroDay{
+    position: relative;
+    background: rgba(255, 0, 0,.1);
+}
+.sixDay{
+    position: relative;
+    background: rgba(0, 0, 255,.1);
+}

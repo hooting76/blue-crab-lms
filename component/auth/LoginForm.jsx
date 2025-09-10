@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { UseUser } from '../../hook/UseUser';
-import FindInfo from './FindInfo';
 import { Link } from 'react-router-dom'; 
 
 import LoginFrm from '../../css/modules/LoginForm.module.css';

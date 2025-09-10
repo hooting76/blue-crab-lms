@@ -21,7 +21,7 @@ function InAppFunc(Agent, Url){
       location.href = targetUrl + '?openExternalBrowser=1';
     }// line app end
 
-  }else if(userAgent.match(/inapp|naver|snapchat|wirtschaftswoche|thunderbird|instagram|everytimeapp|tiktok|whatsApp|electron|wadiz|aliapp|zumapp|iphone(.*)whale|android(.*)whale|kakaostory|band|twitter|DaumApps|DaumDevice\/mobile|FB_IAB|FB4A|FBAN|FBIOS|FBSS|trill|SamsungBrowser\/[^1]/i)){ 
+  }else if(userAgent.match(/inapp|naver|snapchat|wirtschaftswoche|thunderbird|instagram|everytimeapp|tiktok|whatsApp|electron|wadiz|aliapp|zumapp|iphone(.*)whale|android(.*)whale|kakaostory|iphone(.*)discord|band|twitter|DaumApps|DaumDevice\/mobile|FB_IAB|FB4A|FBAN|FBIOS|FBSS|trill|SamsungBrowser\/[^1]/i)){ 
     // etc inapp start
 
     if(confirm("인앱 환경에서는 원활한 동작이 이루어지지 않습니다. \n 외부 브라우저로 연결할까요?")){

@@ -35,7 +35,31 @@ public class EmailVerificationService {
 
     // 이메일 인증 토큰 설정
     private static final int EMAIL_TOKEN_EXPIRATION_MINUTES = 10;
+    private static final int SESSION_TOKEN_EXPIRATION_MINUTES = 10;
     private static final SecureRandom secureRandom = new SecureRandom();
+
+    /**
+     * 세션 토큰 생성 및 저장 (1차 로그인 성공 후)
+     * 인증 코드 발급 요청용 임시 토큰
+     * 
+     * @param adminId 관리자 ID
+     * @return String 생성된 세션 토큰
+     */
+    public String generateSessionToken(String adminId) {
+        // 안전한 토큰 생성 (UUID + 추가 랜덤 문자열)
+        String baseToken = UUID.randomUUID().toString().replace("-", "");
+        byte[] randomBytes = new byte[16];
+        secureRandom.nextBytes(randomBytes);
+        String additionalRandom = Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+        
+        String sessionToken = baseToken + additionalRandom;
+        
+        // Redis에 세션 토큰 저장 (10분 TTL)
+        redisService.storeSessionToken(sessionToken, adminId, SESSION_TOKEN_EXPIRATION_MINUTES);
+        
+        logger.info("Session token generated for admin: {}", adminId);
+        return sessionToken;
+    }
 
     /**
      * 이메일 인증 토큰 생성 및 저장

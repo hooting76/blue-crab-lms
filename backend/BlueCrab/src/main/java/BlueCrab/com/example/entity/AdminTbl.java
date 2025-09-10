@@ -1,7 +1,6 @@
 package BlueCrab.com.example.entity;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 /**
  * 관리자 정보를 저장하는 JPA 엔티티 클래스
@@ -43,82 +42,69 @@ public class AdminTbl {
     private String adminId;
     
     /**
-     * 관리자 비밀번호 (BCrypt 해시)
+     * 관리자 시스템 권한 (1: 시스템 관리자, 0: 일반 관리자)
      */
-    @Column(name = "PASSWORD", nullable = false, length = 255)
-    private String password;
+    @Column(name = "ADMIN_SYS", nullable = false)
+    private Integer adminSys = 0;
     
     /**
-     * 관리자 이메일 주소
-     * 이메일 인증에 사용
+     * 관리자 비밀번호 (해시)
      */
-    @Column(name = "EMAIL", nullable = false, unique = true, length = 100)
-    private String email;
+    @Column(name = "ADMIN_PW", nullable = false, length = 255)
+    private String password;
     
     /**
      * 관리자 이름
      */
-    @Column(name = "NAME", nullable = false, length = 50)
+    @Column(name = "ADMIN_NAME", nullable = false, length = 100)
     private String name;
     
     /**
-     * 계정 상태
-     * - active: 활성
-     * - suspended: 일시 정지
-     * - banned: 영구 차단
+     * 관리자 전화번호
      */
-    @Column(name = "STATUS", nullable = false, length = 20)
-    private String status = "active";
+    @Column(name = "ADMIN_PHONE", length = 11)
+    private String adminPhone;
     
     /**
-     * 정지 종료일
-     * status가 'suspended'일 때 사용
+     * 관리자 사무실
      */
-    @Column(name = "SUSPEND_UNTIL")
-    private LocalDateTime suspendUntil;
+    @Column(name = "ADMIN_OFFICE", length = 11)
+    private String adminOffice;
     
     /**
-     * 정지 사유
+     * 마지막 접속 시간
      */
-    @Column(name = "SUSPEND_REASON", length = 500)
-    private String suspendReason;
+    @Column(name = "ADMIN_LATEST", length = 100)
+    private String adminLatest;
     
     /**
-     * 등록일
+     * 마지막 접속 IP
      */
-    @Column(name = "CREATED_AT", nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(name = "ADMIN_LATEST_IP", length = 50)
+    private String adminLatestIp;
     
     /**
-     * 등록 IP 주소
+     * 등록 일시
      */
-    @Column(name = "CREATED_IP", length = 45)
-    private String createdIp;
+    @Column(name = "ADMIN_REG", length = 100)
+    private String adminReg;
     
     /**
-     * 최종 로그인 일시
+     * 등록 IP
      */
-    @Column(name = "LAST_LOGIN_AT")
-    private LocalDateTime lastLoginAt;
-    
-    /**
-     * 최종 로그인 IP
-     */
-    @Column(name = "LAST_LOGIN_IP", length = 45)
-    private String lastLoginIp;
+    @Column(name = "ADMIN_REG_IP", length = 100)
+    private String adminRegIp;
 
     // 기본 생성자
     public AdminTbl() {}
 
     // 생성자
-    public AdminTbl(String adminId, String password, String email, String name, String createdIp) {
+    public AdminTbl(String adminId, String password, String name, String adminRegIp) {
         this.adminId = adminId;
         this.password = password;
-        this.email = email;
         this.name = name;
-        this.createdIp = createdIp;
-        this.createdAt = LocalDateTime.now();
-        this.status = "active";
+        this.adminRegIp = adminRegIp;
+        this.adminReg = java.time.LocalDateTime.now().toString();
     }
 
     // Getters and Setters
@@ -146,12 +132,26 @@ public class AdminTbl {
         this.password = password;
     }
 
-    public String getEmail() {
-        return email;
+    public Integer getAdminSys() {
+        return adminSys;
     }
 
+    public void setAdminSys(Integer adminSys) {
+        this.adminSys = adminSys;
+    }
+
+    /**
+     * 이메일 주소 반환 (adminId가 이메일 역할)
+     */
+    public String getEmail() {
+        return adminId;
+    }
+
+    /**
+     * 이메일 설정 (adminId에 설정)
+     */
     public void setEmail(String email) {
-        this.email = email;
+        this.adminId = email;
     }
 
     public String getName() {
@@ -162,60 +162,52 @@ public class AdminTbl {
         this.name = name;
     }
 
-    public String getStatus() {
-        return status;
+    public String getAdminPhone() {
+        return adminPhone;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setAdminPhone(String adminPhone) {
+        this.adminPhone = adminPhone;
     }
 
-    public LocalDateTime getSuspendUntil() {
-        return suspendUntil;
+    public String getAdminOffice() {
+        return adminOffice;
     }
 
-    public void setSuspendUntil(LocalDateTime suspendUntil) {
-        this.suspendUntil = suspendUntil;
+    public void setAdminOffice(String adminOffice) {
+        this.adminOffice = adminOffice;
     }
 
-    public String getSuspendReason() {
-        return suspendReason;
+    public String getAdminLatest() {
+        return adminLatest;
     }
 
-    public void setSuspendReason(String suspendReason) {
-        this.suspendReason = suspendReason;
+    public void setAdminLatest(String adminLatest) {
+        this.adminLatest = adminLatest;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public String getAdminLatestIp() {
+        return adminLatestIp;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setAdminLatestIp(String adminLatestIp) {
+        this.adminLatestIp = adminLatestIp;
     }
 
-    public String getCreatedIp() {
-        return createdIp;
+    public String getAdminReg() {
+        return adminReg;
     }
 
-    public void setCreatedIp(String createdIp) {
-        this.createdIp = createdIp;
+    public void setAdminReg(String adminReg) {
+        this.adminReg = adminReg;
     }
 
-    public LocalDateTime getLastLoginAt() {
-        return lastLoginAt;
+    public String getAdminRegIp() {
+        return adminRegIp;
     }
 
-    public void setLastLoginAt(LocalDateTime lastLoginAt) {
-        this.lastLoginAt = lastLoginAt;
-    }
-
-    public String getLastLoginIp() {
-        return lastLoginIp;
-    }
-
-    public void setLastLoginIp(String lastLoginIp) {
-        this.lastLoginIp = lastLoginIp;
+    public void setAdminRegIp(String adminRegIp) {
+        this.adminRegIp = adminRegIp;
     }
 
     @Override
@@ -223,10 +215,14 @@ public class AdminTbl {
         return "AdminTbl{" +
                 "adminIdx=" + adminIdx +
                 ", adminId='" + adminId + '\'' +
-                ", email='" + email + '\'' +
+                ", adminSys=" + adminSys +
                 ", name='" + name + '\'' +
-                ", status='" + status + '\'' +
-                ", createdAt=" + createdAt +
+                ", adminPhone='" + adminPhone + '\'' +
+                ", adminOffice='" + adminOffice + '\'' +
+                ", adminLatest='" + adminLatest + '\'' +
+                ", adminLatestIp='" + adminLatestIp + '\'' +
+                ", adminReg='" + adminReg + '\'' +
+                ", adminRegIp='" + adminRegIp + '\'' +
                 '}';
     }
 }

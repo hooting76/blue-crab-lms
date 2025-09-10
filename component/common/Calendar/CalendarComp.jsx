@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 // calendar func&config library
 import { Calendar, momentLocalizer } from 'react-big-calendar';
@@ -10,16 +10,17 @@ import moment from 'moment';
 import "moment-timezone/builds/moment-timezone-with-data";
 import "moment/locale/ko"; // korean locale
 import './css/calcCss.css';
+import calModalCss from './css/CalendarModal.module.css';
+import Modal from 'react-modal';
+import { FaWindowClose } from 'react-icons/fa';
 // calendar func&config library end
 
-// localization settings // date format setting library
 moment.locale('ko');
 const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(Calendar);
 
 // cal func start
 function CalendarComp () {
-    
     // state //
     const [eventList, setEvents] = useState([
         {
@@ -27,103 +28,82 @@ function CalendarComp () {
             title: '긴 회의',
             start: new Date(2025, 9, 4, 10, 0), 
             end: new Date(2025, 9, 4, 12, 0),
+            details:{
+                where: '보람관 대회의실',
+                sub: '제 23회 정기 학위수여식 관련 논문 감사',
+            },
+            readOnly: true,
+            writer: '홍길동',
         },
         {
             id: 1,
             title: '점심 식사',
             start: new Date(2025, 9, 11, 12, 0),
             end: new Date(2025, 9, 11, 13, 0),
+            details:{
+                where: '나눔관 1층 구내식당',
+                sub: '메뉴들',
+            },
+            readOnly: false,
+            writer: '홍길동',
         },
     ]);
-    const [selectingSlot, setSelectingSlot] = useState(null);
-    // state  end //
+    Modal.setAppElement("#root"); // 접근 설정    
+    const [selectedEvent, setSelectedEvent] = useState(null);
+    const [eventTitle, setEventTitle] = useState('');
 
+    // state update
+    const handleSelectEvent = (event) => {
+        setSelectedEvent(event);
+    };
 
-    // select slot evt
-    const handleSelectSlot = useCallback(({ start, end, action, slots }) => {
-        let className = "rbc-selected-cell";
-        
-        if (action) {
-            // rbc-selected-cell
-            const duration = moment(end).diff(moment(start), 'hours', true);
-            const title = window.prompt(
-                `${duration}시간의 이벤트를 생성하시겠습니까?\n` +
-                `시작: ${moment(start).format('YYYY-MM-DD HH:mm')}\n` +
-                `종료: ${moment(end).format('YYYY-MM-DD HH:mm')}\n\n` +
-                `이벤트 제목을 입력하세요:`
-            )
+    const closeModal = () => {
+        setSelectedEvent(null);
+    };
 
-        if (title) {
-            setEvents(prev => [...prev, {
-                id: Date.now(),
-                title: `${title} (${duration.toFixed(1)}시간)`,
-                start,
-                end
-            }])
-        }}
-        setSelectingSlot(null)
-    }, [])
-    // select evt start
-
-    const handleSelecting = useCallback((range) => {
-        // 실시간으로 선택 중인 범위 표시
-        setSelectingSlot(range)
-        return true // 선택 계속 허용
-    }, [])    
+    function handleTitChange(evt){
+        let tmp = evt.target.value;
+        setEventTitle(tmp);
+    };
+    // state update end
 
     // 날자별 style/속성 설정
     const dayPropGetter = (date) =>{
         if(date.getDay() === 0 || date.getDay() === 6){
-            return {
-                className: 'weekend',
-                style: { backgroundColor: '#aabbcc' },
+            if(date.getDay() === 0){
+                return {
+                    className: 'weekend zeroDay',
+                }
+            }else{
+                return {
+                    className: 'weekend sixDay',
+                }
             }
         }
     }; // dayPropGetter end
 
     // custom toolbar
     const CustomToolbar = ({ label, onNavigate }) => {
+        // 영문 + 연도 형태의 문자형 자르기 / August 2025
         let labels = label.split(" ");
-        switch(labels[0]){
-            case 'January':
-                labels[0] = '1월'
-                break;
-            case 'February':
-                labels[0] = '2월'
-                break;
-            case 'March':
-                labels[0] = '3월'
-                break;
-            case 'April':
-                labels[0] = '4월'
-                break;
-            case 'May':
-                labels[0] = '5월'
-                break;           
-            case 'June':
-                labels[0] = '6월'
-                break;
-            case 'July':
-                labels[0] = '7월'
-                break;
-            case 'August':
-                labels[0] = '8월'
-                break;        
-            case 'September':
-                labels[0] = '9월'
-                break;   
-            case 'October':
-                labels[0] = '10월'
-                break;            
-            case 'November':
-                labels[0] = '11월'
-                break;
-            default:
-                labels[0] = '12월'
-            break;
-        };
 
-        let cvt = labels[1] + '년 ' + labels[0];
+        // 영문 월명 객체타입으로 저장
+        const MonthNames = [
+            {'January': '1월'}, {'February': '2월'}, {'March': '3월'}, {'April': '4월'}, 
+            {'May': '5월'}, {'June': '6월'}, {'July': '7월'}, {'August':'8월'},
+            {'September':'9월'}, {'October': '10월'}, {'November': '11월'}, {'December': '12월'}
+        ];
+
+        let names = ('%s', MonthNames);
+        let valuseMonth;
+        // 영문이름 비교하여 대응 / 키:값 
+        names.forEach((el) => {
+            if (Object.keys(el)[0] === labels[0]) {
+                valuseMonth = Object.values(el);
+            }
+        });
+
+        let cvt = labels[1] + '년 ' + valuseMonth;
 
         return(<>
             <div className="rbc-toolbar">
@@ -138,21 +118,9 @@ function CalendarComp () {
     };
     // custom toolbar end
 
+
+    // calendar main
     return(<>
-        {selectingSlot && (
-            <div style={{ 
-                padding: '10px', 
-                backgroundColor: '#e6f7ff', 
-                border: '1px solid #91d5ff',
-                borderRadius: '4px',
-                marginBottom: '10px'
-            }}>
-            <strong>선택 중</strong>
-                {moment(selectingSlot.start).format('YY:MM:DD')} - 
-                {moment(selectingSlot.end).format('YY:MM:DD')}
-                ({moment(selectingSlot.end).diff(moment(selectingSlot.start), 'DAY')}일)
-            </div>
-        )}
         <DnDCalendar 
             localizer={localizer}
             events={eventList}
@@ -160,10 +128,13 @@ function CalendarComp () {
             endAccessor="end"
             style={{ 
                 height: 100 + '%',
+                borderRadius: '0 0 10px 10px',
+                overflow: 'hidden',
             }} 
             selectable={true}
             resizable={true}
             defaultView='month'
+            readOnly={false}
 
             onEventDrop={({ event, start, end }) => {
                 // 이벤트 드롭 처리 console.log(event); start/end => 옮겨놓은 위치의 시작/끝
@@ -174,17 +145,94 @@ function CalendarComp () {
                 // 이벤트 리사이즈 처리 console.log(event);
                 event.start = start;
                 event.end = end;
-                // console.log(eventList[0]);
             }}
 
             // event select call
+            onSelectEvent={handleSelectEvent}
             dayPropGetter={dayPropGetter}
-            onSelectSlot={handleSelectSlot}
-            onSelecting={handleSelecting}
-            components={
-                {toolbar: CustomToolbar}
-            }
+            components={{toolbar: CustomToolbar}}
         />
+
+        {/* modal layer */}
+        <Modal
+            isOpen={!!selectedEvent}
+            onRequestClose={closeModal}
+            contentLabel='상세보기'
+            style={{
+                overlay:{
+                    zIndex: 999,
+                    backgroundColor: "rgba(0, 0, 0, .25)",
+                },
+                content:{
+                    width: "100%",
+                    maxWidth: "450px",
+                    height: "100%",
+                    maxHeight: "75%",
+                    boxSizing: "border-box",
+                    margin: "auto",
+                    borderRadius: "12px",
+                    padding: "20px",
+                },
+            }}
+        > 
+
+        {/* modal main*/}
+        {selectedEvent && (
+            <div className={calModalCss.modalWrap}>
+                <h3 className={calModalCss.tit}>
+                    <input 
+                        type="text" 
+                        readOnly={selectedEvent.readOnly}        
+                        defaultValue={selectedEvent.title}
+                        onChange={handleTitChange} 
+                    />
+                
+                    <button 
+                        onClick={closeModal} 
+                        className={calModalCss.closeBtn}
+                    >
+                        <FaWindowClose />
+                    </button>
+                </h3>
+
+                {/* modal main */}
+                <div className={calModalCss.modalMain}>
+                    {selectedEvent.readOnly 
+                        ? (<span>!! read only !!</span>)
+                        : null
+                    }
+                    <div>
+                        <p>
+                            시작: {moment(selectedEvent.start).format("YYYY-MM-DD HH:mm")}
+                        </p>
+                        <p>
+                            종료: {moment(selectedEvent.end).format("YYYY-MM-DD HH:mm")}
+                        </p>
+                        <p>
+                            장소: {selectedEvent.details.where}
+                        </p>
+                        <p>
+                            내용: {selectedEvent.details.sub}
+                        </p>                        
+                    </div>
+                </div>
+            </div>            
+        )}
+
+        </Modal>
     </>)
 }
 export default CalendarComp;
+
+
+// {
+//     "id": 0,
+//     "title": "긴 회의",
+//     "start": "2025-10-04T01:00:00.000Z",
+//     "end": "2025-10-04T03:00:00.000Z",
+//     "details": {
+//         "where": "보람관 대강당",
+//         "sub": "제 23회 정기 학위수여식 관련 논문 감사회의"
+//     },
+//     "readOnly": true
+// }
