@@ -105,6 +105,7 @@ public class AdminEmailVerification {
         // EmailVerificationService에서 adminId 추출
         String email = emailVerificationService.extractAdminIdFromSessionToken(jwt);
         // 이메일 인증 토큰에서 관리자 이메일 추출
+        // 본 컨트롤러의 핵심이자 근간, 첫 단추.
 
         if (email == null) {
             // 이메일이 추출되지 않는 경우
