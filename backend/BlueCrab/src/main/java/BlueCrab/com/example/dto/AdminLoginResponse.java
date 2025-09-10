@@ -40,10 +40,10 @@ public class AdminLoginResponse {
     private String message;
 
     /**
-     * 이메일 인증을 위한 토큰
-     * 2차 인증 시 사용되는 일회용 토큰
+     * 세션 토큰 (1차 로그인 성공 후 발급)
+     * 2차 인증 코드 발급 요청 시 사용되는 일회용 토큰
      */
-    private String emailVerificationToken;
+    private String sessionToken;
 
     /**
      * 토큰 만료 시간 (초 단위)
@@ -67,17 +67,17 @@ public class AdminLoginResponse {
     public AdminLoginResponse() {}
 
     // 생성자
-    public AdminLoginResponse(String message, String emailVerificationToken, long expiresIn) {
+    public AdminLoginResponse(String message, String sessionToken, long expiresIn) {
         this.message = message;
-        this.emailVerificationToken = emailVerificationToken;
+        this.sessionToken = sessionToken;
         this.expiresIn = expiresIn;
     }
 
     // 전체 생성자
-    public AdminLoginResponse(String message, String emailVerificationToken, long expiresIn, 
+    public AdminLoginResponse(String message, String sessionToken, long expiresIn, 
                              String maskedEmail, String nextStepUrl) {
         this.message = message;
-        this.emailVerificationToken = emailVerificationToken;
+        this.sessionToken = sessionToken;
         this.expiresIn = expiresIn;
         this.maskedEmail = maskedEmail;
         this.nextStepUrl = nextStepUrl;
@@ -109,12 +109,12 @@ public class AdminLoginResponse {
         this.message = message;
     }
 
-    public String getEmailVerificationToken() {
-        return emailVerificationToken;
+    public String getSessionToken() {
+        return sessionToken;
     }
 
-    public void setEmailVerificationToken(String emailVerificationToken) {
-        this.emailVerificationToken = emailVerificationToken;
+    public void setSessionToken(String sessionToken) {
+        this.sessionToken = sessionToken;
     }
 
     public long getExpiresIn() {
@@ -145,7 +145,7 @@ public class AdminLoginResponse {
     public String toString() {
         return "AdminLoginResponse{" +
                 "message='" + message + '\'' +
-                ", emailVerificationToken='[PROTECTED]'" +  // 토큰은 로그에 노출하지 않음
+                ", sessionToken='[PROTECTED]'" +  // 토큰은 로그에 노출하지 않음
                 ", expiresIn=" + expiresIn +
                 ", maskedEmail='" + maskedEmail + '\'' +
                 ", nextStepUrl='" + nextStepUrl + '\'' +

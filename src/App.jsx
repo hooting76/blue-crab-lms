@@ -29,13 +29,6 @@ import AcademyNotice from '../component/common/Communities/AcademyNotice';
 import AdminNotice from '../component/common/Communities/AdminNotice';
 import EtcNotice from '../component/common/Communities/EtcNotice';
 
-// 마이페이지 페이지들
-//import MyPage from '../component/common/MyPage';
-//import ClassAttendingList from '../component/common/MyPages/ClassAttendingList';
-//import ClassAttendingProgress from '../component/common/MyPages/ClassAttendingProgress';
-//import ClassAttendingNotice from '../component/common/MyPages/ClassAttendingNotice';
-//import Consult from '../component/common/MyPages/Consult';
-
 import Admin from './Admin';
 
 // css
@@ -89,14 +82,11 @@ function AppContent() {
               <Route path="BlueCrabHistory" element={<BlueCrabHistory />} />
             </Route>
 
-            {/* 커뮤니티 페이지들 */}
-            <Route path="/Community/academy*" element={<AcademyNotice />}>
-              <Route path="/community/admin" element={<AdminNotice />} />
-              <Route path="/community/etc" element={<EtcNotice />} />
-              {/* 초기접근시 학사공지로 이동 */}
-              <Route path="*" element={<Navigate to= "/Community/AcademyNotice" replace />} />  
+            <Route path="/Community/*" element={<Community />}>
+              <Route path="AcademyNotice" element={<AcademyNotice />} />
+              <Route path="AdminNotice" element={<AdminNotice />} />
+              <Route path="EtcNotice" element={<EtcNotice />} />
             </Route>
-            
 
             {/* 마이페이지 페이지들 */}
             <Route path="/MyPage/*" element={<MyPage />}>

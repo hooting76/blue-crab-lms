@@ -9,7 +9,7 @@ function WayHere() {
     if (!existingScript) {
       const script = document.createElement('script');
       script.id = 'kakao-map-script';
-      script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=82496e92330bcf89079a832990c99a0d&autoload=false&libraries=services`; // ★ services 추가
+      script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=&autoload=false&libraries=services`; // ★ services 추가
       script.onload = initMap;
       document.head.appendChild(script);
     } else {
