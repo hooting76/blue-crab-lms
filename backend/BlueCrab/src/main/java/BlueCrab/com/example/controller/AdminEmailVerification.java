@@ -156,18 +156,20 @@ public class AdminEmailVerification {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new AuthResponse("인증코드가 올바르지 않습니다."));
         }
-    }
+    } // verifyAdminEmailAuthCode 메서드 끝
 
-    // 인증코드 생성 (숫자+영문 대문자 6자리)
+    // ========== 내부 유틸리티 메서드 ==========
+
+    // 3. 인증코드 생성(숫자+영문 대문자 6자리)
     private String generateAuthCode() {
         StringBuilder code = new StringBuilder();
         for (int i = 0; i < AUTH_CODE_LENGTH; i++) {
             code.append(AUTH_CODE_CHARACTERS.charAt(secureRandom.nextInt(AUTH_CODE_CHARACTERS.length())));
         }
         return code.toString();
-    }
+    } // generateAuthCode 메서드 끝
 
-    // Redis에 인증코드 저장
+    // 4. Redis에 인증코드 저장
     private void saveAuthCodeToRedis(String email, String authCode, String clientIp, LocalDateTime codeCreatedTime) {
         String key = AUTH_SESSION_PREFIX + email;
         redisTemplate.opsForHash().putAll(key, Map.of(
@@ -176,9 +178,9 @@ public class AdminEmailVerification {
             "codeCreatedTime", codeCreatedTime.toString()
         ));
         redisTemplate.expire(key, AUTH_CODE_EXPIRY_MINUTES * 60, TimeUnit.SECONDS);
-    }
+    } // saveAuthCodeToRedis 메서드 끝
 
-    // Redis에서 인증코드 데이터 조회
+    // 5. Redis에서 인증코드 데이터 조회
     private AuthCodeData getAuthCodeDataFromRedis(String email) {
         String key = AUTH_SESSION_PREFIX + email;
         Map<Object, Object> map = redisTemplate.opsForHash().entries(key);
@@ -189,20 +191,27 @@ public class AdminEmailVerification {
         if (authCode == null || clientIp == null || createdTimeStr == null) return null;
         LocalDateTime codeCreatedTime = LocalDateTime.parse(createdTimeStr);
         return new AuthCodeData(authCode, clientIp, codeCreatedTime);
-    }
+    } // getAuthCodeDataFromRedis 메서드 끝
 
-    // 인증코드 만료 검사
+    // 6. 인증코드 만료 검사
     private boolean isCodeExpired(LocalDateTime codeCreatedTime) {
+        log.debug("Checking code expiry - Created: {}, Now: {}", codeCreatedTime, LocalDateTime.now());
+        // 인증코드 생성 시간과 현재 시간 비교
         return LocalDateTime.now().isAfter(codeCreatedTime.plusMinutes(AUTH_CODE_EXPIRY_MINUTES));
-    }
+    } // isCodeExpired 메서드 끝
 
-    // 인증코드 삭제
+    // 7. 인증코드 삭제
     private void cleanupAuthCode(String email) {
         String key = AUTH_SESSION_PREFIX + email;
+        // String key : Redis에 저장할 키
+        // AUTH_SESSION_PREFIX + email : 접두사 + 사용자 이메일
         redisTemplate.delete(key);
-    }
+        // Redis에서 인증코드 데이터 삭제
+        log.debug("Deleted auth code data from Redis for email: {}", email);
+        // 삭제 로그 기록
+    } // cleanupAuthCode 메서드 끝
 
-    // 인증코드 이메일 본문 생성
+    // 8. 인증코드 이메일 본문 생성
     private String createEmailCodeContent(String userName, String authCode) {
         StringBuilder content = new StringBuilder();
         content.append("<div>");
@@ -218,9 +227,9 @@ public class AdminEmailVerification {
         content.append("<p><small>본 메일은 자동 발송되었습니다.</small></p>");
         content.append("</div>");
         return content.toString();
-    }
+    } // createEmailCodeContent 메서드 끝
 
-    // 인증코드 데이터 클래스
+    // 9. 인증코드 데이터 클래스
     private static class AuthCodeData {
         private final String authCode;
         private final String clientIp;
@@ -233,5 +242,6 @@ public class AdminEmailVerification {
         public String getAuthCode() { return authCode; }
         public String getClientIp() { return clientIp; }
         public LocalDateTime getCodeCreatedTime() { return codeCreatedTime; }
-    }
-}
+    } // AuthCodeData 클래스 끝
+
+} // AdminEmailVerification 클래스 끝
