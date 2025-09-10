@@ -1,6 +1,6 @@
 import React from 'react';
 import { UseUser } from '../../hook/UseUser';
-import CalendarComp from '../common/CalendarComp';
+import CalendarComp from '../common/Calendar/CalendarComp';
 
 import UserDashCss from '../../css/modules/UserDashboard.module.css';
 

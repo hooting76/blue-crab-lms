@@ -1,12 +1,11 @@
-/*
+/* 작업자 : 성태준
  * 실제 메일 발송하는 로직을 담고 있는 클래스.
  * 총 3가지 메소드로 구성되어 있음.
 */
 package BlueCrab.com.example.service;
 
-import java.io.File;
-
 import javax.mail.internet.MimeMessage;
+import org.springframework.lang.NonNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
@@ -69,7 +68,7 @@ public class EmailService {
 			 */
 
 			@Override
-			public void prepare(MimeMessage message) throws Exception {
+			public void prepare(@NonNull MimeMessage message) throws Exception {
 				// prepare : MimeMessage 객체를 받아서 메세지를 구성하는 메서드.
 
 				final MimeMessageHelper mailHelper = new MimeMessageHelper(message, true, "UTF-8");
@@ -113,7 +112,7 @@ public class EmailService {
 			 */
 
 			@Override
-			public void prepare(MimeMessage message) throws Exception {
+			public void prepare(@NonNull MimeMessage message) throws Exception {
 
 				final MimeMessageHelper mailHelper = new MimeMessageHelper(message, true, "UTF-8");
 				/* MimeMessageHelper : MimeMassage의 취급을 보조하는 헬퍼 클래스

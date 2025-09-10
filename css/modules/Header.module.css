@@ -101,6 +101,12 @@ header{
     left: 125px;
 }
 
+.navSubMenu3 {
+    position: absolute;
+    top: 45px;
+    left: 225px;
+}
+
 .navSubMenu1 td {
     background-color: var(--white-color);
     border-radius: 5px;
@@ -121,6 +127,28 @@ header{
 .navSubMenu2 td:hover {
     filter: invert(100%);
     cursor: pointer;
+}
+
+.navSubMenu3 td {
+    background-color: var(--white-color);
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.navSubMenu3 td:hover {
+    filter: invert(100%);
+    cursor: pointer;
+}
+
+.sessionTimer {
+    color: var(--black-color);
+    font-size: var(--font-small);
+}
+
+.sessionTimer button {
+    border: solid;
+    border-radius: 5px;
+    padding: 0 5px;
 }
 
 .mobNavBtn{
