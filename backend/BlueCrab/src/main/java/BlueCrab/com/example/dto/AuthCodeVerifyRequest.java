@@ -9,7 +9,7 @@ import javax.validation.constraints.Pattern;
 public class AuthCodeVerifyRequest {
     
     @NotBlank(message = "인증 코드는 필수입니다.")
-    @Size(min = 6, max = 6, message = "인증 코드는 6자리여야 합니다.")
+    @Size(min = 6, max = 6, message = "인증 코드는 6자리여야 합니다." )
     @Pattern(regexp = "^[A-Z0-9]{6}$", message = "인증 코드는 영문 대문자와 숫자만 허용됩니다.")
     private String authCode;
     

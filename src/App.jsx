@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate} from 'react-router-dom';
 
 // user state control
 import { UserProvider } from '../context/UserContext';
@@ -24,17 +24,10 @@ import Organization from '../component/common/Introductions/Organization';
 import BlueCrabHistory from '../component/common/Introductions/BlueCrabHistory';
 
 // 커뮤니티 페이지들
-import Community from '../component/common/Community';
+//import Community from './component/common/Community';
 import AcademyNotice from '../component/common/Communities/AcademyNotice';
 import AdminNotice from '../component/common/Communities/AdminNotice';
 import EtcNotice from '../component/common/Communities/EtcNotice';
-
-// 마이페이지 페이지들
-import MyPage from '../component/common/MyPage';
-import ClassAttendingList from '../component/common/MyPages/ClassAttendingList';
-import ClassAttendingProgress from '../component/common/MyPages/ClassAttendingProgress';
-import ClassAttendingNotice from '../component/common/MyPages/ClassAttendingNotice';
-import Consult from '../component/common/MyPages/Consult';
 
 import Admin from './Admin';
 
@@ -89,7 +82,6 @@ function AppContent() {
               <Route path="BlueCrabHistory" element={<BlueCrabHistory />} />
             </Route>
 
-            {/* 커뮤니티 페이지들 */}
             <Route path="/Community/*" element={<Community />}>
               <Route path="AcademyNotice" element={<AcademyNotice />} />
               <Route path="AdminNotice" element={<AdminNotice />} />
