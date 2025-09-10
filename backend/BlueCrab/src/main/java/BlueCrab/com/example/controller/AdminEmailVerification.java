@@ -75,7 +75,7 @@ public class AdminEmailVerification {
         if (!adminOpt.isPresent()) {
             // 관리자 계정이 없으면
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body(new AuthResponse("관리자 계정을 찾을 수 없습니다."));
+                .body(new AuthResponse("관리자 계정을 찾을 수 없습니다."));
             // 401 응답을 반환
             // AuthResponse : 응답 메시지를 담는 DTO
         } // if 문 끝
@@ -106,26 +106,52 @@ public class AdminEmailVerification {
     // ========== 2. 인증코드 검증 ==========
     @PostMapping("/api/admin/email-auth/verify")
     // 인증코드 검증 요청 엔드포인트
-    public ResponseEntity<AuthResponse> verifyAdminEmailAuthCode(@RequestBody AuthCodeVerifyRequest req, Authentication authentication, HttpServletRequest request) {
+    public ResponseEntity<AuthResponse> verifyAdminEmailAuthCode
+        (@RequestBody AuthCodeVerifyRequest req, 
+        Authentication authentication, 
+        HttpServletRequest request) {
         
         String email = authentication.getName();
         String clientIp = RequestUtils.getClientIpAddress(request);
         AuthCodeData codeData = getAuthCodeDataFromRedis(email);
         
         if (codeData == null || isCodeExpired(codeData.getCodeCreatedTime())) {
+            // 인증코드가 없거나 만료된 경우
             cleanupAuthCode(email);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse("인증 세션이 만료되었습니다."));
-        }
+            // Redis에서 인증코드 데이터 삭제
+
+            log.info("Admin email auth failed - session expired for email: {}", email);
+            // 인증 세션 만료 로그 기록
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new AuthResponse("인증 세션이 만료되었습니다."));
+            // 401 응답 반환
+            // AuthResponse : 응답 메시지를 담는 DTO
+        } // if 인증코드가 없거나 만료된 경우 끝
+
         if (!codeData.getClientIp().equals(clientIp)) {
+            // 요청 IP가 저장된 IP와 다른 경우
             cleanupAuthCode(email);
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new AuthResponse("IP가 일치하지 않습니다."));
-        }
+            // Redis에서 인증코드 데이터 삭제
+            log.info("Admin email auth failed - IP mismatch for email: {}", email);
+            // IP 불일치 로그 기록
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new AuthResponse("IP가 일치하지 않습니다."));
+            // 403 응답 반환
+            // AuthResponse : 응답 메시지를 담는 DTO
+        } // if 요청 IP가 저장된 IP와 다른 경우 끝
+
         if (codeData.getAuthCode().equalsIgnoreCase(req.getAuthCode().trim())) {
+            // 인증코드가 일치하는 경우
             cleanupAuthCode(email);
+            // Redis에서 인증코드 데이터 삭제
+            log.info("Admin email auth succeeded for email: {}", email);
+            // 인증 성공 로그 기록
             // 여기서 정식 토큰 발행 로직 호출(별도 서비스/담당자 구현)
             return ResponseEntity.ok(new AuthResponse("이메일 인증 성공!"));
+            // 200 OK 응답과 함께 인증 성공 메시지 반환
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse("인증코드가 올바르지 않습니다."));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new AuthResponse("인증코드가 올바르지 않습니다."));
         }
     }
 
