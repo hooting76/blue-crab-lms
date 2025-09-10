@@ -1,12 +1,18 @@
 package BlueCrab.com.example.service;
 
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -38,27 +44,122 @@ public class EmailVerificationService {
     private static final int SESSION_TOKEN_EXPIRATION_MINUTES = 10;
     private static final SecureRandom secureRandom = new SecureRandom();
 
+    // JWT 시크릿 키 (실제 환경에서는 설정 파일에서 가져와야 함)
+    private static final String SESSION_TOKEN_SECRET = "your-session-token-secret-key-should-be-at-least-256-bits-for-security";
+
     /**
      * 세션 토큰 생성 및 저장 (1차 로그인 성공 후)
-     * 인증 코드 발급 요청용 임시 토큰
+     * JWT 방식으로 토큰에 이메일 정보 포함
      * 
-     * @param adminId 관리자 ID
-     * @return String 생성된 세션 토큰
+     * @param adminId 관리자 ID (이메일)
+     * @return String 생성된 세션 토큰 (JWT)
      */
     public String generateSessionToken(String adminId) {
-        // 안전한 토큰 생성 (UUID + 추가 랜덤 문자열)
-        String baseToken = UUID.randomUUID().toString().replace("-", "");
-        byte[] randomBytes = new byte[16];
-        secureRandom.nextBytes(randomBytes);
-        String additionalRandom = Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+        try {
+            // JWT 세션 토큰 생성 헬퍼 메서드 사용
+            String sessionToken = createSessionToken(adminId);
+            
+            // Redis에도 저장 (블랙리스트 관리용)
+            redisService.storeSessionToken(sessionToken, adminId, SESSION_TOKEN_EXPIRATION_MINUTES);
+            
+            logger.info("Session token (JWT) generated for admin: {}", adminId);
+            return sessionToken;
+            
+        } catch (Exception e) {
+            logger.error("Error generating session token for admin: " + adminId, e);
+            throw new RuntimeException("세션 토큰 생성에 실패했습니다", e);
+        }
+    }
+
+    /**
+     * JWT 세션 토큰 생성 헬퍼 메서드
+     * 
+     * @param adminId 관리자 ID (이메일)
+     * @return String JWT 토큰
+     */
+    private String createSessionToken(String adminId) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("adminId", adminId);
+        claims.put("type", "session");
+        claims.put("purpose", "email_verification");
+        claims.put("timestamp", System.currentTimeMillis());
         
-        String sessionToken = baseToken + additionalRandom;
+        long expirationTimeMillis = SESSION_TOKEN_EXPIRATION_MINUTES * 60 * 1000L;
         
-        // Redis에 세션 토큰 저장 (10분 TTL)
-        redisService.storeSessionToken(sessionToken, adminId, SESSION_TOKEN_EXPIRATION_MINUTES);
+        return Jwts.builder()
+            .claims(claims)
+            .subject(adminId)
+            .issuedAt(new Date(System.currentTimeMillis()))
+            .expiration(new Date(System.currentTimeMillis() + expirationTimeMillis))
+            .signWith(getSigningKey(), Jwts.SIG.HS256)
+            .compact();
+    }
+
+    /**
+     * 세션 토큰에서 관리자 ID 추출
+     * 
+     * @param sessionToken JWT 세션 토큰
+     * @return String 관리자 ID (이메일), 유효하지 않으면 null
+     */
+    public String extractAdminIdFromSessionToken(String sessionToken) {
+        if (sessionToken == null || sessionToken.trim().isEmpty()) {
+            logger.warn("Empty session token provided");
+            return null;
+        }
         
-        logger.info("Session token generated for admin: {}", adminId);
-        return sessionToken;
+        try {
+            Claims claims = Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(sessionToken)
+                .getPayload();
+            
+            // 토큰 타입 검증
+            String tokenType = claims.get("type", String.class);
+            if (!"session".equals(tokenType)) {
+                logger.warn("Invalid token type: {}", tokenType);
+                return null;
+            }
+            
+            // 용도 검증
+            String purpose = claims.get("purpose", String.class);
+            if (!"email_verification".equals(purpose)) {
+                logger.warn("Invalid token purpose: {}", purpose);
+                return null;
+            }
+            
+            String adminId = claims.get("adminId", String.class);
+            if (adminId == null || adminId.trim().isEmpty()) {
+                logger.warn("Admin ID not found in session token");
+                return null;
+            }
+            
+            logger.debug("Successfully extracted admin ID from session token: {}", adminId);
+            return adminId;
+            
+        } catch (ExpiredJwtException e) {
+            logger.warn("Session token expired: {}", e.getMessage());
+            return null;
+        } catch (UnsupportedJwtException e) {
+            logger.warn("Unsupported session token: {}", e.getMessage());
+            return null;
+        } catch (MalformedJwtException e) {
+            logger.warn("Malformed session token: {}", e.getMessage());
+            return null;
+        } catch (SecurityException e) {
+            logger.warn("Invalid session token signature: {}", e.getMessage());
+            return null;
+        } catch (Exception e) {
+            logger.error("Error extracting admin ID from session token", e);
+            return null;
+        }
+    }
+
+    /**
+     * JWT 서명 키 생성
+     */
+    private SecretKey getSigningKey() {
+        return Keys.hmacShaKeyFor(SESSION_TOKEN_SECRET.getBytes());
     }
 
     /**
