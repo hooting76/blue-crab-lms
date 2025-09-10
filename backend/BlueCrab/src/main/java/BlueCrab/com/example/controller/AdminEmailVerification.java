@@ -150,6 +150,9 @@ public class AdminEmailVerification {
             return ResponseEntity.ok(new AuthResponse("이메일 인증 성공!"));
             // 200 OK 응답과 함께 인증 성공 메시지 반환
         } else {
+            // 인증코드가 일치하지 않는 경우
+            log.info("Admin email auth failed - invalid code for email: {}", email);
+            // 인증 실패 로그 기록
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new AuthResponse("인증코드가 올바르지 않습니다."));
         }
