@@ -149,7 +149,7 @@ public class AdminEmailVerification {
         // Redis에 인증코드 저장
         // (이메일, 인증코드, 클라이언트 IP, 생성 시각)
         
-        String emailContent = createEmailCodeContent(admin.getAdminName(), authCode);
+    String emailContent = createEmailCodeContent(admin.getName(), authCode);
         // 이메일 본문 내용 생성
         
         emailService.sendMIMEMessage("bluecrabacademy@gmail.com", email, "관리자 이메일 인증코드", emailContent);
@@ -267,7 +267,7 @@ public class AdminEmailVerification {
                 // adminId 클레임 설정
                 .claim("adminSys", adminSys)
                 // adminSys 클레임 설정
-                .claim("adminName", admin.getAdminName())
+                .claim("adminName", admin.getName())
                 // adminName 클레임 설정
                 .claim("type", "access")
                 // type 클레임 설정
@@ -290,7 +290,7 @@ public class AdminEmailVerification {
                 // adminId 클레임 설정
                 .claim("adminSys", adminSys)
                 // adminSys 클레임 설정
-                .claim("adminName", admin.getAdminName())
+                .claim("adminName", admin.getName())
                 // adminName 클레임 설정
                 .claim("type", "refresh")
                 // type 클레임 설정
@@ -319,7 +319,7 @@ public class AdminEmailVerification {
             // 액세스 토큰 만료 시간(초 단위)
             responseData.put("adminId", admin.getAdminId());
             // 관리자 ID(이메일)
-            responseData.put("adminName", admin.getAdminName());
+            responseData.put("adminName", admin.getName());
             // 관리자 이름
 
             AuthResponse response = new AuthResponse("이메일 인증 성공! 토큰이 발급되었습니다.");
