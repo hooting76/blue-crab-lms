@@ -51,14 +51,6 @@
     <!-- Service Worker settings start -->
     <!-- 해당 파일은 Setting값 맞춘거니 변경 금지 -->
     <link rel="manifest" href="manifest.json">
-    <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js')
-        .then((reg) => {
-          // to do
-        });
-      };
-    </script>
     <!-- Service Worker settings end -->
     <!-- ===================PWA Settings end=================== -->
      
@@ -73,7 +65,7 @@
         window.addEventListener('load', function() {
           navigator.serviceWorker.register('sw.js')
             .then(reg => {
-              console.log('Service worker registered! 😎', reg);
+              // console.log('Service worker registered! 😎', reg);
             })
             .catch(err => {
               console.log('😥 Service worker registration failed: ', err);
