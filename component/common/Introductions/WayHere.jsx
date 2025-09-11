@@ -3,13 +3,14 @@ import React, { useEffect, useRef } from 'react';
 
 function WayHere() {
   const mapRef = useRef(null);
+  const MAP_KEY = import.meta.env.VITE_KAKAO_MAP_KEY;
 
   useEffect(() => {
     const existingScript = document.getElementById('kakao-map-script');
     if (!existingScript) {
       const script = document.createElement('script');
       script.id = 'kakao-map-script';
-      script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=&autoload=false&libraries=services`; // ★ services 추가
+      script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${MAP_KEY}&autoload=false&libraries=services`; // ★ services 추가
       script.onload = initMap;
       document.head.appendChild(script);
     } else {
