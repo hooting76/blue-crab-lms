@@ -9,3 +9,11 @@
     font-size: 15px;
     font-weight: bold;
 }
+.authTimer{
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.sendBtn:disabled{
+    background: #999;
+}
