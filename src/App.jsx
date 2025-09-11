@@ -82,11 +82,11 @@ function AppContent() {
               <Route path="BlueCrabHistory" element={<BlueCrabHistory />} />
             </Route>
 
-            <Route path="/Community/*" element={<Community />}>
-              <Route path="AcademyNotice" element={<AcademyNotice />} />
-              <Route path="AdminNotice" element={<AdminNotice />} />
-              <Route path="EtcNotice" element={<EtcNotice />} />
-            </Route>
+            {/* <Route path="/Community/*" element={<Community />}> */}
+              <Route path="/Community/AcademyNotice" element={<AcademyNotice />} />
+              <Route path="/Community/AdminNotice" element={<AdminNotice />} />
+              <Route path="/Community/EtcNotice" element={<EtcNotice />} />
+            {/* </Route> */}
 
             {/* 마이페이지 페이지들 */}
             <Route path="/MyPage/*" element={<MyPage />}>
