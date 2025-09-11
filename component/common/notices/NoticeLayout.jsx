@@ -1,9 +1,10 @@
 //공지 공용 틀: 배너 + 탭 + 좌측 본문(children) + 우측 사이드(커뮤니티 메뉴)
 import React from "react";
 import { useState, useEffect } from 'react';
-import { UseUser } from "../../../hook/UseUser";
+import { Outlet } from "react-router-dom";
+//import { UseUser } from "../../../hook/UseUser";
 import NoticeTabs from "../notices/NoticeTabs";
-//import CommunitySidebar from "../notices/CommunitySidebar";
+import CommunitySidebar from "../notices/CommunitySidebar";
 import "../../../css/Communities/Notices.css";
 
 export default function NoticeLayout({ fixedCategory, children }) {
