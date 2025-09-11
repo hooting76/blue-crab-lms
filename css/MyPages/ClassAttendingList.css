@@ -28,3 +28,11 @@
 .classAttending_list_body td{
     border: solid var(--black-color);
 }
+
+.totalpoints {
+    float: right;
+    width: 125px;
+    padding-right: 25px;
+    background-color: antiquewhite;
+    font-weight: bold;
+}
