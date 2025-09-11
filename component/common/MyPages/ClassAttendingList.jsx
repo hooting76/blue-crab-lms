@@ -26,7 +26,7 @@ function ClassAttendingList() {
                     {classAttendingDummy.map((cls, index) => (
                         <tr key={cls.LEC_IDX}>
                             <td style={{ width: "5%" }}>{index + 1}</td>
-                            <td style={{ width: "10%" }}>{cls.LEC_BASIC === 1 ? "전공" : "교양"}</td>
+                            <td style={{ width: "10%" }}>{cls.LEC_BASIC === "1" ? "전공" : "교양"}</td>
                             <td style={{ width: "25%" }}>{cls.LEC_NAME}</td>
                             <td style={{ width: "20%" }}>{cls.LEC_TIME}</td>
                             <td style={{ width: "15%" }}></td>
