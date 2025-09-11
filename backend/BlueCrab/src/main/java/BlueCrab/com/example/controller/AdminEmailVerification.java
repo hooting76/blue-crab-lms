@@ -53,11 +53,13 @@ public class AdminEmailVerification {
     // ========== 의존성 주입 ==========
     @Autowired
     private EmailService emailService;
+    // EmailService : 이메일 발송 기능을 담당하는 서비스 클래스
+    // Spring 컨테이너가 관리하는 EmailService bean이 자동으로 주입됨
 
     @Autowired
     private BlueCrab.com.example.service.EmailVerificationService emailVerificationService;
-    // EmailService : 이메일 발송 기능을 담당하는 서비스 클래스
-    // Spring 컨테이너가 관리하는 EmailService bean이 자동으로 주입됨
+    // EmailVerificationService : 이메일 인증 기능을 담당하는 서비스 클래스
+    // Spring 컨테이너가 관리하는 EmailVerificationService bean이 자동으로 주입됨
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
@@ -91,6 +93,12 @@ public class AdminEmailVerification {
         HttpServletRequest request) {
         // sessionToken: "Bearer <JWT>" 형식일 수 있으므로 "Bearer " 제거
         // HttpServletRequest request : 현재 HTTP 요청에 대한 정보를 담고 있는 객체
+        String jwt = sessionToken.substring(7);
+        // sessionToken.substring(7) : "Bearer " 부분 제거
+        String email = emailVerificationService.extractAdminIdFromSessionToken(jwt);
+        // 이메일 인증 토큰에서 관리자 이메일 추출
+        // 본 컨트롤러의 핵심이자 근간, 첫 단추.
+
         if (sessionToken == null || !sessionToken.startsWith("Bearer ")) {
             // 임시토큰이 없거나 유효하지 않은 경우
             log.info("Admin email auth failed - missing or invalid session token");
@@ -100,12 +108,6 @@ public class AdminEmailVerification {
                 // 401 응답 반환
                 // AuthResponse : 응답 메시지를 담는 DTO
         } // if 임시토큰이 없거나 유효하지 않은 경우 끝
-
-        String jwt = sessionToken.substring(7);
-        // sessionToken.substring(7) : "Bearer " 부분 제거
-        String email = emailVerificationService.extractAdminIdFromSessionToken(jwt);
-        // 이메일 인증 토큰에서 관리자 이메일 추출
-        // 본 컨트롤러의 핵심이자 근간, 첫 단추.
 
         if (email == null) {
             // 이메일이 추출되지 않는 경우
@@ -147,7 +149,7 @@ public class AdminEmailVerification {
         // Redis에 인증코드 저장
         // (이메일, 인증코드, 클라이언트 IP, 생성 시각)
         
-    String emailContent = createEmailCodeContent(admin.getAdminName(), authCode);
+        String emailContent = createEmailCodeContent(admin.getAdminName(), authCode);
         // 이메일 본문 내용 생성
         
         emailService.sendMIMEMessage("bluecrabacademy@gmail.com", email, "관리자 이메일 인증코드", emailContent);
@@ -182,7 +184,6 @@ public class AdminEmailVerification {
 
         String jwt = sessionToken.substring(7);
         // "Bearer "를 제거한 JWT 토큰 문자열
-
         String email = emailVerificationService.extractAdminIdFromSessionToken(jwt);
         // 이메일 인증 토큰에서 관리자 이메일 추출
 
@@ -317,7 +318,7 @@ public class AdminEmailVerification {
             responseData.put("expiresIn", ACCESS_TOKEN_EXPIRATION / 1000);
             // 액세스 토큰 만료 시간(초 단위)
             responseData.put("adminId", admin.getAdminId());
-            // 관리자 ID
+            // 관리자 ID(이메일)
             responseData.put("adminName", admin.getAdminName());
             // 관리자 이름
 
@@ -327,7 +328,9 @@ public class AdminEmailVerification {
             // 응답 데이터 설정
             return ResponseEntity.ok(response);
             // 200 응답 반환
-        } else {
+
+        } // if 인증코드가 일치하는 경우 끝
+        else {
             // 인증코드가 일치하지 않는 경우
             log.info("Admin email auth failed - invalid code for email: {}", email);
             // 인증코드 불일치 로그 기록
@@ -341,7 +344,7 @@ public class AdminEmailVerification {
 
     // ========== 내부 유틸리티 메서드 ==========
 
-    // 3. 인증코드 생성(숫자+영문 대문자 6자리)
+    // 3. 인증코드 생성(숫자+영문 대문자 d자리)
     private String generateAuthCode() {
         // String generateAuthCode() : 인증코드를 생성하여 반환하는 메서드
         StringBuilder code = new StringBuilder();
@@ -351,9 +354,10 @@ public class AdminEmailVerification {
             code.append(AUTH_CODE_CHARACTERS.charAt(secureRandom.nextInt(AUTH_CODE_CHARACTERS.length())));
             // AUTH_CODE_CHARACTERS : 인증코드에 사용할 문자 집합
             // secureRandom.nextInt(...) : 시큐어 랜덤으로 인덱스 생성
-        }
+        } // for 루프 끝
         return code.toString();
         // 생성된 인증코드를 문자열로 반환
+
     } // generateAuthCode 메서드 끝
 
     // 4. Redis에 인증코드 저장
@@ -364,10 +368,11 @@ public class AdminEmailVerification {
         // AUTH_SESSION_PREFIX + email : 접두사 + 사용자 이메일
         redisTemplate.opsForHash().putAll(key, Map.of(
             // Redis에 해시맵 형태로 데이터 저장
+            // putAll : 여러 필드를 한꺼번에 저장
             "authCode", authCode,   // 인증코드
             "clientIp", clientIp,   // 클라이언트 IP
             "codeCreatedTime", codeCreatedTime.toString()   // 생성 시각 (문자열로 저장)
-        ));
+        )); 
         redisTemplate.expire(key, AUTH_CODE_EXPIRY_MINUTES * 60, TimeUnit.SECONDS);
         // 키 만료 시간 설정 (5분)
         log.debug("Saved auth code data to Redis for email: {}", email);
