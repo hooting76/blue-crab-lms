@@ -123,6 +123,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll() // 로그인, 회원가입, 토큰 갱신 등
                 .requestMatchers("/api/admin/login").permitAll() // 어드민 1차 로그인 허용
                 .requestMatchers("/api/admin/verify-email").permitAll() // 어드민 이메일 인증 허용
+                .requestMatchers("/api/admin/email-auth/**").permitAll() // 어드민 이메일 인증코드 시스템 허용
                 .requestMatchers("/api/health").permitAll() // 헬스체크 엔드포인트
                 .requestMatchers("/api/ping").permitAll() // 연결 테스트 엔드포인트
                 .requestMatchers("/", "/status").permitAll() // 메인 페이지 및 상태 페이지
