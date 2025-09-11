@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { UseAdmin } from "../../hook/UseAdmin";
 
 import LoginFrm from '../../css/modules/LoginForm.module.css';
-import AdminLoginCss from "../../css/modules/AdminLoginCss.module.css"
+import AdminLoginCss from "../../css/modules/AdminLoginCss.module.css";
 
 import AdLoginAuth from "./auth/AdLoginAuth";
 
@@ -25,8 +25,7 @@ function AdminLogin(){
     function handleInputChange(evt){
         // regexr
         const regEmail  = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
-        const regPw     = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#.~_-])[A-Za-z\d@$!%*?&#.~_-]{8,20}$/i;
-        const submitBtn = document.getElementById('frm_sbm');        
+        const regPw     = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#.~_-])[A-Za-z\d@$!%*?&#.~_-]{8,20}$/i;    
 
         let trgVal = evt.target.value;
 
@@ -55,17 +54,30 @@ function AdminLogin(){
             };
             setPassword(trgVal);
         }else{
+            setIsCheckCode(trgVal);
+            setCodeCheck(true);
+        }
+    };
 
-        } //evt.target end
-
-        // auth code 
+    function sendCode(evt){
+        const authCode = document.getElementById('frm_code');
+    
         if(emailCheck && pwCheck){ //아이디 비밀번호 입력폼 둘다 통과가 되면
-            submitBtn.disabled = false;
-        }else{
-            submitBtn.disabled = true;
-        }        
-        
-        // auth code end     
+            evt.target.disabled = false;
+            authCode.disabled = false;
+        }
+
+        return AdLoginAuth;
+    };
+
+    function submitBtn(evt){
+        if(emailCheck && pwCheck && codeCheck){
+            evt.target.disabled = false;
+        }
+
+        if(evt.target.disabled == true){
+            alert("입력폼을 확인하세요");
+        }
     };
 
     return(
@@ -112,9 +124,11 @@ function AdminLogin(){
                         <span id='authTimer' className={AdminLoginCss.authTimer} disabled={true}>5:00</span>
                         <button 
                             className={AdminLoginCss.sendBtn} 
-                            onClick={AdLoginAuth}
-                            disabled={true}
-                            id='frm_sbm'
+                            onClick={(emailCheck && pwCheck) 
+                                ? sendCode
+                                : null }
+                            disabled={!(emailCheck && pwCheck)}
+                            id='frm_btn'
                         >
                             코드 전송
                         </button>
@@ -122,7 +136,11 @@ function AdminLogin(){
                 </div>
 
                 <button
-                    className={LoginFrm.submit}>
+                    className={AdminLoginCss.submit}
+                    disabled={true}
+                    id="frm_sbm"
+                    onClick={submitBtn}
+                >
                     로그인
                 </button>                
             </div>

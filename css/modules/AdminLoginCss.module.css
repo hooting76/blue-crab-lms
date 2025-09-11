@@ -17,3 +17,18 @@
 .sendBtn:disabled{
     background: #999;
 }
+
+.submit{
+    cursor: pointer;
+    padding: 2.5px;
+    border-radius: 5px;
+    background: #4084DD;
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+    width: 100%;
+}
+
+.submit:disabled{
+    background: #999;
+}
