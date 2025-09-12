@@ -109,13 +109,13 @@ function Header() {
             >
                 <tbody>
                     <tr>
-                        <td onClick={() => navigate("/Community/AcademyNotice")}>학사공지</td>
+                        <td onClick={() => navigate("/community/academy")}>학사공지</td>
                     </tr>
                     <tr>
-                        <td onClick={() => navigate("/Community/AdminNotice")}>행정공지</td>
+                        <td onClick={() => navigate("/community/admin")}>행정공지</td>
                     </tr>
                     <tr>
-                        <td onClick={() => navigate("/Community/EtcNotice")}>기타공지</td>
+                        <td onClick={() => navigate("/community/etc")}>기타공지</td>
                     </tr>
                 </tbody>
             </table>

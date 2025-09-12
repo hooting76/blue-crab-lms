@@ -94,7 +94,7 @@ function AppContent() {
             {/* 커뮤니티 페이지들 */}
             {/* ✅ 최소 중첩: /community/* 만 부모로 두고 Outlet 사용 */}
             <Route path="/community/*" element={<NoticeLayout />}>
-              <Rout index element={<Navigate to="academy" replace />} />
+              <Route index element={<Navigate to="academy" replace />} />
               <Route path="academy" element={<AcademyNotice />} />
               <Route path="admin" element={<AdminNotice />} />
               <Route path="etc" element={<EtcNotice />} /> 
