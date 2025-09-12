@@ -52,7 +52,7 @@ function Header() {
   return (
   <>
     <header>
-      {isAuthenticated && (
+       {isAuthenticated && ( 
         <div 
           className={HeaderCss.mobNavBtn}
           onClick={FuncAniBtn}
@@ -61,7 +61,7 @@ function Header() {
           <span></span>
           <span></span>
         </div>
-      )}
+       )} 
       
         <h1 className={HeaderCss.h1}>
           <picture className={HeaderCss.logoImg} onClick={Reset}
@@ -71,7 +71,7 @@ function Header() {
           
           <span onMouseOver={() => {hideSubMenu1(); hideSubMenu2(); hideSubMenu3();}} onClick={Reset}>Blue-Crab LMS</span>
           {/* user menu */}
-          {isAuthenticated &&(
+           {isAuthenticated &&( 
           <div className={HeaderCss.navMenu}>
             <ul>
               <li onMouseOver={() => {showSubMenu1(); hideSubMenu2(); hideSubMenu3();}}>학교소개</li>
@@ -142,18 +142,18 @@ function Header() {
                 </tbody>
             </table>
           </div>   
-        )}
+        )} 
         </h1>
 
         {/* 세션타이머(15분). 로그인 중에만 활성화. 아직 만료시 로그아웃 로직 구현 안됨.*/}
-        {isAuthenticated && (
+         {isAuthenticated && ( 
         <div className={HeaderCss.sessionTimer}>
         <SessionTimer/>
         </div>
-        )}
+         )} 
 
           {/* 로그인된 사용자 정보 */}
-          {isAuthenticated && (
+           {isAuthenticated && ( 
             <div>
               <div>
               {/* user info init */}
@@ -196,14 +196,14 @@ function Header() {
                 </button>
               </div>
             </div>
-          )}
+           )} 
           
           {/* 로그인되지 않은 상태 */}
           {!isAuthenticated && ( null )}
 
     </header>
 
-    {isAuthenticated && (
+     {isAuthenticated && ( 
       <div className={HeaderCss.mobMenu}>
       <ul>
         <li>학교소개</li>
@@ -211,7 +211,7 @@ function Header() {
         <li>마이페이지</li>
       </ul>
     </div>
-    )}    
+     )}     
 
   </>
   );
