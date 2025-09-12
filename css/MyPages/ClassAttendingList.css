@@ -1,0 +1,38 @@
+.classAttending_list_container {
+    width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.classAttending_list_header {
+    width: 1000px;
+    margin-top: 50px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: aqua;
+    border-collapse: collapse;
+}
+
+.classAttending_list_header th {
+    border: solid var(--black-color);
+}
+
+.classAttending_list_body {
+    width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: var(--white-color);
+    border-collapse: collapse;
+}
+
+.classAttending_list_body td{
+    border: solid var(--black-color);
+}
+
+.totalpoints {
+    float: right;
+    width: 125px;
+    padding-right: 25px;
+    background-color: antiquewhite;
+    font-weight: bold;
+}

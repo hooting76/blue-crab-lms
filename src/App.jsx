@@ -29,6 +29,7 @@ import AcademyNotice from '../component/common/Communities/AcademyNotice';
 import AdminNotice from '../component/common/Communities/AdminNotice';
 import EtcNotice from '../component/common/Communities/EtcNotice';
 
+
 // 마이페이지 페이지들
 import MyPage from '../component/common/MyPage';
 import ClassAttendingList from '../component/common/MyPages/ClassAttendingList';
@@ -36,6 +37,7 @@ import ClassAttendingProgress from '../component/common/MyPages/ClassAttendingPr
 import ClassAttendingNotice from '../component/common/MyPages/ClassAttendingNotice';
 import Consult from '../component/common/MyPages/Consult';
 
+// 관리자 페이지
 import Admin from './Admin';
 
 // css
@@ -77,7 +79,7 @@ function AppContent() {
       <Header />
 
       <div id="content">
-        {isAuthenticated ?
+         {isAuthenticated ?  
           <Routes>
             {/* 기본 페이지 */}
             <Route path="/" element={<UserDashboard />} />
@@ -89,11 +91,17 @@ function AppContent() {
               <Route path="BlueCrabHistory" element={<BlueCrabHistory />} />
             </Route>
 
-            {/* <Route path="/Community/*" element={<Community />}> */}
-              <Route path="/Community/AcademyNotice" element={<AcademyNotice />} />
-              <Route path="/Community/AdminNotice" element={<AdminNotice />} />
-              <Route path="/Community/EtcNotice" element={<EtcNotice />} />
-            {/* </Route> */}
+            {/* 커뮤니티 페이지들 */}
+            {/* ✅ 최소 중첩: /community/* 만 부모로 두고 Outlet 사용 */}
+            <Route path="/community/*" element={<NoticeLayout />}>
+              <Route index element={<Navigate to="academy" replace />} />
+              <Route path="academy" element={<AcademyNotice />} />
+              <Route path="admin" element={<AdminNotice />} />
+              <Route path="etc" element={<EtcNotice />} /> 
+              {/* 초기접근시 학사공지로 이동 */} 
+            </Route>
+            
+
 
             {/* 마이페이지 페이지들 */}
             <Route path="/MyPage/*" element={<MyPage />}>
@@ -103,14 +111,14 @@ function AppContent() {
               <Route path="Consult" element={<Consult />} />
             </Route>
           </Routes>
-           // isAuth end
+         // isAuth end
 
-        : // isAuth false start
-          <Routes>
+         : // isAuth false start 
+           <Routes>
             <Route path="/" element={<LoginForm/>} />
             <Route path="/FindInfo" element={<FindInfo/>}/>
           </Routes>
-        }
+        } 
       </div>
       
       {/* 푸터 */}

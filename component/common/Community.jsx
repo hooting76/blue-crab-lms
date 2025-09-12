@@ -1,48 +1,54 @@
-import "../../css/Communities/Community.css"
+//커뮤니티 섹션의 페이지 셸(공통 레이아웃)
+//[구성] 상단 배너 + 탭(학사,행정,기타) + 좌(본문/Outlet)/우(사이드메뉴)
+import "../../css/Communities/Community.css" //공통 css(배너/탭/그리드/테이블/사이드)
 
-import { useNavigate, Outlet, useLocation } from "react-router-dom";
+import { NavLink, useNavigate, Outlet, useLocation } from "react-router-dom";
+import CommunitySidebar from "../notices/CommunitySidebar";
 import { useState, useEffect } from 'react';
 
-function Community() {
-    const [currentCommunity, setCurrentCommunity] = useState("");
-    const navigate = useNavigate();
+export default function Community() {
     const location = useLocation();
-
-    useEffect(() =>{
-        switch (location.pathname) {
-            case "/Community/AcademyNotice":
-                setCurrentCommunity("학사공지");
-                break;
-            case "/Community/AdminNotice":
-                setCurrentCommunity("행정공지");
-                break;
-            case "/Community/EtcNotice":
-                setCurrentCommunity("기타공지");
-                break;
-            default:
-                setCurrentCommunity("");
-                break;
-        }
-    }, [location.pathname]);
-
-    const toAcademyNotice = () => {navigate("/Community/AcademyNotice")};
-    const toAdminNotice = () => {navigate("/Community/AdminNotice")};
-    const toEtcNotice = () => {navigate("/Community/EtcNotice")};
+    
+    // 현재 경로 -> 어떤 탭을 active로 표시할지 유도
+    const getCurrentLabel = () => {
+        if(location.pathname.startsWith("/Community/AcademyNotice")) return "학사공지";
+        if(location.pathname.startsWith("/Community/AdminNotice")) return "행정공지";
+        if(location.pathname.startsWith("/Community/EtcNotice")) return "기타공지";
+        return "학사공지"; //기본값
+    };
+    const current = getCurrentLabel();
 
     return(
-        <main>
-            <div className="communitytitle">
-                <div id="schoolCommunityText">커뮤니티</div><br/>
-                <span onClick={toAcademyNotice} style={{cursor: "pointer", fontWeight: currentCommunity === "학사공지" ? "bold" : "normal"}}>학사공지</span>
-                <span onClick={toAdminNotice} style={{cursor: "pointer", fontWeight: currentCommunity === "행정공지" ? "bold" : "normal"}}>행정공지</span>
-                <span onClick={toEtcNotice} style={{cursor: "pointer", fontWeight: currentCommunity === "기타공지" ? "bold" : "normal"}}>기타공지</span>
+        <main className="community-page"> {/*공지커뮤니티 공통 컨테이너*/}
+            {/* 상단배너 */}
+            <section className="community-banner"><h2>커뮤니티</h2></section>
+            {/* 카테고리 탭 */}
+            <div className="tab-menu" aria-label="공지 카테고리">
+                <NavLink to="/Community/AcademyNotice" end className={({isActive}) => isActive ? "active" : ""}>학사공지</NavLink>
+                <NavLink to="/Community/AdminNotice" className={({isActive}) => isActive ? "active" : ""}>행정공지</NavLink>
+                <NavLink to="/Community/EtcNotice" className={({isActive}) => isActive ? "active" : ""}>기타공지</NavLink>
             </div>
-            <div>
-                <Outlet/>
-            </div>
-        </main>
-    )
 
+            {/* 좌측 본문 + 우측 사이드 2단 레이아웃 */}
+            <section className="grid">
+                {/* 좌측: 공지 본문(목록 or 상세) */}
+                <section className="left" aria-label={`${current || "공지"} 본문`}>
+                    <Outlet />
+                </section>
+
+                {/* 우측: 커뮤니티 사이드바 */}
+                <aside className="right" aria-label="사이드 메뉴">
+                    <CommunitySidebar />
+                </aside>
+            </section>
+        </main>
+    );
 }
 
-export default Community;
+//[참고] Outlet 사용법
+//https://reactrouter.com/en/main/components/outlet
+//https://velog.io/@velopert/react-router-outlet-%EC%9D%98-%EC%9D%B4%EC%9A%A9
+//https://ko.reactjs.org/docs/composition-vs-inheritance.html#containment
+//https://ko.reactjs.org/docs/jsx-in-depth.html#children-in-jsx
+//https://ko.reactjs.org/docs/react-api.html#reactchildren
+            
