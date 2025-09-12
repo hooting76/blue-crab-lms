@@ -1,5 +1,6 @@
 package BlueCrab.com.example.service;
 
+import BlueCrab.com.example.config.AppConfig;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
@@ -38,14 +39,14 @@ public class EmailVerificationService {
 
     @Autowired
     private RedisService redisService;
+    
+    @Autowired
+    private AppConfig appConfig;
 
     // 이메일 인증 토큰 설정
     private static final int EMAIL_TOKEN_EXPIRATION_MINUTES = 10;
     private static final int SESSION_TOKEN_EXPIRATION_MINUTES = 10;
     private static final SecureRandom secureRandom = new SecureRandom();
-
-    // JWT 시크릿 키 (실제 환경에서는 설정 파일에서 가져와야 함)
-    private static final String SESSION_TOKEN_SECRET = "your-session-token-secret-key-should-be-at-least-256-bits-for-security";
 
     /**
      * 세션 토큰 생성 및 저장 (1차 로그인 성공 후)
@@ -157,9 +158,10 @@ public class EmailVerificationService {
 
     /**
      * JWT 서명 키 생성
+     * JwtUtil과 동일한 키를 사용하여 서명 불일치 문제 해결
      */
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(SESSION_TOKEN_SECRET.getBytes());
+        return Keys.hmacShaKeyFor(appConfig.getJwt().getSecret().getBytes());
     }
 
     /**
