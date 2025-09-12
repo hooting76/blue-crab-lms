@@ -1,10 +1,10 @@
 import "../../../css/Introductions/BlueCrabHistory.css"
-import "../../../src/assets/BlueCrabHistoryExample.png";
+import BlueCrabHistoryExample from "../../../src/assets/BlueCrabHistoryExample.png";
 
 function BlueCrabHistory() {
     return(
             <div className="history">
-                <img src="../../../src/assets/BlueCrabHistoryExample.png" alt="BlueCrabHistory"/>
+                <img src={BlueCrabHistoryExample} alt="BlueCrabHistory"/>
             </div>
     )
 }
