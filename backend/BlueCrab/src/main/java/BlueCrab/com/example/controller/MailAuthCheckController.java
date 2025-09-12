@@ -33,18 +33,19 @@ import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 
 // ========== 프로젝트 내부 클래스 임포트 ==========
-import BlueCrab.com.example.dto.AuthResponse;
-import BlueCrab.com.example.entity.UserTbl;
-import BlueCrab.com.example.repository.UserTblRepository;
-import BlueCrab.com.example.dto.AuthCodeVerifyRequest;
-import BlueCrab.com.example.service.EmailService;
-import BlueCrab.com.example.util.RequestUtils;
+import BlueCrab.com.example.dto.AuthResponse;  // 공통 응답 DTO
+import BlueCrab.com.example.entity.UserTbl;  // 사용자 엔티티
+import BlueCrab.com.example.repository.UserTblRepository;  // 사용자 리포지토리
+import BlueCrab.com.example.dto.AuthCodeVerifyRequest;  // 인증 코드 검증 요청 DTO
+import BlueCrab.com.example.service.EmailService;  // 이메일 발송 서비스
+import BlueCrab.com.example.service.RedisService;  // Redis 기반 서비스 (코드 검증 시도 제한 등)
+import BlueCrab.com.example.util.RequestUtils;  // 클라이언트 요청 유틸리티
+import BlueCrab.com.example.util.MailAuthRateLimitUtils;  // 메일 인증 요청 빈도 제한 유틸리티
 
-// ========== 사용하지 않는 주석 처리된 임포트 ==========
-// import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+// ========== 컨트롤러 클래스 정의 ==========
 
-@RestController
-@Slf4j
+@RestController  // RESTful 웹 서비스 컨트롤러
+@Slf4j  // 로깅 지원
 public class MailAuthCheckController {
     
     // ========== 설정 상수 ==========
@@ -69,6 +70,15 @@ public class MailAuthCheckController {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 	// RedisTemplate을 사용하여 Redis에 인증 코드 및 세션 정보 저장/조회
+    // <String, Object> : 키는 문자열, 값은 다양한 타입을 저장할 수 있도록 Object로 지정
+
+    @Autowired
+    private MailAuthRateLimitUtils mailAuthRateLimit;
+    // 메일 인증 요청 빈도 제한 유틸리티
+    
+    @Autowired
+    private RedisService redisService;
+    // Redis 기반 서비스 (코드 검증 시도 제한 등)
     
     @Value("${app.domain}")
     private String domain;
@@ -133,6 +143,21 @@ public class MailAuthCheckController {
         
 		// try-catch 블록으로 예외 처리
         try {
+            // Rate Limit 확인 (메일 발송)
+            if (!mailAuthRateLimit.isSendMailAllowed(userEmail)) {
+                // 허용되지 않는 경우 (빈도 제한 초과)
+                int waitMinutes = mailAuthRateLimit.getRemainingWaitMinutes(userEmail);
+                // 남은 대기 시간 조회
+                String errorMessage = String.format("메일 발송 요청이 너무 빈번합니다. %d분 후 다시 시도해주세요.", waitMinutes);
+                // 에러 메시지 생성
+                log.warn("Send mail rate limit exceeded - User: {}, Wait minutes: {}", userEmail, waitMinutes);
+                // 경고 로그 기록
+                return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                        .body(new AuthResponse(errorMessage));
+                    // HTTP 429 Too Many Requests 응답 반환
+                    // Rate Limit 초과 시 적절한 상태 코드와 메시지 반환
+            }
+            
             String userName = extractUserNameFromJWT(authentication);
 			// JWT에서 사용자 이름 추출
             
@@ -154,6 +179,9 @@ public class MailAuthCheckController {
             emailService.sendMIMEMessage("bluecrabacademy@gmail.com", userEmail, 
                 "BlueCrab 이메일 인증 코드", emailContent);
 				// 이메일 발송 서비스 호출 (발신자, 수신자, 제목, 내용)
+
+            mailAuthRateLimit.recordSendMailRequest(userEmail);
+            // Rate Limit 카운터 증가 (발송 성공 시)
 
             log.info("Success - User: {}, Session ID: {}", userEmail, authSessionId);
 			// 발송 완료 로그 기록
@@ -198,9 +226,23 @@ public class MailAuthCheckController {
         
 		// try-catch 블록으로 예외 처리
         try {
+            // Rate Limit 확인 (코드 검증) - RedisService 사용
+            try {
+                redisService.checkEmailVerificationAttempts(userEmail);
+                // 인증 코드 검증 시도 횟수 확인 및 증가
+            } catch (RuntimeException e) {
+                // 인증 시도 횟수 초과 시
+                log.warn("Verify code rate limit exceeded - User: {}, Error: {}", userEmail, e.getMessage());
+                // 경고 로그 기록
+                return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                        .body(new AuthResponse(e.getMessage()));
+                    // HTTP 429 Too Many Requests 응답 반환
+                    // Rate Limit 초과 시 적절한 상태 코드와 메시지 반환
+            }
+            
             if (isInvalidAuthCode(inputCode)) {
-				// 입력된 인증 코드 유효성 검증
-				// 유효하지 않은 경우
+				// 입력된 인증 코드 형식이 올바르지 않은 경우
+                // Rate Limit은 RedisService에서 자동으로 관리됨 (checkEmailVerificationAttempts 호출 시)
                 log.warn("Invalid auth code format - User: {}, IP: {}", userEmail, clientIp);
                 // 경고 로그 기록
                 return ResponseEntity.badRequest()
@@ -244,6 +286,8 @@ public class MailAuthCheckController {
             
             if (inputCode.toUpperCase().equals(authData.getAuthCode())) {
 				// 입력된 인증 코드가 저장된 코드와 일치하는 경우
+                redisService.clearEmailVerificationAttempts(userEmail);
+                // RedisService에서 인증 시도 횟수 초기화 (성공 시)
                 cleanupAuthData(userEmail);
 				// Redis에서 인증 데이터 정리
                 log.info("Auth code verification successful - User: {}, IP: {}", userEmail, clientIp);
@@ -253,6 +297,7 @@ public class MailAuthCheckController {
             } // 코드 일치 검사 끝
             else {
 				// 인증 코드가 일치하지 않는 경우
+                // Rate Limit은 RedisService에서 자동으로 관리됨 (checkEmailVerificationAttempts 호출 시)
                 cleanupAuthData(userEmail);
 				// Redis에서 인증 데이터 정리
                 log.warn("Auth code mismatch - User: {}, IP: {}", userEmail, clientIp);
