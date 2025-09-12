@@ -11,7 +11,7 @@ import "../../../css/Communities/Notices.css";
 export default function NoticeLayout(){
     const { pathname } = useLocation();
     const active =
-    pathname.startsWith("/community/admin") ? "admin" :
+    pathname.startsWith("/community/notice-admin") ? "admin" :
     pathname.startsWith("/community/etc") ? "etc" : "academy"; //기본값 학사공지
 
     return(
