@@ -97,19 +97,34 @@ public class AdminEmailVerification {
         // sessionToken: "Bearer <JWT>" 형식일 수 있으므로 "Bearer " 제거
         // HttpServletRequest request : 현재 HTTP 요청에 대한 정보를 담고 있는 객체
         
-        if (sessionToken == null || !sessionToken.startsWith("Bearer ")) {
-            // 임시토큰이 없거나 유효하지 않은 경우
-            log.info("Admin email auth failed - missing or invalid session token");
-            // 임시토큰 누락 로그 기록
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new AuthResponse("임시토큰이 필요합니다."));
-                // 401 응답 반환
-                // AuthResponse : 응답 메시지를 담는 DTO
-        } // if 임시토큰이 없거나 유효하지 않은 경우 끝
+        try {
+            log.info("Admin email auth code request started");
+            log.info("AppConfig status: {}", appConfig != null ? "OK" : "NULL");
+            log.info("EmailVerificationService status: {}", emailVerificationService != null ? "OK" : "NULL");
+            
+            if (sessionToken == null || !sessionToken.startsWith("Bearer ")) {
+                // 임시토큰이 없거나 유효하지 않은 경우
+                log.info("Admin email auth failed - missing or invalid session token");
+                // 임시토큰 누락 로그 기록
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new AuthResponse("임시토큰이 필요합니다."));
+                    // 401 응답 반환
+                    // AuthResponse : 응답 메시지를 담는 DTO
+            } // if 임시토큰이 없거나 유효하지 않은 경우 끝
 
         String jwt = sessionToken.substring(7);
         // sessionToken.substring(7) : "Bearer " 부분 제거
-        String email = emailVerificationService.extractAdminIdFromSessionToken(jwt);
+        log.info("Extracted JWT token: {}", jwt.substring(0, Math.min(20, jwt.length())) + "...");
+        
+        String email = null;
+        try {
+            email = emailVerificationService.extractAdminIdFromSessionToken(jwt);
+            log.info("Email extraction result: {}", email);
+        } catch (Exception e) {
+            log.error("Email extraction failed with exception: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new AuthResponse("토큰 처리 중 오류가 발생했습니다: " + e.getMessage()));
+        }
         // JWT 토큰에서 관리자 이메일 추출 (EmailVerificationService 사용)
         // 본 컨트롤러의 핵심이자 근간, 첫 단추.
 
@@ -166,6 +181,12 @@ public class AdminEmailVerification {
         return ResponseEntity.ok(new AuthResponse("인증코드가 발송되었습니다. %d분 이내에 인증을 완료해주세요.", AUTH_CODE_EXPIRY_MINUTES));
         // 200 응답 반환
         // AuthResponse : 응답 메시지를 담는 DTO
+        
+        } catch (Exception e) {
+            log.error("Unexpected error in requestAdminEmailAuthCode: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new AuthResponse("서버 내부 오류가 발생했습니다: " + e.getMessage()));
+        }
     } // requestAdminEmailAuthCode 메서드 끝
 
     // ========== 2. 인증코드 검증 ==========

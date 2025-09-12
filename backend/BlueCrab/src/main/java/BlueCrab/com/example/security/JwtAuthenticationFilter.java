@@ -52,6 +52,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 토큰이 있고 SecurityContext에 인증 정보가 없는 경우
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             
+            // 성태준 추가 - 관리자 이메일 인증 시스템: 세션 토큰 처리 로직
+            // 세션 토큰은 인증에 사용하지 않음 (이메일 인증 등의 임시 토큰)
+            if (jwtUtil.isSessionToken(jwtToken)) {
+                logger.debug("Session token detected - skipping authentication for: {}", username);
+                chain.doFilter(request, response);
+                return;
+            }
+            // 성태준 추가 끝
+            
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
             // 토큰이 유효하고 Access Token인지 확인
