@@ -81,7 +81,7 @@ function AppContent() {
       <Header />
 
       <div id="content">
-          {/* {isAuthenticated ?    */}
+           {isAuthenticated ?    
            <Routes> 
             {/* 기본 페이지 */}
             {/* <Route path="/" element={<UserDashboard />} />  */}
@@ -107,14 +107,14 @@ function AppContent() {
               <Route path="Consult" element={<Consult />} />
             </Route>
           </Routes> 
-            {/* // isAuth end 
+            // isAuth end 
 
-         : // isAuth false start    */}
+         : // isAuth false start    
            <Routes>
             <Route path="/" element={<LoginForm/>} />
             <Route path="/FindInfo" element={<FindInfo/>}/>
           </Routes>
-         {/* }    */}
+         }    
       </div>
       
       {/* 푸터 */}
