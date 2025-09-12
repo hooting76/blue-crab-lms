@@ -7,7 +7,7 @@ import AdminLoginCss from "../../css/modules/AdminLoginCss.module.css";
 import AdLoginAuth from "./auth/AdLoginAuth";
 
 function AdminLogin(){
-    const { admin, isLoading, error, clearError, isAuthenticated} = UseAdmin();
+    const { AdLogin, isLoading, error, clearError, isAuthenticated} = UseAdmin();
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -53,30 +53,36 @@ function AdminLogin(){
                 setPwCheck(true);
             };
             setPassword(trgVal);
-        }else{
+        }else if(evt.target.id == 'frm_code'){
             setIsCheckCode(trgVal);
             setCodeCheck(true);
         }
     };
 
-    function sendCode(evt){
+    async function sendCode(){
         const authCode = document.getElementById('frm_code');
-    
+        const inputId = document.getElementById('frm_id');
+        const inputPw = document.getElementById('frm_pw');
         if(emailCheck && pwCheck){ //아이디 비밀번호 입력폼 둘다 통과가 되면
-            evt.target.disabled = false;
-            authCode.disabled = false;
-        }
+            await AdLoginAuth(`bluecrabtester9@gmail.com`, `Bluecrab256@`);
 
-        return AdLoginAuth;
+            authCode.disabled = false;
+            authCode.focus();
+            
+            inputId.disabled = true;
+            inputPw.disabled = true;  
+        }else{
+            alert("아이디 혹은 비밀번호 입력을 확인해주세요.");
+            return;
+        }
     };
 
-    function submitBtn(evt){
+    async function submitBtn(){
         if(emailCheck && pwCheck && codeCheck){
-            evt.target.disabled = false;
-        }
-
-        if(evt.target.disabled == true){
-            alert("입력폼을 확인하세요");
+            console.log(email, password, isCheckCode);
+            await AdLogin(isCheckCode);
+        }else{
+            alert("아이디나 비밀번호, 인증코드의 입력값을 확인하세요.");
         }
     };
 
@@ -121,7 +127,7 @@ function AdminLogin(){
                             id='frm_code'
                             disabled={true}
                         /> 
-                        <span id='authTimer' className={AdminLoginCss.authTimer} disabled={true}>5:00</span>
+                        <span id='authTimer' className={AdminLoginCss.authTimer} >5:00</span>
                         <button 
                             className={AdminLoginCss.sendBtn} 
                             onClick={(emailCheck && pwCheck) 
@@ -137,7 +143,7 @@ function AdminLogin(){
 
                 <button
                     className={AdminLoginCss.submit}
-                    disabled={true}
+                    disabled={!(emailCheck && pwCheck && codeCheck)}
                     id="frm_sbm"
                     onClick={submitBtn}
                 >
