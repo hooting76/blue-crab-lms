@@ -53,9 +53,9 @@ export default function NoticeList({ category = "academy", page = 1, size = 10 }
 
         //현재 카테고리의 라우트 베이스(페이징 링크 생성에 사용)
           const basepath =
-          category === "academy" ? "/Community/AcademyNotice" :
-          category === "admin" ? "/Community/AdminNotice" :
-          "/Community/EtcNotice";
+          category === "academy" ? "/community/academy" :
+          category === "admin" ? "/community/notice-admin" :
+          "/community/etc";
 
         if (state.loading) return <div>로딩중...</div>;
 

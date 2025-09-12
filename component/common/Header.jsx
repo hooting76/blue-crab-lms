@@ -52,7 +52,7 @@ function Header() {
   return (
   <>
     <header>
-        {isAuthenticated && ( 
+        {isAuthenticated && (  
         <div 
           className={HeaderCss.mobNavBtn}
           onClick={FuncAniBtn}
@@ -61,7 +61,7 @@ function Header() {
           <span></span>
           <span></span>
         </div>
-        )}
+        )}  
       
         <h1 className={HeaderCss.h1}>
           <picture className={HeaderCss.logoImg} onClick={Reset}
@@ -112,7 +112,7 @@ function Header() {
                         <td onClick={() => navigate("/community/academy")}>학사공지</td>
                     </tr>
                     <tr>
-                        <td onClick={() => navigate("/community/admin")}>행정공지</td>
+                        <td onClick={() => navigate("/community/notice-admin")}>행정공지</td>
                     </tr>
                     <tr>
                         <td onClick={() => navigate("/community/etc")}>기타공지</td>
@@ -142,7 +142,7 @@ function Header() {
                 </tbody>
             </table>
           </div>   
-         )} 
+         )}  
         </h1>
 
         {/* 세션타이머(15분). 로그인 중에만 활성화. 아직 만료시 로그아웃 로직 구현 안됨.*/}
@@ -150,7 +150,7 @@ function Header() {
         <div className={HeaderCss.sessionTimer}>
         <SessionTimer/>
         </div>
-          )} 
+          )}  
 
           {/* 로그인된 사용자 정보 */}
             {isAuthenticated && (  
@@ -199,7 +199,7 @@ function Header() {
             )}  
           
           {/* 로그인되지 않은 상태 */}
-          {!isAuthenticated && ( null )} 
+           {!isAuthenticated && ( null )} 
 
     </header>
 

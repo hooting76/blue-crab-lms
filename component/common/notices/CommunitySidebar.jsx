@@ -9,7 +9,7 @@ export default function CommunitySidebar() {
             <h3>커뮤니티</h3>
             <ul>
               <li><NavLink to="/community/academy" className={({isActive}) => isActive ? "active" : ""}>학사공지</NavLink></li>
-              <li><NavLink to="/community/admin"   className={({isActive}) => isActive ? "active" : ""}>행정공지</NavLink></li>
+              <li><NavLink to="/community/notice-admin"   className={({isActive}) => isActive ? "active" : ""}>행정공지</NavLink></li>
               <li><NavLink to="/community/etc"     className={({isActive}) => isActive ? "active" : ""}>기타공지</NavLink></li>
             </ul>
         </nav>
