@@ -84,7 +84,7 @@ function AppContent() {
            {isAuthenticated ?    
            <Routes> 
             {/* 기본 페이지 */}
-            {/* <Route path="/" element={<UserDashboard />} />  */}
+            <Route path="/" element={<UserDashboard />} />
             {/* 학교소개 페이지들 */}
              <Route path="/Introduction/*" element={<Introduction />}>
               <Route path="PresidentSaysHi" element={<PresidentSaysHi />} />
