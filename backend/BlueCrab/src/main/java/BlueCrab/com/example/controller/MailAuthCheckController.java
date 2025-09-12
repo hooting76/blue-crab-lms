@@ -135,6 +135,10 @@ public class MailAuthCheckController {
         try {
             String userName = extractUserNameFromJWT(authentication);
 			// JWT에서 사용자 이름 추출
+            
+            cleanupAuthData(userEmail);
+            // 기존 인증 데이터 삭제 (중복 요청이 있을 경우의 대비용)
+            
             String authSessionId = generateAuthSessionId(userEmail);
 			// 고유한 인증 세션 ID 생성
             String authCode = generateAuthCode();
