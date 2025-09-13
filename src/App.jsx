@@ -29,6 +29,8 @@ import AcademyNotice from '../component/common/Communities/AcademyNotice';
 import AdminNotice from '../component/common/Communities/AdminNotice';
 import EtcNotice from '../component/common/Communities/EtcNotice';
 
+// 공지사항 공통 레이아웃
+import NoticeLayout from '../component/common/notices/NoticeLayout';
 
 // 마이페이지 페이지들
 import MyPage from '../component/common/MyPage';
@@ -64,12 +66,12 @@ function AppContent() {
 
   // 관리자 페이지 접근
   const userAgent = location.href;
-  if(userAgent.indexOf('/admin') > -1){
+  if(userAgent.includes("/admin")){
     // 일반 회원과 세션이 겹치지 않게 하기 위한 초기화
-    if(localStorage.key('user') || sessionStorage.key('user')){
-      logout;
-      window.location.reload();
-    }
+    // if(localStorage.key('user') || sessionStorage.key('user')){
+    //   logout;
+    //   window.location.reload();
+    // }
     return(<Admin/>); 
   }
 
@@ -79,46 +81,40 @@ function AppContent() {
       <Header />
 
       <div id="content">
-         {isAuthenticated ?  
-          <Routes>
+           {isAuthenticated ?    
+           <Routes> 
             {/* 기본 페이지 */}
             <Route path="/" element={<UserDashboard />} />
             {/* 학교소개 페이지들 */}
-            <Route path="/Introduction/*" element={<Introduction />}>
+             <Route path="/Introduction/*" element={<Introduction />}>
               <Route path="PresidentSaysHi" element={<PresidentSaysHi />} />
               <Route path="WayHere" element={<WayHere />} />
               <Route path="Organization" element={<Organization />} />
               <Route path="BlueCrabHistory" element={<BlueCrabHistory />} />
-            </Route>
+            </Route> 
 
             {/* 커뮤니티 페이지들 */}
-            {/* ✅ 최소 중첩: /community/* 만 부모로 두고 Outlet 사용 */}
-            <Route path="/community/*" element={<NoticeLayout />}>
-              <Route index element={<Navigate to="academy" replace />} />
-              <Route path="academy" element={<AcademyNotice />} />
-              <Route path="admin" element={<AdminNotice />} />
-              <Route path="etc" element={<EtcNotice />} /> 
-              {/* 초기접근시 학사공지로 이동 */} 
-            </Route>
+              <Route path="/community/academy"       element={<AcademyNotice/>} />
+              <Route path="/community/notice-admin"  element={<AdminNotice/>} />
+              <Route path="/community/etc"           element={<EtcNotice/>} />
+              <Route path="/community" element={<Navigate to="/community/academy" replace />} />
             
-
-
             {/* 마이페이지 페이지들 */}
-            <Route path="/MyPage/*" element={<MyPage />}>
+             <Route path="/MyPage/*" element={<MyPage />}>
               <Route path="ClassAttendingList" element={<ClassAttendingList />} />
               <Route path="ClassAttendingProgress" element={<ClassAttendingProgress />} />
               <Route path="ClassAttendingNotice" element={<ClassAttendingNotice />} />
               <Route path="Consult" element={<Consult />} />
             </Route>
-          </Routes>
-         // isAuth end
+          </Routes> 
+            // isAuth end 
 
-         : // isAuth false start 
+         : // isAuth false start    
            <Routes>
             <Route path="/" element={<LoginForm/>} />
             <Route path="/FindInfo" element={<FindInfo/>}/>
           </Routes>
-        } 
+         }    
       </div>
       
       {/* 푸터 */}

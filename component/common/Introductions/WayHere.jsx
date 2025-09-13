@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 
 function WayHere() {
   const mapRef = useRef(null);
-  const MAP_KEY = import.meta.env.VITE_KAKAO_MAP_KEY;
+  const MAP_KEY = "82496e92330bcf89079a832990c99a0d";
 
   useEffect(() => {
     const existingScript = document.getElementById('kakao-map-script');

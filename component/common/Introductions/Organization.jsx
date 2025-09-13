@@ -1,11 +1,12 @@
-import "../../../css/Introductions/Organization.css"
+import "../../../css/Introductions/Organization.css";
+import AjouPharmOrganization from '../../../src/assets/AjouPharmOrganization.jpeg';
 
 function Organization() {
-    return(
+    return (
         <div className="blueCrabOrganization">
-            <img src="../../../../src/assets/AjouPharmOrganization.jpeg" height={"500px"}/>
+            <img src={AjouPharmOrganization} height={"500px"} />
         </div>
-    )
+    );
 }
 
 export default Organization;

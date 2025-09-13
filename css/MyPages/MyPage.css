@@ -1,11 +1,20 @@
-.mypagetitle {border-radius: 15px;
-                    padding: 30px;
-                    background-color: var(--white-color);
-                    text-align: center;
-                    justify-content: space-between;}
+.mypagetitle {
+    border-radius: 15px;
+    padding: 30px;
+    background-color: var(--white-color);
+    text-align: center;
+    justify-content: space-between;
+}
 
-#schoolMyPageText {font-size: var(--font-large);}
+#schoolMyPageText {
+    font-size: var(--font-large);
+}
 
-.mypagetitle span {margin-top: 20px;
-                        margin-left: 50px;
-                        margin-right: 50px;}
+.mypagetitle span {
+    border: solid;
+    border-radius: 5px;
+    padding: 5px;
+    margin-top: 20px;
+    margin-left: 50px;
+    margin-right: 50px;
+}

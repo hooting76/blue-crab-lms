@@ -136,6 +136,47 @@ public class JwtUtil {
             return null;
         }
     }
+    
+    // 성태준 추가 - 관리자 이메일 인증 시스템을 위한 JWT 토큰 유틸리티 메서드들
+    /* JWT 토큰에서 타입을 추출합니다
+     * @param token JWT 토큰
+     * @return 토큰 타입 (access, refresh, session 등)
+     */
+    public String extractTokenType(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+            return (String) claims.get("type");
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    /** JWT 토큰에서 purpose를 추출합니다
+     * @param token JWT 토큰  
+     * @return 토큰 목적 (email_verification 등)
+     */
+    public String extractTokenPurpose(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+            return (String) claims.get("purpose");
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    /* JWT 토큰이 세션 토큰인지 확인합니다
+     * @param token JWT 토큰
+     * @return 세션 토큰 여부
+     */
+    public Boolean isSessionToken(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+            return "session".equals(claims.get("type"));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    // 성태준 추가 끝
 
     /**
      * 토큰의 만료 시간을 밀리초로 반환

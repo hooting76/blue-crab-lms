@@ -6,9 +6,9 @@ import { useNavigate } from "react-router-dom";
 // import NoticeTabsCss from '../css/modules/NoticeTabs.module.css';
 
 const Tabs = [
-  { key: "academy", label: "학사공지", path: "/Community/AcademyNotice" },
-  { key: "admin", label: "행정공지", path: "/Community/AdminNotice" },
-  { key: "etc", label: "기타공지", path: "/Community/EtcNotice" },
+  { key: "academy", label: "학사공지", path: "/community/academy" },
+  { key: "admin", label: "행정공지", path: "/community/notice-admin" },
+  { key: "etc", label: "기타공지", path: "/community/etc" },
 ];
 
 export default function NoticeTabs({ active = "academy" }) {

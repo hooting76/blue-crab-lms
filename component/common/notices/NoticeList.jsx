@@ -2,10 +2,10 @@
 //'작성하기' 버튼은 관리자만 노출
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-// import NoticeTable from "./NoticeTable"; //작성중
-// import Pagination from "../notices/Pagination";
+import NoticeTable from "./NoticeTable"; //작성중
+import Pagination from "../notices/Pagination";
 import{ UseUser } from "../../../hook/UseUser";
-import{ MOCK_NOTICES } from "../../../src/mock/notices"; // 목업(더미) 데이터
+import notices from "../../../src/mock/notices"; //목업데이터 임포트
 //import { getNotices } from "../../api/noticeAPI"; //API 함수 임포트,백엔드 붙일때 사용
 
 export default function NoticeList({ category = "academy", page = 1, size = 10 }) {
@@ -53,9 +53,9 @@ export default function NoticeList({ category = "academy", page = 1, size = 10 }
 
         //현재 카테고리의 라우트 베이스(페이징 링크 생성에 사용)
           const basepath =
-          category === "academy" ? "/Community/AcademyNotice" :
-          category === "admin" ? "/Community/AdminNotice" :
-          "/Community/EtcNotice";
+          category === "academy" ? "/community/academy" :
+          category === "admin" ? "/community/notice-admin" :
+          "/community/etc";
 
         if (state.loading) return <div>로딩중...</div>;
 

@@ -17,13 +17,13 @@ export const CLEAR_ERROR = 'CLEAR_ERROR';
 
 // reducer 함수
 function AdminReducer(state, action) {
-    switch (action.type) {
+    switch (action.type) {       
         case LOGIN_START:
             return {
                 ...state,
                 isLoading: true,
                 error: null
-            };
+            };         
         case LOGIN_SUCCESS:
             return {
                 ...state,
@@ -74,36 +74,41 @@ export const AdminProvider = ({ children }) => {
     }, []);
 
     // 관리자 로그인 함수
-    const AdLogin = async(email, password) =>{
+    const AdLogin = async(code) =>{
+        const token = localStorage.getItem('tmp_token');
         dispatch({ type: LOGIN_START });
-        const adData = {username: email, password: password};
 
-        try {
-            const adUrl = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/';
+        const authCode = code;
+        const serverDomain = "https://bluecrab.chickenkiller.com/BlueCrab-1.0.0";
+        // console.log("authCode",authCode);
+        console.log("token",token);
 
-            const res = await fetch(adUrl, {
-                method: 'POST',
-                credentials: "same-origin",
-                mode: "cors",
-                cache: 'no-cache',
-                headers: { 'Content-Type': 'application/json'},
-                body: JSON.stringify(adData),                
-            });
-
-            // console.log(res);
-            const ct = res.headers.get('Content-type') || '';
-            const data = ct.includes('application/json') ? await res.json() : await res.text();
-
-            // response
-            if(res.ok){
-                
-            }else{
-
-            }// response end
-
-        } catch (error) {
+        fetch(`${serverDomain}/api/admin/email-auth/verify`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                authCode: authCode
+            })
+        }).then(response => {
+            console.log("📊 검증 응답 상태:", response.status);
             
-        }
+            if (response.status === 200) {
+                console.log("✅ 인증코드 검증 요청 성공!");
+            } else if (response.status === 401) {
+                console.log("❌ 401 오류 - 세션 토큰이 만료되었거나 유효하지 않음");
+            } else if (response.status === 400) {
+                console.log("❌ 400 오류 - 인증코드가 잘못되었거나 만료됨");
+            }
+            
+            return response.text();
+        }).then(data => {
+            const result = JSON.parse(data);
+            
+            console.log(result);
+        })
     };
 
     const AdLogout = async() => {

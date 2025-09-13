@@ -46,7 +46,6 @@ public class AdminEmailVerification {
     private static final int AUTH_CODE_EXPIRY_MINUTES = 5;
     private static final String AUTH_CODE_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final String AUTH_SESSION_PREFIX = "admin_email_auth_code:";
-    private static final String JWT_SECRET = "your-session-token-secret-key-should-be-at-least-256-bits-for-security";
     private static final long ACCESS_TOKEN_EXPIRATION = 15 * 60 * 1000L; // 15분
     private static final long REFRESH_TOKEN_EXPIRATION = 24 * 60 * 60 * 1000L; // 24시간
     
@@ -72,6 +71,10 @@ public class AdminEmailVerification {
     // UserTblRepository : 사용자 테이블과 상호작용하는 JPA 리포지토리 인터페이스
     // Spring Data JPA가 자동으로 구현체를 생성하여 주입함
 
+    @Autowired
+    private BlueCrab.com.example.config.AppConfig appConfig;
+    // AppConfig : 애플리케이션 설정 정보를 담는 설정 클래스
+
     @Value("${app.domain}")
     // @Value : application.properties 또는 application.yml 파일에서 설정 값을 주입받는 어노테이션
     // "${app.domain}" : 설정 파일에서 "app.domain" 키에 해당하는 값을 주입받음
@@ -93,21 +96,37 @@ public class AdminEmailVerification {
         HttpServletRequest request) {
         // sessionToken: "Bearer <JWT>" 형식일 수 있으므로 "Bearer " 제거
         // HttpServletRequest request : 현재 HTTP 요청에 대한 정보를 담고 있는 객체
+        
+        try {
+            log.info("Admin email auth code request started");
+            log.info("AppConfig status: {}", appConfig != null ? "OK" : "NULL");
+            log.info("EmailVerificationService status: {}", emailVerificationService != null ? "OK" : "NULL");
+            
+            if (sessionToken == null || !sessionToken.startsWith("Bearer ")) {
+                // 임시토큰이 없거나 유효하지 않은 경우
+                log.info("Admin email auth failed - missing or invalid session token");
+                // 임시토큰 누락 로그 기록
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new AuthResponse("임시토큰이 필요합니다."));
+                    // 401 응답 반환
+                    // AuthResponse : 응답 메시지를 담는 DTO
+            } // if 임시토큰이 없거나 유효하지 않은 경우 끝
+
         String jwt = sessionToken.substring(7);
         // sessionToken.substring(7) : "Bearer " 부분 제거
-        String email = emailVerificationService.extractAdminIdFromSessionToken(jwt);
-        // 이메일 인증 토큰에서 관리자 이메일 추출
+        log.info("Extracted JWT token: {}", jwt.substring(0, Math.min(20, jwt.length())) + "...");
+        
+        String email = null;
+        try {
+            email = emailVerificationService.extractAdminIdFromSessionToken(jwt);
+            log.info("Email extraction result: {}", email);
+        } catch (Exception e) {
+            log.error("Email extraction failed with exception: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new AuthResponse("토큰 처리 중 오류가 발생했습니다: " + e.getMessage()));
+        }
+        // JWT 토큰에서 관리자 이메일 추출 (EmailVerificationService 사용)
         // 본 컨트롤러의 핵심이자 근간, 첫 단추.
-
-        if (sessionToken == null || !sessionToken.startsWith("Bearer ")) {
-            // 임시토큰이 없거나 유효하지 않은 경우
-            log.info("Admin email auth failed - missing or invalid session token");
-            // 임시토큰 누락 로그 기록
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new AuthResponse("임시토큰이 필요합니다."));
-                // 401 응답 반환
-                // AuthResponse : 응답 메시지를 담는 DTO
-        } // if 임시토큰이 없거나 유효하지 않은 경우 끝
 
         if (email == null) {
             // 이메일이 추출되지 않는 경우
@@ -162,6 +181,12 @@ public class AdminEmailVerification {
         return ResponseEntity.ok(new AuthResponse("인증코드가 발송되었습니다. %d분 이내에 인증을 완료해주세요.", AUTH_CODE_EXPIRY_MINUTES));
         // 200 응답 반환
         // AuthResponse : 응답 메시지를 담는 DTO
+        
+        } catch (Exception e) {
+            log.error("Unexpected error in requestAdminEmailAuthCode: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new AuthResponse("서버 내부 오류가 발생했습니다: " + e.getMessage()));
+        }
     } // requestAdminEmailAuthCode 메서드 끝
 
     // ========== 2. 인증코드 검증 ==========
@@ -256,9 +281,9 @@ public class AdminEmailVerification {
             // adminSys : 관리자 시스템 권한 (null인 경우 0으로 기본 설정)
             // admin.getAdminSys() : 관리자 시스템 권한 조회
             // != null ? ... : ... : null인 경우 기본값 0 설정
-            SecretKey key = Keys.hmacShaKeyFor(JWT_SECRET.getBytes());
+            SecretKey key = Keys.hmacShaKeyFor(appConfig.getJwt().getSecret().getBytes());
             // SecretKey key : JWT 서명에 사용할 비밀 키
-            // Keys.hmacShaKeyFor(JWT_SECRET.getBytes()) : 비밀 키 생성
+            // Keys.hmacShaKeyFor(appConfig.getJwt().getSecret().getBytes()) : AppConfig에서 비밀 키 생성
             long now = System.currentTimeMillis();
             // now : 현재 시간 (밀리초 단위)
             String accessToken = Jwts.builder()
@@ -344,7 +369,7 @@ public class AdminEmailVerification {
 
     // ========== 내부 유틸리티 메서드 ==========
 
-    // 3. 인증코드 생성(숫자+영문 대문자 d자리)
+    // 3. 인증코드 생성(숫자+영문 대문자 6자리)
     private String generateAuthCode() {
         // String generateAuthCode() : 인증코드를 생성하여 반환하는 메서드
         StringBuilder code = new StringBuilder();
