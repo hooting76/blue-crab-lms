@@ -84,6 +84,8 @@ public class AdminService {
             if ("suspended".equals(cachedStatus)) {
                 Boolean isStillSuspended = (Boolean) statusValidation.get("isStillSuspended");
                 if (Boolean.TRUE.equals(isStillSuspended)) {
+                    // Type safety를 위한 안전한 캐스팅
+                    @SuppressWarnings("unchecked")
                     Map<String, String> suspendInfo = (Map<String, String>) statusValidation.get("suspendInfo");
                     String reason = suspendInfo != null ? suspendInfo.get("reason") : "관리자에 의해 정지";
                     Long remainingTime = (Long) statusValidation.get("remainingTime");

@@ -15,11 +15,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 
-/*
- * 본 클래스의 본문
- * @Service 어노테이션을 이용해서 이 클래스가 "Spring"의 "Service"계층에 속함을 표시.
- * 이 어노테이션을 씀 으로서 "Spring"컨테이너가 본 클래스의 인스턴스(bean)을 생성하고 관리하게 된다.
- */
+
 @Service
 public class EmailService {
 
@@ -37,15 +33,14 @@ public class EmailService {
 	 */
 	
 	// 단순한 텍스트메일
+	// 현재 미사용이지만 향후 확장성을 위해 유지
 	public void sendSimpleMessage(String from, String to, String subject, String text) {
-		/* sendSimpleMessage : 단순한 평문(Plain text)으로 된 이메일을 발송하는 메서드.
-		 */
+		// sendSimpleMessage : 단순한 평문(Plain text)으로 된 이메일을 발송하는 메서드.
 		
         SimpleMailMessage message = new SimpleMailMessage(); 
-		/* sendSimpleMessage : 단순한 평문(Plain text)으로 된 이메일을 나타내는 객체
-		 * 					   당연히 제목, 발신자, 수신자, 내용을 설정 할 수 있다.
-		 * 					   첨부파일은 포함되지 않는다.
-		 */
+		// sendSimpleMessage : 단순한 평문(Plain text)으로 된 이메일을 나타내는 객체
+		// 당연히 제목, 발신자, 수신자, 내용을 설정 할 수 있다.
+		// 첨부파일은 포함되지 않는다.
         message.setFrom(from);
 		// message.setFrom(from) : 메일 발송자의 주소를 설정.
         message.setTo(to); 
@@ -60,13 +55,13 @@ public class EmailService {
     }
 	
 	// HTML, 첨부파일 등 복잡한 메일
+	// 현재 미사용이지만 향후 첨부파일 기능 확장을 위해 유지
 	// https://docs.spring.io/spring-framework/reference/6.0/integration/email.html#mail-usage-mime
 	public void sendMIMEMessage(String from, String to, String subject, String text, FileSystemResource file) {
 		
 		MimeMessagePreparator preparator = new MimeMessagePreparator() {
-			/* MimeMessagePreparator : 메일을 발송하는 "준비"를 하는 인터페이스.
-			 */
-
+			// MimeMessagePreparator : 메일을 발송하는 "준비"를 하는 인터페이스.
+			
 			@Override
 			public void prepare(@NonNull MimeMessage message) throws Exception {
 				// prepare : MimeMessage 객체를 받아서 메세지를 구성하는 메서드.
@@ -104,6 +99,7 @@ public class EmailService {
     } //
 	
 	// HTML, 첨부파일 없는 메일
+	// 현재 AdminEmailVerification, MailAuthCheckController에서 사용 중 (인증코드 메일 발송용)
 	// https://docs.spring.io/spring-framework/reference/6.0/integration/email.html#mail-usage-mime
 	public void sendMIMEMessage(String from, String to, String subject, String text) {
 		
