@@ -4,7 +4,7 @@ import { UseAdmin } from "../../hook/UseAdmin";
 import LoginFrm from '../../css/modules/LoginForm.module.css';
 import AdminLoginCss from "../../css/modules/AdminLoginCss.module.css";
 
-import AdLoginAuth from "./auth/AdLoginAuth";
+import AdLoginAuth from "../admin/auth/AdLoginAuth";
 
 function AdminLogin(){
     const { AdLogin, isLoading, error, clearError, isAuthenticated} = UseAdmin();
@@ -59,31 +59,33 @@ function AdminLogin(){
         }
     };
 
-    async function sendCode(){
+    // email code send func
+    function sendCode(){
         const authCode = document.getElementById('frm_code');
         const inputId = document.getElementById('frm_id');
         const inputPw = document.getElementById('frm_pw');
-        if(emailCheck && pwCheck){ //아이디 비밀번호 입력폼 둘다 통과가 되면
-            await AdLoginAuth(`bluecrabtester9@gmail.com`, `Bluecrab256@`);
+
+        if(emailCheck && pwCheck){
+            // auth
+            AdLoginAuth(`bluecrabtester9@gmail.com`, `Bluecrab256@`);
 
             authCode.disabled = false;
             authCode.focus();
             
             inputId.disabled = true;
-            inputPw.disabled = true;  
+            inputPw.disabled = true;            
         }else{
             alert("아이디 혹은 비밀번호 입력을 확인해주세요.");
             return;
-        }
+        };
     };
 
     async function submitBtn(){
         if(emailCheck && pwCheck && codeCheck){
-            console.log(email, password, isCheckCode);
             await AdLogin(isCheckCode);
         }else{
             alert("아이디나 비밀번호, 인증코드의 입력값을 확인하세요.");
-        }
+        };
     };
 
     return(
@@ -129,10 +131,8 @@ function AdminLogin(){
                         /> 
                         <span id='authTimer' className={AdminLoginCss.authTimer} >5:00</span>
                         <button 
-                            className={AdminLoginCss.sendBtn} 
-                            onClick={(emailCheck && pwCheck) 
-                                ? sendCode
-                                : null }
+                            className={AdminLoginCss.sendBtn}
+                            onClick={sendCode}
                             disabled={!(emailCheck && pwCheck)}
                             id='frm_btn'
                         >
