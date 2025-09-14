@@ -63,52 +63,58 @@ export const AdminProvider = ({ children }) => {
 
     useEffect(() => {
         // 컴포넌트 마운트 시 저장된 관리자 정보 불러오기
-        const storedAdmin = localStorage.getItem('admin');
+        const storedAdmin = localStorage.getItem('accessToken');
         if (storedAdmin) {
             try {
-                dispatch({ type: LOGIN_SUCCESS, payload: JSON.parse(storedAdmin) });
+                const Admin = JSON.parse(storedAdmin);
+                dispatch({ type: LOGIN_SUCCESS, payload: Admin });
             } catch (error) {
-                localStorage.removeItem('admin');
+                localStorage.removeItem('accessToken');
             }
         }
     }, []);
 
     // 관리자 로그인 함수
     const AdLogin = async(code) =>{
-        const token = localStorage.getItem('tmp_token');
+        
+        if (!code || code.length !== 6) {
+            prompt('6자리 인증코드를 입력하세요:');
+            return;
+        }
+        
         dispatch({ type: LOGIN_START });
 
-        const authCode = code;
-        const serverDomain = "https://bluecrab.chickenkiller.com/BlueCrab-1.0.0";
-        // console.log("authCode",authCode);
-        console.log("token",token);
+        let sessionToken = localStorage.getItem('sessionToken');
+        const baseUrl = "https://bluecrab.chickenkiller.com/BlueCrab-1.0.0";
 
-        fetch(`${serverDomain}/api/admin/email-auth/verify`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                authCode: authCode
-            })
-        }).then(response => {
-            console.log("📊 검증 응답 상태:", response.status);
-            
-            if (response.status === 200) {
-                console.log("✅ 인증코드 검증 요청 성공!");
-            } else if (response.status === 401) {
-                console.log("❌ 401 오류 - 세션 토큰이 만료되었거나 유효하지 않음");
-            } else if (response.status === 400) {
-                console.log("❌ 400 오류 - 인증코드가 잘못되었거나 만료됨");
+        if (!sessionToken.startsWith('Bearer ')) {
+            sessionToken = 'Bearer ' + sessionToken;
+        };
+        
+        // final login auth
+        try {
+            const response = await fetch(`${baseUrl}/api/admin/email-auth/verify`,{
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': sessionToken
+                },
+                body: JSON.stringify({ authCode: code })                
+            });
+
+            const result = await response.json();
+            // console.log(result);
+
+            if (result.message =="이메일 인증 성공! 토큰이 발급되었습니다." && result.data){
+            // ok
+                localStorage.setItem('accessToken', result.data.accessToken);
+                dispatch({ type: LOGIN_SUCCESS, payload: result.data });
+                return result.data, {success: true};
             }
-            
-            return response.text();
-        }).then(data => {
-            const result = JSON.parse(data);
-            
-            console.log(result);
-        })
+        } catch (error) {
+            dispatch({ type: LOGIN_FAILURE, payload: error.message });
+            console.error('❌ 네트워크 오류:', error);
+        }
     };
 
     const AdLogout = async() => {
