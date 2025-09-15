@@ -41,28 +41,26 @@ async function RequestCode(token) {
         // send code ok alert
         alert(result.message);
         
-        //timer
-        const timerElement = document.getElementById('authTimer');
-        let timeLeft = 300; // seconds
+        //timer // one time use func
+        (function() {
+            const timerElement = document.getElementById('authTimer');
+            let timeLeft = 300;
+            const countdownTimer = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(countdownTimer);
+                    timerElement.textContent = '0:00';
+                    alert("인증코드가 만료되었습니다.\n 새로 인증을 진행해주세요.");
+                    location.reload();
+                }
+                timeLeft--;
+            }, 1000);
+        })();
 
-        const countdownTimer = setInterval(() => {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-            
-            if (timeLeft <= 0) {
-                clearInterval(countdownTimer);
-                timerElement.textContent = '0:00';
-                alert("인증코드가 만료되었습니다.\n 새로 인증을 진행해주세요.");
-                location.reload();
-            }
-            timeLeft--;
-        }, 1000);
-        
-        // Store timer ID for cleanup
-        window.currentAuthTimer = countdownTimer;
         return result;
-        
     } catch (error) {
         console.error('❌ 네트워크 오류:', error);
     }
