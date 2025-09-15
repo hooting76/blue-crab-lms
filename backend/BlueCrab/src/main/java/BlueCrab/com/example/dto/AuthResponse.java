@@ -1,9 +1,12 @@
 // 작업자 : 성태준
 package BlueCrab.com.example.dto;
 
+// ========== 임포트 구문 ==========
+
+// ========== 외부 라이브러리 ==========
 import lombok.Getter;
-import lombok.Setter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 // ========== 인증 응답 DTO 클래스 ==========
 @Getter // @Getter 자동 생성

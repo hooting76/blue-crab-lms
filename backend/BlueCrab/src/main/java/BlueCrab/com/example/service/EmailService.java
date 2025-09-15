@@ -1,14 +1,18 @@
-/* 작업자 : 성태준
- * 실제 메일 발송하는 로직을 담고 있는 클래스.
- * 총 3가지 메소드로 구성되어 있음.
-*/
+// 작업자 : 성태준
+// 실제 메일 발송하는 로직을 담고 있는 클래스.
+// 총 3가지 메소드로 구성되어 있음.(그 중 하나 만 씀)
+
 package BlueCrab.com.example.service;
 
-import javax.mail.internet.MimeMessage;
-import org.springframework.lang.NonNull;
+// ========== 임포트 구문 ==========
 
+// ========== Java 표준 라이브러리 ==========
+import javax.mail.internet.MimeMessage;
+
+// ========== Spring Framework ==========
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.lang.NonNull;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -16,22 +20,26 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 
 
-@Service
+@Service // @Service : 스프링에게 "서비스 컴포넌트"임을 알리는 어노테이션
 public class EmailService {
+	// 실제 메일 발송하는 로직을 담고 있는 클래스.
+	// 총 3가지 메소드로 구성, 하지만 그중 둘은 현재 미사용.
+	// 확장성을 위해 유지 중.
 
 	@Autowired
-	/* @Autowired : spring에게 의존성 주입의 자동처리 요청을 날리는 어노테이션
-	 * spring 컨테이너가 자동으로 적합한 bean을 찾아서 연결해 주기에 "new"키워드를 일일히 쓸 필요가 없어진다.
-	 */
+	// @Autowired : spring에게 의존성 주입의 자동처리 요청을 날리는 어노테이션
+	// spring 컨테이너가 자동으로 적합한 bean을 찾아서 연결해 주기에 "new"키워드를 일일히 쓸 필요가 없어진다.
+
 	private JavaMailSender emailSender;
 	/* JavaMailSender : Spring이 제공하는 "이메일 발송"의 핵심 인터페이스
-	 * 단독으로는 기능 하지 않으나, xml설정파일에 의해 정의된 SMTP정보(host, port, username, password 등)를 
-	 * 기반으로 동작.
+	 * 단독으로는 기능 하지 않으나, xml설정파일에 의해 정의된 
+	 * SMTP정보(host, port, username, password 등)를 기반으로 동작.
 	 */
+	
 	/* "@Autowired" 어노테이션이 "emailSender"객체(JavaMailSender 인터페이스에서 정의된)를 찾아서 알아서
 	 * 연결해 주기에 작업시 "emailSender"객체를 통해 send()메서드 같은 것을 호출 하기만 하면 된다.
 	 */
-	
+
 	// 단순한 텍스트메일
 	// 현재 미사용이지만 향후 확장성을 위해 유지
 	public void sendSimpleMessage(String from, String to, String subject, String text) {
@@ -52,7 +60,7 @@ public class EmailService {
         emailSender.send(message);
 		// emailSender.send(message) : 이상 설정에 따라서 메일 내용을 실제로 발송.
 
-    }
+    } // sendSimpleMessage 끝
 	
 	// HTML, 첨부파일 등 복잡한 메일
 	// 현재 미사용이지만 향후 첨부파일 기능 확장을 위해 유지
@@ -90,25 +98,28 @@ public class EmailService {
 				 * 첫번째 인자는 첨부파일의 이름, 두번째 인자는 실제 파일 객체.
 				 * FileSystemResource는 스프링에서 제공하는 파일 객체로, 파일 시스템의 파일을 나타낸다.
 				 */
-			} //
+			} // prepare 메서드 끝
 		
-		};
+		}; // preparator 끝
 		
         emailSender.send(preparator);
 		// emailSender.send(preparator) : 이상의 설정에 따라서 메일을 실제로 발송한다.
-    } //
+    } // sendMIMEMessage 끝
 	
 	// HTML, 첨부파일 없는 메일
 	// 현재 AdminEmailAuthController, MailAuthCheckController에서 사용 중 (인증코드 메일 발송용)
 	// https://docs.spring.io/spring-framework/reference/6.0/integration/email.html#mail-usage-mime
 	public void sendMIMEMessage(String from, String to, String subject, String text) {
+		// (발신자, 수신자, 제목, 본문) 정보를 받아서 메일 발송
 		
 		MimeMessagePreparator preparator = new MimeMessagePreparator() {
-			/* MimeMessagePreparator : 메일을 발송하는 "준비"를 하는 인터페이스.
-			 */
+			// MimeMessagePreparator : 메일을 발송하는 "준비"를 하는 인터페이스.
 
-			@Override
+			@Override // @Override : 인터페이스의 메서드를 구현(오버라이드)한다는 어노테이션
 			public void prepare(@NonNull MimeMessage message) throws Exception {
+				// prepare : MimeMessage 객체를 받아서 메세지를 구성하는 메서드.
+				// @NonNull : null이 아닌 값이 반드시 들어와야 함을 명시하는 어노테이션,
+				// 즉, null이 들어오면 예외 발생.
 
 				final MimeMessageHelper mailHelper = new MimeMessageHelper(message, true, "UTF-8");
 				/* MimeMessageHelper : MimeMassage의 취급을 보조하는 헬퍼 클래스
@@ -126,13 +137,13 @@ public class EmailService {
 				// mailHelper.setSubject(subject) : 메일의 제목을 설정.
 				mailHelper.setText(text, true); 
 				// mailHelper.setText(text, true) : 메일의 본문을 설정. 두번째 인자가 true이면 HTML로 인식.
-				
-			} //
-		
-		};
+
+			} // prepare 메서드 끝
+
+		}; // preparator 끝
 		
         emailSender.send(preparator);
 		// emailSender.send(preparator) : 이상의 설정에 따라서 메일을 실제로 발송한다.
-    } //
+    } // sendMIMEMessage 끝
 
-}
+} // EmailService 끝
