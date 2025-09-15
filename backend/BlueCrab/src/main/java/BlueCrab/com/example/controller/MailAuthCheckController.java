@@ -309,7 +309,7 @@ public class MailAuthCheckController {
                 log.warn("Auth code mismatch - User: {}, IP: {}", userEmail, clientIp);
 				// 불일치 경고 로그 기록
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(new AuthResponse("인증 코드가 올바르지 않습니다. 인증코드는 영문 대문자와 숫자 조합의 %d자리 문자입니다.", AUTH_CODE_LENGTH));
+                        .body(new AuthResponse(String.format("인증 코드가 올바르지 않습니다. 인증코드는 영문 대문자와 숫자 조합의 %d자리 문자입니다.", AUTH_CODE_LENGTH)));
 						// HTTP 401 Unauthorized 응답 반환
             } // if-else 끝
             
