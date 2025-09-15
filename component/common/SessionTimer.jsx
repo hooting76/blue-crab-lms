@@ -1,6 +1,6 @@
 import { useLocation } from 'react-router-dom';
 import React, { useState, useEffect, useRef } from 'react';
-import { UseUser } from '../hooks/UseUser';
+import { UseUser } from '../../hook/UseUser';
 
 const SessionTimer = () => {
   const [timeLeft, setTimeLeft] = useState(900);
