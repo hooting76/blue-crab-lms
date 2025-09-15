@@ -106,7 +106,7 @@ public class UserNameExtractor {
     }
     
     /* 관리자 ID로 관리자 이름 추출
-     * 향후 AdminEmailVerification에서 사용 가능
+     * AdminEmailAuthController에서 사용 가능
      * 
      * @param adminId 관리자 ID (이메일)
      * @return String 관리자 이름 (조회 실패 시 기본값)

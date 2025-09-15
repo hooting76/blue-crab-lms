@@ -227,4 +227,4 @@ public class AdminEmailAuthController {
         }
     } // verifyAdminEmailAuthCode 메서드 끝
 
-} // AdminEmailVerification 클래스 끝
+} // AdminEmailAuthController 클래스 끝
