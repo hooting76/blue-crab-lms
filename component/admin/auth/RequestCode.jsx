@@ -4,7 +4,7 @@
  * Sends a request to the server to initiate email authentication.
  * @param {string} token - The session token for authorization.
  */
-import { UseAdmin } from '../hook/UseAdmin';
+import { UseAdmin } from '../../../hook/UseAdmin';
 
 async function RequestCode(token) {
     const { isAuthenticated } = UseAdmin();
