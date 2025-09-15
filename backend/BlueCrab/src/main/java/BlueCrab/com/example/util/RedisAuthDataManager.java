@@ -1,7 +1,7 @@
 /* 작업자 : 성태준
  * Redis 인증 데이터 관리 전용 유틸리티 클래스
  * 이메일 인증 코드와 관련된 데이터의 저장, 조회, 삭제를 담당
- * MailAuthCheckController와 AdminEmailVerification에서 공통으로 사용 가능한 범용 유틸리티
+ * MailAuthCheckController와 AdminEmailAuthController에서 공통으로 사용 가능한 범용 유틸리티
  */
 
 package BlueCrab.com.example.util;
@@ -61,7 +61,7 @@ public class RedisAuthDataManager {
     }
     
     /* 인증 데이터를 Redis에 저장 (커스터마이징 가능)
-     * AdminEmailVerification 등에서 다른 키 접두사 사용 시 활용
+     * AdminEmailAuthController 등에서 다른 키 접두사 사용 시 활용
      * 
      * @param keyPrefix Redis 키 접두사
      * @param identifier 식별자 (이메일 등)
@@ -102,7 +102,7 @@ public class RedisAuthDataManager {
     }
     
     /* 인증 데이터를 Redis에서 조회 (커스터마이징 가능)
-     * AdminEmailVerification 등에서 다른 키 접두사 사용 시 활용
+     * AdminEmailAuthController 등에서 다른 키 접두사 사용 시 활용
      * 
      * @param keyPrefix Redis 키 접두사
      * @param identifier 식별자 (이메일 등)
@@ -161,7 +161,7 @@ public class RedisAuthDataManager {
     }
     
     /* 인증 데이터를 Redis에서 삭제 (커스터마이징 가능)
-     * AdminEmailVerification 등에서 다른 키 접두사 사용 시 활용
+     * AdminEmailAuthController 등에서 다른 키 접두사 사용 시 활용
      * 
      * @param keyPrefix Redis 키 접두사
      * @param identifier 식별자 (이메일 등)

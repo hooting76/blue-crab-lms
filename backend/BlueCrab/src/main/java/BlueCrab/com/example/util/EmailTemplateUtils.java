@@ -126,7 +126,7 @@ public class EmailTemplateUtils {
     }
     
     /* 관리자용 인증 코드 이메일 HTML 템플릿 생성
-     * (향후 AdminEmailVerification에서 활용 가능)
+     * (AdminEmailAuthController에서 활용)
      * 
      * @param adminName 관리자 이름
      * @param authCode 6자리 인증 코드
