@@ -1,13 +1,11 @@
 import { useLocation } from 'react-router-dom';
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { UseUser } from '../../hook/UseUser';
 
 const SessionTimer = () => {
   const [timeLeft, setTimeLeft] = useState(900);
   const location = useLocation();
   const timerRef = useRef(null);
-  const navigate = useNavigate();
   const { logout } = UseUser();
 
   const formatTime = (seconds) => {
@@ -19,7 +17,7 @@ const SessionTimer = () => {
   const handleLogout = async () => {
     alert("로그아웃되었습니다.");
     await logout();
-    navigate("/", { replace: true });
+    window.location.replace('/');
   }
 
 
