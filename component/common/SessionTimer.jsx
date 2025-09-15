@@ -20,20 +20,24 @@ const SessionTimer = () => {
   }, [location]);
 
   useEffect(() => {
+    clearInterval(timerRef.current);
+    setTimeLeft(900);
+
     timerRef.current = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
           clearInterval(timerRef.current);
           alert("로그아웃되었습니다.");
-          logout(); // 로그아웃 처리
+          logout();
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
 
-    return () => clearInterval(timerRef.current);
-  }, []);
+  return () => clearInterval(timerRef.current);
+}, [location]);
+
 
   return (
     <>
