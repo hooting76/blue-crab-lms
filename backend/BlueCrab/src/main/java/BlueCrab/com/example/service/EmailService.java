@@ -99,7 +99,7 @@ public class EmailService {
     } //
 	
 	// HTML, 첨부파일 없는 메일
-	// 현재 AdminEmailVerification, MailAuthCheckController에서 사용 중 (인증코드 메일 발송용)
+	// 현재 AdminEmailAuthController, MailAuthCheckController에서 사용 중 (인증코드 메일 발송용)
 	// https://docs.spring.io/spring-framework/reference/6.0/integration/email.html#mail-usage-mime
 	public void sendMIMEMessage(String from, String to, String subject, String text) {
 		

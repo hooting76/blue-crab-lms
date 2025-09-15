@@ -50,7 +50,7 @@ public class AdminAuthResponseBuilder {
             responseData.put("adminName", admin.getName());
             
             // 성공 응답 객체 생성
-            AuthResponse response = new AuthResponse("이메일 인증 성공! 토큰이 발급되었습니다.");
+            AuthResponse response = new AuthResponse("이메일 인증 성공! 토큰이 발급되었습니다.", true);
             response.setData(responseData);
             
             log.info("Successfully built auth success response for admin: {}", admin.getAdminId());
@@ -68,7 +68,7 @@ public class AdminAuthResponseBuilder {
     public ResponseEntity<AuthResponse> buildErrorResponse(String message, HttpStatus status) {
         log.warn("Building error response - Status: {}, Message: {}", status, message);
         
-        AuthResponse response = new AuthResponse(message);
+        AuthResponse response = new AuthResponse(message, false);
         return ResponseEntity.status(status).body(response);
     }
     
@@ -77,7 +77,7 @@ public class AdminAuthResponseBuilder {
         String message = String.format("인증코드가 발송되었습니다. %d분 이내에 인증을 완료해주세요.", expiryMinutes);
         log.debug("Building code sent response with expiry: {} minutes", expiryMinutes);
         
-        AuthResponse response = new AuthResponse(message);
+        AuthResponse response = new AuthResponse(message, true);
         return ResponseEntity.ok(response);
     }
 }
