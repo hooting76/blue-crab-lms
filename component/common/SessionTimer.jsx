@@ -14,26 +14,35 @@ const SessionTimer = () => {
     return `${minutes}분 ${secs < 10 ? '0' : ''}${secs}초`;
   };
 
+  const handleLogout = async () => {
+    alert("로그아웃되었습니다.");
+    await logout();
+  };
+
+
   useEffect(() => {
     // URL이 바뀔 때마다 타이머 초기화
     setTimeLeft(900);
   }, [location]);
 
   useEffect(() => {
+    clearInterval(timerRef.current);
+    setTimeLeft(900);
+
     timerRef.current = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
           clearInterval(timerRef.current);
-          alert("로그아웃되었습니다.");
-          logout(); // 로그아웃 처리
+          handleLogout();
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
 
-    return () => clearInterval(timerRef.current);
-  }, []);
+  return () => clearInterval(timerRef.current);
+}, [location]);
+
 
   return (
     <>
