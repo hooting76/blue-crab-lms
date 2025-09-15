@@ -12,7 +12,7 @@ export default function Community() {
     // 현재 경로 -> 어떤 탭을 active로 표시할지 유도
     const getCurrentLabel = () => {
         if(location.pathname.startsWith("/Community/AcademyNotice")) return "학사공지";
-        if(location.pathname.startsWith("/Community/AdminNotice")) return "행정공지";
+        if(location.pathname.startsWith("/Community/notice-admin")) return "행정공지";
         if(location.pathname.startsWith("/Community/EtcNotice")) return "기타공지";
         return "학사공지"; //기본값
     };
@@ -25,7 +25,7 @@ export default function Community() {
             {/* 카테고리 탭 */}
             <div className="tab-menu" aria-label="공지 카테고리">
                 <NavLink to="/Community/AcademyNotice" end className={({isActive}) => isActive ? "active" : ""}>학사공지</NavLink>
-                <NavLink to="/Community/AdminNotice" className={({isActive}) => isActive ? "active" : ""}>행정공지</NavLink>
+                <NavLink to="/Community/notice-admin" className={({isActive}) => isActive ? "active" : ""}>행정공지</NavLink>
                 <NavLink to="/Community/EtcNotice" className={({isActive}) => isActive ? "active" : ""}>기타공지</NavLink>
             </div>
 

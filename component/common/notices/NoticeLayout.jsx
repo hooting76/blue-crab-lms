@@ -1,14 +1,14 @@
 //공지 공용 틀: 배너 + 탭 + 좌측 본문(children) + 우측 사이드(커뮤니티 메뉴)
 import React from "react";
 import { useState, useEffect } from 'react';
-import { Outlet, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 //import { UseUser } from "../../../hook/UseUser";
 import NoticeTabs from "../notices/NoticeTabs";
 import CommunitySidebar from "../notices/CommunitySidebar";
 import "../../../css/Communities/Notices.css";
 
 
-export default function NoticeLayout(){
+export default function NoticeLayout({ children}){
     const { pathname } = useLocation();
     const active =
     pathname.startsWith("/community/notice-admin") ? "admin" :
@@ -28,7 +28,7 @@ export default function NoticeLayout(){
                 
                 {/* 좌측: 공지 본문(목록 or 상세) */}
                 <section className="left">
-                    <Outlet /> 
+                    <children />  
                 </section>
 
                 {/* 우측: 커뮤니티 사이드바 */} 
