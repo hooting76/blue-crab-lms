@@ -447,6 +447,125 @@ public class UserTblService {
     }
     
     /**
+     * ID 찾기 메서드
+     * 학번, 이름, 전화번호를 입력받아 해당하는 사용자의 이메일 주소를 마스킹하여 반환
+     *
+     * 비즈니스 로직:
+     * 1. 입력값 유효성 검사
+     * 2. 데이터베이스에서 일치하는 사용자 조회
+     * 3. 사용자가 존재하면 이메일 마스킹 후 반환
+     * 4. 사용자가 존재하지 않으면 실패 응답 반환
+     *
+     * 보안 고려사항:
+     * - 계정 존재 여부를 직접적으로 노출하지 않음
+     * - 이메일 주소는 마스킹하여 일부만 노출
+     * - 일관된 응답 시간 유지 (타이밍 공격 방지)
+     *
+     * @param userCodeStr 학번/교수 코드 (문자열로 받아서 숫자로 변환)
+     * @param userName 사용자 이름
+     * @param userPhone 전화번호
+     * @return FindIdResponse 처리 결과 (성공 시 마스킹된 이메일, 실패 시 에러 메시지)
+     *
+     * 사용 예시:
+     * FindIdResponse response = userService.findUserEmail("202012345", "홍길동", "01012345678");
+     * if (response.isSuccess()) {
+     *     System.out.println("찾은 이메일: " + response.getMaskedEmail());
+     * }
+     */
+    public BlueCrab.com.example.dto.FindIdResponse findUserEmail(String userCodeStr, String userName, String userPhone) {
+        long startTime = System.currentTimeMillis();
+        
+        try {
+            // 1. 입력값 유효성 검사
+            if (userCodeStr == null || userName == null || userPhone == null) {
+                return BlueCrab.com.example.dto.FindIdResponse.failure();
+            }
+            
+            // userCode를 String에서 Integer로 변환
+            Integer userCode;
+            try {
+                userCode = Integer.parseInt(userCodeStr.trim());
+            } catch (NumberFormatException e) {
+                return BlueCrab.com.example.dto.FindIdResponse.failure();
+            }
+            
+            // 2. 데이터베이스에서 일치하는 사용자 조회
+            Optional<UserTbl> userOptional = userTblRepository.findByUserCodeAndUserNameAndUserPhone(
+                userCode, userName.trim(), userPhone.trim()
+            );
+            
+            // 3. 결과 처리
+            if (userOptional.isPresent()) {
+                UserTbl user = userOptional.get();
+                String email = user.getUserEmail();
+                
+                // 이메일 마스킹 처리
+                String maskedEmail = maskEmail(email);
+                
+                return BlueCrab.com.example.dto.FindIdResponse.success(maskedEmail);
+            } else {
+                return BlueCrab.com.example.dto.FindIdResponse.failure();
+            }
+            
+        } catch (Exception e) {
+            // 예외 발생 시에도 일관된 실패 응답 반환 (보안상 에러 정보 노출 방지)
+            return BlueCrab.com.example.dto.FindIdResponse.failure();
+        } finally {
+            // 성능 모니터링
+            long executionTime = System.currentTimeMillis() - startTime;
+            SlowQueryLogger.logQueryTime("findUserEmail", executionTime);
+        }
+    }
+    
+    /**
+     * 이메일 주소 마스킹 처리 메서드
+     * 이메일의 로컬 부분(@ 앞)을 마스킹하여 일부만 노출
+     *
+     * 마스킹 규칙:
+     * - 3글자 이하: 첫 글자만 노출 (a** 형태)
+     * - 4글자 이상: 첫 글자와 마지막 글자 노출 (a***b 형태)
+     * - 도메인 부분은 그대로 노출
+     *
+     * @param email 원본 이메일 주소
+     * @return 마스킹된 이메일 주소
+     *
+     * 예시:
+     * - "abc@domain.com" → "a**@domain.com"
+     * - "user123@domain.com" → "u****3@domain.com"
+     * - "a@domain.com" → "a**@domain.com"
+     */
+    private String maskEmail(String email) {
+        if (email == null || !email.contains("@")) {
+            return email; // 유효하지 않은 이메일은 그대로 반환
+        }
+        
+        String[] parts = email.split("@");
+        if (parts.length != 2) {
+            return email; // 유효하지 않은 이메일은 그대로 반환
+        }
+        
+        String localPart = parts[0];
+        String domainPart = parts[1];
+        
+        String maskedLocal;
+        
+        if (localPart.length() <= 1) {
+            // 1글자 이하인 경우
+            maskedLocal = localPart + "**";
+        } else if (localPart.length() <= 3) {
+            // 2~3글자인 경우: 첫 글자만 노출
+            maskedLocal = localPart.charAt(0) + "**";
+        } else {
+            // 4글자 이상인 경우: 첫 글자와 마지막 글자 노출
+            int maskLength = localPart.length() - 2;
+            String mask = "*".repeat(maskLength);
+            maskedLocal = localPart.charAt(0) + mask + localPart.charAt(localPart.length() - 1);
+        }
+        
+        return maskedLocal + "@" + domainPart;
+    }
+    
+    /**
      * 사용자 엔티티의 필드들을 업데이트하는 내부 헬퍼 메서드
      * 기존 사용자 객체에 새로운 값들을 복사
      *

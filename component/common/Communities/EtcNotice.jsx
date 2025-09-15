@@ -6,8 +6,8 @@ import NoticeTabs from "../notices/NoticeTabs";
 
 export default function EtcNotice() {
     return(
-        <NoticeLayout fixedCategory="기타공지">
-        <NoticeList/>
-        </NoticeLayout>
+    <NoticeLayout>
+      <NoticeList category="etc" />
+    </NoticeLayout>
     );
 }

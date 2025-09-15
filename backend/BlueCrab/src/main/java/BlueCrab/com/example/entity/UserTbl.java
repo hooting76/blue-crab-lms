@@ -91,6 +91,20 @@ public class UserTbl {
     private String userName;
     
     /**
+     * 사용자 학번/교수 코드
+     * 학생의 경우 학번, 교수의 경우 교수 코드로 사용
+     * 필수 입력 필드로, 사용자 식별에 사용
+     *
+     * 유효성:
+     * - 필수 입력 (nullable = false)
+     * - 정수형 (Integer)
+     *
+     * 사용 예시: 202012345 (학생), 1001 (교수)
+     */
+    @Column(name = "USER_CODE", nullable = false)
+    private Integer userCode;
+    
+    /**
      * 사용자 전화번호
      * 필수 입력 필드로, CHAR(11) 타입으로 저장
      * 하이픈 없이 숫자만 저장하는 것이 일반적
@@ -249,14 +263,16 @@ public class UserTbl {
      * @param userEmail 사용자 이메일 주소
      * @param userPw 사용자 비밀번호 (평문)
      * @param userName 사용자 실명
+     * @param userCode 사용자 학번/교수 코드
      * @param userPhone 사용자 전화번호
      * @param userBirth 사용자 생년월일
      * @param userStudent 사용자 유형 (1:학생, 0:교수)
      */
-    public UserTbl(String userEmail, String userPw, String userName, String userPhone, String userBirth, Integer userStudent) {
+    public UserTbl(String userEmail, String userPw, String userName, Integer userCode, String userPhone, String userBirth, Integer userStudent) {
         this.userEmail = userEmail;
         this.userPw = userPw;
         this.userName = userName;
+        this.userCode = userCode;
         this.userPhone = userPhone;
         this.userBirth = userBirth;
         this.userStudent = userStudent;
@@ -293,6 +309,14 @@ public class UserTbl {
     
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+    
+    public Integer getUserCode() {
+        return userCode;
+    }
+    
+    public void setUserCode(Integer userCode) {
+        this.userCode = userCode;
     }
     
     public String getUserPhone() {
