@@ -5,13 +5,18 @@
 package BlueCrab.com.example.util;
 
 // ========== 임포트 구문 ==========
-import org.springframework.stereotype.Component;
+
+// ========== 외부 라이브러리 ==========
 import lombok.extern.slf4j.Slf4j;
 
+// ========== Spring Framework ==========
+import org.springframework.stereotype.Component;
 
-@Component
-@Slf4j
+
+@Component // Spring의 컴포넌트 스캔에 의해 빈으로 등록
+@Slf4j // Lombok을 사용한 로깅 지원
 public class EmailTemplateUtils {
+    // 이메일 템플릿 생성 메서드
     
     // ========== 이메일 템플릿 설정 상수 ==========
     private static final String BRAND_NAME = "BlueCrab";
@@ -29,68 +34,76 @@ public class EmailTemplateUtils {
     private static final String SECONDARY_TEXT = "#6c757d";
     // 보조 텍스트 색상 (자동발송 안내 등)
     
-    /**
-     * 인증 코드 이메일 HTML 템플릿 생성
-     * 
-     * @param userName 수신자 이름
-     * @param authCode 6자리 인증 코드
-     * @param expiryMinutes 인증 코드 유효 시간 (분)
-     * @return HTML 형식의 이메일 본문 내용
-     */
+    // 인증 코드 이메일 HTML 템플릿 생성
+    // (EmailAuthController에서 활용)
     public String createAuthCodeEmailTemplate(String userName, String authCode, int expiryMinutes) {
-        // 입력값 검증
+
+        // ========== 입력값 검증 ==========
         if (userName == null || userName.trim().isEmpty()) {
+            // 사용자 이름이 없으면 기본값 사용
             userName = "학생";
+            // 기본 값 : "학생"
             log.debug("User name is null or empty, using default: {}", userName);
-        }
+            // 디버그 로그 기록
+        } // if 끝
         
         if (authCode == null || authCode.trim().isEmpty()) {
+            // 인증 코드가 없으면 예외 발생
             log.error("Auth code is null or empty - cannot generate email template");
+            // 에러 로그 기록
             throw new IllegalArgumentException("인증 코드가 유효하지 않습니다.");
-        }
+            // 예외 발생
+        } // if 끝
         
         if (expiryMinutes <= 0) {
+            // 유효 시간이 올바르지 않으면 기본값 사용
             log.warn("Invalid expiry minutes: {}, using default: 5", expiryMinutes);
+            // 경고 로그 기록
             expiryMinutes = 5;
-        }
+            // 기본 값 : 5분
+        } // if 끝
         
         log.debug("Generating auth code email template - User: {}, Code: {}, Expiry: {} minutes", 
                 userName, authCode, expiryMinutes);
+        // 디버그 로그 기록
         
         StringBuilder content = new StringBuilder();
+        // HTML 이메일 본문 내용을 구성하기 위한 StringBuilder
         
         // ========== HTML 이메일 템플릿 구성 ==========
         
-        // 메인 컨테이너
+        // 메인 컨테이너 시작
         content.append("<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>");
-        // 헤더 섹션
+        // 메인 컨테이너
         buildHeaderSection(content);
-        // 인사말 섹션
+        // 헤더 섹션
         buildGreetingSection(content, userName);
-        // 인증 코드 박스
+        // 인사말 섹션
         buildAuthCodeSection(content, authCode);
-        // 보안 안내 섹션
+        // 인증 코드 박스
         buildSecurityNoticeSection(content, expiryMinutes);
-        // 푸터 섹션
+        // 보안 안내 섹션
         buildFooterSection(content);
-        // 메인 컨테이너 닫기
+        // 푸터 섹션
         content.append("</div>");
-        
+        // 메인 컨테이너 닫기
         log.debug("Successfully generated auth code email template for user: {}", userName);
+        // 성공 로그 기록
         return content.toString();
-    }
+        // 완성된 HTML 문자열 반환
+    } // createAuthCodeEmailTemplate 끝
     
     // 헤더 섹션 구성 - 브랜드명과 제목
     private void buildHeaderSection(StringBuilder content) {
         content.append("<h2 style='color: ").append(BRAND_COLOR).append(";'>")
                .append(BRAND_NAME).append(" 이메일 인증</h2>");
-    }
+    } // buildHeaderSection 끝
     
     // 인사말 섹션 구성 - 사용자명과 안내 메시지
     private void buildGreetingSection(StringBuilder content, String userName) {
         content.append("<p>안녕하세요, <strong>").append(userName).append("</strong>님!</p>")
                .append("<p>아래 인증 코드를 입력하여 이메일 인증을 완료해주세요.</p>");
-    }
+    } // buildGreetingSection 끝
     
     // 인증 코드 박스 섹션 구성 - 강조된 인증 코드 표시
     private void buildAuthCodeSection(StringBuilder content, String authCode) {
@@ -102,7 +115,7 @@ public class EmailTemplateUtils {
                .append(authCode)
                .append("</h1>")
                .append("</div>");
-    }
+    } // buildAuthCodeSection 끝
     
     // 보안 안내 섹션 구성 - 유효시간 및 보안 주의사항
     private void buildSecurityNoticeSection(StringBuilder content, int expiryMinutes) {
@@ -117,43 +130,47 @@ public class EmailTemplateUtils {
                .append("<li>타인과 공유하지 마세요.</li>")
                .append("</ul>")
                .append("</div>");
-    }
+    } // buildSecurityNoticeSection 끝
     
     // 푸터 섹션 구성 - 자동발송 안내
     private void buildFooterSection(StringBuilder content) {
         content.append("<p style='color: ").append(SECONDARY_TEXT)
                .append("; font-size: 14px;'>본 메일은 자동 발송되었습니다.</p>");
-    }
+    } // buildFooterSection 끝
     
-    /* 관리자용 인증 코드 이메일 HTML 템플릿 생성
-     * (AdminEmailAuthController에서 활용)
-     * 
-     * @param adminName 관리자 이름
-     * @param authCode 6자리 인증 코드
-     * @param expiryMinutes 인증 코드 유효 시간 (분)
-     * @return HTML 형식의 관리자 이메일 본문 내용
-     */
+    // 관리자용 인증 코드 이메일 HTML 템플릿 생성
+    // (AdminEmailAuthController에서 활용)
     public String createAdminAuthCodeEmailTemplate(String adminName, String authCode, int expiryMinutes) {
         // 입력값 검증 (동일한 로직)
         if (adminName == null || adminName.trim().isEmpty()) {
+            // 관리자 이름이 없으면 기본값 사용
             adminName = "관리자";
+            // 기본 값 : "관리자"
             log.debug("Admin name is null or empty, using default: {}", adminName);
-        }
+            // 디버그 로그 기록
+        } // if 끝
         
         if (authCode == null || authCode.trim().isEmpty()) {
+            // 인증 코드가 없으면 예외 발생
             log.error("Auth code is null or empty - cannot generate admin email template");
+            // 에러 로그 기록
             throw new IllegalArgumentException("인증 코드가 유효하지 않습니다.");
-        }
+            // 예외 발생
+        } // if 끝
         
         if (expiryMinutes <= 0) {
+            // 유효 시간이 올바르지 않으면 기본값 사용
             log.warn("Invalid expiry minutes: {}, using default: 5", expiryMinutes);
+            // 경고 로그 기록
             expiryMinutes = 5;
-        }
+            // 기본 값 : 5분
+        } // if 끝
         
         log.debug("Generating admin auth code email template - Admin: {}, Code: {}, Expiry: {} minutes", 
                 adminName, authCode, expiryMinutes);
-        
+        // 디버그 로그 기록
         StringBuilder content = new StringBuilder();
+        // HTML 이메일 본문 내용을 구성하기 위한 StringBuilder
         
         // ========== 관리자용 HTML 이메일 템플릿 구성 ==========
         
@@ -189,20 +206,22 @@ public class EmailTemplateUtils {
         content.append("</div>");
         
         log.debug("Successfully generated admin auth code email template for admin: {}", adminName);
+        // 성공 로그 기록
+        
         return content.toString();
-    }
+        // 완성된 HTML 문자열 반환
+
+    } // createAdminAuthCodeEmailTemplate 끝
     
-    /* 기본 브랜드 색상 반환
-     * @return 브랜드 색상 코드
-     */
     public String getBrandColor() {
+        // 브랜드 주색상을 반환하는 메서드
         return BRAND_COLOR;
-    }
-    
-    /* 브랜드명 반환
-     * @return 브랜드명
-     */
+        // 브랜드 주색상 반환
+    } // getBrandColor 끝
+
     public String getBrandName() {
+        // 브랜드명을 반환하는 메서드
         return BRAND_NAME;
-    }
-}
+        // 브랜드명 반환
+    } // getBrandName 끝
+} // EmailTemplateUtils 클래스 끝

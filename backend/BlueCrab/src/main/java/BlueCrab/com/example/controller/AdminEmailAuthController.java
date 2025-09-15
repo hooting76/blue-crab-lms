@@ -5,86 +5,91 @@ package BlueCrab.com.example.controller;
 
 // ========== 임포트 구문 ==========
 
-// ========== Spring Framework 관련 임포트 ==========
-import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-
-// ========== Java 표준 라이브러리 관련 임포트 ==========
-import javax.servlet.http.HttpServletRequest;
+// ========== Java 표준 라이브러리 ==========
 import java.time.LocalDateTime;
 import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
 
-// ========== 외부 라이브러리 임포트 ==========
+// ========== 외부 라이브러리 ==========
 import lombok.extern.slf4j.Slf4j;
 
-// ========= 프로젝트 내부 임포트 ==========
+// ========== Spring Framework ==========
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+// ========== 프로젝트 내부 클래스 ==========
+import BlueCrab.com.example.dto.AuthCodeVerifyRequest;
 import BlueCrab.com.example.dto.AuthResponse;
 import BlueCrab.com.example.entity.AdminTbl;
 import BlueCrab.com.example.repository.AdminTblRepository;
-import BlueCrab.com.example.dto.AuthCodeVerifyRequest;
 import BlueCrab.com.example.service.EmailService;
-import BlueCrab.com.example.util.RequestUtils;
+import BlueCrab.com.example.util.AdminAuthResponseBuilder;
+import BlueCrab.com.example.util.AdminJwtTokenBuilder;
+import BlueCrab.com.example.util.AdminTokenValidator;
 import BlueCrab.com.example.util.AuthCodeGenerator;
-import BlueCrab.com.example.util.RedisAuthDataManager;
 import BlueCrab.com.example.util.AuthCodeValidator;
 import BlueCrab.com.example.util.EmailTemplateUtils;
-import BlueCrab.com.example.util.AdminTokenValidator;
-import BlueCrab.com.example.util.AdminJwtTokenBuilder;
-import BlueCrab.com.example.util.AdminAuthResponseBuilder;
+import BlueCrab.com.example.util.RedisAuthDataManager;
+import BlueCrab.com.example.util.RequestUtils;
 
 @RestController
 @Slf4j
 public class AdminEmailAuthController {
-    // ========== 상수 정의 ==========
+    // ========== 상수 및 설정 ==========
     private static final int AUTH_CODE_EXPIRY_MINUTES = 5;
     // 수정 시 AuthCodeVerifyRequest.java의 @Size 어노테이션 내용도 함께 수정 필요
     private static final String ADMIN_AUTH_KEY_PREFIX = "admin_email_auth_code:";
+    // Redis 키 접두사 (관리자용)
     
-    // ========== 의존성 주입 ==========
-    @Autowired
-    private EmailService emailService;
-    // EmailService : 이메일 발송 기능을 담당하는 서비스 클래스
-
-    @Autowired
-    private AdminTblRepository adminTblRepository;
-    // 관리자 테이블과 상호작용하는 JPA 리포지토리 인터페이스
-
     @Value("${app.domain}")
     // @Value : application.properties 또는 application.yml 파일에서 설정 값을 주입받는 어노테이션
     private String domain;
     // domain : 애플리케이션의 도메인 이름을 저장하는 필드
-
-    // ========== 유틸리티 클래스 의존성 주입 ==========
-    @Autowired
-    private AuthCodeGenerator authCodeGenerator;
-    // 인증 코드 생성 유틸리티
     
-    @Autowired
-    private RedisAuthDataManager redisAuthDataManager;
-    // Redis 인증 데이터 관리 유틸리티
+    // ========== 데이터 계층 의존성 ==========
+    @Autowired // @Autowired : Spring이 AdminTblRepository 빈을 주입하도록 지정
+    private AdminTblRepository adminTblRepository;
+    // 관리자 테이블과 상호작용하는 JPA 리포지토리 인터페이스
     
+    // ========== 서비스 계층 의존성 ==========
     @Autowired
-    private AuthCodeValidator authCodeValidator;
-    // 인증 코드 검증 유틸리티
+    private EmailService emailService;
+    // EmailService : 이메일 발송 기능을 담당하는 서비스 클래스
     
-    @Autowired
-    private EmailTemplateUtils emailTemplateUtils;
-    // 이메일 템플릿 생성 유틸리티
-    
+    // ========== 인증 관련 유틸리티 ==========
     @Autowired
     private AdminTokenValidator adminTokenValidator;
     // 관리자 토큰 검증 유틸리티
     
     @Autowired
+    private AuthCodeGenerator authCodeGenerator;
+    // 인증 코드 생성 유틸리티
+    
+    @Autowired
+    private AuthCodeValidator authCodeValidator;
+    // 인증 코드 검증 유틸리티
+    
+    // ========== JWT 관련 유틸리티 ==========
+    @Autowired
     private AdminJwtTokenBuilder adminJwtTokenBuilder;
     // 관리자 JWT 토큰 생성 유틸리티
     
+    // ========== 응답 관련 유틸리티 ==========
     @Autowired
     private AdminAuthResponseBuilder adminAuthResponseBuilder;
     // 관리자 인증 응답 생성 유틸리티
+    
+    // ========== 기타 유틸리티 ==========
+    @Autowired
+    private EmailTemplateUtils emailTemplateUtils;
+    // 이메일 템플릿 생성 유틸리티
+    
+    @Autowired
+    private RedisAuthDataManager redisAuthDataManager;
+    // Redis 인증 데이터 관리 유틸리티
 
     // ========== 1. 인증코드 요청 (임시토큰 기반) ==========
     @PostMapping("/api/admin/email-auth/request")

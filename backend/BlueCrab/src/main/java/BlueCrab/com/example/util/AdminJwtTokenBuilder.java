@@ -5,13 +5,20 @@
 package BlueCrab.com.example.util;
 
 // ========== 임포트 구문 ==========
+
+// ========== Java 표준 라이브러리 ==========
+import javax.crypto.SecretKey;
+
+// ========== 외부 라이브러리 ==========
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import javax.crypto.SecretKey;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 
+// ========== Spring Framework ==========
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+// ========== 프로젝트 내부 클래스 ==========
 import BlueCrab.com.example.entity.AdminTbl;
 
 /* 관리자용 JWT 토큰 생성을 담당하는 유틸리티 클래스
