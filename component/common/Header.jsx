@@ -131,9 +131,6 @@ function Header() {
                         <td onClick={() => navigate("/MyPage/ClassAttendingList")}>수강중인 과목</td>
                     </tr>
                     <tr>
-                        <td onClick={() => navigate("/MyPage/ClassAttendingProgress")}>과목별 진행사항</td>
-                    </tr>
-                    <tr>
                         <td onClick={() => navigate("/MyPage/ClassAttendingNotice")}>수강과목 공지사항</td>
                     </tr>
                     <tr>
@@ -189,7 +186,7 @@ function Header() {
                 </button>
 
                 <button 
-                  onClick={logout} 
+                  onClick={logout}
                   title="로그아웃" 
                   className={HeaderCss.logoutBtn}>
                   로그아웃
