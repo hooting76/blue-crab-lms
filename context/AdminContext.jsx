@@ -104,7 +104,7 @@ export const AdminProvider = ({ children }) => {
 
             const result = await response.json();
 
-            if (result.message =="이메일 인증 성공! 토큰이 발급되었습니다." && result.data){
+            if (result.success && result.data){
                 localStorage.setItem('accessToken', result.data.accessToken);
                 localStorage.setItem('Admin', result.data);
                 dispatch({ type: LOGIN_SUCCESS, payload: result.data });
@@ -115,7 +115,6 @@ export const AdminProvider = ({ children }) => {
         } catch (error) {
             dispatch({ type: LOGIN_FAILURE, payload: error.message });
             return { success: false, error: error.message };
-            // console.error('❌ 네트워크 오류:', error);
         }
     };
 

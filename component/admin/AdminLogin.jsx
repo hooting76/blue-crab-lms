@@ -62,15 +62,18 @@ function AdminLogin(){
     };
 
     // email code send func
-    function sendCode(){
+    async function sendCode(){
         const authCode = document.getElementById('frm_code');
         const inputId = document.getElementById('frm_id');
         const inputPw = document.getElementById('frm_pw');
 
+        // console.log({email});
+        // console.log({password});
+
         if(emailCheck && pwCheck){
             // auth
             setDoing(true);
-            AdLoginAuth(`bluecrabtester9@gmail.com`, `Bluecrab256@`);
+            await AdLoginAuth(email, password);
 
             authCode.disabled = false;
             authCode.focus();

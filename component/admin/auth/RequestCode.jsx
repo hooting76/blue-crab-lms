@@ -38,11 +38,11 @@ async function RequestCode(token) {
         }
 
         // send code ok alert
-        alert(result.message.replace("%d", result.data));
+        alert(result.message);
         
         //timer
         const timerElement = document.getElementById('authTimer');
-        let timeLeft = (result.data) * 60; // seconds
+        let timeLeft = 300; // seconds
 
         const countdownTimer = setInterval(() => {
             const minutes = Math.floor(timeLeft / 60);
