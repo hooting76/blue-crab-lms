@@ -1,10 +1,12 @@
 import { useLocation } from 'react-router-dom';
 import React, { useState, useEffect, useRef } from 'react';
+import { UseUser } from '../hooks/UseUser';
 
 const SessionTimer = () => {
   const [timeLeft, setTimeLeft] = useState(900);
   const location = useLocation();
   const timerRef = useRef(null);
+  const { logout } = UseUser();
 
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
@@ -23,7 +25,7 @@ const SessionTimer = () => {
         if (prev <= 1) {
           clearInterval(timerRef.current);
           alert("로그아웃되었습니다.");
-          // 그리고 로그아웃 처리
+          logout(); // 로그아웃 처리
           return 0;
         }
         return prev - 1;
