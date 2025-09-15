@@ -145,6 +145,10 @@ public class SecurityConfig {
                 .requestMatchers("/BlueCrab-1.0.0/sendMail").authenticated() // 이메일 인증 API 보호
                 .requestMatchers("/verifyCode").authenticated() // 인증 코드 확인 API 보호
                 .requestMatchers("/BlueCrab-1.0.0/verifyCode").authenticated() // 인증 코드 확인 API 보호
+                
+                // 성태준 추가, 비밀번호 재설정 기능, 
+                // 비밀번호를 모르는 상태에서의 접근 이기에 "permitAll"
+                .requestMatchers("/api/password-reset/**").permitAll() // 비밀번호 재설정 기능 (인증 불필요)
 
 
 
