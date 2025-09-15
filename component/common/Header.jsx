@@ -189,7 +189,7 @@ function Header() {
                 </button>
 
                 <button 
-                  onClick={async () => {logout; window.location.replace('/');}} 
+                  onClick={async () => {await logout(); window.location.replace('/');}} 
                   title="로그아웃" 
                   className={HeaderCss.logoutBtn}>
                   로그아웃
