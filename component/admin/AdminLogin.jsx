@@ -1,17 +1,19 @@
 import React, { useState } from "react";
 import { UseAdmin } from "../../hook/UseAdmin";
 
+import { FaSpinner } from 'react-icons/fa';
 import LoginFrm from '../../css/modules/LoginForm.module.css';
 import AdminLoginCss from "../../css/modules/AdminLoginCss.module.css";
 
 import AdLoginAuth from "../admin/auth/AdLoginAuth";
 
 function AdminLogin(){
-    const { AdLogin, isLoading, error, clearError, isAuthenticated} = UseAdmin();
+    const { AdLogin, isAuthenticated} = UseAdmin();
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isCheckCode, setIsCheckCode] = useState('');
+    const [doing, setDoing] = useState(false); // sendBtn state
 
     const [emailCheck, setEmailCheck] = useState(false);
     const [pwCheck, setPwCheck]       = useState(false);
@@ -67,13 +69,15 @@ function AdminLogin(){
 
         if(emailCheck && pwCheck){
             // auth
+            setDoing(true);
             AdLoginAuth(`bluecrabtester9@gmail.com`, `Bluecrab256@`);
 
             authCode.disabled = false;
             authCode.focus();
             
             inputId.disabled = true;
-            inputPw.disabled = true;            
+            inputPw.disabled = true;
+            setTimeout(setDoing, 4000, false);
         }else{
             alert("아이디 혹은 비밀번호 입력을 확인해주세요.");
             return;
@@ -136,7 +140,7 @@ function AdminLogin(){
                             disabled={!(emailCheck && pwCheck)}
                             id='frm_btn'
                         >
-                            코드 전송
+                            {doing ? <FaSpinner/> : '코드 전송' }
                         </button>
                     </div>
                 </div>

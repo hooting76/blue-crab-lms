@@ -22,7 +22,6 @@ async function AdLoginAuth(email, password) {
         });
 
         const result = await response.json();
-        // console.log(result);
 
         if(result.success && result.data?.sessionToken) {
             localStorage.setItem('sessionToken', result.data.sessionToken);

@@ -1,7 +1,13 @@
+// setDoing should be passed as a prop or argument, not imported directly
+
+/**
+ * Sends a request to the server to initiate email authentication.
+ * @param {string} token - The session token for authorization.
+ */
 
 async function RequestCode(token) {
-    let sessionToken = token
-    const baseUrl = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0';
+    let sessionToken = token;
+    const baseUrl = "https://bluecrab.chickenkiller.com/BlueCrab-1.0.0";
 
     if(!sessionToken){
         console.error('❌ sessionToken이 없습니다.');
@@ -28,10 +34,12 @@ async function RequestCode(token) {
             console.log("Server Error!!");
             console.log('에러 메시지:', result.message);
         } else if (result.success) {
-            console.log('✅ 2단계 성공! 이메일 확인 후 T.verify() 실행');
+            //console.log('✅ 2단계 성공! 이메일 확인 후 T.verify() 실행');
         }
 
+        // send code ok alert
         alert(result.message.replace("%d", result.data));
+        
         //timer
         const timerElement = document.getElementById('authTimer');
         let timeLeft = (result.data) * 60; // seconds

@@ -63,13 +63,13 @@ export const AdminProvider = ({ children }) => {
 
     useEffect(() => {
         // 컴포넌트 마운트 시 저장된 관리자 정보 불러오기
-        const storedAdmin = localStorage.getItem('accessToken');
+        const storedAdmin = localStorage.getItem('Admin');
         if (storedAdmin) {
             try {
                 const Admin = JSON.parse(storedAdmin);
                 dispatch({ type: LOGIN_SUCCESS, payload: Admin });
             } catch (error) {
-                localStorage.removeItem('accessToken');
+                localStorage.removeItem('Admin');
             }
         }
     }, []);
@@ -103,20 +103,23 @@ export const AdminProvider = ({ children }) => {
             });
 
             const result = await response.json();
-            // console.log(result);
 
             if (result.message =="이메일 인증 성공! 토큰이 발급되었습니다." && result.data){
-            // ok
                 localStorage.setItem('accessToken', result.data.accessToken);
+                localStorage.setItem('Admin', result.data);
                 dispatch({ type: LOGIN_SUCCESS, payload: result.data });
                 return result.data, {success: true};
+            }else{
+                throw new Error('입력을 다시 확인하세요.');
             }
         } catch (error) {
             dispatch({ type: LOGIN_FAILURE, payload: error.message });
-            console.error('❌ 네트워크 오류:', error);
+            return { success: false, error: error.message };
+            // console.error('❌ 네트워크 오류:', error);
         }
     };
 
+    // 로그아웃 함수
     const AdLogout = async() => {
         dispatch({ type: LOGOUT });
     }
@@ -128,7 +131,7 @@ export const AdminProvider = ({ children }) => {
 
     // Context에 제공할 값들
     const contextValue = {
-        user: state.user,
+        admin: state.admin,
         isLoading: state.isLoading,
         error: state.error,
         isAuthenticated: state.isAuthenticated,
