@@ -53,8 +53,8 @@ async function RequestCode(token) {
                 if (timeLeft <= 0) {
                     clearInterval(countdownTimer);
                     timerElement.textContent = '0:00';
-                    alert("인증코드가 만료되었습니다.\n 새로 인증을 진행해주세요.");
-                    location.reload();
+                    // alert("인증코드가 만료되었습니다.\n 새로 인증을 진행해주세요.");
+                    // location.reload();
                 }
                 timeLeft--;
             }, 1000);
