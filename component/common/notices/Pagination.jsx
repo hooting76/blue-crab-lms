@@ -1,5 +1,5 @@
 // 페이징ui
-// basepath: /community/academy, /community/admin, /community/etc
+// basepath: /community/academy, /community/notice-admin, /community/etc
 // page/size/total 기반으로 앵커 링크 생성
 
 export default function Pagination({ total= 0, page= 1, size= 10, basepath= "" }) {
