@@ -4,10 +4,8 @@
  * Sends a request to the server to initiate email authentication.
  * @param {string} token - The session token for authorization.
  */
-import { UseAdmin } from '../../../hook/UseAdmin';
 
 async function RequestCode(token) {
-    const { isAuthenticated } = UseAdmin();
 
     let sessionToken = token;
     const baseUrl = "https://bluecrab.chickenkiller.com/BlueCrab-1.0.0";
@@ -47,23 +45,22 @@ async function RequestCode(token) {
         const timerElement = document.getElementById('authTimer');
         let timeLeft = 300; // seconds
 
-        if(!isAuthenticated){
-            const countdownTimer = setInterval(() => {
-                const minutes = Math.floor(timeLeft / 60);
-                const seconds = timeLeft % 60;
-                timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-                
-                if (timeLeft <= 0) {
-                    clearInterval(countdownTimer);
-                    timerElement.textContent = '0:00';
-                    alert("인증코드가 만료되었습니다.\n 새로 인증을 진행해주세요.");
-                    location.reload();
-                }
-                timeLeft--;
-            }, 1000);
-        }
+        const countdownTimer = setInterval(() => {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(countdownTimer);
+                timerElement.textContent = '0:00';
+                alert("인증코드가 만료되었습니다.\n 새로 인증을 진행해주세요.");
+                location.reload();
+            }
+            timeLeft--;
+        }, 1000);
         
-        
+        // Store timer ID for cleanup
+        window.currentAuthTimer = countdownTimer;
         return result;
         
     } catch (error) {
