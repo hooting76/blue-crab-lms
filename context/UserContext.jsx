@@ -150,7 +150,6 @@ export function UserProvider({ children }) {
     localStorage.removeItem('user');
     sessionStorage.removeItem('user');
     // console.log('🏁 Redis 통합 로그아웃 테스트 완료');
-    window.location.replace('/');
   };
 
   // 에러 클리어 함수
