@@ -1,17 +1,22 @@
-/* 작업자 : 성태준
- * 이메일 인증 Rate Limiting 유틸리티 클래스
- * Redis를 활용한 요청 빈도 제한 기능
- * 메일 발송과 코드 검증 요청에 대한 독립적인 스팸 방지 및 보안 강화
- */
+// 작업자 : 성태준
+// 이메일 인증 Rate Limiting 유틸리티 클래스
+// Redis를 활용한 요청 빈도 제한 기능
+// 메일 발송과 코드 검증 요청에 대한 독립적인 스팸 방지 및 보안 강화
 
 package BlueCrab.com.example.util;
 
 // ========== 임포트 구문 ==========
+
+// =========== Java 표준 라이브러리 ==========
+import java.util.concurrent.TimeUnit;
+
+// ========= 외부 라이브러리 ==========
+import lombok.extern.slf4j.Slf4j;
+
+// ========= Spring Framework ==========
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-import lombok.extern.slf4j.Slf4j;
-import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
