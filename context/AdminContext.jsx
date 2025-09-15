@@ -1,6 +1,7 @@
 import React,{ createContext, useReducer,useEffect } from "react";
+import { GetTokens } from '../component/auth/TokenAuth';
 
-// 초기 상태
+// init state
 const AdminState = {
     admin: null,
     isLoading: false,
@@ -8,7 +9,7 @@ const AdminState = {
     isAuthenticated: false
 };
 
-// 액션 타입들
+// action types 
 export const LOGIN_START = 'LOGIN_START';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAILURE = 'LOGIN_FAILURE';
@@ -99,7 +100,7 @@ export const AdminProvider = ({ children }) => {
                     'Content-Type': 'application/json',
                     'Authorization': sessionToken
                 },
-                body: JSON.stringify({ authCode: code })                
+                body: JSON.stringify({ authCode: code })
             });
 
             const result = await response.json();
@@ -118,10 +119,32 @@ export const AdminProvider = ({ children }) => {
         }
     };
 
-    // 로그아웃 함수
+    // logout func 
     const AdLogout = async() => {
         dispatch({ type: LOGOUT });
-    }
+        const tokens = GetTokens();
+        const { accessToken, refreshToken } = tokens;
+
+        try {
+            const response = await fetch('https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/auth/logout', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify({ 
+                    refreshToken: refreshToken
+                })
+            });
+            const data = await response.json();
+            // console.log('✅ 응답 데이터:', data);
+        } catch (error) {
+            localStorage.removeItem('Admin');
+            sessionStorage.removeItem('Admin');
+        }
+        localStorage.removeItem('Admin');
+        sessionStorage.removeItem('Admin');
+    }// logout func end
 
     // 에러 클리어 함수
     const clearError = () => {
