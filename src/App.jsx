@@ -66,12 +66,7 @@ function AppContent() {
 
   // 관리자 페이지 접근
   const userAgent = location.href;
-  if(userAgent.indexOf('/admin') > -1){
-    // 일반 회원과 세션이 겹치지 않게 하기 위한 초기화
-    if(localStorage.key('user') || sessionStorage.key('user')){
-      logout;
-      window.location.reload();
-    }
+  if(userAgent.includes('/admin')){
     return(<Admin/>); 
   }
 
