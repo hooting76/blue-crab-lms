@@ -17,7 +17,8 @@ const SessionTimer = () => {
   const handleLogout = async () => {
     alert("로그아웃되었습니다.");
     await logout();
-  };
+    window.location.replace('/');
+  }
 
 
   useEffect(() => {
