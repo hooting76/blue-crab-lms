@@ -65,12 +65,12 @@ function AppContent() {
 
   // 관리자 페이지 접근
   const userAgent = location.href;
-  if(userAgent.includes("/admin")){
+  if(userAgent.indexOf('/admin') > -1){
     // 일반 회원과 세션이 겹치지 않게 하기 위한 초기화
-    // if(localStorage.key('user') || sessionStorage.key('user')){
-    //   logout;
-    //   window.location.reload();
-    // }
+    if(localStorage.key('user') || sessionStorage.key('user')){
+      logout;
+      window.location.reload();
+    }
     return(<Admin/>); 
   }
 
@@ -83,7 +83,7 @@ function AppContent() {
            {isAuthenticated ?    
            <Routes> 
             {/* 기본 페이지 */}
-            <Route path="/" element={<UserDashboard />} />
+             <Route path="/" element={<UserDashboard />} />  
             {/* 학교소개 페이지들 */}
              <Route path="/Introduction/*" element={<Introduction />}>
               <Route path="PresidentSaysHi" element={<PresidentSaysHi />} />
@@ -97,6 +97,9 @@ function AppContent() {
               <Route path="/community/notice-admin"  element={<AdminNotice/>} />
               <Route path="/community/etc"           element={<EtcNotice/>} />
               <Route path="/community" element={<Navigate to="/community/academy" replace />} />
+              <Route path="/community/admin" element={<Navigate to="/community/notice-admin" replace />} /> 
+              {/* /community/admin 으로 들어가져도 자동우회 */}
+
             
             {/* 마이페이지 페이지들 */}
              <Route path="/MyPage/*" element={<MyPage />}>
@@ -105,7 +108,7 @@ function AppContent() {
               <Route path="Consult" element={<Consult />} />
             </Route>
           </Routes> 
-            // isAuth end 
+             // isAuth end 
 
          : // isAuth false start    
            <Routes>

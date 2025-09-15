@@ -191,4 +191,21 @@ public interface UserTblRepository extends JpaRepository<UserTbl, Integer> {
      */
     @Query("SELECT u FROM UserTbl u WHERE u.userBirth BETWEEN :startDate AND :endDate")
     List<UserTbl> findByUserBirthBetween(@Param("startDate") String startDate, @Param("endDate") String endDate);
+
+    /**
+     * 학번, 이름, 전화번호로 사용자 조회
+     * ID 찾기, 비밀번호 찾기 등에서 사용자 신원 확인 시 사용
+     * 
+     * 세 정보가 모두 정확히 일치하는 사용자를 검색
+     * 보안을 위해 부분 일치는 허용하지 않음
+     *
+     * @param userCode 학번/교수 코드
+     * @param userName 사용자 이름 (정확한 일치)
+     * @param userPhone 전화번호 (정확한 일치)
+     * @return Optional<UserTbl> - 일치하는 사용자가 있으면 반환, 없으면 empty
+     *
+     * 사용 예시:
+     * Optional<UserTbl> user = userRepository.findByUserCodeAndUserNameAndUserPhone(202012345, "홍길동", "01012345678");
+     */
+    Optional<UserTbl> findByUserCodeAndUserNameAndUserPhone(Integer userCode, String userName, String userPhone);
 }
