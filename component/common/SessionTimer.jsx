@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { UseUser } from '../../hook/UseUser';
 
 const SessionTimer = () => {
-  const [timeLeft, setTimeLeft] = useState(900);
+  const [timeLeft, setTimeLeft] = useState(60);
   const location = useLocation();
   const timerRef = useRef(null);
   const { logout } = UseUser();
@@ -14,21 +14,26 @@ const SessionTimer = () => {
     return `${minutes}분 ${secs < 10 ? '0' : ''}${secs}초`;
   };
 
+  const handleLogout = async () => {
+    alert("로그아웃되었습니다.");
+    await logout();
+  };
+
+
   useEffect(() => {
     // URL이 바뀔 때마다 타이머 초기화
-    setTimeLeft(900);
+    setTimeLeft(60);
   }, [location]);
 
   useEffect(() => {
     clearInterval(timerRef.current);
-    setTimeLeft(900);
+    setTimeLeft(60);
 
     timerRef.current = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
           clearInterval(timerRef.current);
-          alert("로그아웃되었습니다.");
-          logout();
+          handleLogout();
           return 0;
         }
         return prev - 1;
@@ -42,7 +47,7 @@ const SessionTimer = () => {
   return (
     <>
       {formatTime(timeLeft)} 후<br/>자동으로 로그아웃 |
-      <button onClick={()=>setTimeLeft(900)}>연장</button>
+      <button onClick={()=>setTimeLeft(60)}>연장</button>
     </>
   );
 };
