@@ -142,6 +142,7 @@ export const AdminProvider = ({ children }) => {
             localStorage.removeItem('Admin');
             sessionStorage.removeItem('Admin');
         }
+        location.href ='/admin';
         localStorage.removeItem('Admin');
         sessionStorage.removeItem('Admin');
     }// logout func end

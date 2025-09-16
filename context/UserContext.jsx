@@ -141,12 +141,14 @@ export function UserProvider({ children }) {
         })
       });
       const data = await response.json();
-      // console.log('✅ 응답 데이터:', data);
+      //console.log('✅ 응답 데이터:', data);
     } catch (error) {
         // 네트워크 오류 시에도 클라이언트 토큰 삭제
         localStorage.removeItem('user');
         sessionStorage.removeItem('user');      
     }
+    // url reset
+    location.href = '/';
     localStorage.removeItem('user');
     sessionStorage.removeItem('user');
     // console.log('🏁 Redis 통합 로그아웃 테스트 완료');
