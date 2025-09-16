@@ -40,6 +40,10 @@ function Header({currentPage, setCurrentPage}) {
     setCurrentPage("");
   }
 
+  const UrlReset = () => {
+    navigate('/');
+  }
+
   const [subMenu1Visibility, setSubMenu1Visibility] = useState("hidden");
   const [subMenu2Visibility, setSubMenu2Visibility] = useState("hidden");
   const [subMenu3Visibility, setSubMenu3Visibility] = useState("hidden");
@@ -72,7 +76,7 @@ function Header({currentPage, setCurrentPage}) {
           
           <span onMouseOver={() => {hideSubMenu1(); hideSubMenu2(); hideSubMenu3();}} onClick={Reset}>Blue-Crab LMS</span>
           {/* user menu */}
-            {isAuthenticated &&(  
+            {isAuthenticated &&(
           <div className={HeaderCss.navMenu}>
             <ul>
               <li onMouseOver={() => {showSubMenu1(); hideSubMenu2(); hideSubMenu3();}}>학교소개</li>
@@ -88,16 +92,16 @@ function Header({currentPage, setCurrentPage}) {
             >
                 <tbody>
                     <tr>
-                        <td onClick={() => {setCurrentPage("총장 인사")}}>총장 인사</td>
+                        <td onClick={async () => {UrlReset(); await setCurrentPage("총장 인사")}}>총장 인사</td>
                     </tr>
                     <tr>
-                        <td onClick={() => {setCurrentPage("오시는 길")}}>오시는 길</td>
+                        <td onClick={async () => {UrlReset(); await setCurrentPage("오시는 길")}}>오시는 길</td>
                     </tr>
                     <tr>
-                        <td onClick={() => {setCurrentPage("학교 조직도")}}>학교 조직도</td>
+                        <td onClick={async () => {UrlReset(); await setCurrentPage("학교 조직도")}}>학교 조직도</td>
                     </tr>
                     <tr>
-                        <td onClick={() => {setCurrentPage("연혁")}}>연혁</td>
+                        <td onClick={async () => {UrlReset(); await setCurrentPage("연혁")}}>연혁</td>
                     </tr>
                 </tbody>
             </table>
@@ -129,13 +133,13 @@ function Header({currentPage, setCurrentPage}) {
             >
                 <tbody>
                     <tr>
-                        <td onClick={() => {setCurrentPage("수강중인 과목")}}>수강중인 과목</td>
+                        <td onClick={async () => {UrlReset(); await setCurrentPage("수강중인 과목")}}>수강중인 과목</td>
                     </tr>
                     <tr>
-                        <td onClick={() => {setCurrentPage("수강과목 공지사항")}}>수강과목 공지사항</td>
+                        <td onClick={async () => {UrlReset(); await setCurrentPage("수강과목 공지사항")}}>수강과목 공지사항</td>
                     </tr>
                     <tr>
-                        <td onClick={() => {setCurrentPage("실시간 상담")}}>실시간 상담</td>
+                        <td onClick={async () => {UrlReset(); await setCurrentPage("실시간 상담")}}>실시간 상담</td>
                     </tr>
                 </tbody>
             </table>
@@ -144,7 +148,7 @@ function Header({currentPage, setCurrentPage}) {
         </h1>
 
         {/* 세션타이머(15분). 로그인 중에만 활성화. 만료시 로그아웃됨.*/}
-          {isAuthenticated && ( 
+        {isAuthenticated && ( 
         <div className={HeaderCss.sessionTimer}>
         <SessionTimer currentPage={currentPage}/>
         </div>
