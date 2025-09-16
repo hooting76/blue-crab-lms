@@ -119,6 +119,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // 🔓 공개 엔드포인트 (인증 불필요)
                 .requestMatchers("/api/auth/**").permitAll() // 로그인, 회원가입, 토큰 갱신 등
+                .requestMatchers("/api/auth/password-reset/**").permitAll() // 비밀번호 재설정 시스템 (본인확인, 이메일발송, 코드검증, 비밀번호변경)
                 .requestMatchers("/api/account/FindId/**").permitAll() // ID 찾기 기능 (인증 불필요)
                 .requestMatchers("/api/admin/login").permitAll() // 어드민 1차 로그인 허용
                 .requestMatchers("/api/admin/verify-email").permitAll() // 어드민 이메일 인증 허용

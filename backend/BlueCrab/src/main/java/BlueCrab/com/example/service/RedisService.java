@@ -200,6 +200,42 @@ public class RedisService {
     }
 
     /**
+     * 범용 값 저장 메서드 (TTL 포함)
+     * 
+     * @param key Redis 키
+     * @param value 저장할 값
+     * @param expirationMinutes 만료 시간 (분)
+     */
+    public void storeValue(String key, String value, int expirationMinutes) {
+        redisTemplate.opsForValue().set(key, value, Duration.ofMinutes(expirationMinutes));
+        logger.debug("Value stored with key: {} (TTL: {} minutes)", key, expirationMinutes);
+    }
+
+    /**
+     * 범용 값 조회 메서드
+     * 
+     * @param key Redis 키
+     * @return String 저장된 값 (키가 없으면 null)
+     */
+    public String getValue(String key) {
+        return redisTemplate.opsForValue().get(key);
+    }
+
+    /**
+     * 값 조회 후 삭제 (원자적 연산)
+     * 
+     * @param key Redis 키
+     * @return String 저장된 값 (키가 없으면 null)
+     */
+    public String getAndDelete(String key) {
+        String value = redisTemplate.opsForValue().get(key);
+        if (value != null) {
+            redisTemplate.delete(key);
+        }
+        return value;
+    }
+
+    /**
      * 세션 토큰 삭제
      * 
      * @param token 세션 토큰
