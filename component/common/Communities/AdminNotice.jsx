@@ -8,6 +8,7 @@ import NoticeTabs from "../notices/NoticeTabs";
 export default function AdminNotice() {
     return(
        <NoticeLayout>
+         <h2>행정공지 테스트 출력</h2>
       <NoticeList category="admin" />
     </NoticeLayout>
     );

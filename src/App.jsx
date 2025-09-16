@@ -44,16 +44,20 @@ function InAppFilter(){
 
 // main app component
 function AppContent() {
-  const { isAuthenticated, isLoading, logout } = UseUser();
+ // 1 const { isAuthenticated, isLoading, logout } = UseUser();
+  const isAuthenticated = true;   // ← 임시 하드코딩
+  const isLoading = false; 
   const [currentPage, setCurrentPage] = useState("");
+
+
 
   // 컴포넌트 마운트 시 localStorage에서 currentPage 읽기
   useEffect(() => {
-    const savedCurrentPage = localStorage.getItem('currentPage');
+  const savedCurrentPage = localStorage.getItem('currentPage');
     if (savedCurrentPage) {
-      setCurrentPage(savedCurrentPage);
+     setCurrentPage(savedCurrentPage);
     }
-  }, []);
+   }, []);
 
   // currentPage가 바뀔 때 localStorage에 저장
   useEffect(() => {
@@ -66,9 +70,10 @@ function AppContent() {
     return <LoadingSpinner/>
   }
 
-  // 관리자 페이지 경로 감지
-   const href = window.location.href.toLowerCase();
-   if (href.includes('/admin')) return <Admin />;
+    // ✅ 관리자 경로는 '정확/접두' 매칭만 (includes 금지: /community/admin과 충돌 방지)
+  // if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+  //   return <Admin />;
+  // }
 
 
   const renderPage = () => {
@@ -127,7 +132,7 @@ function AppContent() {
 function App() {
   return (
     <>
-      <InAppFilter />
+       <InAppFilter /> 
       <UserProvider>
         <BrowserRouter>
         <AppContent />
