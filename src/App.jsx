@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate ,useLocation} from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 // user state control
 import { UserProvider } from '../context/UserContext';
@@ -52,6 +52,20 @@ function AppContent() {
   const location = useLocation(); // 현재 경로 확인용
   const path = location?.pathname ?? ""; //  안전한 문자열
   const lowerPath = path.toLowerCase();  //  대소문자 혼용 대비
+
+  // 컴포넌트 마운트 시 localStorage에서 currentPage 읽기
+  useEffect(() => {
+    const savedCurrentPage = localStorage.getItem('currentPage');
+    if (savedCurrentPage) {
+      setCurrentPage(savedCurrentPage);
+    }
+  }, []);
+
+  // currentPage가 바뀔 때 localStorage에 저장
+  useEffect(() => {
+    localStorage.setItem('currentPage', currentPage);
+  }, [currentPage]);
+
 
   // 로딩 중일 때
   if (isLoading) {
