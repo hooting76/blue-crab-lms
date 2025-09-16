@@ -28,7 +28,7 @@ import BlueCrab.com.example.util.AccountRecoveryRateLimiter; // 표준 레이트
 @RestController
 @RequestMapping("/api/password-reset")
 @Slf4j // 로깅을 위한 어노테이션 추가
-public class PasswordResetController {
+public class PasswordResetEmailController {
     // ========== 의존성 주입 ==========
 
     @Autowired
