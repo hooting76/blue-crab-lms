@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate} from 'react-router-dom';
+import { useState } from 'react';
 
 // user state control
 import { UserProvider } from '../context/UserContext';
@@ -18,10 +19,6 @@ import FindInfo from '../component/auth/FindInfo';
 
 // 학교소개 페이지들
 import Introduction from '../component/common/Introduction';
-import PresidentSaysHi from '../component/common/Introductions/PresidentSaysHi';
-import WayHere from '../component/common/Introductions/WayHere';
-import Organization from '../component/common/Introductions/Organization';
-import BlueCrabHistory from '../component/common/Introductions/BlueCrabHistory';
 
 // 커뮤니티 페이지들
 //import Community from '../component/common/Community';
@@ -34,9 +31,6 @@ import NoticeLayout from '../component/common/notices/NoticeLayout';
 
 // 마이페이지 페이지들
 import MyPage from '../component/common/MyPage';
-import ClassAttendingList from '../component/common/MyPages/ClassAttendingList';
-import ClassAttendingNotice from '../component/common/MyPages/ClassAttendingNotice';
-import Consult from '../component/common/MyPages/Consult';
 
 // 관리자 페이지
 import Admin from './Admin';
@@ -57,6 +51,7 @@ function InAppFilter(){
 // main app component
 function AppContent() {
   const { isAuthenticated, isLoading, logout } = UseUser();
+  const [currentPage, setCurrentPage] = useState("");
 
   // 로딩 중일 때
   if (isLoading) {
@@ -69,48 +64,38 @@ function AppContent() {
     return(<Admin/>); 
   }
 
+  const renderPage = () => {
+    switch (currentPage) {
+      case "총장 인사":
+      case "오시는 길":
+      case "학교 조직도":
+      case "연혁":
+        return <Introduction currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
+      case "수강중인 과목":
+      case "수강과목 공지사항":
+      case "실시간 상담":
+        return <MyPage currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
+      default:
+        return <UserDashboard/>;
+    }
+  };
+
   return (
     <BrowserRouter>
     <div id="wrap">
-      <Header />
+      <Header currentPage={currentPage} setCurrentPage={setCurrentPage}/>
 
       <div id="content">
-           {isAuthenticated ?    
-           <Routes> 
-            {/* 기본 페이지 */}
-             <Route path="/" element={<UserDashboard />} />  
-            {/* 학교소개 페이지들 */}
-             <Route path="/Introduction/*" element={<Introduction />}>
-              <Route path="PresidentSaysHi" element={<PresidentSaysHi />} />
-              <Route path="WayHere" element={<WayHere />} />
-              <Route path="Organization" element={<Organization />} />
-              <Route path="BlueCrabHistory" element={<BlueCrabHistory />} />
-            </Route> 
-
-            {/* 커뮤니티 페이지들 */}
-              <Route path="/community/academy"       element={<AcademyNotice/>} />
-              <Route path="/community/notice-admin"  element={<AdminNotice/>} />
-              <Route path="/community/etc"           element={<EtcNotice/>} />
-              <Route path="/community" element={<Navigate to="/community/academy" replace />} />
-              <Route path="/community/admin" element={<Navigate to="/community/notice-admin" replace />} /> 
-              {/* /community/admin 으로 들어가져도 자동우회 */}
-
-            
-            {/* 마이페이지 페이지들 */}
-             <Route path="/MyPage/*" element={<MyPage />}>
-              <Route path="ClassAttendingList" element={<ClassAttendingList />} />
-              <Route path="ClassAttendingNotice" element={<ClassAttendingNotice />} />
-              <Route path="Consult" element={<Consult />} />
-            </Route>
-          </Routes> 
-             // isAuth end 
+           {isAuthenticated ?
+            renderPage()
+          // isAuth end 
 
          : // isAuth false start    
            <Routes>
             <Route path="/" element={<LoginForm/>} />
             <Route path="/FindInfo" element={<FindInfo/>}/>
           </Routes>
-         }    
+         }
       </div>
       
       {/* 푸터 */}

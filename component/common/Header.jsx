@@ -31,12 +31,13 @@ function FuncAniBtn(){
 }
 
 
-function Header() {
+function Header({currentPage, setCurrentPage}) {
   const { user, isAuthenticated, logout } = UseUser();
   const navigate = useNavigate();
 
   const Reset = () => {
     window.location.replace('/');
+    setCurrentPage("");
   }
 
   const [subMenu1Visibility, setSubMenu1Visibility] = useState("hidden");
@@ -87,16 +88,16 @@ function Header() {
             >
                 <tbody>
                     <tr>
-                        <td onClick={() => navigate("/Introduction/PresidentSaysHi")}>총장 인사</td>
+                        <td onClick={() => {setCurrentPage("총장 인사")}}>총장 인사</td>
                     </tr>
                     <tr>
-                        <td onClick={() => navigate("/Introduction/WayHere")}>오시는 길</td>
+                        <td onClick={() => {setCurrentPage("오시는 길")}}>오시는 길</td>
                     </tr>
                     <tr>
-                        <td onClick={() => navigate("/Introduction/Organization")}>학교 조직도</td>
+                        <td onClick={() => {setCurrentPage("학교 조직도")}}>학교 조직도</td>
                     </tr>
                     <tr>
-                        <td onClick={() => navigate("/Introduction/BlueCrabHistory")}>연혁</td>
+                        <td onClick={() => {setCurrentPage("연혁")}}>연혁</td>
                     </tr>
                 </tbody>
             </table>
@@ -128,18 +129,18 @@ function Header() {
             >
                 <tbody>
                     <tr>
-                        <td onClick={() => navigate("/MyPage/ClassAttendingList")}>수강중인 과목</td>
+                        <td onClick={() => {setCurrentPage("수강중인 과목")}}>수강중인 과목</td>
                     </tr>
                     <tr>
-                        <td onClick={() => navigate("/MyPage/ClassAttendingNotice")}>수강과목 공지사항</td>
+                        <td onClick={() => {setCurrentPage("수강과목 공지사항")}}>수강과목 공지사항</td>
                     </tr>
                     <tr>
-                        <td onClick={() => navigate("/MyPage/Consult")}>실시간 상담</td>
+                        <td onClick={() => {setCurrentPage("실시간 상담")}}>실시간 상담</td>
                     </tr>
                 </tbody>
             </table>
           </div>   
-        )}  
+        )}
         </h1>
 
         {/* 세션타이머(15분). 로그인 중에만 활성화. 아직 만료시 로그아웃 로직 구현 안됨.*/}
