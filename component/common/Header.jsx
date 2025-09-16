@@ -143,10 +143,10 @@ function Header({currentPage, setCurrentPage}) {
         )}
         </h1>
 
-        {/* 세션타이머(15분). 로그인 중에만 활성화. 아직 만료시 로그아웃 로직 구현 안됨.*/}
+        {/* 세션타이머(15분). 로그인 중에만 활성화. 만료시 로그아웃됨.*/}
           {isAuthenticated && ( 
         <div className={HeaderCss.sessionTimer}>
-        <SessionTimer/>
+        <SessionTimer currentPage={currentPage}/>
         </div>
           )}  
 
