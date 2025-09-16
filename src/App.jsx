@@ -44,9 +44,9 @@ function InAppFilter(){
 
 // main app component
 function AppContent() {
- const { isAuthenticated, isLoading,/* logout*/ } = UseUser();
-  
- // currentPage 상태를 이 컴포넌트에서 보유
+  const { isAuthenticated, isLoading } = UseUser();
+
+  // currentPage 상태를 이 컴포넌트에서 보유
   const [currentPage, setCurrentPage] = useState("");
 
   // 현재 URL 경로 사용 (관리자 라우팅 분기에서 필요)
@@ -54,11 +54,11 @@ function AppContent() {
 
   // 컴포넌트 마운트 시 localStorage에서 currentPage 읽기
   useEffect(() => {
-  const savedCurrentPage = localStorage.getItem('currentPage');
+    const savedCurrentPage = localStorage.getItem('currentPage');
     if (savedCurrentPage) {
-     setCurrentPage(savedCurrentPage);
+      setCurrentPage(savedCurrentPage);
     }
-   }, []);
+  }, []);
 
   // currentPage가 바뀔 때 localStorage에 저장
   useEffect(() => {
@@ -72,8 +72,8 @@ function AppContent() {
   }
 
   // 관리자 경로는 '정확/접두' 매칭만 (includes 금지: /community/admin과 충돌 방지)
-   if (pathname === '/admin' || pathname.startsWith('/admin/')) {
-     return <Admin />;
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+    return <Admin />;
   }
 
 
@@ -87,13 +87,13 @@ function AppContent() {
       case "연혁":
         return <Introduction currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
       
-        // 마이페이지
-        case "수강중인 과목":
+      // 마이페이지
+      case "수강중인 과목":
       case "수강과목 공지사항":
       case "실시간 상담":
         return <MyPage currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
       
-        // ===== 커뮤니티 섹션 (상태 전환만 사용) =====
+      // ===== 커뮤니티 섹션 (상태 전환만 사용) =====
       case '학사공지':
         return <AcademyNotice />;
       case '행정공지':
@@ -101,7 +101,7 @@ function AppContent() {
       case '기타공지':
         return <EtcNotice />;
       // 기본값: 대시보드
-        default:
+      default:
         return <UserDashboard/>;
     }
   };
@@ -111,18 +111,18 @@ function AppContent() {
       <Header currentPage={currentPage} setCurrentPage={setCurrentPage}/>
 
       <div id="content">
-           {isAuthenticated ?(
+          {isAuthenticated ?(
             renderPage()
-           ) : (
+          ) : (
           // 로그인 안했으면 로그인폼 or 아이디/비번 찾기폼 
-           <Routes>
-            <Route path="/" element={<LoginForm/>} />
-            <Route path="/FindInfoId" element={<FindInfo/>}/>
-            <Route path="/FindInfoPw" element={<FindInfo/>}/>
-            {/* 비로그인 상태에서 다른 경로로 오면 로그인으로 돌림 */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-         )} 
+            <Routes>
+              <Route path="/" element={<LoginForm/>} />
+              <Route path="/FindInfoId" element={<FindInfo/>} />
+              <Route path="/FindInfoPw" element={<FindInfo/>} />
+              {/* 비로그인 상태에서 다른 경로로 오면 로그인으로 돌림 */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          )}
       </div>
       
       {/* 푸터 */}
@@ -134,10 +134,10 @@ function AppContent() {
 function App() {
   return (
     <>
-       <InAppFilter /> 
+      <InAppFilter />
       <UserProvider>
         <BrowserRouter>
-        <AppContent />
+          <AppContent />
         </BrowserRouter>
       </UserProvider>
     </>
