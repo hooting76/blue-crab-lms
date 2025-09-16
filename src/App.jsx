@@ -44,12 +44,13 @@ function InAppFilter(){
 
 // main app component
 function AppContent() {
- // 1 const { isAuthenticated, isLoading, logout } = UseUser();
-  const isAuthenticated = true;   // ← 임시 하드코딩
-  const isLoading = false; 
+ const { isAuthenticated, isLoading,/* logout*/ } = UseUser();
+  
+ // currentPage 상태를 이 컴포넌트에서 보유
   const [currentPage, setCurrentPage] = useState("");
 
-
+  // 현재 URL 경로 사용 (관리자 라우팅 분기에서 필요)
+  const { pathname } = useLocation();
 
   // 컴포넌트 마운트 시 localStorage에서 currentPage 읽기
   useEffect(() => {
@@ -70,10 +71,10 @@ function AppContent() {
     return <LoadingSpinner/>
   }
 
-    // ✅ 관리자 경로는 '정확/접두' 매칭만 (includes 금지: /community/admin과 충돌 방지)
-  // if (pathname === '/admin' || pathname.startsWith('/admin/')) {
-  //   return <Admin />;
-  // }
+  // 관리자 경로는 '정확/접두' 매칭만 (includes 금지: /community/admin과 충돌 방지)
+   if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+     return <Admin />;
+  }
 
 
   const renderPage = () => {

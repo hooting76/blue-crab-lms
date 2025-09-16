@@ -32,11 +32,8 @@ function FuncAniBtn(){
 
 
 function Header({currentPage, setCurrentPage}) {
-  //const { user, isAuthenticated, logout } = UseUser();
+const { user, isAuthenticated, logout } = UseUser();
 const navigate = useNavigate();
-const isAuthenticated = true;            // 항상 로그인된 것처럼
-const user = { data: { user: { id: 1, name: "테스트유저", student: 0 } } }; // 필요 없으면 삭제 가능
-const logout = () => alert("로그아웃(테스트)");
 
   
   const Reset = () => {
@@ -59,7 +56,7 @@ const logout = () => alert("로그아웃(테스트)");
   return (
   <>
     <header>
-        {/* {isAuthenticated && (   */}
+         {isAuthenticated && (   
         <div 
           className={HeaderCss.mobNavBtn}
           onClick={FuncAniBtn}
@@ -68,7 +65,7 @@ const logout = () => alert("로그아웃(테스트)");
           <span></span>
           <span></span>
         </div>
-       {/* )}   */}
+        )}  
       
         <h1 className={HeaderCss.h1}>
           <picture className={HeaderCss.logoImg} onClick={Reset}
@@ -78,7 +75,7 @@ const logout = () => alert("로그아웃(테스트)");
           
           <span onMouseOver={() => {hideSubMenu1(); hideSubMenu2(); hideSubMenu3();}} onClick={Reset}>Blue-Crab LMS</span>
           {/* user menu */}
-            {/* {isAuthenticated &&( */}
+             {isAuthenticated &&(
           <div className={HeaderCss.navMenu}>
             <ul>
               <li onMouseOver={() => {showSubMenu1(); hideSubMenu2(); hideSubMenu3();}}>학교소개</li>
@@ -143,18 +140,18 @@ const logout = () => alert("로그아웃(테스트)");
                 </tbody>
             </table>
           </div>   
-        {/* )} */}
+         )} 
         </h1>
 
         {/* 세션타이머(15분). 로그인 중에만 활성화. 만료시 로그아웃됨.*/}
-        {/* {isAuthenticated && (  */}
+         {isAuthenticated && (  
         <div className={HeaderCss.sessionTimer}>
         <SessionTimer currentPage={currentPage}/>
         </div>
-          {/* )}   */}
+           )}   
 
           {/* 로그인된 사용자 정보 */}
-            {/* {isAuthenticated && (   */}
+             {isAuthenticated && (   
             <div>
               <div>
               {/* user info init */}
@@ -197,14 +194,14 @@ const logout = () => alert("로그아웃(테스트)");
                 </button>
               </div>
             </div>
-            {/* )}   */}
+             )}  
           
           {/* 로그인되지 않은 상태 */}
-           {/* {!isAuthenticated && ( null )}  */}
+            {!isAuthenticated && ( null )}  
 
     </header>
 
-      {/* {isAuthenticated && (   */}
+       {isAuthenticated && (   
       <div className={HeaderCss.mobMenu}>
       <ul>
         <li>학교소개</li>
@@ -212,7 +209,7 @@ const logout = () => alert("로그아웃(테스트)");
         <li>마이페이지</li>
       </ul>
     </div>
-     {/* )}      */}
+      )}      
 
   </>
   );
