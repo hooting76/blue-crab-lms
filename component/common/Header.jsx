@@ -1,6 +1,5 @@
 import React, {useState } from 'react';
 import { UseUser } from '../../hook/UseUser';
-import { useNavigate } from "react-router-dom";
 import HeaderCss from '../../css/modules/Header.module.css';
 import SessionTimer from './SessionTimer';
 
@@ -33,7 +32,7 @@ function FuncAniBtn(){
 
 function Header({currentPage, setCurrentPage}) {
   const { user, isAuthenticated, logout } = UseUser();
-  const navigate = useNavigate();
+  
 
   const Reset = () => {
     window.location.replace('/');
@@ -83,7 +82,8 @@ function Header({currentPage, setCurrentPage}) {
               <li onMouseOver={() => {hideSubMenu1(); showSubMenu2(); hideSubMenu3();}}>커뮤니티</li>
               <li onMouseOver={() => {hideSubMenu1(); hideSubMenu2(); showSubMenu3();}}>마이페이지</li>
             </ul>
-
+            
+             {/* 학교소개 */}
             <table
                 className={HeaderCss.navSubMenu1}
                 onMouseOver={showSubMenu1}
@@ -105,7 +105,8 @@ function Header({currentPage, setCurrentPage}) {
                     </tr>
                 </tbody>
             </table>
-
+            
+            {/* 커뮤니티 */}
             <table
                 className={HeaderCss.navSubMenu2}
                 onMouseOver={showSubMenu2}
@@ -113,18 +114,13 @@ function Header({currentPage, setCurrentPage}) {
                 style={{ visibility: subMenu2Visibility }}
             >
                 <tbody>
-                    <tr>
-                        <td onClick={() => navigate("/community/academy")}>학사공지</td>
-                    </tr>
-                    <tr>
-                        <td onClick={() => navigate("/community/notice-admin")}>행정공지</td>
-                    </tr>
-                    <tr>
-                        <td onClick={() => navigate("/community/etc")}>기타공지</td>
-                    </tr>
-                </tbody>
+                <tr><td onClick={() => setCurrentPage("학사공지")}>학사공지</td></tr>
+                <tr><td onClick={() => setCurrentPage("행정공지")}>행정공지</td></tr>
+                <tr><td onClick={() => setCurrentPage("기타공지")}>기타공지</td></tr>
+              </tbody>
             </table>
 
+            {/* 마이페이지 */}
             <table
                 className={HeaderCss.navSubMenu3}
                 onMouseOver={showSubMenu3}
