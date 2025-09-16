@@ -28,7 +28,7 @@ export default function NoticeLayout({ children}){
                 
                 {/* 좌측: 공지 본문(목록 or 상세) */}
                 <section className="left">
-                    <children />  
+                    {children}  
                 </section>
 
                 {/* 우측: 커뮤니티 사이드바 */} 

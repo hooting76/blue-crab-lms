@@ -9,6 +9,7 @@ import NoticeTabs from "../notices/NoticeTabs";
 export default function AcademyNotice() {
     return(
         <NoticeLayout>
+            <h2>학사공지 테스트 출력</h2>
         <NoticeList category="academy" />
         </NoticeLayout>
     );

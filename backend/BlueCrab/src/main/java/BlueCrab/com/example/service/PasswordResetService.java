@@ -2,7 +2,10 @@ package BlueCrab.com.example.service;
 
 import BlueCrab.com.example.dto.PasswordResetIdentityRequest;
 import BlueCrab.com.example.dto.PasswordResetIdentityResponse;
+import BlueCrab.com.example.dto.PasswordResetCodeVerifyRequest;
+import BlueCrab.com.example.dto.PasswordResetCodeVerifyResponse;
 import BlueCrab.com.example.entity.UserTbl;
+import BlueCrab.com.example.model.PasswordResetCodeData;
 import BlueCrab.com.example.repository.UserTblRepository;
 import BlueCrab.com.example.util.PasswordResetRateLimiter;
 import BlueCrab.com.example.util.PasswordResetTokenManager;
@@ -284,5 +287,118 @@ public class PasswordResetService {
             logger.error("비밀번호 변경 중 예상하지 못한 오류 발생", e);
             throw new RuntimeException("PASSWORD_CHANGE_FAILED", e);
         }
+    }
+
+    // ========== 3 단계 : 인증 코드 검증 작업자 : 성태준 ==========
+
+    public PasswordResetCodeVerifyResponse verifyCode(PasswordResetCodeVerifyRequest request, String userIp) {
+        String irtToken = request.getIrtToken();
+        String authCode = request.getAuthCode();
+        
+        logger.info("코드 검증 시작: userIp={}", userIp);
+        
+        try {
+            // 1. IRT 토큰 검증 및 이메일 추출
+            Map<String, Object> tokenData = tokenManager.extractIRTTokenData(irtToken);
+            if (tokenData == null) {
+                logger.warn("유효하지 않은 IRT 토큰: userIp={}", userIp);
+                return PasswordResetCodeVerifyResponse.sessionError();
+            }
+            
+            String email = (String) tokenData.get("email");
+            String sessionLockToken = (String) tokenData.get("sessionLockToken");
+            
+            // 2. 세션 락 검증
+            if (!redisUtil.validateSessionLock(email, sessionLockToken)) {
+                logger.warn("세션 락 검증 실패: email={}, userIp={}", email, userIp);
+                return PasswordResetCodeVerifyResponse.sessionError();
+            }
+            
+            // 3. 저장된 코드 데이터 조회
+            PasswordResetCodeData codeData = redisUtil.getPasswordResetCodeData(email);
+            if (codeData == null) {
+                logger.warn("코드 데이터를 찾을 수 없음: email={}, userIp={}", email, userIp);
+                return PasswordResetCodeVerifyResponse.expired();
+            }
+            
+            // 4. 코드 만료 확인
+            if (codeData.isExpired()) {
+                logger.warn("코드 만료: email={}, userIp={}", email, userIp);
+                redisUtil.invalidatePasswordResetCode(email);
+                return PasswordResetCodeVerifyResponse.expired();
+            }
+            
+            // 5. 최대 시도 횟수 확인
+            if (codeData.isMaxAttemptsExceeded()) {
+                logger.warn("최대 시도 횟수 초과: email={}, attempts={}, userIp={}", 
+                           email, codeData.getVerificationAttempts(), userIp);
+                redisUtil.invalidatePasswordResetCode(email);
+                return PasswordResetCodeVerifyResponse.blocked();
+            }
+            
+            // 6. 코드 검증
+            if (!codeData.getCode().equals(authCode)) {
+                // 시도 횟수 증가
+                PasswordResetCodeData updatedData = redisUtil.incrementCodeVerificationAttempts(email);
+                
+                int remainingAttempts = 5;
+                if (updatedData != null) {
+                    remainingAttempts = Math.max(0, 5 - updatedData.getVerificationAttempts());
+                }
+                
+                logger.warn("코드 불일치: email={}, attempts={}, remaining={}, userIp={}", 
+                           email, updatedData != null ? updatedData.getVerificationAttempts() : -1, 
+                           remainingAttempts, userIp);
+                
+                if (remainingAttempts <= 0) {
+                    redisUtil.invalidatePasswordResetCode(email);
+                    return PasswordResetCodeVerifyResponse.blocked();
+                }
+                
+                return PasswordResetCodeVerifyResponse.failure(remainingAttempts, 300L); // 5분 = 300초
+            }
+            
+            // 7. 검증 성공 - RT 토큰 생성
+            String rtToken = tokenManager.generateRTToken(email, sessionLockToken);
+            
+            // 8. 코드 무효화
+            redisUtil.invalidatePasswordResetCode(email);
+            
+            logger.info("코드 검증 성공: email={}, userIp={}", email, userIp);
+            
+            // 마스킹된 이메일 생성
+            String maskedEmail = maskEmail(email);
+            
+            return PasswordResetCodeVerifyResponse.success(rtToken, maskedEmail);
+            
+        } catch (Exception e) {
+            logger.error("코드 검증 중 오류 발생: userIp={}", userIp, e);
+            return PasswordResetCodeVerifyResponse.failure(0, 0L);
+        }
+    }
+
+    // ========== 3 단계 : 인증 코드 검증 작업자 : 성태준 끝 ==========
+
+    /**
+     * 이메일 마스킹 유틸리티 메서드
+     * 
+     * @param email 원본 이메일
+     * @return 마스킹된 이메일
+     */
+    private String maskEmail(String email) {
+        if (email == null || !email.contains("@")) {
+            return email;
+        }
+        
+        String[] parts = email.split("@");
+        String localPart = parts[0];
+        String domain = parts[1];
+        
+        if (localPart.length() <= 2) {
+            return email; // 너무 짧으면 마스킹하지 않음
+        }
+        
+        String maskedLocal = localPart.substring(0, 2) + "***";
+        return maskedLocal + "@" + domain;
     }
 }

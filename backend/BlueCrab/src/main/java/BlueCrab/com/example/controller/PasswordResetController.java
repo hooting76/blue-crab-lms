@@ -3,6 +3,8 @@ package BlueCrab.com.example.controller;
 import BlueCrab.com.example.dto.ApiResponse;
 import BlueCrab.com.example.dto.PasswordResetIdentityRequest;
 import BlueCrab.com.example.dto.PasswordResetIdentityResponse;
+import BlueCrab.com.example.dto.PasswordResetCodeVerifyRequest;
+import BlueCrab.com.example.dto.PasswordResetCodeVerifyResponse;
 import BlueCrab.com.example.dto.ChangePasswordRequest;
 import BlueCrab.com.example.service.PasswordResetService;
 import BlueCrab.com.example.util.RequestUtils;
@@ -341,6 +343,104 @@ public class PasswordResetController {
             neutralResponse
         ));
     }
+
+    // ========== 인증 코드 검증 단계(작성자 : 성태준) ==========
+
+    /* 보안 특징:
+     * - IRT 토큰 검증 (세션 무결성 확인)
+     * - 코드 만료 확인 (5분 TTL)
+     * - 최대 5회 시도 제한
+     * - 검증 성공 시 코드 즉시 무효화
+     * - Replace-on-new 원칙 적용
+     * 
+     * 에러 처리:
+     * - 코드 불일치: 남은 시도 횟수 반환
+     * - 만료: 새로운 코드 요청 안내
+     * - 차단: 최대 시도 횟수 초과
+     * - 세션 오류: 처음부터 다시 시도
+     */
+    @PostMapping("/verify-code") // 인증 코드 검증 엔드포인트
+    public ResponseEntity<PasswordResetCodeVerifyResponse> verifyCode(
+            @Valid @RequestBody PasswordResetCodeVerifyRequest request,
+            HttpServletRequest httpRequest) {
+            // ResponseEntity<PasswordResetCodeVerifyResponse> : 다양한 응답 지원
+            // verifyCode : 인증 코드 검증 요청 처리
+            // @RequestBody PasswordResetCodeVerifyRequest request : 요청 본문에서 JSON 데이터를 DTO로 매핑
+            // HttpServletRequest httpRequest : IP 추출용
+        
+        String userIp = RequestUtils.getClientIpAddress(httpRequest);
+        // 클라이언트 IP 주소 추출
+        // RequestUtils.getClientIpAddress(...) : IP 추출 유틸리티 메서드
+        logger.info("코드 검증 요청 수신: userIp={}", userIp);
+        // 요청 수신 로그 기록
+        
+        try {
+            // 1. 레이트 리미팅 확인 
+            if (!rateLimiter.isAllowedForFindPassword(userIp, "Mozilla/5.0")) {
+                // 레이트 리밋 초과의 경우
+                long waitTime = rateLimiter.getRemainingWaitTime(userIp, "verify_code");
+                // 남은 대기 시간 조회
+                logger.warn("코드 검증 레이트 리미트 초과: userIp={}", userIp);
+                // 경고 로그 기록
+                return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(PasswordResetCodeVerifyResponse.failure(0, waitTime));
+                // 429 Too Many Requests 응답 반환
+            } // if 끝
+            
+            // 2. 서비스 레이어 호출
+            PasswordResetCodeVerifyResponse response = passwordResetService.verifyCode(request, userIp);
+            
+            // 3. 레이트 리미터 업데이트
+            if (response.isSuccess()) {
+                // 검증 성공 시
+                rateLimiter.recordSuccess(userIp, "verify_code");
+                // 성공 기록
+            } else {
+                // 검증 실패 시
+                rateLimiter.recordFailure(userIp, "verify_code");
+                // 실패 기록
+            }
+            
+            // 4. 응답 반환
+            HttpStatus status = response.isSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+            
+            // 특수한 경우의 상태 코드 처리
+            if ("SESSION_ERROR".equals(response.getStatus())) {
+                // 세션 오류의 경우 (IRT 토큰 문제)
+                status = HttpStatus.UNAUTHORIZED;
+                // 401 Unauthorized
+            } else if ("BLOCKED".equals(response.getStatus())) {
+                // 차단된 경우 (최대 시도 횟수 초과)
+                status = HttpStatus.LOCKED;
+                // 423 Locked
+            } else if ("EXPIRED".equals(response.getStatus())) {
+                // 코드 만료의 경우
+                status = HttpStatus.GONE;
+                // 410 Gone
+            } // if-else 끝
+
+            logger.info("코드 검증 응답: userIp={}, success={}, status={}", 
+                        userIp, response.isSuccess(), response.getStatus());
+            // 응답 로그 기록
+            
+            return ResponseEntity.status(status).body(response);
+            // 최종 응답 반환
+            
+        } catch (Exception e) {
+            // 예외 처리
+                        
+            rateLimiter.recordFailure(userIp, "verify_code");
+            // 레이트 리미터 업데이트 (오류 시에도 실패로 기록)
+            logger.error("코드 검증 중 예상하지 못한 오류 발생: userIp={}", userIp, e);
+            // 에러 로그 기록
+            
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(PasswordResetCodeVerifyResponse.failure(0, 0L));
+            // 500 Internal Server Error 응답 반환
+        }
+    } // verifyCode 끝
+
+    // ========== 인증 코드 검증 단계(작성자 : 성태준) 끝 ==========
 
     /**
      * 4단계: 비밀번호 변경 처리
