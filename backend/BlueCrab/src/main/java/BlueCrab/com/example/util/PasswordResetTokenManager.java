@@ -239,12 +239,17 @@ public class PasswordResetTokenManager {
 
     /**
      * IRT 데이터를 담는 내부 클래스
+     * Jackson JSON 직렬화/역직렬화를 위해 기본 생성자와 setter 추가
      */
     public static class IRTData {
-        private final String email;
-        private final Integer userId;
-        private final String lock;
-        private final String createdAt;
+        private String email;
+        private Integer userId;
+        private String lock;
+        private String createdAt;
+
+        // Jackson을 위한 기본 생성자
+        public IRTData() {
+        }
 
         public IRTData(String email, Integer userId, String lock, String createdAt) {
             this.email = email;
@@ -253,10 +258,17 @@ public class PasswordResetTokenManager {
             this.createdAt = createdAt;
         }
 
+        // Getter 메서드들
         public String getEmail() { return email; }
         public Integer getUserId() { return userId; }
         public String getLock() { return lock; }
         public String getCreatedAt() { return createdAt; }
+
+        // Jackson을 위한 Setter 메서드들
+        public void setEmail(String email) { this.email = email; }
+        public void setUserId(Integer userId) { this.userId = userId; }
+        public void setLock(String lock) { this.lock = lock; }
+        public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
     }
 
     // ========== 3 단계 : Code Verification용 메서드들 작업자 : 성태준 ==========
@@ -316,12 +328,17 @@ public class PasswordResetTokenManager {
 
     /**
      * RT 데이터를 담는 내부 클래스
+     * Jackson JSON 직렬화/역직렬화를 위해 기본 생성자와 setter 추가
      */
     public static class RTData {
-        private final String email;
-        private final Integer userId;
-        private final String lock;
-        private final String createdAt;
+        private String email;
+        private Integer userId;
+        private String lock;
+        private String createdAt;
+
+        // Jackson을 위한 기본 생성자
+        public RTData() {
+        }
 
         public RTData(String email, Integer userId, String lock, String createdAt) {
             this.email = email;
@@ -330,9 +347,16 @@ public class PasswordResetTokenManager {
             this.createdAt = createdAt;
         }
 
+        // Getter 메서드들
         public String getEmail() { return email; }
         public Integer getUserId() { return userId; }
         public String getLock() { return lock; }
         public String getCreatedAt() { return createdAt; }
+
+        // Jackson을 위한 Setter 메서드들
+        public void setEmail(String email) { this.email = email; }
+        public void setUserId(Integer userId) { this.userId = userId; }
+        public void setLock(String lock) { this.lock = lock; }
+        public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
     }
 }
