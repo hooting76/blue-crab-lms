@@ -4,7 +4,6 @@ import { UseUser } from '../../hook/UseUser';
 
 const SessionTimer = () => {
   const [timeLeft, setTimeLeft] = useState(900);
-  const location = useLocation();
   const timerRef = useRef(null);
   const { logout } = UseUser();
 
@@ -17,14 +16,7 @@ const SessionTimer = () => {
   const handleLogout = async () => {
     alert("로그아웃되었습니다.");
     await logout();
-    window.location.replace('/');
   }
-
-
-  useEffect(() => {
-    // URL이 바뀔 때마다 타이머 초기화
-    setTimeLeft(900);
-  }, [location]);
 
   useEffect(() => {
     clearInterval(timerRef.current);
@@ -42,7 +34,7 @@ const SessionTimer = () => {
     }, 1000);
 
   return () => clearInterval(timerRef.current);
-}, [location]);
+}, [currentPage]);
 
 
   return (
