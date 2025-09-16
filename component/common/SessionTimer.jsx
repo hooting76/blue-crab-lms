@@ -1,15 +1,10 @@
-import { useLocation } from 'react-router-dom';
 import React, { useState, useEffect, useRef } from 'react';
 import { UseUser } from '../../hook/UseUser';
 
-const SessionTimer = () => {
+const SessionTimer = ({ currentPage }) => {
   const [timeLeft, setTimeLeft] = useState(900); // 15분
-  const location = useLocation();
   const timerRef = useRef(null);
   const { logout } = UseUser();
-
-  // 페이지 경로를 기준으로 currentPage 정의
-  const currentPage = location.pathname;
 
   // 시간 형식 변환
   const formatTime = (seconds) => {
@@ -44,7 +39,7 @@ const SessionTimer = () => {
 
     // 클린업 함수로 타이머 제거
     return () => clearInterval(timerRef.current);
-  }, [currentPage]); // currentPage가 변경될 때만 실행
+  }, [currentPage]); // currentPage가 변경될 때 타이머 초기화
 
   // 연장 버튼: 타이머 리셋
   const handleExtend = () => setTimeLeft(900);
