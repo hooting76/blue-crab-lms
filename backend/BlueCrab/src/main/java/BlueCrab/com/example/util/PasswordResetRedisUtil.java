@@ -19,6 +19,9 @@ import org.springframework.stereotype.Component; // 컴포넌트 등록
 import com.fasterxml.jackson.databind.ObjectMapper; // JSON 변환
 import lombok.extern.slf4j.Slf4j; // 로깅
 
+// ========== 내부 모델 ==========
+import BlueCrab.com.example.model.PasswordResetCodeData; // 코드 데이터 모델
+
 
 @Component
 @Slf4j
@@ -319,6 +322,116 @@ public class PasswordResetRedisUtil {
             
         } catch (Exception e) {
             log.error("Failed to delete lock for email: {}. Error: {}", email, e.getMessage());
+        }
+    }
+
+    /**
+     * 세션 락 검증
+     * 
+     * @param email 사용자 이메일
+     * @param sessionLockToken 세션 락 토큰
+     * @return 검증 성공 여부
+     */
+    public boolean validateSessionLock(String email, String sessionLockToken) {
+        try {
+            String currentLockToken = getCurrentLock(email);
+            
+            if (currentLockToken == null) {
+                log.warn("현재 락 토큰이 존재하지 않음: email={}", email);
+                return false;
+            }
+            
+            boolean isValid = currentLockToken.equals(sessionLockToken);
+            log.info("세션 락 검증 결과: email={}, valid={}", email, isValid);
+            
+            return isValid;
+            
+        } catch (Exception e) {
+            log.error("세션 락 검증 중 오류 발생: email={}", email, e);
+            return false;
+        }
+    }
+
+    // Stage 3: Code Verification Methods
+
+    /**
+     * 패스워드 리셋 코드 데이터 조회
+     * 
+     * @param email 사용자 이메일
+     * @return PasswordResetCodeData 또는 null
+     */
+    public PasswordResetCodeData getPasswordResetCodeData(String email) {
+        try {
+            String codeKey = "reset_code:" + email;
+            String jsonData = (String) redisTemplate.opsForValue().get(codeKey);
+            
+            if (jsonData == null) {
+                log.info("No password reset code data found for email: {}", email);
+                return null;
+            }
+            
+            return objectMapper.readValue(jsonData, PasswordResetCodeData.class);
+            
+        } catch (Exception e) {
+            log.error("Failed to get password reset code data for email: {}. Error: {}", email, e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 패스워드 리셋 코드 무효화 (삭제)
+     * 
+     * @param email 사용자 이메일
+     */
+    public void invalidatePasswordResetCode(String email) {
+        try {
+            String codeKey = "reset_code:" + email;
+            redisTemplate.delete(codeKey);
+            
+            log.info("Password reset code invalidated for email: {}", email);
+            
+        } catch (Exception e) {
+            log.error("Failed to invalidate password reset code for email: {}. Error: {}", email, e.getMessage());
+        }
+    }
+
+    /**
+     * 코드 검증 시도 횟수 증가
+     * 
+     * @param email 사용자 이메일
+     * @return 업데이트된 PasswordResetCodeData 또는 null
+     */
+    public PasswordResetCodeData incrementCodeVerificationAttempts(String email) {
+        try {
+            String codeKey = "reset_code:" + email;
+            String jsonData = (String) redisTemplate.opsForValue().get(codeKey);
+            
+            if (jsonData == null) {
+                log.warn("No password reset code data found for attempts increment: {}", email);
+                return null;
+            }
+            
+            PasswordResetCodeData codeData = objectMapper.readValue(jsonData, PasswordResetCodeData.class);
+            codeData.setVerificationAttempts(codeData.getVerificationAttempts() + 1);
+            
+            // TTL 유지하며 업데이트
+            Long ttl = redisTemplate.getExpire(codeKey);
+            String updatedJson = objectMapper.writeValueAsString(codeData);
+            
+            if (ttl != null && ttl > 0) {
+                redisTemplate.opsForValue().set(codeKey, updatedJson, ttl, TimeUnit.SECONDS);
+            } else {
+                redisTemplate.opsForValue().set(codeKey, updatedJson, 300, TimeUnit.SECONDS); // 기본 5분
+            }
+            
+            log.info("Code verification attempts incremented for email: {}. New attempt count: {}", 
+                    email, codeData.getVerificationAttempts());
+            
+            return codeData;
+            
+        } catch (Exception e) {
+            log.error("Failed to increment code verification attempts for email: {}. Error: {}", email, e.getMessage());
+            return null;
         }
     }
 }

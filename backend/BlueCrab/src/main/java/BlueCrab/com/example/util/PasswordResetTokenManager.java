@@ -259,6 +259,61 @@ public class PasswordResetTokenManager {
         public String getCreatedAt() { return createdAt; }
     }
 
+    // ========== 3 단계 : Code Verification용 메서드들 작업자 : 성태준 ==========
+    public Map<String, Object> extractIRTTokenData(String irtToken) {
+        try {
+            String irtData = redisService.getValue(IRT_PREFIX + irtToken);
+            if (irtData == null) {
+                logger.warn("IRT 토큰이 존재하지 않음 또는 만료됨: {}", irtToken);
+                return null;
+            }
+
+            IRTData data = objectMapper.readValue(irtData, IRTData.class);
+            
+            Map<String, Object> result = new HashMap<>();
+            result.put("email", data.getEmail());
+            result.put("userId", data.getUserId());
+            result.put("sessionLockToken", data.getLock());
+            
+            return result;
+            
+        } catch (Exception e) {
+            logger.error("IRT 토큰 데이터 추출 실패: {}", irtToken, e);
+            return null;
+        }
+    }
+
+    public String generateRTToken(String email, String sessionLockToken) {
+        try {
+            // 1. RT 토큰 생성
+            String rtToken = UUID.randomUUID().toString();
+            
+            // 2. RT 데이터 생성
+            RTData rtData = new RTData(
+                email, 
+                null, // userId는 RT 토큰에서 불필요
+                sessionLockToken, 
+                LocalDateTime.now().toString()
+            );
+            
+            // 3. Redis에 저장
+            String rtDataJson = objectMapper.writeValueAsString(rtData);
+            redisService.storeValue(
+                RESET_SESSION_PREFIX + rtToken, 
+                rtDataJson, 
+                RT_TTL_MINUTES
+            );
+            
+            logger.info("RT 토큰 생성 완료: email={}", email);
+            return rtToken;
+            
+        } catch (Exception e) {
+            logger.error("RT 토큰 생성 실패: email={}", email, e);
+            return null;
+        }
+    }
+    // ========== 3 단계 : Code Verification용 메서드들 작업자 : 성태준 끝 ==========
+
     /**
      * RT 데이터를 담는 내부 클래스
      */
