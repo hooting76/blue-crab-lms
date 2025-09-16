@@ -3,7 +3,8 @@ import { useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { FaCircleLeft } from 'react-icons/fa6';
 
-import FindFunc from "./FindFunc";
+import FindFuncId from "./FindFunc";
+import FindFuncPw from "./FindFuncPw";
 import FindinfoCss from '../../css/modules/findinfo.module.css';
 
 function FindInfo(){
@@ -28,20 +29,20 @@ function FindInfo(){
     }
 
     const handlingInput = async() => {
-        if(useProps == false){ // if find pw
-            if(!userName || !userPhone || !useEmail){
+        if(useProps == false){ // if find id
+            if(!userName || !userPhone || !userCode){
                 alert('입력값을 확인하세요.');
                 return;
             }else{
-                await FindFunc(useEmail, userPhone, userName);
+                await FindFuncId(userCode, userName, userPhone);
             }
         }else{
-            if(!userName || !userPhone){
+            if(!userName || !userPhone || !userCode || !useEmail){
                 alert('입력값을 확인하세요.');
                 return;
             }else{
-                await FindFunc(null, userPhone, userName);
-            }
+                await FindFuncPw(userCode, userName, userPhone, useEmail);
+            };
         };
     };    
 
@@ -54,26 +55,11 @@ function FindInfo(){
             </Link>
         </div>
         <h2 className={FindinfoCss.h2}>
-            <span className={useProps ? null : FindinfoCss.off }><Link to="/FindInfo" state={{userPrs: true }}>아이디찾기</Link></span>
-
-            <span className={useProps ? FindinfoCss.off : null }><Link to="/FindInfo" state={{userPrs: false }}>비밀번호찾기</Link></span>
+            <span className={useProps ? null : FindinfoCss.off }><Link to="/FindInfoId" >아이디찾기</Link></span>
+            <span className={useProps ? FindinfoCss.off : null }><Link to="/FindInfoPw" >비밀번호찾기</Link></span>
         </h2>
 
         <div className={FindinfoCss.div}>
-
-            {!useProps && (
-                // if pw
-                <div className={FindinfoCss.row}>
-                    <label htmlFor='frm_id'>이메일</label>
-                    <input
-                        type="text"
-                        value={useEmail}
-                        onChange={(e) => setUseEmail(e.target.value)}
-                        id='frm_id'
-                        placeholder="ex) example@google.com"
-                    />
-                </div>
-            )}
 
             <div className={FindinfoCss.row}>
                 <label htmlFor="fd_name">성함</label>
@@ -102,7 +88,7 @@ function FindInfo(){
                 비밀번호찾기: 이메일 인증코드 */}
             <div className={FindinfoCss.row}>
                 {useProps 
-                ? (<p>조회된 결과 : <span>stu*****crab.ac.kr</span></p>) 
+                ? (<p>조회된 결과 : <span></span></p>) 
                 : (<>
                     <label htmlFor={FindinfoCss.fd_code}>인증코드</label>
                     <input
