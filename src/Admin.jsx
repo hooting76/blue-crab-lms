@@ -7,11 +7,16 @@ import { AdminProvider } from '../context/AdminContext';
 // custom hook
 import { UseAdmin } from '../hook/UseAdmin';
 
+import AdminBdCss from "../css/admin/module/admin.module.css";
 
 import InAppFunction from '../component/common/InAppFunc';
 import LoadingSpinner from '../component/common/LoadingSpinner';
 import AdminDashboard from '../component/admin/AdminDashboard';
 import AdminLogin from '../component/admin/AdminLogin';
+
+import AdHeader from "../component/admin/common/AdHeader";
+import AdFooter from "../component/admin/common/AdFooter";
+import AdNav from "../component/admin/common/AdNav";
 
 // InApp filter function
 function InAppFilter(){
@@ -31,17 +36,14 @@ function AuthTof(){
     }
 
     return (
-    <BrowserRouter>
-        <div id="wrap">
-            {isAuthenticated ? null : null}
-            <div id="content">
-                {isAuthenticated 
-                ? <AdminDashboard /> 
-                : <AdminLogin/>}
+        <div id="wrap" className={AdminBdCss.wrap}>
+            {isAuthenticated ? <AdNav/> : null}
+            <div id="content" className={AdminBdCss.content}>
+                {isAuthenticated ? <AdHeader /> : null }
+                {isAuthenticated ? <AdminDashboard /> : <AdminLogin/>}
+                {isAuthenticated ? <AdFooter /> : null }
             </div>
-            {isAuthenticated ? null : null}
         </div>
-    </BrowserRouter>
     );
 }
 

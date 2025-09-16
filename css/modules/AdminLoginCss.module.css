@@ -8,14 +8,25 @@
     color: #fff;
     font-size: 15px;
     font-weight: bold;
-}
-.authTimer{
-    font-size: 15px;
-    font-weight: bold;
+    position: relative;
+    width: 65px;
+    line-height: normal;
 }
 
 .sendBtn:disabled{
     background: #999;
+    cursor: default;
+}
+
+.sendBtn > svg{
+    transform: rotate(0deg);
+    animation: spin 1s linear infinite;
+}
+
+
+.authTimer{
+    font-size: 15px;
+    font-weight: bold;
 }
 
 .submit{
@@ -31,4 +42,10 @@
 
 .submit:disabled{
     background: #999;
+    cursor: default;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

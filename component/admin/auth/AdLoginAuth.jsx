@@ -22,11 +22,9 @@ async function AdLoginAuth(email, password) {
         });
 
         const result = await response.json();
-        // console.log(result);
 
         if(result.success && result.data?.sessionToken) {
             localStorage.setItem('sessionToken', result.data.sessionToken);
-            // console.log('✅ 1단계 성공! sessionToken 저장됨');
             RequestCode(localStorage.getItem('sessionToken'));
         }else{
             console.error('❌ 1단계 실패:', result.message);        

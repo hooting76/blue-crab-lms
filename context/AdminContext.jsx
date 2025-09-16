@@ -1,6 +1,7 @@
 import React,{ createContext, useReducer,useEffect } from "react";
+import { GetTokens } from '../component/auth/TokenAuth';
 
-// 초기 상태
+// init state
 const AdminState = {
     admin: null,
     isLoading: false,
@@ -8,7 +9,7 @@ const AdminState = {
     isAuthenticated: false
 };
 
-// 액션 타입들
+// action types 
 export const LOGIN_START = 'LOGIN_START';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAILURE = 'LOGIN_FAILURE';
@@ -63,13 +64,13 @@ export const AdminProvider = ({ children }) => {
 
     useEffect(() => {
         // 컴포넌트 마운트 시 저장된 관리자 정보 불러오기
-        const storedAdmin = localStorage.getItem('accessToken');
+        const storedAdmin = localStorage.getItem('Admin');
         if (storedAdmin) {
             try {
                 const Admin = JSON.parse(storedAdmin);
                 dispatch({ type: LOGIN_SUCCESS, payload: Admin });
             } catch (error) {
-                localStorage.removeItem('accessToken');
+                localStorage.removeItem('Admin');
             }
         }
     }, []);
@@ -99,27 +100,51 @@ export const AdminProvider = ({ children }) => {
                     'Content-Type': 'application/json',
                     'Authorization': sessionToken
                 },
-                body: JSON.stringify({ authCode: code })                
+                body: JSON.stringify({ authCode: code })
             });
 
             const result = await response.json();
-            // console.log(result);
 
-            if (result.message =="이메일 인증 성공! 토큰이 발급되었습니다." && result.data){
-            // ok
+            if (result.success && result.data){
                 localStorage.setItem('accessToken', result.data.accessToken);
+                localStorage.setItem('Admin', result.data);
                 dispatch({ type: LOGIN_SUCCESS, payload: result.data });
                 return result.data, {success: true};
+            }else{
+                throw new Error('입력을 다시 확인하세요.');
             }
         } catch (error) {
             dispatch({ type: LOGIN_FAILURE, payload: error.message });
-            console.error('❌ 네트워크 오류:', error);
+            return { success: false, error: error.message };
         }
     };
 
+    // logout func 
     const AdLogout = async() => {
         dispatch({ type: LOGOUT });
-    }
+        const tokens = GetTokens();
+        const { accessToken, refreshToken } = tokens;
+
+        try {
+            const response = await fetch('https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/auth/logout', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify({ 
+                    refreshToken: refreshToken
+                })
+            });
+            const data = await response.json();
+            // console.log('✅ 응답 데이터:', data);
+        } catch (error) {
+            localStorage.removeItem('Admin');
+            sessionStorage.removeItem('Admin');
+        }
+        localStorage.removeItem('Admin');
+        sessionStorage.removeItem('Admin');
+    }// logout func end
 
     // 에러 클리어 함수
     const clearError = () => {
@@ -128,7 +153,7 @@ export const AdminProvider = ({ children }) => {
 
     // Context에 제공할 값들
     const contextValue = {
-        user: state.user,
+        admin: state.admin,
         isLoading: state.isLoading,
         error: state.error,
         isAuthenticated: state.isAuthenticated,

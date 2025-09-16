@@ -146,6 +146,15 @@ public class SecurityConfig {
                 .requestMatchers("/BlueCrab-1.0.0/sendMail").authenticated() // 이메일 인증 API 보호
                 .requestMatchers("/verifyCode").authenticated() // 인증 코드 확인 API 보호
                 .requestMatchers("/BlueCrab-1.0.0/verifyCode").authenticated() // 인증 코드 확인 API 보호
+                
+                // 성태준 추가, 비밀번호 재설정 기능 
+                // ⚠️ 보안 정책: 구체적 경로만 허용하여 의도하지 않은 엔드포인트 노출 방지
+                // 심플하게 말 해 permitAll()에 있어서는 "/**" 같은 경로는 쓰지 말라는 뜻
+                .requestMatchers("/api/password-reset/send-reset-email").permitAll() // 인증코드 발송 (인증 불필요)
+                .requestMatchers("/api/password-reset/verify-identity").permitAll() // 신원 확인 (미구현, 향후 추가용)
+                // 📝 아직 미 작성 된 단계에서 쓰일 엔드포인트:
+                // .requestMatchers("/api/password-reset/verify-code").permitAll() // 인증코드 검증
+                // .requestMatchers("/api/password-reset/change-password").permitAll() // 비밀번호 변경
 
 
 

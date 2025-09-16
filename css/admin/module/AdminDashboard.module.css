@@ -2,6 +2,8 @@
 
 .main{
     background: #fff;
+    width: 100%;
+    min-height: 75%;
 }
 
 .main > h1{

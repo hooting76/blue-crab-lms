@@ -1,37 +1,33 @@
-import { useLocation } from 'react-router-dom';
 import React, { useState, useEffect, useRef } from 'react';
 import { UseUser } from '../../hook/UseUser';
 
-const SessionTimer = () => {
-  const [timeLeft, setTimeLeft] = useState(900);
-  const location = useLocation();
+const SessionTimer = ({ currentPage }) => {
+  const [timeLeft, setTimeLeft] = useState(900); // 15분
   const timerRef = useRef(null);
   const { logout } = UseUser();
 
+  // 시간 형식 변환
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${minutes}분 ${secs < 10 ? '0' : ''}${secs}초`;
   };
 
+  // 로그아웃 핸들링
   const handleLogout = async () => {
     alert("로그아웃되었습니다.");
     await logout();
     window.location.replace('/');
-  }
+  };
 
-
+  // currentPage 변경 시 타이머 초기화 및 재시작
   useEffect(() => {
-    // URL이 바뀔 때마다 타이머 초기화
-    setTimeLeft(900);
-  }, [location]);
+    clearInterval(timerRef.current); // 기존 타이머 정리
+    setTimeLeft(900); // 타이머 초기화
 
-  useEffect(() => {
-    clearInterval(timerRef.current);
-    setTimeLeft(900);
-
+    // 새 타이머 시작
     timerRef.current = setInterval(() => {
-      setTimeLeft(prev => {
+      setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timerRef.current);
           handleLogout();
@@ -41,14 +37,17 @@ const SessionTimer = () => {
       });
     }, 1000);
 
-  return () => clearInterval(timerRef.current);
-}, [location]);
+    // 클린업 함수로 타이머 제거
+    return () => clearInterval(timerRef.current);
+  }, [currentPage]); // currentPage가 변경될 때 타이머 초기화
 
+  // 연장 버튼: 타이머 리셋
+  const handleExtend = () => setTimeLeft(900);
 
   return (
     <>
-      {formatTime(timeLeft)} 후<br/>자동으로 로그아웃 |
-      <button onClick={()=>setTimeLeft(900)}>연장</button>
+      {formatTime(timeLeft)} 후<br />자동으로 로그아웃 |
+      <button onClick={handleExtend}>연장</button>
     </>
   );
 };
