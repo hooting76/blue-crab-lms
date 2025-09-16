@@ -167,8 +167,7 @@ public class PasswordResetController {
     }
 
     // ========== PasswordResetEmailController (작성자: 성태준)에서 추가된 메서드 ==========
-    /**
-     * 2단계: 이메일 발송 처리 (성태준 작성)
+    /* 2단계: 이메일 발송 처리 (성태준 작성)
      * 인증 코드 이메일 발송 엔드포인트 (IP 기반 제한)
      */
     @PostMapping("/send-email")
@@ -323,6 +322,8 @@ public class PasswordResetController {
             emailContent
         );
     } // sendPasswordResetEmail 끝
+
+    // ========== PasswordResetEmailController (작성자: 성태준)에서 추가된 메서드 끝 ==========
 
     /**
      * 전역 예외 처리
