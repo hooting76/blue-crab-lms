@@ -144,7 +144,7 @@
     cursor: pointer;
 }
 
-.resultWrap{
+.pwChWrap{
     position: absolute;
     top: 0%;
     left: 100%;
@@ -153,6 +153,40 @@
     width: 100%;
     height: 100%;
     z-index: 5;
+}
+.err{
+    width: 100%;
+    border: 1px solid #efefef;
+    display: block;
+    height: auto; 
+    word-break: keep-all;
+    transition: all .3s;
+}
+
+.err > p{
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    margin-block-start: 0;
+    margin-block-end: 0;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    unicode-bidi: normal;
+    height: auto;
+    line-height: normal;
+    overflow: hidden;
+    transition: all .3s;
+}
+.err > p > span{
+    display: inline-block;
+    width: 100%;
+    height: auto;
+    text-align: center;
+    font-weight: bold;
+    font-size: 15px;
+    transition: all .3s;
+    padding: 3px 0;
 }
 
 @keyframes spin {

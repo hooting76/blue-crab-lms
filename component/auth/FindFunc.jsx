@@ -2,6 +2,8 @@ const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/acco
 
 // id찾기
 async function FindFunc(userCode, userName, userPhone){
+    const ResTxtTrg = document.getElementById("returnError");
+
     try {
         const response = await fetch(`${API_BASE_URL}/FindId`, {
             method: 'POST',
@@ -10,18 +12,20 @@ async function FindFunc(userCode, userName, userPhone){
         });
 
         const result = await response.json();
-        console.log(result);
 
         if(result.success && result.data.success) {
-            console.log(`✅ 성공! 이메일: ${result.data.maskedEmail}`);
+            // ok
+            let okResBody = `찾으신 정보는 <span style='color:blue;'>${result.data.maskedEmail}</span> 입니다.`;
+            ResTxtTrg.innerHTML = okResBody;
         }else{
-            console.log(`❌ 실패: ${result.data.message}`);
+            // no
+            let errTxt = `<span style='color:red;'>${result.data.message}</span>`;
+            ResTxtTrg.innerHTML = errTxt;
         }
-        
-        return result;
     } catch (error) {
         console.error('💥 오류:', error);
-        return null;
+        // let errTxt = `${result.data.message}`;
+        // ResTxtTrg.innerHTML(errTxt);
     }
 }
 export default FindFunc;

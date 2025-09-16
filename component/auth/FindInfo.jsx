@@ -19,6 +19,7 @@ function FindInfo(){
     const [userName, setUserName] = useState('');
     const [userPhone, setUserPhone] = useState('');
     const [userCode, setUserCode] = useState('');
+    const [authCode, setAuthCode] = useState('');
 
     const [doing, setDoing] = useState(false); // sendBtn state    
 
@@ -47,7 +48,7 @@ function FindInfo(){
                 setDoing(false);
                 return;
             }else{
-                await FindFuncId(userCode, userPhone, userName);
+                await FindFuncId(userCode, userName, userPhone);
             }
         };
         setDoing(false);
@@ -62,9 +63,21 @@ function FindInfo(){
             </Link>
         </div>
         <h2 className={FindinfoCss.h2}>
-            <span className={useProps ? null : FindinfoCss.off }><Link to="/FindInfoId" state={{userPrs: true }}>아이디찾기</Link></span>
+            <span className={useProps ? null : FindinfoCss.off }>
+                <Link 
+                    to="/FindInfoId" 
+                    state={{userPrs: true }} >
+                    아이디찾기
+                </Link>
+            </span>
 
-            <span className={useProps ? FindinfoCss.off : null }><Link to="/FindInfoPw" state={{userPrs: false }}>비밀번호찾기</Link></span>
+            <span className={useProps ? FindinfoCss.off : null }>
+                <Link 
+                    to="/FindInfoPw" 
+                    state={{userPrs: false }}>
+                    비밀번호찾기
+                </Link>
+            </span>
         </h2>
 
         <div className={FindinfoCss.div}>
@@ -83,7 +96,7 @@ function FindInfo(){
             }
 
             <div className={FindinfoCss.row}>
-                <label htmlFor='userCode'>학번</label>
+                <label htmlFor='userCode'>학번/교번</label>
                 <input
                     type="number"
                     value={userCode}
@@ -120,32 +133,40 @@ function FindInfo(){
             {!useProps 
                 && (
                 <div className={FindinfoCss.row}>
-                    <label htmlFor="fd_code">인증코드</label>
+                    <label htmlFor="authCode">인증코드</label>
                     <input
                         type="text" 
-                        value={userCode} 
-                        onChange={(evt) => setUserCode(evt.target.value)} 
+                        value={authCode} 
+                        onChange={(evt) => setAuthCode(evt.target.value)} 
                         class={FindinfoCss.fd_code} 
-                        id="fd_code"
+                        id="authCode"
                         placeholder='이메일 인증코드'
                     />
                     <span>05:00</span>
-                    <button className={FindinfoCss.sendCode} id="sendCode">
+                    <button 
+                        className={FindinfoCss.sendCode}
+                        id="sendCode"
+                    >
                         {doing ? (<FaSpinner/>) :'코드 전송'}
                     </button>
                 </div>)
             }
+
+            <div className={FindinfoCss.err}>
+                <p id="returnError"></p>
+            </div>
             
             <div className={FindinfoCss.row}>
                 <button className={FindinfoCss.findInfo} onClick={handlingInput}>
                     {useProps 
-                        ? (doing ? (<FaSpinner/>) :'아이디찾기') 
+                        ? (doing ? (<FaSpinner/>) :'아이디찾기')
                         : (doing ? (<FaSpinner/>) :'비밀번호변경')
                     }
                 </button>
             </div>
-            <div className={FindinfoCss.resultWrap}>
-                asdf
+            <div className={FindinfoCss.pwChWrap}>
+                {/* pw find change wrap */}
+                
             </div>                
         </div>    
     </div>
