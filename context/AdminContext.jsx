@@ -121,7 +121,6 @@ export const AdminProvider = ({ children }) => {
 
     // logout func 
     const AdLogout = async() => {
-        dispatch({ type: LOGOUT });
         const tokens = GetTokens();
         const { accessToken, refreshToken } = tokens;
 
@@ -136,7 +135,7 @@ export const AdminProvider = ({ children }) => {
                     refreshToken: refreshToken
                 })
             });
-            const data = await response.json();
+            // const data = await response.json();
             // console.log('✅ 응답 데이터:', data);
         } catch (error) {
             localStorage.removeItem('Admin');
@@ -144,6 +143,8 @@ export const AdminProvider = ({ children }) => {
         }
         localStorage.removeItem('Admin');
         sessionStorage.removeItem('Admin');
+        dispatch({ type: LOGOUT });
+        location.reload();
     }// logout func end
 
     // 에러 클리어 함수

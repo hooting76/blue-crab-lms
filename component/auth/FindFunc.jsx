@@ -1,49 +1,25 @@
-import React from 'react';
-import apiUrl from '../auth/AuthFunc';
+const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/account';
 
-async function FindFunc(useEmail, userPhone, userName){
-    let jsonBody = {
-        userphone: userPhone,
-        username: userName
-    };
-
-    if(useEmail !== null){
-        jsonBody = {
-            useremail: useEmail,
-            userphone: userPhone,
-            username: userName
-        };        
-    }
-    const JsonBody = jsonBody;
-
+async function FindFunc(userCode, userName, userPhone){
     try {
-        const setUrl = apiUrl('아이디/비밀번호찾기 api연결');
-
-        // find id/pw api protocol
-        const findRes = await fetch(setUrl, {
-            methode: 'POST',
-            credentials: 'include',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(JsonBody),
+        const response = await fetch(`${API_BASE_URL}/FindId`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({userCode, userName, userPhone})
         });
 
-        const checkCt = findRes.headers.get('content-type') || '';
-        const data = 
-            checkCt.includes('application/json') ? await findRes.json() : await findRes.text();
-            
-        if(data.ok){
-            if(typeof data === 'object' && data?.accessToken){
-                sessionStorage(setItem)('accessToken', data.accessToken);
-            }
-            console.log(data);
-            return data;
+        const result = await response.json();
+
+        if(result.success && result.data.success) {
+            console.log(`✅ 성공! 이메일: ${result.data.maskedEmail}`);
         }else{
-            throw new Error('입력폼을 확인해주세요.');
-        } // response end
+            console.log(`❌ 실패: ${result.data.message}`);
+        }
         
+        return result;
     } catch (error) {
-        alert('에러가 발생했습니다.');
-        return error;
+        console.error('💥 오류:', error);
+        return null;
     }
 }
 export default FindFunc;

@@ -131,8 +131,8 @@ function LoginForm() {
         </div>
         
         <div className={LoginFrm.sub}>
-            <span><Link to='/FindInfo' state={{userPrs: true }}>아이디찾기</Link></span>
-            <span><Link to='/FindInfo' state={{userPrs: false }}>비밀번호찾기</Link></span>
+            <span><Link to='/FindInfoId' state={{userPrs: true }}>아이디찾기</Link></span>
+            <span><Link to='/FindInfoPw' state={{userPrs: false }}>비밀번호찾기</Link></span>
         </div>
     </div>
     );
