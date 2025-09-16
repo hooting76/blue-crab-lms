@@ -1,5 +1,6 @@
 const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/account';
 
+// id찾기
 async function FindFunc(userCode, userName, userPhone){
     try {
         const response = await fetch(`${API_BASE_URL}/FindId`, {
@@ -9,6 +10,7 @@ async function FindFunc(userCode, userName, userPhone){
         });
 
         const result = await response.json();
+        console.log(result);
 
         if(result.success && result.data.success) {
             console.log(`✅ 성공! 이메일: ${result.data.maskedEmail}`);

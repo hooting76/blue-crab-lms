@@ -133,7 +133,8 @@ function AppContent() {
           // 로그인 성공하면 isAuth true로 바뀌면서 위의 대로 렌더링됨  
            <Routes>
             <Route path="/" element={<LoginForm/>} />
-            <Route path="/FindInfo" element={<FindInfo/>}/>
+            <Route path="/FindInfoId" element={<FindInfo/>}/>
+            <Route path="/FindInfoPw" element={<FindInfo/>}/>
             {/* 비로그인 상태에서 다른 경로로 오면 로그인으로 돌림 */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
