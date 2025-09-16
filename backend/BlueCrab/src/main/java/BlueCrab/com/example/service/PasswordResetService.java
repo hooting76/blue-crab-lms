@@ -7,12 +7,15 @@ import BlueCrab.com.example.repository.UserTblRepository;
 import BlueCrab.com.example.util.PasswordResetRateLimiter;
 import BlueCrab.com.example.util.PasswordResetTokenManager;
 import BlueCrab.com.example.util.UserVerificationUtils;
+import BlueCrab.com.example.util.PasswordResetRedisUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.Map;
 
 /**
  * 비밀번호 재설정 서비스
@@ -47,6 +50,12 @@ public class PasswordResetService {
 
     @Autowired
     private UserVerificationUtils userVerificationUtils;
+
+    @Autowired
+    private PasswordResetRedisUtil redisUtil;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     /**
      * 1단계: 본인확인 처리
@@ -209,7 +218,71 @@ public class PasswordResetService {
      * @param email 사용자 이메일
      * @return 레이트 리미팅 상태
      */
-    public java.util.Map<String, Object> getRateLimitStatus(String clientIp, String email) {
+    public Map<String, Object> getRateLimitStatus(String clientIp, String email) {
         return rateLimiter.getRateLimitStatus(clientIp, email);
+    }
+
+    /**
+     * 4단계: 비밀번호 변경 처리
+     * RT 토큰을 검증한 후 새로운 비밀번호로 변경
+     * 
+     * 보안 특징:
+     * - RT 토큰 단일 사용 보장 (GETDEL 사용)
+     * - 락 토큰 일치 확인 (Replace-on-new)
+     * - BCrypt로 비밀번호 해싱
+     * - 사용된 토큰들 정리
+     *
+     * @param resetToken RT(Reset Token)
+     * @param newPassword 새 비밀번호 (이미 정규식 검증 완료)
+     * @throws IllegalArgumentException 토큰 무효/만료/락 불일치 시
+     */
+    public void changePassword(String resetToken, String newPassword) {
+        logger.info("비밀번호 변경 처리 시작");
+
+        try {
+            // 1. RT 토큰을 GETDEL로 가져오기 (단일 사용 보장)
+            Map<String, Object> resetSession = redisUtil.getAndDeleteResetSession(resetToken);
+            if (resetSession == null) {
+                logger.warn("RT 토큰이 존재하지 않음 또는 만료됨: {}", resetToken);
+                throw new IllegalArgumentException("SESSION_EXPIRED");
+            }
+
+            String email = (String) resetSession.get("email");
+            String userId = (String) resetSession.get("user_id");
+            String rtLock = (String) resetSession.get("lock");
+
+            // 2. 현재 락 토큰과 일치 확인 (Replace-on-new)
+            String currentLock = redisUtil.getCurrentLock(email);
+            if (currentLock == null || !currentLock.equals(rtLock)) {
+                logger.warn("락 토큰 불일치. 다른 세션에서 재설정 진행 중: email={}", email);
+                throw new IllegalArgumentException("SESSION_REPLACED");
+            }
+
+            // 3. 사용자 조회
+            Optional<UserTbl> userOptional = userTblRepository.findByUserEmail(email);
+            if (!userOptional.isPresent()) {
+                logger.error("사용자를 찾을 수 없음: email={}", email);
+                throw new IllegalArgumentException("USER_NOT_FOUND");
+            }
+
+            UserTbl user = userOptional.get();
+
+            // 4. 비밀번호 해싱 후 저장
+            String hashedPassword = passwordEncoder.encode(newPassword);
+            user.setUserPw(hashedPassword);
+            userTblRepository.save(user);
+
+            // 5. 정리 작업 - 락 토큰 삭제 (선택적)
+            redisUtil.deleteLock(email);
+
+            logger.info("비밀번호 변경 완료: userId={}", userId);
+
+        } catch (IllegalArgumentException e) {
+            // 예상된 예외는 그대로 전파
+            throw e;
+        } catch (Exception e) {
+            logger.error("비밀번호 변경 중 예상하지 못한 오류 발생", e);
+            throw new RuntimeException("PASSWORD_CHANGE_FAILED", e);
+        }
     }
 }

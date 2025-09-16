@@ -253,4 +253,72 @@ public class PasswordResetRedisUtil {
             throw e;
         }
     }
+
+    /**
+     * RT 토큰으로 reset session 조회 및 삭제 (단일 사용 보장)
+     * GETDEL을 시뮬레이션하여 원자적 조회+삭제 수행
+     * 
+     * @param resetToken RT(Reset Token)
+     * @return reset session 데이터 또는 null
+     */
+    public Map<String, Object> getAndDeleteResetSession(String resetToken) {
+        try {
+            String sessionKey = "reset_session:" + resetToken;
+            String sessionJson = redisTemplate.opsForValue().get(sessionKey);
+            
+            if (sessionJson == null) {
+                return null; // 토큰이 존재하지 않거나 만료됨
+            }
+            
+            // 조회 후 즉시 삭제 (단일 사용 보장)
+            redisTemplate.delete(sessionKey);
+            
+            @SuppressWarnings("unchecked")
+            Map<String, Object> sessionData = objectMapper.readValue(sessionJson, Map.class);
+            log.info("Reset session retrieved and deleted for token: {}", resetToken);
+            
+            return sessionData;
+            
+        } catch (Exception e) {
+            log.error("Failed to get and delete reset session for token: {}. Error: {}", resetToken, e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 현재 락 토큰 조회
+     * 
+     * @param email 사용자 이메일
+     * @return 현재 락 토큰 또는 null
+     */
+    public String getCurrentLock(String email) {
+        try {
+            String lockKey = "reset_lock:" + email;
+            String lockToken = redisTemplate.opsForValue().get(lockKey);
+            
+            log.debug("Current lock retrieved for email: {}", email);
+            return lockToken;
+            
+        } catch (Exception e) {
+            log.error("Failed to get current lock for email: {}. Error: {}", email, e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 락 토큰 삭제
+     * 
+     * @param email 사용자 이메일
+     */
+    public void deleteLock(String email) {
+        try {
+            String lockKey = "reset_lock:" + email;
+            redisTemplate.delete(lockKey);
+            
+            log.info("Lock deleted for email: {}", email);
+            
+        } catch (Exception e) {
+            log.error("Failed to delete lock for email: {}. Error: {}", email, e.getMessage());
+        }
+    }
 }

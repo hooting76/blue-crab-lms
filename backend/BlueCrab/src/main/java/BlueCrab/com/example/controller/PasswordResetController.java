@@ -3,6 +3,7 @@ package BlueCrab.com.example.controller;
 import BlueCrab.com.example.dto.ApiResponse;
 import BlueCrab.com.example.dto.PasswordResetIdentityRequest;
 import BlueCrab.com.example.dto.PasswordResetIdentityResponse;
+import BlueCrab.com.example.dto.ChangePasswordRequest;
 import BlueCrab.com.example.service.PasswordResetService;
 import BlueCrab.com.example.util.RequestUtils;
 import org.slf4j.Logger;
@@ -339,5 +340,57 @@ public class PasswordResetController {
             "요청이 처리되었습니다",
             neutralResponse
         ));
+    }
+
+    /**
+     * 4단계: 비밀번호 변경 처리
+     * RT 토큰을 검증한 후 새로운 비밀번호로 변경
+     * 
+     * 보안 특징:
+     * - RT 토큰 단일 사용 보장 (GETDEL 사용)
+     * - 락 토큰 일치 확인 (Replace-on-new)
+     * - BCrypt로 비밀번호 해싱
+     * - 사용된 토큰들 정리
+     *
+     * @param resetToken RT(Reset Token) - 헤더에서 전달
+     * @param request 새 비밀번호 데이터
+     * @return ApiResponse<Object> 변경 결과
+     */
+    @PostMapping("/change-password")
+    public ResponseEntity<ApiResponse<Object>> changePassword(
+            @RequestHeader("X-RT") String resetToken,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        
+        try {
+            logger.info("비밀번호 변경 요청 수신");
+            
+            // 서비스에서 비밀번호 변경 처리
+            passwordResetService.changePassword(resetToken, request.getNewPassword());
+            
+            logger.info("비밀번호 변경 성공");
+            return ResponseEntity.ok(ApiResponse.success(
+                "비밀번호가 성공적으로 변경되었습니다.",
+                Map.of("ok", true)
+            ));
+            
+        } catch (IllegalArgumentException e) {
+            logger.warn("비밀번호 변경 실패: {}", e.getMessage());
+            
+            if (e.getMessage().contains("SESSION_EXPIRED")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.failure("세션이 만료되었습니다. 처음부터 다시 시도해주세요."));
+            } else if (e.getMessage().contains("SESSION_REPLACED")) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ApiResponse.failure("다른 곳에서 비밀번호 재설정을 진행중입니다."));
+            } else {
+                return ResponseEntity.badRequest()
+                    .body(ApiResponse.failure("잘못된 요청입니다."));
+            }
+            
+        } catch (Exception e) {
+            logger.error("비밀번호 변경 중 예상하지 못한 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.failure("시스템 오류가 발생했습니다. 잠시 후 다시 시도해주세요."));
+        }
     }
 }
