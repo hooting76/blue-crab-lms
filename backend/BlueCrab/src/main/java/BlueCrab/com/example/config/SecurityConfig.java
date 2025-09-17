@@ -3,6 +3,7 @@ package BlueCrab.com.example.config;
 import BlueCrab.com.example.security.JwtAuthenticationEntryPoint;
 import BlueCrab.com.example.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -154,7 +155,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/password-reset/verify-identity").permitAll() // 신원 확인 (미구현, 향후 추가용)
                 // 📝 아직 미 작성 된 단계에서 쓰일 엔드포인트:
                 // .requestMatchers("/api/password-reset/verify-code").permitAll() // 인증코드 검증
-                // .requestMatchers("/api/password-reset/change-password").permitAll() // 비밀번호 변경
+                .requestMatchers("/api/auth/password-reset/change-password").permitAll() // 비밀번호 변경
 
 
 
@@ -169,8 +170,9 @@ public class SecurityConfig {
     }
 
     // 성태준 추가, BCryptPasswordEncoder 빈 등록
-    // 동작 확인 후 제거/교체 예정
+    // 다른 곳에서 BCrypt가 필요한 경우를 위해 유지
     @Bean
+    @Qualifier("bcryptEncoder")
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
