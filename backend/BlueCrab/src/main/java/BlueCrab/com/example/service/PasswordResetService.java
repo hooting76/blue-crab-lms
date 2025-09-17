@@ -72,8 +72,8 @@ public class PasswordResetService {
             // 1. 레이트 리미팅 확인
             if (!rateLimiter.isIdentityVerificationAllowed(clientIp, email)) {
                 logger.warn("Password reset rate limit exceeded - IP: {}, Email: {}", clientIp, email);
-                // 레이트 리미팅도 중립적 응답으로 처리
-                return PasswordResetIdentityResponse.neutral();
+                // 레이트 리미팅은 구별 가능한 응답으로 처리
+                return PasswordResetIdentityResponse.rateLimitExceeded();
             }
 
             // 2. 시도 기록 (성공/실패 무관하게 기록)

@@ -120,7 +120,13 @@ public class PasswordResetController {
             // 본인확인 처리
             PasswordResetIdentityResponse response = passwordResetService.verifyIdentity(request, clientIp);
 
-            // 성공 응답 반환 (실제 성공/실패와 관계없이 항상 200 OK)
+            // 레이트리밋 응답인 경우 HTTP 429 반환
+            if (!response.isSuccess() && response.getMessage().contains("요청이 너무 많습니다")) {
+                return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(ApiResponse.rateLimitError(response.getMessage(), response));
+            }
+
+            // 일반 성공 응답 반환 (실제 성공/실패와 관계없이 항상 200 OK)
             return ResponseEntity.ok(ApiResponse.success(
                 "본인확인 요청이 처리되었습니다",
                 response

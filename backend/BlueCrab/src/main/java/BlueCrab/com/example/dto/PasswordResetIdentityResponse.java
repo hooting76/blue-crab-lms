@@ -76,6 +76,17 @@ public class PasswordResetIdentityResponse {
         );
     }
 
+    /**
+     * 레이트리밋 응답을 생성하는 정적 메서드
+     * 429 상태코드와 함께 사용하여 프론트엔드에서 구분 가능
+     */
+    public static PasswordResetIdentityResponse rateLimitExceeded() {
+        return new PasswordResetIdentityResponse(
+            false,
+            "요청이 너무 많습니다. 잠시 후 다시 시도해주세요."
+        );
+    }
+
     // Getters and Setters
     public boolean isSuccess() {
         return success;

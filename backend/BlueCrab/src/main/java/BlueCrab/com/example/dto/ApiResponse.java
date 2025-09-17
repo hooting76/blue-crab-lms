@@ -47,6 +47,7 @@ public class ApiResponse<T> {
     private String message;
     private T data;
     private String timestamp;
+    private String errorCode;  // 에러 코드 필드 추가
     
     /**
      * 기본 생성자
@@ -66,6 +67,22 @@ public class ApiResponse<T> {
         this.success = success;
         this.message = message;
         this.data = data;
+        this.errorCode = null;
+    }
+
+    /**
+     * 에러 응답 생성자 (에러 코드 포함)
+     * @param success 성공 여부
+     * @param message 응답 메시지
+     * @param data 응답 데이터
+     * @param errorCode 에러 코드
+     */
+    public ApiResponse(boolean success, String message, T data, String errorCode) {
+        this();
+        this.success = success;
+        this.message = message;
+        this.data = data;
+        this.errorCode = errorCode;
     }
     
     /**
@@ -125,6 +142,32 @@ public class ApiResponse<T> {
     public static <T> ApiResponse<T> failure(String message, T data) {
         return new ApiResponse<>(false, message, data);
     }
+
+    /**
+     * 레이트리밋 에러 응답 생성
+     * HTTP 429와 함께 사용하여 프론트엔드에서 구분 가능
+     *
+     * @param message 레이트리밋 메시지
+     * @return 구성된 ApiResponse 객체 (errorCode: "RATE_LIMIT_EXCEEDED")
+     *
+     * 사용 예시:
+     * return ResponseEntity.status(429).body(ApiResponse.rateLimitError("요청이 너무 많습니다. 잠시 후 다시 시도해주세요."));
+     */
+    public static <T> ApiResponse<T> rateLimitError(String message) {
+        return new ApiResponse<>(false, message, null, "RATE_LIMIT_EXCEEDED");
+    }
+
+    /**
+     * 레이트리밋 에러 응답 생성 (추가 데이터 포함)
+     * 대기 시간 등의 정보를 포함할 때 사용
+     *
+     * @param message 레이트리밋 메시지
+     * @param data 추가 정보 (예: 대기 시간)
+     * @return 구성된 ApiResponse 객체 (errorCode: "RATE_LIMIT_EXCEEDED")
+     */
+    public static <T> ApiResponse<T> rateLimitError(String message, T data) {
+        return new ApiResponse<>(false, message, data, "RATE_LIMIT_EXCEEDED");
+    }
     
     // Getters and Setters
     public boolean isSuccess() {
@@ -157,5 +200,13 @@ public class ApiResponse<T> {
     
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getErrorCode() {
+        return errorCode;
+    }
+
+    public void setErrorCode(String errorCode) {
+        this.errorCode = errorCode;
     }
 }
