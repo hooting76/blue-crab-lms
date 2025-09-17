@@ -271,14 +271,13 @@ public class PasswordResetController {
             logger.info("Password reset request successful for IP: {}, User-Agent: {}", 
                     clientIp, userAgent);
             
-            // 7. 성공 응답 반환 (최적화된 불변 Map 사용)
+            // 7. 성공 응답 반환 (민감 정보는 로그에만 기록, 프론트엔드는 메시지만 전달)
+            String masked = maskEmail(email);
+            String sentAt = java.time.Instant.now().toString();
+            logger.info("Password reset email sent: maskedEmail={}, sentAt={}", masked, sentAt);
             return ResponseEntity.ok(ApiResponse.success(
                 "비밀번호 재설정 인증 코드가 발송되었습니다.", 
-                Map.of(
-                    "maskedEmail", maskEmail(email),
-                    "expiryMinutes", 5,
-                    "sentAt", java.time.Instant.now().toString()
-                )
+                null
             ));
             // 표준 ApiResponse 형식으로 응답 반환
             
