@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeaderCss from '../../css/modules/Header.module.css';
 import SessionTimer from './SessionTimer';
+import { UseUser } from '../../hook/UseUser';
 
 function FuncAniBtn(){
   let lines = document.querySelectorAll('header > div > span');
@@ -29,12 +30,16 @@ function FuncAniBtn(){
 function Header({ currentPage, setCurrentPage }) {
   const navigate = useNavigate();
 
-  // ====== 여기서부터 테스트 하드코딩(로그인 강제) ======
-  const isAuthenticated = true;
-  const user = { data: { user: { id: 1, name: '테스트유저', student: 0, role: 'user' } } };
-  const logout = () => alert('로그아웃(테스트)');
-  // ===============================================
+  const { user, isAuthenticated, logout } = UseUser();
 
+  // ====== 여기서부터 테스트 하드코딩(로그인 강제) ======
+  // const isAuthenticated = true;
+  // const user = { data: { user: { id: 1, name: '테스트유저', student: 0, role: 'user' } } };
+  // const logout = () => alert('로그아웃(테스트)');
+  // ===============================================
+  
+  
+  
   const Reset = () => {
     navigate('/');           // SPA 네비게이션
     setCurrentPage("");      // 대시보드 등 기본으로
