@@ -4,6 +4,11 @@
     margin-right: auto;
 }
 
+.selectSemester {
+    font-size: var(--mid-size);
+    margin-top: 25px;
+}
+
 .classAttending_text {
     background-color: antiquewhite;
     margin-top: 50px;
@@ -32,7 +37,7 @@
 
 .totalpoints {
     float: right;
-    width: 125px;
+    width: 150px;
     padding-right: 25px;
     background-color: antiquewhite;
     font-weight: bold;
