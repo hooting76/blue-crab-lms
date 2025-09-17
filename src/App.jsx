@@ -45,6 +45,7 @@ function InAppFilter(){
 // main app component
 function AppContent() {
   const { isAuthenticated, isLoading } = UseUser();
+ // const isAuthenticated = true;   // ← 로그인 상태로 강제
 
   // currentPage 상태를 이 컴포넌트에서 보유
   const [currentPage, setCurrentPage] = useState("");
@@ -67,9 +68,9 @@ function AppContent() {
 
 
   // 로딩 중일 때
-  if (isLoading) {
-    return <LoadingSpinner/>
-  }
+   if (isLoading) {
+     return <LoadingSpinner/>
+   }
 
   // 관리자 경로는 '정확/접두' 매칭만 (includes 금지: /community/admin과 충돌 방지)
   if (pathname === '/admin' || pathname.startsWith('/admin/')) {
@@ -95,12 +96,13 @@ function AppContent() {
       
       // ===== 커뮤니티 섹션 (상태 전환만 사용) =====
       case '학사공지':
-        return <AcademyNotice />;
+        return <AcademyNotice currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
       case '행정공지':
-        return <AdminNotice />;
+        return <AdminNotice currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
       case '기타공지':
-        return <EtcNotice />;
-      // 기본값: 대시보드
+        return <EtcNotice currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
+      
+        // 기본값: 대시보드
       default:
         return <UserDashboard/>;
     }
