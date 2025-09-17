@@ -34,7 +34,7 @@
         <!-- 허용할 요청 헤더 설정 (JWT 토큰 포함) -->
         <init-param>
             <param-name>cors.allowed.headers</param-name>
-            <param-value>Authorization,Content-Type,X-Requested-With,Accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers</param-value>
+            <param-value>Authorization,Content-Type,X-Requested-With,Accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers,X-RT</param-value>
         </init-param>
         
         <!-- 클라이언트에 노출할 응답 헤더 설정 -->

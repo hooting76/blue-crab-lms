@@ -11,10 +11,10 @@ import BlueCrab.com.example.util.PasswordResetRateLimiter;
 import BlueCrab.com.example.util.PasswordResetTokenManager;
 import BlueCrab.com.example.util.UserVerificationUtils;
 import BlueCrab.com.example.util.PasswordResetRedisUtil;
+import BlueCrab.com.example.util.SHA256Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -56,9 +56,6 @@ public class PasswordResetService {
 
     @Autowired
     private PasswordResetRedisUtil redisUtil;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     /**
      * 1단계: 본인확인 처리
@@ -232,7 +229,7 @@ public class PasswordResetService {
      * 보안 특징:
      * - RT 토큰 단일 사용 보장 (GETDEL 사용)
      * - 락 토큰 일치 확인 (Replace-on-new)
-     * - BCrypt로 비밀번호 해싱
+     * - SHA-256으로 비밀번호 해싱 (기존 시스템 호환성)
      * - 사용된 토큰들 정리
      *
      * @param resetToken RT(Reset Token)
@@ -270,8 +267,8 @@ public class PasswordResetService {
 
             UserTbl user = userOptional.get();
 
-            // 4. 비밀번호 해싱 후 저장
-            String hashedPassword = passwordEncoder.encode(newPassword);
+            // 4. 비밀번호 해싱 후 저장 (SHA-256 사용)
+            String hashedPassword = SHA256Util.hash(newPassword);
             user.setUserPw(hashedPassword);
             userTblRepository.save(user);
 
