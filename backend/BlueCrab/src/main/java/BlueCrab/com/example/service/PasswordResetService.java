@@ -314,32 +314,32 @@ public class PasswordResetService {
                 return PasswordResetCodeVerifyResponse.sessionError();
             }
             
-            // 3. 저장된 코드 데이터 조회
-            PasswordResetCodeData codeData = redisUtil.getPasswordResetCodeData(email);
+            // 3. 저장된 코드 데이터 조회 (IP 기반)
+            PasswordResetCodeData codeData = redisUtil.getPasswordResetCodeData(userIp);
             if (codeData == null) {
-                logger.warn("코드 데이터를 찾을 수 없음: email={}, userIp={}", email, userIp);
+                logger.warn("코드 데이터를 찾을 수 없음: userIp={}", userIp);
                 return PasswordResetCodeVerifyResponse.expired();
             }
             
             // 4. 코드 만료 확인
             if (codeData.isExpired()) {
-                logger.warn("코드 만료: email={}, userIp={}", email, userIp);
-                redisUtil.invalidatePasswordResetCode(email);
+                logger.warn("코드 만료: userIp={}", userIp);
+                redisUtil.invalidatePasswordResetCode(userIp);
                 return PasswordResetCodeVerifyResponse.expired();
             }
             
             // 5. 최대 시도 횟수 확인
             if (codeData.isMaxAttemptsExceeded()) {
-                logger.warn("최대 시도 횟수 초과: email={}, attempts={}, userIp={}", 
-                           email, codeData.getVerificationAttempts(), userIp);
-                redisUtil.invalidatePasswordResetCode(email);
+                logger.warn("최대 시도 횟수 초과: attempts={}, userIp={}", 
+                           codeData.getVerificationAttempts(), userIp);
+                redisUtil.invalidatePasswordResetCode(userIp);
                 return PasswordResetCodeVerifyResponse.blocked();
             }
             
             // 6. 코드 검증
             if (!codeData.getCode().equals(authCode)) {
-                // 시도 횟수 증가
-                PasswordResetCodeData updatedData = redisUtil.incrementCodeVerificationAttempts(email);
+                // 시도 횟수 증가 (IP 기반)
+                PasswordResetCodeData updatedData = redisUtil.incrementCodeVerificationAttempts(userIp);
                 
                 int remainingAttempts = 5;
                 if (updatedData != null) {
@@ -351,7 +351,7 @@ public class PasswordResetService {
                            remainingAttempts, userIp);
                 
                 if (remainingAttempts <= 0) {
-                    redisUtil.invalidatePasswordResetCode(email);
+                    redisUtil.invalidatePasswordResetCode(userIp);
                     return PasswordResetCodeVerifyResponse.blocked();
                 }
                 
@@ -362,7 +362,7 @@ public class PasswordResetService {
             String rtToken = tokenManager.generateRTToken(email, sessionLockToken);
             
             // 8. 코드 무효화
-            redisUtil.invalidatePasswordResetCode(email);
+            redisUtil.invalidatePasswordResetCode(userIp);
             
             logger.info("코드 검증 성공: email={}, userIp={}", email, userIp);
             

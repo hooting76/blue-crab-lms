@@ -355,59 +355,60 @@ public class PasswordResetRedisUtil {
     // Stage 3: Code Verification Methods
 
     /**
-     * 패스워드 리셋 코드 데이터 조회
+     * 패스워드 리셋 코드 데이터 조회 (IP 기반)
+     * 2단계에서 저장한 IP 기반 코드 데이터를 3단계에서 조회
      * 
-     * @param email 사용자 이메일
+     * @param clientIp 클라이언트 IP 주소
      * @return PasswordResetCodeData 또는 null
      */
-    public PasswordResetCodeData getPasswordResetCodeData(String email) {
+    public PasswordResetCodeData getPasswordResetCodeData(String clientIp) {
         try {
-            String codeKey = "reset_code:" + email;
+            String codeKey = "pw_reset_code:" + clientIp;
             String jsonData = (String) redisTemplate.opsForValue().get(codeKey);
             
             if (jsonData == null) {
-                log.info("No password reset code data found for email: {}", email);
+                log.info("No password reset code data found for IP: {}", clientIp);
                 return null;
             }
             
             return objectMapper.readValue(jsonData, PasswordResetCodeData.class);
             
         } catch (Exception e) {
-            log.error("Failed to get password reset code data for email: {}. Error: {}", email, e.getMessage());
+            log.error("Failed to get password reset code data for IP: {}. Error: {}", clientIp, e.getMessage());
             return null;
         }
     }
 
     /**
-     * 패스워드 리셋 코드 무효화 (삭제)
+     * 패스워드 리셋 코드 무효화 (삭제) - IP 기반
      * 
-     * @param email 사용자 이메일
+     * @param clientIp 클라이언트 IP 주소
      */
-    public void invalidatePasswordResetCode(String email) {
+    public void invalidatePasswordResetCode(String clientIp) {
         try {
-            String codeKey = "reset_code:" + email;
+            String codeKey = "pw_reset_code:" + clientIp;
             redisTemplate.delete(codeKey);
             
-            log.info("Password reset code invalidated for email: {}", email);
+            log.info("Password reset code invalidated for IP: {}", clientIp);
             
         } catch (Exception e) {
-            log.error("Failed to invalidate password reset code for email: {}. Error: {}", email, e.getMessage());
+            log.error("Failed to invalidate password reset code for IP: {}. Error: {}", clientIp, e.getMessage());
         }
     }
 
     /**
-     * 코드 검증 시도 횟수 증가
+     * 코드 검증 시도 횟수 증가 (IP 기반)
      * 
-     * @param email 사용자 이메일
+     * @param clientIp 클라이언트 IP 주소
      * @return 업데이트된 PasswordResetCodeData 또는 null
      */
-    public PasswordResetCodeData incrementCodeVerificationAttempts(String email) {
+    public PasswordResetCodeData incrementCodeVerificationAttempts(String clientIp) {
         try {
-            String codeKey = "reset_code:" + email;
+            String codeKey = "pw_reset_code:" + clientIp;
             String jsonData = (String) redisTemplate.opsForValue().get(codeKey);
             
             if (jsonData == null) {
-                log.warn("No password reset code data found for attempts increment: {}", email);
+                log.warn("No password reset code data found for attempts increment: {}", clientIp);
                 return null;
             }
             
@@ -424,8 +425,8 @@ public class PasswordResetRedisUtil {
                 redisTemplate.opsForValue().set(codeKey, updatedJson, 300, TimeUnit.SECONDS); // 기본 5분
             }
             
-            log.info("Code verification attempts incremented for email: {}. New attempt count: {}", 
-                    email, codeData.getVerificationAttempts());
+            log.info("Code verification attempts incremented for IP: {}. New attempt count: {}", 
+                    clientIp, codeData.getVerificationAttempts());
             
             return codeData;
             

@@ -13,10 +13,10 @@ public class PasswordResetCodeData {
     @JsonProperty("code")
     private String code;
     
-    @JsonProperty("createdAt")
+    @JsonProperty("created_at")
     private Long createdAt;
     
-    @JsonProperty("verificationAttempts")
+    @JsonProperty("attempts")
     private Integer verificationAttempts;
     
     @JsonProperty("irtToken")
@@ -85,7 +85,9 @@ public class PasswordResetCodeData {
     
     public boolean isExpired() {
         // 코드가 만료되었는지 확인 (5분 = 300초)
-        return (System.currentTimeMillis() - createdAt) > 300000;
+        // createdAt이 초 단위이므로 현재 시간도 초 단위로 변환하여 비교
+        long currentTimeSeconds = System.currentTimeMillis() / 1000;
+        return (currentTimeSeconds - createdAt) > 300; // 300초 = 5분
     }
     
     public boolean isMaxAttemptsExceeded() {
