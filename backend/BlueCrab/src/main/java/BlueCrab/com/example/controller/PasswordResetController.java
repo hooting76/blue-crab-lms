@@ -265,8 +265,16 @@ public class PasswordResetController {
             logger.info("Password reset request successful for IP: {}, User-Agent: {}", 
                     clientIp, userAgent);
             
-            return ResponseEntity.ok(Map.of("ok", true));
-            // 200 OK 응답 반환
+            // 7. 성공 응답 반환 (최적화된 불변 Map 사용)
+            return ResponseEntity.ok(ApiResponse.success(
+                "비밀번호 재설정 인증 코드가 발송되었습니다.", 
+                Map.of(
+                    "maskedEmail", maskEmail(email),
+                    "expiryMinutes", 5,
+                    "sentAt", java.time.Instant.now().toString()
+                )
+            ));
+            // 표준 ApiResponse 형식으로 응답 반환
             
         } catch (Exception e) {
             // 예외 처리
@@ -275,8 +283,8 @@ public class PasswordResetController {
                     clientIp, userAgent, e.getMessage());
             // 에러 로그 기록
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Internal server error"));
-            // 500 Internal Server Error 응답 반환
+                    .body(ApiResponse.failure("시스템 오류가 발생했습니다. 잠시 후 다시 시도해주세요."));
+            // 표준 ApiResponse 형식으로 에러 응답 반환
         } // try-catch 끝
     } // sendResetEmail 끝
 
@@ -492,5 +500,36 @@ public class PasswordResetController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.failure("시스템 오류가 발생했습니다. 잠시 후 다시 시도해주세요."));
         }
+    }
+    
+    /**
+     * 이메일 주소 마스킹 처리
+     * 보안상 이메일 주소를 부분적으로 숨김 처리
+     *
+     * @param email 원본 이메일 주소
+     * @return 마스킹된 이메일 주소 (예: te***@gmail.com)
+     */
+    private String maskEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return "***@***.***";
+        }
+        
+        int atIndex = email.indexOf('@');
+        if (atIndex <= 0) {
+            return "***@***.***";
+        }
+        
+        String localPart = email.substring(0, atIndex);
+        String domainPart = email.substring(atIndex);
+        
+        // 로컬 부분 마스킹 (앞 2글자 보여주고 나머지는 *)
+        String maskedLocal;
+        if (localPart.length() <= 2) {
+            maskedLocal = "*".repeat(localPart.length());
+        } else {
+            maskedLocal = localPart.substring(0, 2) + "*".repeat(localPart.length() - 2);
+        }
+        
+        return maskedLocal + domainPart;
     }
 }
