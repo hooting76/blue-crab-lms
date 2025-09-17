@@ -1,7 +1,7 @@
 // [역할] 백엔드 없이도 UI 구동을 위한 더미 데이터
 // [포맷] 실제 API 응답을 흉내낸 최소 필드(id, title, writer, views, date)
 
-const notices = [
+const MOCK_NOTICES = [
   // 학사공지
   { id: 247, category: "academy", title: "2025학년도 1학기 학자예탁 등록금 납부 안내", author: "교무처", views: 2548, createdAt: "2025-03-18" },
   { id: 246, category: "academy", title: "신입생 오리엔테이션 안내 (셔틀 시간 포함)", author: "학생지원팀", views: 2120, createdAt: "2025-03-17" },
@@ -20,4 +20,4 @@ const notices = [
   { id: 237, category: "etc", title: "동아리 신규 가입자 모집 (상반기)", author: "동아리연합회", views: 721, createdAt: "2025-03-16" },
   { id: 236, category: "etc", title: "분실물 센터 운영시간 조정 안내", author: "총무과", views: 604, createdAt: "2025-03-14" },
 ];
-export default notices;
+export default MOCK_NOTICES;

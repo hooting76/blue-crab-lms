@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { FaCircleLeft } from 'react-icons/fa6';
+import { FaSpinner } from 'react-icons/fa';
 
 import FindFuncId from "./FindFunc";
 import FindFuncPw from "./FindFuncPw";
@@ -13,11 +14,14 @@ function FindInfo(){
 
     // auth state check
     // useProps is true: id / false: pw
-    const [useProps, setUseProps] = useState();
+    const [useProps, setUseProps] = useState(false);
     const [useEmail, setUseEmail] = useState('');
     const [userName, setUserName] = useState('');
     const [userPhone, setUserPhone] = useState('');
     const [userCode, setUserCode] = useState('');
+    const [authCode, setAuthCode] = useState('');
+
+    const [doing, setDoing] = useState(false); // sendBtn state    
 
     if(useProps === undefined){
         //if is undefined
@@ -29,21 +33,25 @@ function FindInfo(){
     }
 
     const handlingInput = async() => {
-        if(useProps == false){ // if find id
-            if(!userName || !userPhone || !userCode){
+        setDoing(true);
+        if(useProps == false){ // find pw
+            if(!useEmail || !userCode || !userPhone || !userName){
                 alert('입력값을 확인하세요.');
+                setDoing(false);
+                return;
+            }else{
+                await FindFuncPw(useEmail, userCode, userPhone, userName);
+            }
+        }else{// find id
+            if(!userCode || !userPhone || !userName){
+                alert('입력값을 확인하세요.');
+                setDoing(false);
                 return;
             }else{
                 await FindFuncId(userCode, userName, userPhone);
             }
-        }else{
-            if(!userName || !userPhone || !userCode || !useEmail){
-                alert('입력값을 확인하세요.');
-                return;
-            }else{
-                await FindFuncPw(userCode, userName, userPhone, useEmail);
-            };
         };
+        setDoing(false);
     };    
 
     return(<>
@@ -55,11 +63,48 @@ function FindInfo(){
             </Link>
         </div>
         <h2 className={FindinfoCss.h2}>
-            <span className={useProps ? null : FindinfoCss.off }><Link to="/FindInfoId" >아이디찾기</Link></span>
-            <span className={useProps ? FindinfoCss.off : null }><Link to="/FindInfoPw" >비밀번호찾기</Link></span>
+            <span className={useProps ? null : FindinfoCss.off }>
+                <Link 
+                    to="/FindInfoId" 
+                    state={{userPrs: true }} >
+                    아이디찾기
+                </Link>
+            </span>
+
+            <span className={useProps ? FindinfoCss.off : null }>
+                <Link 
+                    to="/FindInfoPw" 
+                    state={{userPrs: false }}>
+                    비밀번호찾기
+                </Link>
+            </span>
         </h2>
 
         <div className={FindinfoCss.div}>
+            {/* true : id / false : pw */}
+            {!useProps && (
+                <div className={FindinfoCss.row}>
+                    <label htmlFor='frm_id'>이메일</label>
+                    <input
+                        type="text"
+                        value={useEmail}
+                        onChange={(e) => setUseEmail(e.target.value)}
+                        id='frm_id'
+                        placeholder="ex) example@google.com"
+                    />
+                </div>)
+            }
+
+            <div className={FindinfoCss.row}>
+                <label htmlFor='userCode'>학번/교번</label>
+                <input
+                    type="number"
+                    value={userCode}
+                    onChange={(e) => setUserCode(e.target.value)}
+                    id='userCode'
+                    placeholder="ex) 본인학번(숫자)"
+                />
+            </div>
 
             <div className={FindinfoCss.row}>
                 <label htmlFor="fd_name">성함</label>
@@ -80,36 +125,50 @@ function FindInfo(){
                     value={userPhone} 
                     onChange={(evt) => setUserPhone(evt.target.value)} 
                     id="fd_phone" 
-                    placeholder='ex) 01012345678 / "-" 자 없이' 
+                    placeholder='ex) 01012345678 / "-" 제외' 
                 />
             </div>
 
-            {/* 아이디찾기: 결과창
-                비밀번호찾기: 이메일 인증코드 */}
-            <div className={FindinfoCss.row}>
-                {useProps 
-                ? (<p>조회된 결과 : <span></span></p>) 
-                : (<>
-                    <label htmlFor={FindinfoCss.fd_code}>인증코드</label>
+            {/* 비밀번호찾기: 이메일 인증코드 */}
+            {!useProps 
+                && (
+                <div className={FindinfoCss.row}>
+                    <label htmlFor="authCode">인증코드</label>
                     <input
                         type="text" 
-                        value={userCode} 
-                        onChange={(evt) => setUserCode(evt.target.value)} 
-                        id={FindinfoCss.fd_code} 
+                        value={authCode} 
+                        onChange={(evt) => setAuthCode(evt.target.value)} 
+                        class={FindinfoCss.fd_code} 
+                        id="authCode"
                         placeholder='이메일 인증코드'
                     />
                     <span>05:00</span>
-                    <button className={FindinfoCss.sendCode}>코드 전송</button>
-                </>) 
-                }
-            </div>
+                    <button 
+                        className={FindinfoCss.sendCode}
+                        id="sendCode"
+                    >
+                        {doing ? (<FaSpinner/>) :'코드 전송'}
+                    </button>
+                </div>)
+            }
 
+            <div className={FindinfoCss.err}>
+                <p id="returnError"></p>
+            </div>
+            
             <div className={FindinfoCss.row}>
                 <button className={FindinfoCss.findInfo} onClick={handlingInput}>
-                    {useProps ? '아이디찾기' : '비밀번호찾기' }
+                    {useProps 
+                        ? (doing ? (<FaSpinner/>) :'아이디찾기')
+                        : (doing ? (<FaSpinner/>) :'비밀번호변경')
+                    }
                 </button>
             </div>
-        </div>
+            <div className={FindinfoCss.pwChWrap}>
+                {/* pw find change wrap */}
+                
+            </div>                
+        </div>    
     </div>
     </>);
 };

@@ -1,6 +1,6 @@
-import React, {useState } from 'react';
+import React, { useState } from 'react';
 import { UseUser } from '../../hook/UseUser';
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 import HeaderCss from '../../css/modules/Header.module.css';
 import SessionTimer from './SessionTimer';
 
@@ -32,17 +32,16 @@ function FuncAniBtn(){
 
 
 function Header({currentPage, setCurrentPage}) {
-  const { user, isAuthenticated, logout } = UseUser();
-  const navigate = useNavigate();
+const { user, isAuthenticated, logout } = UseUser();
+const navigate = useNavigate();
 
+  
   const Reset = () => {
-    window.location.replace('/');
-    setCurrentPage("");
-  }
+    navigate('/');           // SPA 네비게이션
+    setCurrentPage("");      // 대시보드 등 기본으로
+  };
 
-  const UrlReset = () => {
-    navigate('/');
-  }
+  const UrlReset = () => { navigate('/'); };
 
   const [subMenu1Visibility, setSubMenu1Visibility] = useState("hidden");
   const [subMenu2Visibility, setSubMenu2Visibility] = useState("hidden");
@@ -57,7 +56,7 @@ function Header({currentPage, setCurrentPage}) {
   return (
   <>
     <header>
-        {isAuthenticated && (  
+         {isAuthenticated && (   
         <div 
           className={HeaderCss.mobNavBtn}
           onClick={FuncAniBtn}
@@ -66,7 +65,7 @@ function Header({currentPage, setCurrentPage}) {
           <span></span>
           <span></span>
         </div>
-       )}  
+        )}  
       
         <h1 className={HeaderCss.h1}>
           <picture className={HeaderCss.logoImg} onClick={Reset}
@@ -76,14 +75,15 @@ function Header({currentPage, setCurrentPage}) {
           
           <span onMouseOver={() => {hideSubMenu1(); hideSubMenu2(); hideSubMenu3();}} onClick={Reset}>Blue-Crab LMS</span>
           {/* user menu */}
-            {isAuthenticated &&(
+             {isAuthenticated &&(
           <div className={HeaderCss.navMenu}>
             <ul>
               <li onMouseOver={() => {showSubMenu1(); hideSubMenu2(); hideSubMenu3();}}>학교소개</li>
               <li onMouseOver={() => {hideSubMenu1(); showSubMenu2(); hideSubMenu3();}}>커뮤니티</li>
               <li onMouseOver={() => {hideSubMenu1(); hideSubMenu2(); showSubMenu3();}}>마이페이지</li>
             </ul>
-
+            
+             {/* 학교소개 */}
             <table
                 className={HeaderCss.navSubMenu1}
                 onMouseOver={showSubMenu1}
@@ -92,20 +92,21 @@ function Header({currentPage, setCurrentPage}) {
             >
                 <tbody>
                     <tr>
-                        <td onClick={async () => {UrlReset(); await setCurrentPage("총장 인사")}}>총장 인사</td>
+                        <td onClick={() => { UrlReset(); setCurrentPage("총장 인사"); }}>총장 인사</td>
                     </tr>
                     <tr>
-                        <td onClick={async () => {UrlReset(); await setCurrentPage("오시는 길")}}>오시는 길</td>
+                        <td onClick={() => { UrlReset(); setCurrentPage("오시는 길"); }}>오시는 길</td>
                     </tr>
                     <tr>
-                        <td onClick={async () => {UrlReset(); await setCurrentPage("학교 조직도")}}>학교 조직도</td>
+                        <td onClick={() => { UrlReset(); setCurrentPage("학교 조직도"); }}>학교 조직도</td> 
                     </tr>
                     <tr>
-                        <td onClick={async () => {UrlReset(); await setCurrentPage("연혁")}}>연혁</td>
+                        <td onClick={() => { UrlReset(); setCurrentPage("연혁"); }}>연혁</td>
                     </tr>
                 </tbody>
             </table>
-
+            
+            {/* 커뮤니티 */}
             <table
                 className={HeaderCss.navSubMenu2}
                 onMouseOver={showSubMenu2}
@@ -113,18 +114,13 @@ function Header({currentPage, setCurrentPage}) {
                 style={{ visibility: subMenu2Visibility }}
             >
                 <tbody>
-                    <tr>
-                        <td onClick={() => navigate("/community/academy")}>학사공지</td>
-                    </tr>
-                    <tr>
-                        <td onClick={() => navigate("/community/notice-admin")}>행정공지</td>
-                    </tr>
-                    <tr>
-                        <td onClick={() => navigate("/community/etc")}>기타공지</td>
-                    </tr>
-                </tbody>
+                <tr><td onClick={() => setCurrentPage("학사공지")}>학사공지</td></tr>
+                <tr><td onClick={() => setCurrentPage("행정공지")}>행정공지</td></tr>
+                <tr><td onClick={() => setCurrentPage("기타공지")}>기타공지</td></tr>
+              </tbody>
             </table>
 
+            {/* 마이페이지 */}
             <table
                 className={HeaderCss.navSubMenu3}
                 onMouseOver={showSubMenu3}
@@ -144,18 +140,18 @@ function Header({currentPage, setCurrentPage}) {
                 </tbody>
             </table>
           </div>   
-        )}
+         )} 
         </h1>
 
         {/* 세션타이머(15분). 로그인 중에만 활성화. 만료시 로그아웃됨.*/}
-        {isAuthenticated && ( 
+         {isAuthenticated && (  
         <div className={HeaderCss.sessionTimer}>
         <SessionTimer currentPage={currentPage}/>
         </div>
-          )}  
+           )}   
 
           {/* 로그인된 사용자 정보 */}
-            {isAuthenticated && (  
+             {isAuthenticated && (   
             <div>
               <div>
               {/* user info init */}
@@ -198,14 +194,14 @@ function Header({currentPage, setCurrentPage}) {
                 </button>
               </div>
             </div>
-           )}  
+             )}  
           
           {/* 로그인되지 않은 상태 */}
-           {!isAuthenticated && ( null )} 
+            {!isAuthenticated && ( null )}  
 
     </header>
 
-      {isAuthenticated && (  
+       {isAuthenticated && (   
       <div className={HeaderCss.mobMenu}>
       <ul>
         <li>학교소개</li>
@@ -213,7 +209,7 @@ function Header({currentPage, setCurrentPage}) {
         <li>마이페이지</li>
       </ul>
     </div>
-     )}     
+      )}      
 
   </>
   );

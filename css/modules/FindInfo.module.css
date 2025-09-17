@@ -72,6 +72,7 @@
     border-radius: 0 0 10px 10px;
     background: #fff;
     overflow: hidden;
+    position: relative;
 }
 
 .row{
@@ -83,6 +84,7 @@
     display: flex;
     align-items: center;
     justify-content: left;
+    position: relative;
 }
 
 .row > label{
@@ -98,12 +100,14 @@
     outline: none;
 }
 
-#fd_code{
+.row > input.fd_code{
     width: calc(100% - 240px);
     margin-right: 5px;
 }
 .row > span{
-    margin-right: 5px;
+    margin: 0 2.5px;
+    font-size: 15px;
+    font-weight: bold;
 }
 .row > p{
     width: 100%;
@@ -119,6 +123,15 @@
     font-weight: bold;
     color: #fff;
     background: #4084DD;
+    line-height: normal;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.findInfo > svg, .sendCode > svg {
+    transform: rotate(0deg);
+    animation: spin 1s linear infinite;
 }
 
 .sendCode{
@@ -127,4 +140,56 @@
     font-weight: bold;
     padding: 5px;
     border-radius: 2.5px;
+    line-height: 15px;
+    cursor: pointer;
+}
+
+.pwChWrap{
+    position: absolute;
+    top: 0%;
+    left: 100%;
+    background-color: #fff;
+    transition: all .3s;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+}
+.err{
+    width: 100%;
+    border: 1px solid #efefef;
+    display: block;
+    height: auto; 
+    word-break: keep-all;
+    transition: all .3s;
+}
+
+.err > p{
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    margin-block-start: 0;
+    margin-block-end: 0;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    unicode-bidi: normal;
+    height: auto;
+    line-height: normal;
+    overflow: hidden;
+    transition: all .3s;
+}
+.err > p > span{
+    display: inline-block;
+    width: 100%;
+    height: auto;
+    text-align: center;
+    font-weight: bold;
+    font-size: 15px;
+    transition: all .3s;
+    padding: 3px 0;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

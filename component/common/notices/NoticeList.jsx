@@ -5,13 +5,13 @@ import { useNavigate, useLocation } from "react-router-dom";
 import NoticeTable from "./NoticeTable"; //작성중
 import Pagination from "../notices/Pagination";
 import{ UseUser } from "../../../hook/UseUser";
-import notices from "../../../src/mock/notices"; //목업데이터 임포트
+import MOCK_NOTICES from "../../../src/mock/notices";  //목업데이터 임포트
 //import { getNotices } from "../../api/noticeAPI"; //API 함수 임포트,백엔드 붙일때 사용
 
 export default function NoticeList({ category = "academy", page = 1, size = 10 }) {
     const navigate = useNavigate();
     const location = useLocation();
-    const { user, isAuthenticated } = UseUser();
+    const { user, isAuthenticated } = UseUser?.() || { user: null, isAuthenticated: false };
 
     //<권한 판별>       
     const isAdmin = user?.data?.user?.role === "admin"; //관리자 여부
@@ -23,7 +23,9 @@ export default function NoticeList({ category = "academy", page = 1, size = 10 }
         setState((s) =>({...s, loading: true})); //로딩 시작
         
         //------------------(A) UI 전용 단계 : 목업데이터로 페이징-----------------
-        const all = MOCK_NOTICES[category] ?? []; //해당 카테고리 전체 공지
+        const key = String(category).toLowerCase(); // 안전
+        const all = (MOCK_NOTICES && MOCK_NOTICES[key]) ? MOCK_NOTICES[key] : []; // 해당 카테고리 전체 공지
+        
         const start = (page -1) * size; //현재 페이지 첫 공지 인덱스
         const end = start + size; //현재 페이지 마지막 공지 인덱스
         const pageItems = all.slice(start, end); //현재 페이지 공지 목록
@@ -51,13 +53,16 @@ export default function NoticeList({ category = "academy", page = 1, size = 10 }
 
         const rows = useMemo(() => state.items, [state.items]); //공지 목록
 
-        //현재 카테고리의 라우트 베이스(페이징 링크 생성에 사용)
-          const basepath =
-          category === "academy" ? "/community/academy" :
-          category === "admin" ? "/community/notice-admin" :
-          "/community/etc";
+        // 현재 카테고리의 라우트 베이스(페이징 링크 생성에 사용)
+        const basepath =
+        category === "academy" ? "/community/academy" :
+        category === "admin"   ? "/community/admin"   :
+                            "/community/etc";
 
         if (state.loading) return <div>로딩중...</div>;
+
+        // (디버깅 로그 — 필요시 활성화)
+        // console.log('category=', category, 'rows=', rows.length, 'total=', state.total);
 
         return(
             <>
