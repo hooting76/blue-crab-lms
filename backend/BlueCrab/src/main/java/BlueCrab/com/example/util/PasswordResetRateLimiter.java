@@ -31,10 +31,11 @@ public class PasswordResetRateLimiter {
     private static final String FAIL_COUNT_PREFIX = "pw_reset_fail:";
 
     // 제한 설정
-    private static final int IP_HOURLY_LIMIT = 20;
-    private static final int IP_DAILY_LIMIT = 100;
-    private static final int EMAIL_HOURLY_LIMIT = 5;
-    private static final int EMAIL_DAILY_LIMIT = 10;
+    // 테스트 기간동안 방대하게 제한, 완성본에서 수정 필수.
+    private static final int IP_HOURLY_LIMIT = 100;
+    private static final int IP_DAILY_LIMIT = 1000;
+    private static final int EMAIL_HOURLY_LIMIT = 50;
+    private static final int EMAIL_DAILY_LIMIT = 1000;
     
     // TTL 설정 (분 단위)
     private static final int HOURLY_TTL_MINUTES = 60;
