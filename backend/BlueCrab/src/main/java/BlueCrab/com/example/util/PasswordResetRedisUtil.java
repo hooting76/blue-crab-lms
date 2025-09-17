@@ -431,7 +431,7 @@ public class PasswordResetRedisUtil {
             return codeData;
             
         } catch (Exception e) {
-            log.error("Failed to increment code verification attempts for email: {}. Error: {}", email, e.getMessage());
+            log.error("Failed to increment code verification attempts for IP: {}. Error: {}", clientIp, e.getMessage());
             return null;
         }
     }
