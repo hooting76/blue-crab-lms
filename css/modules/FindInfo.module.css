@@ -193,6 +193,9 @@
     overflow: hidden;
 }
 
+.authRaw{
+    justify-content: space-between;
+}
 
 
 

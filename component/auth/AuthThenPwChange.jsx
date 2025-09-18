@@ -15,7 +15,7 @@ async function AuthThenPwChange(authCode, token){
 
     // token check
     if(!token){
-        alert("인증 수단이 없습니다.");
+        alert("인증이 만료되었습니다.");
         return null;
     }
 
@@ -34,20 +34,18 @@ async function AuthThenPwChange(authCode, token){
         });
 
         const result = await response.json();
-        console.log(result);
-        // response.status
 
         switch(response.status){
             case 200:{   
-                if(result.success && result.rtToken){
-                    localStorage.setItem('rtToken', result.rtToken);
+                if(result.success && result.resetToken){
+                    localStorage.setItem('rtToken', result.resetToken);
                     // token is saved
 
                     const pwChWrap = document.getElementById('pwChWrap');
                     pwChWrap.style.left = "0%";
                 }else{
                     // 실패 케이스 (200이지만 success: false)
-                    console.log('❌ 코드 검증 실패');
+                    // console.log('❌ 코드 검증 실패');
                     console.log(`   - 메시지: ${result.message || 'N/A'}`);
                     console.log(`   - 상태: ${result.status || 'N/A'}`);
                     console.log(`   - 남은 시도: ${result.remainingAttempts || 'N/A'}`);

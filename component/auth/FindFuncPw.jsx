@@ -69,10 +69,6 @@ async function sendEmail(token){
         result = result.slice(1, -1);
         result = JSON.parse(result);
 
-        // console.log(typeof(result));
-        console.log(result);
-        // console.log(result.success);
-
         switch(response.status){
             case 200:
                 if(result.success == true){

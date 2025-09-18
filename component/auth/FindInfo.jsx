@@ -155,18 +155,18 @@ export default function FindInfo(){
 
             // userChangePwCf
             case 'userChangePwCf':
-                if(userChangePw == userChangePwCf){
-                    evt.target.style.border = "2px solid blue";
-                    setChangePwCfOk(true);
-                }else{
+                if(userChangePw !== trgVal){
                     evt.target.style.border = "2px solid red";
                     if(!trgVal){
                         evt.target.style.border = "1px solid #ccc";
                     }
-                    setChangePwCfOk(false);
-                }
+                    setChangePwCfOk(false);             
+                }else{
+                    evt.target.style.border = "2px solid blue";
+                    setChangePwCfOk(true);
+                };
                 setUserChangePwCf(trgVal);
-                break;                    
+                break;
             } // switch end
     }; // handleInputValue end
 
@@ -214,6 +214,42 @@ export default function FindInfo(){
             setSwitchType02(!switchType02);
         }
     };
+
+    const PasswordChange = async() => {
+        let token = localStorage.getItem('rtToken');
+        let newPw = userChangePwCf;
+
+        try {
+            const response = await fetch('https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/auth/password-reset/change-password',{
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-rt': `${token}`
+                },
+                body: JSON.stringify({ 
+                    newPassword: newPw
+                })
+            });
+
+            const result = await response.json();
+
+            if(confirm("비밀번호를 정말 변경하시겠습니까?")){
+                if(result.success){
+                    // console.log('✅ 비밀번호 변경 성공!');
+                    alert("비밀번호 변경이 완료되었습니다.");
+                    window.location.href = "/";
+                    location.reload();
+                }else {
+                    alert('비밀번호 변경에 실패했습니다. 처음부터 다시 진행해주세요.');
+                    // return { success: false, error: result };
+                }                
+            }else{
+                alert('사용자가 요청을 취소했습니다.');
+            }
+        } catch (error) {
+            return { success: false, error: error.message };            
+        }
+    }
 
     return(<>
     <div className={FindinfoCss.wrap}>
@@ -294,7 +330,7 @@ export default function FindInfo(){
             {/* 비밀번호찾기: 이메일 인증코드 */}
             {!useProps 
                 && (
-                <div className={FindinfoCss.row}>
+                <div className={`${FindinfoCss.row} ${FindinfoCss.authRaw}`}>
                     <label htmlFor="authCode">인증코드</label>
                     <input
                         type="text" 
@@ -344,9 +380,6 @@ export default function FindInfo(){
             <div className={FindinfoCss.pwChWrap} id="pwChWrap">
                 <h4>변경할 비밀번호</h4>
                 <div className={FindinfoCss.row} >
-                    {/* <label htmlFor='userCode'>
-                        변경할 비밀번호
-                    </label> */}
                     <input
                         type={switchType01
                             ? "password"
@@ -374,9 +407,6 @@ export default function FindInfo(){
 
                 <h4>변경 비밀번호 확인</h4>
                 <div className={FindinfoCss.row}>
-                    {/* <label htmlFor='userChangePwCf'>
-                        변경 비밀번호 확인
-                    </label> */}
                     <input
                         type={switchType02
                             ? "password"
@@ -409,6 +439,7 @@ export default function FindInfo(){
                         disabled={
                             !(changePwOk && changePwCfOk)
                         }
+                        onClick={PasswordChange}
                     >
                         비밀번호 변경하기
                     </button>
