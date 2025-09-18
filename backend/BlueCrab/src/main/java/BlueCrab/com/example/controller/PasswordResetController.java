@@ -25,6 +25,8 @@ import BlueCrab.com.example.util.AuthCodeGenerator; // 인증 코드 생성기
 import BlueCrab.com.example.util.EmailTemplateUtils; // 이메일 템플릿 유틸리티
 import BlueCrab.com.example.util.PasswordResetRedisUtil; // Redis 유틸리티
 import BlueCrab.com.example.util.AccountRecoveryRateLimiter; // 표준 레이트 리미터
+import BlueCrab.com.example.util.PasswordResetRateLimiter; // 비밀번호 재설정 전용 레이트 리미터
+
 
 /**
  * 비밀번호 재설정 처리를 위한 REST API 컨트롤러
@@ -64,6 +66,10 @@ public class PasswordResetController {
     @Autowired
     private AccountRecoveryRateLimiter rateLimiter;
     // 표준 레이트 리미터 (ID/PW 찾기 통합)
+    
+    @Autowired
+    private PasswordResetRateLimiter passwordResetRateLimiter;
+    // 비밀번호 재설정 전용 레이트 리미터
     
     @Autowired
     private EmailService emailService;
@@ -180,9 +186,9 @@ public class PasswordResetController {
      * 인증 코드 이메일 발송 엔드포인트 (IP 기반 제한)
      */
     @PostMapping("/send-email")
-    public ResponseEntity<?> sendResetEmail(@RequestBody Map<String, String> 
+    public ResponseEntity<ApiResponse<Object>> sendResetEmail(@RequestBody Map<String, String> 
                 request, HttpServletRequest httpRequest) {
-        // ResponseEntity<?> : 다양한 응답 타입 지원
+        // ResponseEntity<ApiResponse<Object>> : 표준 ApiResponse 형식으로 통일
         // sendResetEmail : 비밀번호 재설정 이메일 발송 요청 처리
         // @RequestBody Map<String, String> request : 요청 본문에서 JSON 데이터를 Map으로 매핑
         // HttpServletRequest httpRequest : 클라이언트 IP, User-Agent 등 요청 메타데이터 접근용
@@ -195,7 +201,7 @@ public class PasswordResetController {
             logger.error("IRT token is missing in the request");
             // 에러 로그 기록
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "IRT token is required"));
+                    .body(ApiResponse.failure("IRT token is required"));
             // 400 Bad Request 응답 반환
         } // if 끝
         
@@ -209,38 +215,31 @@ public class PasswordResetController {
 
         // try-catch 블록으로 예외 처리
         try {
-            // 1. IP 기반 레이트 리밋 확인 (AccountRecoveryRateLimiter 직접 사용)
-            if (!rateLimiter.isAllowedForFindPassword(clientIp, userAgent)) {
-                // 레이트 리밋 초과의 경우
-                long waitTime = rateLimiter.getRemainingWaitTime(clientIp, "find_pw");
-                // 남은 대기 시간 조회
-                Long retryAfter = waitTime > 0 ? waitTime : 60L;
-                // 최소 60초로 설정
-                logger.warn("Rate limit exceeded for IP: {}, User-Agent: {}. Retry after {} seconds", 
-                        clientIp, userAgent, retryAfter);
-                // 경고 로그 기록
-                return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                        .header("Retry-After", String.valueOf(retryAfter))
-                        .body(Map.of("error", "Rate limit exceeded", "retryAfter", retryAfter));
-                // 429 Too Many Requests 응답 반환
-            } // if 끝
-            
-            // 2. IRT 토큰 검증 (기존 로직 유지)
+            // 1. IRT 토큰 검증 먼저 수행 (이메일 정보 필요)
             Map<String, Object> irtData = redisUtil.getIRTData(irtToken);
             if (irtData == null) {
                 // IRT 토큰이 없거나 만료된 경우
-                rateLimiter.recordFailure(clientIp, "find_pw");
-                // 실패 기록
                 logger.warn("Invalid or expired IRT token from IP: {}, User-Agent: {}", 
                         clientIp, userAgent);
                 // 경고 로그 기록
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(Map.of("error", "SESSION_EXPIRED"));
-                // 401 Unauthorized 응답 반환
+                        .body(ApiResponse.failure("세션이 만료되었습니다. 처음부터 다시 시도해주세요."));
+                // 401 Unauthorized 응답 반환 (ApiResponse 형식)
             } // if 끝
             
             String email = (String) irtData.get("email"); // 사용자 이메일
             String irtLock = (String) irtData.get("lock"); // 세션 락
+            
+            // 2. PasswordResetRateLimiter로 IP/이메일 기반 레이트 리밋 확인
+            if (!passwordResetRateLimiter.isIdentityVerificationAllowed(clientIp, email)) {
+                // 레이트 리밋 초과의 경우
+                logger.warn("Password reset rate limit exceeded for IP: {}, Email: {}, User-Agent: {}", 
+                        clientIp, email, userAgent);
+                // 경고 로그 기록
+                return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                        .body(ApiResponse.failure("요청이 너무 많습니다. 잠시 후 다시 시도해주세요."));
+                // 429 Too Many Requests 응답 반환 (ApiResponse 형식)
+            } // if 끝
             
             // 3. 세션 락 검증 (기존 로직 유지)
             if (!redisUtil.isLockValid(email, irtLock)) {
@@ -248,11 +247,11 @@ public class PasswordResetController {
                 logger.warn("Session lock mismatch for email: {}, IP: {}, User-Agent: {}", 
                         email, clientIp, userAgent);
                 // 경고 로그 기록
-                rateLimiter.recordFailure(clientIp, "find_pw");
-                // 실패 기록
+                passwordResetRateLimiter.recordIdentityVerificationAttempt(clientIp, email);
+                // 시도 기록
                 return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body(Map.of("error", "SESSION_REPLACED"));
-                // 409 Conflict 응답 반환
+                        .body(ApiResponse.failure("다른 곳에서 비밀번호 재설정을 진행중입니다."));
+                // 409 Conflict 응답 반환 (ApiResponse 형식)
             } // if 끝
             
             // 4. 인증 코드 생성 및 저장 (IP 기반)
@@ -266,10 +265,10 @@ public class PasswordResetController {
             logger.info("Password reset email sent to {} for IP: {}, User-Agent: {}", 
                     email, clientIp, userAgent);
             
-            // 6. 성공 기록 (IP 기반)
-            rateLimiter.recordSuccess(clientIp, "find_pw");
-            logger.info("Password reset request successful for IP: {}, User-Agent: {}", 
-                    clientIp, userAgent);
+            // 6. 성공 기록 (PasswordResetRateLimiter 사용)
+            passwordResetRateLimiter.recordIdentityVerificationAttempt(clientIp, email);
+            logger.info("Password reset request successful for IP: {}, Email: {}, User-Agent: {}", 
+                    clientIp, email, userAgent);
             
             // 7. 성공 응답 반환 (민감 정보는 로그에만 기록, 프론트엔드는 메시지만 전달)
             String masked = maskEmail(email);
@@ -283,7 +282,17 @@ public class PasswordResetController {
             
         } catch (Exception e) {
             // 예외 처리
-            rateLimiter.recordFailure(clientIp, "find_pw"); // 예외 발생 시도 실패로 기록
+            // 이메일 정보가 있을 경우에만 PasswordResetRateLimiter 사용
+            try {
+                Map<String, Object> irtData = redisUtil.getIRTData(irtToken);
+                if (irtData != null) {
+                    String email = (String) irtData.get("email");
+                    passwordResetRateLimiter.recordIdentityVerificationAttempt(clientIp, email);
+                }
+            } catch (Exception innerE) {
+                logger.warn("Failed to record rate limit attempt on error: {}", innerE.getMessage());
+            }
+            
             logger.error("Error processing password reset request for IP: {}, User-Agent: {}. Error: {}", 
                     clientIp, userAgent, e.getMessage());
             // 에러 로그 기록
