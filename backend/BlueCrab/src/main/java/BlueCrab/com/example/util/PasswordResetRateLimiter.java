@@ -191,10 +191,29 @@ public class PasswordResetRateLimiter {
         return failCountStr != null && Integer.parseInt(failCountStr) >= 3;
     }
 
-    private void recordIpAttempt(String clientIp) {
+    // 성태준 수정 : 상수 추출용
+    public void recordIpAttempt(String clientIp) {
         incrementCounter(IP_HOURLY_PREFIX + clientIp, HOURLY_TTL_MINUTES);
         incrementCounter(IP_DAILY_PREFIX + clientIp, DAILY_TTL_MINUTES);
     }
+
+    // ========== 성태준 추가 ==========
+    /** IP별 현재 시간당 시도 횟수 조회
+     * @param clientIp 클라이언트 IP 주소
+     * @return 현재 시간당 시도 횟수
+     */
+    public int getCurrentIpHourlyAttempts(String clientIp) {
+        return getCounterValue(IP_HOURLY_PREFIX + clientIp);
+    }
+
+    /** IP별 현재 일일 시도 횟수 조회
+     * @param clientIp 클라이언트 IP 주소
+     * @return 현재 일일 시도 횟수
+     */
+    public int getCurrentIpDailyAttempts(String clientIp) {
+        return getCounterValue(IP_DAILY_PREFIX + clientIp);
+    }
+    // ========== 성태준 추가 끝 ==========
 
     private void recordEmailAttempt(String email) {
         incrementCounter(EMAIL_HOURLY_PREFIX + email, HOURLY_TTL_MINUTES);
@@ -221,3 +240,4 @@ public class PasswordResetRateLimiter {
         return 0; // 지연 없음
     }
 }
+
