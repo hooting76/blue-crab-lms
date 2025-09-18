@@ -1,4 +1,5 @@
 // 공지테이블
+import "../../../css/Communities/Notice-ui.css";
 
 export default function NoticeTable({ rows = [] }) {
     return(
