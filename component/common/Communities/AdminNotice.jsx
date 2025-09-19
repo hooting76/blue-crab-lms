@@ -10,6 +10,7 @@ import NoticeList from "../notices/NoticeList";
 export default function AdminNotice({currentPage,setCurrentPage}) {
     const [page,setPage] = useState(1);
     useEffect(() => {setPage(1);}, [currentPage]); //탭 바뀌면 1 페이지로
+    useEffect(() => { if (currentPage !== "행정공지") setCurrentPage("행정공지"); }, [currentPage, setCurrentPage]);
 
     return(
         <NoticeLayout currentPage={currentPage} setCurrentPage={setCurrentPage}>

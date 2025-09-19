@@ -26,6 +26,14 @@ import AcademyNotice from '../component/common/Communities/AcademyNotice';
 import AdminNotice from '../component/common/Communities/AdminNotice';
 import EtcNotice from '../component/common/Communities/EtcNotice';
 
+// FAQ
+import FAQ from '../component/common/FAQ/FAQ';
+
+// Facilities
+import FacilityRequest from '../component/common/Facilities/FacilityRequest';
+import MyFacilityRequests from '../component/common/Facilities/MyFacilityRequests';
+import ReadingRoom from '../component/common/Facilities/ReadingRoom';
+
 // 마이페이지 페이지들
 import MyPage from '../component/common/MyPage';
 
@@ -45,7 +53,7 @@ function InAppFilter(){
 // main app component
 function AppContent() {
   const { isAuthenticated, isLoading } = UseUser();
- // const isAuthenticated = true;   // ← 로그인 상태로 강제
+  
 
   // currentPage 상태를 이 컴포넌트에서 보유
   const [currentPage, setCurrentPage] = useState("");
@@ -69,7 +77,7 @@ function AppContent() {
 
   // 로딩 중일 때
    if (isLoading) {
-     return <LoadingSpinner/>
+    return <LoadingSpinner/>
    }
 
   // 관리자 경로는 '정확/접두' 매칭만 (includes 금지: /community/admin과 충돌 방지)
@@ -81,6 +89,10 @@ function AppContent() {
   const renderPage = () => {
     switch (currentPage) {
       
+      // 기본값: 대시보드
+      default:
+      return <UserDashboard/>;
+
       // 학교소개 페이지
       case "총장 인사":
       case "오시는 길":
@@ -96,15 +108,24 @@ function AppContent() {
       
       // ===== 커뮤니티 섹션 (상태 전환만 사용) =====
       case '학사공지':
-        return <AcademyNotice currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
+        return <AcademyNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
       case '행정공지':
-        return <AdminNotice currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
+        return <AdminNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
       case '기타공지':
-        return <EtcNotice currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
-      
-        // 기본값: 대시보드
-      default:
-        return <UserDashboard/>;
+        return <EtcNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
+
+      // ===== FAQ =====
+      case 'FAQ':
+        return <FAQ currentPage={currentPage} setCurrentPage={setCurrentPage} />;
+
+      // ===== 시설 & 문의 =====
+      case '시설신청':
+        return <FacilityRequest currentPage={currentPage} setCurrentPage={setCurrentPage} />;
+      case '나의 신청목록':
+        return <MyFacilityRequests currentPage={currentPage} setCurrentPage={setCurrentPage} />;
+      case '열람실 신청':
+        return <ReadingRoom currentPage={currentPage} setCurrentPage={setCurrentPage} />;
+
     }
   };
 

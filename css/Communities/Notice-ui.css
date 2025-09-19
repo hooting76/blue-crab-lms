@@ -1,0 +1,143 @@
+/* ===== 공지 페이지 공통 UI: 레이아웃/배너/표/페이지네이션/액션/반응형 ===== */
+
+/* 페이지 루트 컨테이너 */
+.notice-page {
+  padding: 20px;
+  display: block;
+  color: #222;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* 상단 배너 */
+.banner {
+  height: 200px;
+  margin-bottom: 16px;
+  background: linear-gradient(180deg, #eaf2ff 0%, #f6f9ff 100%);
+  border: 1px solid #e3ecff;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.banner h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #1f3f8e;
+}
+
+/* 좌(본문)/우(사이드) 2단 레이아웃 */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 280px; /* 좌: 본문 / 우: 사이드 */
+  gap: 20px;
+}
+.left { min-width: 0; }       /* 테이블 오버플로 방지 */
+.right { position: relative; }
+
+/* 표 */
+.notice-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border: 1px solid #e9edf6;
+  border-radius: 10px;
+  overflow: hidden;           /* radius 적용 */
+  table-layout: fixed;        /* 제목 셀 줄바꿈 안정화 */
+}
+.notice-table thead th {
+  background: #f6f9ff;
+  color: #1f3f8e;
+  font-weight: 700;
+  padding: 12px 10px;
+  border-bottom: 1px solid #e3ecff;
+  font-size: 14px;
+}
+.notice-table tbody td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #f0f3fa;
+  text-align: center;
+  word-break: keep-all;
+}
+.notice-table tbody td:nth-child(2) {
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.notice-table tbody tr:hover { background: #fbfdff; }
+
+/* 제목을 버튼처럼 사용할 때 */
+.link-like {
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: #1f3f8e;
+  font-weight: 700;
+  cursor: pointer;
+}
+.link-like:hover { text-decoration: underline; }
+
+/* 페이지네이션 */
+.pagination {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+.pagination a,
+.pagination button {
+  padding: 6px 10px;
+  border: 1px solid #d6deef;
+  background: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  min-width: 36px;
+  text-align: center;
+  transition: background .12s ease, border-color .12s ease;
+}
+.pagination a:hover,
+.pagination button:hover { background: #f6f9ff; }
+.pagination .active {
+  border-color: #2c6bed;
+  font-weight: 800;
+}
+
+/* 상단 액션 (작성하기 버튼) */
+.notice-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+.notice-actions > button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #2c6bed;
+  background: #2c6bed;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+.notice-actions > button:hover { filter: brightness(1.03); }
+
+/* ===== 반응형 ===== */
+@media (max-width: 1024px) {
+  .grid { grid-template-columns: 1fr 260px; }
+}
+@media (max-width: 820px) {
+  .notice-page { padding: 16px; }
+  .banner { height: 160px; }
+  .grid { grid-template-columns: 1fr; gap: 14px; }
+  .left { order: 1; }
+  .right { order: 2; }
+  .notice-table thead th,
+  .notice-table tbody td { padding: 10px 8px; }
+}
+@media (max-width: 480px) {
+  .banner { height: 130px; }
+  .notice-table { font-size: 14px; }
+  .pagination { gap: 4px; }
+  .pagination a, .pagination button { padding: 6px 8px; min-width: 32px; }
+}

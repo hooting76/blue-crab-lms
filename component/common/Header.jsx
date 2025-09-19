@@ -113,11 +113,15 @@ function Header({ currentPage, setCurrentPage }) {
                 style={{ visibility: subMenu2Visibility }}
               >
                 <tbody>
-                  <tr><td onClick={() => setCurrentPage("학사공지")}>학사공지</td></tr>
-                  <tr><td onClick={() => setCurrentPage("행정공지")}>행정공지</td></tr>
-                  <tr><td onClick={() => setCurrentPage("기타공지")}>기타공지</td></tr>
+       {/* FIX: 공지사항 → 기본 학사공지로 진입 */}
+                  <tr><td onClick={() => setCurrentPage("학사공지")}>공지사항</td></tr>
+              {/* 단일 */}
+                  <tr><td onClick={() => setCurrentPage("FAQ")}>FAQ</td></tr>
+              {/* 시설 & 문의 → 기본 ‘신청폼(시설신청)’로 진입 */}
+                  <tr><td onClick={() => setCurrentPage("시설신청")}>시설 & 문의</td></tr>
                 </tbody>
               </table>
+
 
               {/* 마이페이지 */}
               <table

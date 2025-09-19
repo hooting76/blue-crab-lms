@@ -6,6 +6,7 @@ import Pagination from "../notices/Pagination";
 import{ UseUser } from "../../../hook/UseUser";
 import MOCK_NOTICES from "../../../src/mock/notices";  //목업데이터 임포트
 //import { getNotices } from "../../api/noticeAPI"; //API 함수 임포트,백엔드 붙일때 사용
+import "../../../css/Communities/Notice-ui.css";
 
 export default function NoticeList({ 
     category = "academy", 
