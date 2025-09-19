@@ -26,6 +26,7 @@ import BlueCrab.com.example.util.EmailTemplateUtils; // 이메일 템플릿 유�
 import BlueCrab.com.example.util.PasswordResetRedisUtil; // Redis 유틸리티
 import BlueCrab.com.example.util.AccountRecoveryRateLimiter; // 표준 레이트 리미터
 import BlueCrab.com.example.util.PasswordResetRateLimiter; // 비밀번호 재설정 전용 레이트 리미터
+import BlueCrab.com.example.util.UserNameExtractor; // 사용자 이름 추출기
 
 
 /**
@@ -82,6 +83,10 @@ public class PasswordResetController {
     @Autowired
     private EmailTemplateUtils emailTemplateUtils;
     // 이메일 템플릿 유틸리티
+    
+    @Autowired
+    private UserNameExtractor userNameExtractor;
+    // 사용자 이름 추출기
 
     /**
      * 1단계: 본인확인 처리
@@ -334,7 +339,10 @@ public class PasswordResetController {
     
     private void sendPasswordResetEmailFromEmailController(String email, String code) throws Exception {
         // sendPasswordResetEmail(...) : 비밀번호 재설정 이메일 발송
-        String emailContent = emailTemplateUtils.createAuthCodeEmailTemplate("사용자", code, 5);
+        String userName = userNameExtractor.extractUserNameFromEmail(email);
+        // 이메일로부터 실제 사용자 이름 추출
+        
+        String emailContent = emailTemplateUtils.createAuthCodeEmailTemplate(userName, code, 5);
         // 이메일 템플릿 생성 (5분 유효)
         
         logger.debug("Sending password reset email to: {}", email);
