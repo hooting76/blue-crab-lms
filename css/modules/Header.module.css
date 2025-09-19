@@ -90,21 +90,13 @@ header{
     cursor: pointer;
 }
 
-.navSubMenu1 {
-    position: absolute;
-    top: 45px;
+.navMenu1 .navMenu2 .navMenu3 {
+    position: relative;
 }
 
-.navSubMenu2 {
+.navSubMenu1 .navSubMenu2 .navSubMenu3 {
     position: absolute;
     top: 45px;
-    left: 125px;
-}
-
-.navSubMenu3 {
-    position: absolute;
-    top: 45px;
-    left: 225px;
 }
 
 .navSubMenu1 td {

@@ -45,8 +45,6 @@ function Header({ currentPage, setCurrentPage }) {
     setCurrentPage("");      // 대시보드 등 기본으로
   };
 
-  const UrlReset = () => { navigate('/'); };
-
   const [subMenu1Visibility, setSubMenu1Visibility] = useState("hidden");
   const [subMenu2Visibility, setSubMenu2Visibility] = useState("hidden");
   const [subMenu3Visibility, setSubMenu3Visibility] = useState("hidden");
@@ -85,59 +83,66 @@ function Header({ currentPage, setCurrentPage }) {
           {isAuthenticated && (
             <div className={HeaderCss.navMenu}>
               <ul>
-                <li onMouseOver={() => { showSubMenu1(); hideSubMenu2(); hideSubMenu3(); }}>학교소개</li>
-                <li onMouseOver={() => { hideSubMenu1(); showSubMenu2(); hideSubMenu3(); }}>커뮤니티</li>
-                <li onMouseOver={() => { hideSubMenu1(); hideSubMenu2(); showSubMenu3(); }}>마이페이지</li>
+                <li className="navMeun1" onMouseOver={() => { showSubMenu1(); hideSubMenu2(); hideSubMenu3(); }}>학교소개
+
+                  {/* 학교소개 */}
+                  <table
+                    className={HeaderCss.navSubMenu1}
+                    onMouseOver={showSubMenu1}
+                    onMouseOut={hideSubMenu1}
+                    style={{ visibility: subMenu1Visibility }}
+                  >
+                    <tbody>
+                      <tr><td onClick={() => setCurrentPage("총장 인사")}>총장 인사</td></tr>
+                      <tr><td onClick={() => setCurrentPage("오시는 길")}>오시는 길</td></tr>
+                      <tr><td onClick={() => setCurrentPage("학교 조직도")}>학교 조직도</td></tr>
+                      <tr><td onClick={() => setCurrentPage("연혁")}>연혁</td></tr>
+                    </tbody>
+                  </table>
+
+                </li>
+
+                <li className="navMenu2" onMouseOver={() => { hideSubMenu1(); showSubMenu2(); hideSubMenu3(); }}>커뮤니티
+
+                  {/* 커뮤니티 */}
+                  <table
+                    className={HeaderCss.navSubMenu2}
+                    onMouseOver={showSubMenu2}
+                    onMouseOut={hideSubMenu2}
+                    style={{ visibility: subMenu2Visibility }}
+                  >
+                    <tbody>
+          {/* FIX: 공지사항 → 기본 학사공지로 진입 */}
+                      <tr><td onClick={() => setCurrentPage("학사공지")}>공지사항</td></tr>
+                  {/* 단일 */}
+                      <tr><td onClick={() => setCurrentPage("FAQ")}>FAQ</td></tr>
+                  {/* 시설 & 문의 → 기본 ‘신청폼(시설신청)’로 진입 */}
+                      <tr><td onClick={() => setCurrentPage("시설신청")}>시설 & 문의</td></tr>
+                    </tbody>
+                  </table>
+
+                </li> 
+
+                <li className="navMenu3" onMouseOver={() => { hideSubMenu1(); hideSubMenu2(); showSubMenu3(); }}>마이페이지
+
+                   {/* 마이페이지 */}
+                    <table
+                      className={HeaderCss.navSubMenu3}
+                      onMouseOver={showSubMenu3}
+                      onMouseOut={hideSubMenu3}
+                      style={{ visibility: subMenu3Visibility }}
+                    >
+                      <tbody>
+                        <tr><td onClick={() => setCurrentPage("수강중인 과목")}>수강중인 과목</td></tr>
+                        <tr><td onClick={() => setCurrentPage("수강과목 공지사항")}>수강과목 공지사항</td></tr>
+                        <tr><td onClick={() => setCurrentPage("실시간 상담")}>실시간 상담</td></tr>
+                      </tbody>
+                    </table>
+
+                </li>
               </ul>
-
-              {/* 학교소개 */}
-              <table
-                className={HeaderCss.navSubMenu1}
-                onMouseOver={showSubMenu1}
-                onMouseOut={hideSubMenu1}
-                style={{ visibility: subMenu1Visibility }}
-              >
-                <tbody>
-                  <tr><td onClick={() => { UrlReset(); setCurrentPage("총장 인사"); }}>총장 인사</td></tr>
-                  <tr><td onClick={() => { UrlReset(); setCurrentPage("오시는 길"); }}>오시는 길</td></tr>
-                  <tr><td onClick={() => { UrlReset(); setCurrentPage("학교 조직도"); }}>학교 조직도</td></tr>
-                  <tr><td onClick={() => { UrlReset(); setCurrentPage("연혁"); }}>연혁</td></tr>
-                </tbody>
-              </table>
-
-              {/* 커뮤니티 */}
-              <table
-                className={HeaderCss.navSubMenu2}
-                onMouseOver={showSubMenu2}
-                onMouseOut={hideSubMenu2}
-                style={{ visibility: subMenu2Visibility }}
-              >
-                <tbody>
-       {/* FIX: 공지사항 → 기본 학사공지로 진입 */}
-                  <tr><td onClick={() => setCurrentPage("학사공지")}>공지사항</td></tr>
-              {/* 단일 */}
-                  <tr><td onClick={() => setCurrentPage("FAQ")}>FAQ</td></tr>
-              {/* 시설 & 문의 → 기본 ‘신청폼(시설신청)’로 진입 */}
-                  <tr><td onClick={() => setCurrentPage("시설신청")}>시설 & 문의</td></tr>
-                </tbody>
-              </table>
-
-
-              {/* 마이페이지 */}
-              <table
-                className={HeaderCss.navSubMenu3}
-                onMouseOver={showSubMenu3}
-                onMouseOut={hideSubMenu3}
-                style={{ visibility: subMenu3Visibility }}
-              >
-                <tbody>
-                  <tr><td onClick={() => { UrlReset(); setCurrentPage("수강중인 과목"); }}>수강중인 과목</td></tr>
-                  <tr><td onClick={() => { UrlReset(); setCurrentPage("수강과목 공지사항"); }}>수강과목 공지사항</td></tr>
-                  <tr><td onClick={() => { UrlReset(); setCurrentPage("실시간 상담"); }}>실시간 상담</td></tr>
-                </tbody>
-              </table>
             </div>
-          )}
+           )}
         </h1>
 
         {/* 세션타이머(15분). 로그인 중에만 활성화. 만료시 로그아웃됨. */}
