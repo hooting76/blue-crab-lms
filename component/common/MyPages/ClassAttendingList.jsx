@@ -21,11 +21,21 @@ function ClassAttendingList() {
     };
 
 const today = new Date();
-const currentYear = today.getFullYear();
+let currentYear = today.getFullYear();
 const currentMonth = today.getMonth() + 1;
 
-// 현재 학기 계산 (3~8월 → 1학기, 나머지 → 2학기)
-const currentSemester = (currentMonth >= 3 && currentMonth <= 8) ? 1 : 2;
+let currentSemester;
+
+if (currentMonth >= 3 && currentMonth <= 8) {
+    currentSemester = 1;
+} else if (currentMonth >= 9) {
+    currentSemester = 2;
+} else {
+    // 1~2월은 전년도 2학기
+    currentYear -= 1;
+    currentSemester = 2;
+}
+
 
 // 현재 학기를 기준으로 지난 8개 학기 생성
 const generateSemesters = (count = 8) => {
