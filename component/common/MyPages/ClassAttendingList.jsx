@@ -4,8 +4,7 @@ import classAttendingDummy from '../../../src/mock/classAttendingDummy.js'; //�
 
 function ClassAttendingList() {
     const [openRow, setOpenRow] = useState(null);
-    const [selectedSemester, setSelectedSemester] = useState("0"); // 학기 선택 상태
-
+    
     const totalCredits = classAttendingDummy.reduce(
         (sum, cls) => sum + (Number(cls.LEC_POINT) || 0),
         0
@@ -53,6 +52,8 @@ const generateSemesters = (count = 8) => {
 
 const semesterOptions = generateSemesters(8);
 const currentSemesterValue = `${currentYear}_${currentSemester}`; // 현재 학기 value
+const [selectedSemester, setSelectedSemester] = useState(currentSemesterValue); // 학기 선택 상태
+
 
 
     return (
