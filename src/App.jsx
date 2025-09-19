@@ -8,6 +8,11 @@ import { UserProvider } from '../context/UserContext';
 // custom hook
 import { UseUser } from '../hook/UseUser';
 
+// PWA component
+import InstallPrompt from './pwa/InstallPrompt';
+// import PWAUpdatePrompt from './pwa/PWAUpdatePrompt';
+// import UseOnlineStatus from '../hook/UseOnlineStatus';
+
 // component
 import Header from '../component/common/Header';
 import LoadingSpinner from '../component/common/LoadingSpinner';
@@ -52,9 +57,22 @@ function InAppFilter(){
 
 // main app component
 function AppContent() {
+  // PWA func
+  // const isOnline = UseOnlineStatus();
+
+  // PWA func end
+
+  // user state ctrl
   const { isAuthenticated, isLoading } = UseUser();
   
+  if (isLoading) {
+    return <LoadingSpinner/>
+  }
+  // user state ctrl end
 
+
+
+  // paging ctrl
   // currentPage 상태를 이 컴포넌트에서 보유
   const [currentPage, setCurrentPage] = useState("");
 
@@ -74,17 +92,10 @@ function AppContent() {
     localStorage.setItem('currentPage', currentPage);
   }, [currentPage]);
 
-
-  // 로딩 중일 때
-   if (isLoading) {
-    return <LoadingSpinner/>
-   }
-
   // 관리자 경로는 '정확/접두' 매칭만 (includes 금지: /community/admin과 충돌 방지)
   if (pathname === '/admin' || pathname.startsWith('/admin/')) {
     return <Admin />;
   }
-
 
   const renderPage = () => {
     switch (currentPage) {
@@ -127,11 +138,14 @@ function AppContent() {
         return <ReadingRoom currentPage={currentPage} setCurrentPage={setCurrentPage} />;
 
     }
-  };
+  }; // paging ctrl end
 
   return (
     <div id="wrap">
-      <Header currentPage={currentPage} setCurrentPage={setCurrentPage}/>
+      <Header 
+        currentPage={currentPage} 
+        setCurrentPage={setCurrentPage} 
+      />
 
       <div id="content">
           {isAuthenticated ?(
@@ -151,8 +165,8 @@ function AppContent() {
       {/* 푸터 */}
       <Footer />
     </div>
-  );
-}
+  ); // return end
+} // AppContent end
 
 function App() {
   return (
@@ -162,6 +176,7 @@ function App() {
         <BrowserRouter>
           <AppContent />
         </BrowserRouter>
+        <InstallPrompt />
       </UserProvider>
     </>
   );

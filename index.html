@@ -12,7 +12,7 @@
     <meta name="copyright" content="blue-crab">
     <meta name="description" content="blue-crab-LMS">
     <meta name="keyword" content="blue-crab, blue-crab-academy">
-    <meta name="classification" content="LMS Web App">
+    <meta name="classification" content="LMS-Web-App">
     <meta name="robots" content="index, follow">   
 
     <title>블루크랩 아카데미 학사관리시스템</title>
@@ -38,40 +38,16 @@
     <!-- favicon end-->
 
     <!-- ===================PWA Settings start=================== -->
-    <!-- Web Browser UI settings -->
-    <!-- <meta name="apple-mobile-web-app-capable" content="yes"> -->
     <meta name="mobile-web-app-capable" content="yes">
-    <!-- Status Bar styles setting -->
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <!-- App names -->
     <meta name="apple-mobile-web-app-title" content="Blue Crab Academy - LMS">
-    <!-- App icon -->
     <link rel="apple-touch-icon" href="/favicon/apple-icon-152x152.png">
-
-    <!-- Service Worker settings start -->
-    <!-- 해당 파일은 Setting값 맞춘거니 변경 금지 -->
-    <link rel="manifest" href="manifest.json">
-    <!-- Service Worker settings end -->
     <!-- ===================PWA Settings end=================== -->
-     
+
   </head>
 
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-          navigator.serviceWorker.register('sw.js')
-            .then(reg => {
-              // console.log('Service worker registered! 😎', reg);
-            })
-            .catch(err => {
-              console.log('😥 Service worker registration failed: ', err);
-            });
-        });
-      }      
-    </script>
   </body>
 </html>

@@ -1,7 +1,8 @@
 
 {
+  "ID":"Blue Crab Academy",
   "name": "Blue Crab Academy - LMS",
-  "short_name": "Blue Crab Academy",
+  "short_name": "Blue Crab",
   "icons": [{
     "src": "/favicon/android-icon-192x192.png",
     "sizes": "192x192",
@@ -11,7 +12,7 @@
     "sizes": "512x512",
     "type": "image/png"
   }],
-  "start_url": "/index.html?utm_source=homescreen",
+  "start_url": "./index.html?utm_source=homescreen",
   "display": "standalone",
   "background_color": "#FFFFFF",
   "theme_color": "#FFFFFF"

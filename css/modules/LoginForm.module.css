@@ -14,11 +14,17 @@
 
 .h2{
     text-align: center;
-    display: block;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 5px;
     border-bottom: 1px solid #ccc;
     font-weight: bold;
     font-size: var(--font-large);
+}
+
+.h2 > svg {
+    cursor: pointer;
 }
 
 .frm_row{

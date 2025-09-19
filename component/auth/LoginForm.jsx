@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { UseUser } from '../../hook/UseUser';
 import { Link } from 'react-router-dom'; 
 
+import InstallPrompt from "../../src/pwa/InstallPrompt"
+
 import LoginFrm from '../../css/modules/LoginForm.module.css';
+import { FaDownload } from 'react-icons/fa';
 
 
 function LoginForm() {
@@ -80,11 +83,13 @@ function LoginForm() {
         };
     };
 
-
     return (
     <div className={LoginFrm.frm_wrap}>
-        <h2 className={LoginFrm.h2}>로그인</h2>
-
+        <h2 className={LoginFrm.h2}>
+            로그인
+            <FaDownload onClick={InstallPrompt}/>
+        </h2>
+            
         <div>
             {/* 이메일 입력 */}
             <div className={LoginFrm.frm_row}>

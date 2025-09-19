@@ -1,41 +1,80 @@
 {
- "name": "App",
- "icons": [
-  {
-   "src": "\/android-icon-36x36.png",
-   "sizes": "36x36",
-   "type": "image\/png",
-   "density": "0.75"
-  },
-  {
-   "src": "\/android-icon-48x48.png",
-   "sizes": "48x48",
-   "type": "image\/png",
-   "density": "1.0"
-  },
-  {
-   "src": "\/android-icon-72x72.png",
-   "sizes": "72x72",
-   "type": "image\/png",
-   "density": "1.5"
-  },
-  {
-   "src": "\/android-icon-96x96.png",
-   "sizes": "96x96",
-   "type": "image\/png",
-   "density": "2.0"
-  },
-  {
-   "src": "\/android-icon-144x144.png",
-   "sizes": "144x144",
-   "type": "image\/png",
-   "density": "3.0"
-  },
-  {
-   "src": "\/android-icon-192x192.png",
-   "sizes": "192x192",
-   "type": "image\/png",
-   "density": "4.0"
-  }
- ]
+    "name": "Blue Crab Academy - LMS",
+    "short_name": "Blue Crab Academy",
+    "description": "Blue Crab Academy LMS App",
+
+    "start_url": "/",
+    "scope": "/",
+    "id": "Blue Crab",
+
+    "display": "minimal-ui",    
+    "orientation": "any",
+
+    "background_color": "#FFFFFF",
+    "theme_color": "#FFFFFF",
+
+    "lang": "ko-KR",
+    "dir": "auto",
+
+    "categories": ["education", "books"],
+
+    "icons": [
+    {
+        "src": "./android-icon-36x36.png",
+        "sizes": "36x36",
+        "type": "image/png"
+    },
+    {
+        "src": "./android-icon-48x48.png",
+        "sizes": "48x48",
+        "type": "image/png"
+    },
+    {
+        "src": "./android-icon-72x72.png",
+        "sizes": "72x72",
+        "type": "image/png"
+    },
+    {
+        "src": "./android-icon-96x96.png",
+        "sizes": "96x96",
+        "type": "image/png"
+    },
+    {
+        "src": "./android-icon-144x144.png",
+        "sizes": "144x144",
+        "type": "image/png"
+    },
+    {
+        "src": "./android-icon-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+    },
+    {
+        "src": "./Logo_512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+    }],
+
+    "screenshots": [
+    {
+        "src": "/src/assets/screenShot/login_1280720.png",
+        "sizes": "1272x716",
+        "type": "image/png",
+        "platform": "wide",
+        "label": "로그인 페이지(PC)"
+    },
+    {
+        "src": "/src/assets/screenShot/login_425800.png",
+        "sizes": "393x753",
+        "type": "image/png",
+        "platform": "narrow",
+        "label": "로그인 페이지(모바일)"
+    },
+    {
+        "src": "/src/assets/screenShot/shot_wide.png",
+        "sizes": "1602x882",
+        "type": "image/png",
+        "platform": "wide",
+        "label": "비밀번호찾기(PC)"
+    }]
 }
