@@ -21,18 +21,49 @@ function ClassAttendingList() {
         setOpenRow(null); // 학기 바뀌면 열려있는 행 닫기
     };
 
+const today = new Date();
+const currentYear = today.getFullYear();
+const currentMonth = today.getMonth() + 1;
+
+// 현재 학기 계산 (3~8월 → 1학기, 나머지 → 2학기)
+const currentSemester = (currentMonth >= 3 && currentMonth <= 8) ? 1 : 2;
+
+// 현재 학기를 기준으로 지난 8개 학기 생성
+const generateSemesters = (count = 8) => {
+    const semesters = [];
+    let year = currentYear;
+    let semester = currentSemester;
+
+    for (let i = 0; i < count; i++) {
+        const value = `${year}_${semester}`;
+        const label = `${year}년 ${semester}학기`;
+        semesters.push({ value, label });
+
+        // 이전 학기로 이동
+        if (semester === 1) {
+            semester = 2;
+            year -= 1;
+        } else {
+            semester = 1;
+        }
+    }
+
+    return semesters;
+};
+
+const semesterOptions = generateSemesters(8);
+const currentSemesterValue = `${currentYear}_${currentSemester}`; // 현재 학기 value
+
+
     return (
         <div className="classAttending_list_container">
             <select value={selectedSemester} onChange={handleSemesterChange} className='selectSemester'>
-                <option value="0">2025년 2학기</option>
-                <option value="1">2025년 1학기</option>
-                <option value="2">2024년 2학기</option>
-                <option value="3">2024년 1학기</option>
-            </select> 
-            {/* 학기에 고유값(selectedSemester)을 어떻게 부여할 것인지 의논이 필요할 듯 합니다. 일단 현재 학기를 0으로 지정. */}
-            {/* 그리고 지금은 2025년 2학기, 1학기...를 하드코딩해놨지만
-            현재 날짜를 계산해서 지금이 몇년도 몇학기인지 자동으로 기입되게 할 수 있을테니
-            그렇게 한다면, 1, 2학기를 몇월 며칠을 기준으로 나눌지 논의 필요 */}
+                {semesterOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                        {option.label}
+                    </option>
+                ))}
+            </select>
 
             <div className='classAttending_text'>
                 수강과목 클릭 시 해당과목 진행사항 표시
@@ -70,13 +101,13 @@ function ClassAttendingList() {
                                 <tr className="class_details_row">
                                     <td colSpan={7}>
                                         <div className="class-details">
-                                            <strong>{cls.LEC_NAME}</strong> 과목의 {selectedSemester === "0" ? "진행사항" : "점수"}<br/><br/>
+                                            <strong>{cls.LEC_NAME}</strong> 과목의 {selectedSemester === currentSemesterValue ? "진행사항" : "점수"}<br/><br/>
                                             출석수 : <br/>
                                             중간고사 점수 : <br/>
                                             기말고사 점수 : <br/>
                                             과제 1 점수 : <br/>
                                             과제 2 점수 : <br/>
-                                            {selectedSemester !== "0" && (<><br/>총합 점수 및 등급 :</>)}
+                                            {selectedSemester !== currentSemesterValue && (<><br/>총합 점수 및 등급 :</>)}
                                             {/* 지나간 학기에 들었던 강의는 총점 및 등급 표시 */}
                                         </div>
                                     </td>
@@ -89,7 +120,7 @@ function ClassAttendingList() {
 
             <div className='totalpoints'>
                 이수학점: {totalCredits}점
-                {selectedSemester !== "0" && "학기 평점: "}
+                {selectedSemester !== currentSemesterValue && "학기 평점: "}
                 {/* 지나간 학기는 총 평점 표시 */}
             </div>
         </div>
