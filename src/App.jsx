@@ -99,10 +99,6 @@ function AppContent() {
 
   const renderPage = () => {
     switch (currentPage) {
-      
-      // 기본값: 대시보드
-      default:
-      return <UserDashboard/>;
 
       // 학교소개 페이지
       case "총장 인사":
@@ -136,6 +132,10 @@ function AppContent() {
         return <MyFacilityRequests currentPage={currentPage} setCurrentPage={setCurrentPage} />;
       case '열람실 신청':
         return <ReadingRoom currentPage={currentPage} setCurrentPage={setCurrentPage} />;
+      
+        // 기본값: 대시보드
+      default:
+        return <UserDashboard/>;
 
     }
   }; // paging ctrl end
