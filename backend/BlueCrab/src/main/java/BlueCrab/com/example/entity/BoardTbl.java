@@ -16,7 +16,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Table;
 
-
 @Entity
 @Table(name = "BOARD_TBL")
 public class BoardTbl {
@@ -27,7 +26,7 @@ public class BoardTbl {
     // 개시글 번호(기본키, 자동생성)
 
     @Column(name = "BOARD_CODE", length = 5, columnDefinition = "INTEGER", nullable = false)
-    private String boardCode;
+    private Integer boardCode;
     // 개시글 코드(0 : 학교공지 / 1 : 학사공지 / 2 : 학과공지 / 3 : 교수공지)
 
     @Column(name = "BOARD_ON", length = 10, columnDefinition = "INTEGER", nullable = false)
@@ -84,11 +83,11 @@ public class BoardTbl {
         this.boardIdx = boardIdx;
     }
     
-    public String getBoardCode() {
+    public Integer getBoardCode() {
         return boardCode;
     }
 
-    public void setBoardCode(String boardCode) {
+    public void setBoardCode(Integer boardCode) {
         this.boardCode = boardCode;
     }
 
