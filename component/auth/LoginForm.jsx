@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { UseUser } from '../../hook/UseUser';
-import { Link } from 'react-router-dom'; 
-
-import InstallPrompt from "../../src/pwa/InstallPrompt"
+import { Link } from 'react-router-dom';
 
 import LoginFrm from '../../css/modules/LoginForm.module.css';
 import { FaDownload } from 'react-icons/fa';
 
+// PWA START
+import { UsePWA } from '../../hook/PWA/UsePWA';
+import UseOnlineStatus from '../../hook/PWA/UseOnlineStatus';
+import UseInstallPrompt from '../../hook/PWA/UseInstallPrompt';
+// PWA END
 
 function LoginForm() {
     const { login, isLoading, error, clearError, isAuthenticated } = UseUser();
@@ -14,11 +17,20 @@ function LoginForm() {
     const [password, setPassword] = useState('');
 
     const [emailCheck, setEmailCheck] = useState(false);
-    const [pwCheck, setPwCheck]       = useState(false);
+    const [pwCheck, setPwCheck]       = useState(false);   
+
+    const { needRefresh, updateServiceWorker } = UsePWA();
+    const { isOnline } = UseOnlineStatus();
+    const { isInstallable, installApp } = UseInstallPrompt();
+
+    if(!isOnline){
+        // offline
+        alert('인터넷 연결을 확인하세요.');
+        window.location.reload();
+    };
 
     if(isAuthenticated){
         alert('잘못된 접근입니다.');
-        // 페이지 새로고침 
         window.location.reload();
     };
 
@@ -87,7 +99,10 @@ function LoginForm() {
     <div className={LoginFrm.frm_wrap}>
         <h2 className={LoginFrm.h2}>
             로그인
-            <FaDownload onClick={InstallPrompt}/>
+            {isInstallable && 
+                <span onClick={installApp}>
+                    <FaDownload/>
+                </span>}
         </h2>
             
         <div>

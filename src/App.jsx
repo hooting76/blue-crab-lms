@@ -8,11 +8,6 @@ import { UserProvider } from '../context/UserContext';
 // custom hook
 import { UseUser } from '../hook/UseUser';
 
-// PWA component
-import InstallPrompt from './pwa/InstallPrompt';
-// import PWAUpdatePrompt from './pwa/PWAUpdatePrompt';
-// import UseOnlineStatus from '../hook/UseOnlineStatus';
-
 // component
 import Header from '../component/common/Header';
 import LoadingSpinner from '../component/common/LoadingSpinner';
@@ -48,6 +43,9 @@ import Admin from './Admin';
 // css
 import '../css/App.css';
 
+// PWA ONLINE / OFFLINE 
+import UseOnlineStatus from '../hook/PWA/UseOnlineStatus';
+
 // InApp filter function
 function InAppFilter(){
   const userAgent = navigator.userAgent.toLowerCase();
@@ -57,20 +55,19 @@ function InAppFilter(){
 
 // main app component
 function AppContent() {
-  // PWA func
-  // const isOnline = UseOnlineStatus();
-
-  // PWA func end
+  const { isOnline } = UseOnlineStatus();
+  if(!isOnline){
+      alert('인터넷 연결을 확인하세요.');
+      window.close();
+  };
 
   // user state ctrl
-  const { isAuthenticated, isLoading } = UseUser();
-  
+  const { isAuthenticated, isLoading } = UseUser();  
+  // user state ctrl end
+
   if (isLoading) {
     return <LoadingSpinner/>
   }
-  // user state ctrl end
-
-
 
   // paging ctrl
   // currentPage 상태를 이 컴포넌트에서 보유
@@ -133,32 +130,29 @@ function AppContent() {
       case '열람실 신청':
         return <ReadingRoom currentPage={currentPage} setCurrentPage={setCurrentPage} />;
       
-        // 기본값: 대시보드
+      // 기본값: 대시보드
       default:
         return <UserDashboard/>;
-
-    }
+    };
   }; // paging ctrl end
 
   return (
     <div id="wrap">
       <Header 
         currentPage={currentPage} 
-        setCurrentPage={setCurrentPage} 
-      />
+        setCurrentPage={setCurrentPage} />
 
-      <div id="content">
+      <div id="content">       
           {isAuthenticated ?(
             renderPage()
           ) : (
-          // 로그인 안했으면 로그인폼 or 아이디/비번 찾기폼 
-            <Routes>
-              <Route path="/" element={<LoginForm/>} />
-              <Route path="/FindInfoId" element={<FindInfo/>} />
-              <Route path="/FindInfoPw" element={<FindInfo/>} />
-              {/* 비로그인 상태에서 다른 경로로 오면 로그인으로 돌림 */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
+              <Routes>
+                <Route path="/" element={<LoginForm/>} />
+                <Route path="/FindInfoId" element={<FindInfo/>} />
+                <Route path="/FindInfoPw" element={<FindInfo/>} />
+                {/* 비로그인 상태에서 다른 경로로 오면 로그인으로 돌림 */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
           )}
       </div>
       
@@ -170,13 +164,12 @@ function AppContent() {
 
 function App() {
   return (
-    <>
+    <>   
       <InAppFilter />
       <UserProvider>
         <BrowserRouter>
           <AppContent />
         </BrowserRouter>
-        <InstallPrompt />
       </UserProvider>
     </>
   );

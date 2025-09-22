@@ -7,6 +7,10 @@ export default defineConfig({
       react(),
       VitePWA({
         registerType: 'autoUpdate',
+        // 개발 환경에서도 PWA 기능 테스트
+        devOptions: {
+          enabled: true
+        },        
         manifest: {
           ID: 'Blue-Crab',
           name: 'Blue-Crab LMS',
@@ -16,22 +20,59 @@ export default defineConfig({
           start_url: '/',
           icons: [
             {
-              src: './public/favicon/android-icon-192x192.png', // 앱 아이콘 경로
+              src: './public/favicon/android-icon-192x192.png',
               sizes: '192x192',
               type: 'image/png',
             },
           ],
+          orientation: "any",
           display: 'standalone',
           background_color: '#ffffff',
           theme_color: '#ffffff',
-        },
+          categories: ['education','books'],
+          shortcuts:[
+            {
+              name:'Home',
+              short_name: 'Home',
+              description: '로그인페이지',
+              url:'/',
+              icons:[{src: './public/favicon/android-icon-192x192.png', sizes: '192x192'}]
+            },
+            {
+              name:'Admin',
+              short_name: 'Admin',
+              description: '관리자페이지',
+              url:'/admin',
+              icons:[{src: './public/favicon/android-icon-192x192.png', sizes: '192x192'}]
+            }
+          ],          
+        }, // menifest end
+
         workbox: {
-          globPatterns: ['**/*.{js,css,html,png,svg,ico,jpg,jsx,json}'],
-        },
+          globPatterns: ['**/*.{js,css,html,png,svg,ico,jpg,jpeg,gif,json,webp}'],
+
+          runtimeCaching: [
+            {// 이미지 캐싱
+              urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'image-cache',
+                expiration: {
+                  maxEntries: 60,
+                  maxAgeSeconds: 30 * 24 * 60 * 60
+                }
+              }
+            }// 이미지 캐싱 end
+          ], // runtimeCaching end
+
+          navigateFallback: '/index.html',
+          maximumFileSizeToCacheInBytes: 5000000,
+        }
       })
     ],
 
     build: {
+      sourcemap: true,
       chunkSizeWarningLimit: 5000,
     },
 
