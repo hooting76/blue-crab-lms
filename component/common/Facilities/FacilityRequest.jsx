@@ -5,12 +5,12 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "../../../css/Communities/FacilityRequest.css";
 
-
+// 오전 9시 ~ 오후 6시
 function DatePick({ startDate, endDate, setStartDate, setEndDate }) {
   const minTime = new Date();
-  minTime.setHours(8, 0, 0, 0);
+  minTime.setHours(9, 0, 0, 0);
   const maxTime = new Date();
-  maxTime.setHours(22, 0, 0, 0);
+  maxTime.setHours(18, 0, 0, 0);
 
   const handleEndDateChange = (date) => {
     if (!startDate) return;
