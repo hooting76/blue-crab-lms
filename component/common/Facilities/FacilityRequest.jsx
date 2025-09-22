@@ -1,5 +1,5 @@
 //공용 틀: 배너 + 탭 + 좌측 본문(children) + 우측 사이드(커뮤니티 메뉴)
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useState } from "react";
 import CommunitySidebar from "../notices/CommunitySidebar";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -82,7 +82,7 @@ const handleSubmit = () => {
     <div className="notice-page">
       {/* 배너 (현재 카테고리 표기) */}
       <div className="banner" aria-label="공지 배너">
-        <h2></h2>
+        <h2>시설물 대여</h2>
       </div>
 
     <div className="facilityRequest">

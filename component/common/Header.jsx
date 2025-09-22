@@ -45,8 +45,6 @@ function Header({ currentPage, setCurrentPage }) {
     setCurrentPage("");      // 대시보드 등 기본으로
   };
 
-  const UrlReset = () => { navigate('/'); };
-
   const [subMenu1Visibility, setSubMenu1Visibility] = useState("hidden");
   const [subMenu2Visibility, setSubMenu2Visibility] = useState("hidden");
   const [subMenu3Visibility, setSubMenu3Visibility] = useState("hidden");
@@ -98,10 +96,10 @@ function Header({ currentPage, setCurrentPage }) {
                 style={{ visibility: subMenu1Visibility }}
               >
                 <tbody>
-                  <tr><td onClick={() => { UrlReset(); setCurrentPage("총장 인사"); }}>총장 인사</td></tr>
-                  <tr><td onClick={() => { UrlReset(); setCurrentPage("오시는 길"); }}>오시는 길</td></tr>
-                  <tr><td onClick={() => { UrlReset(); setCurrentPage("학교 조직도"); }}>학교 조직도</td></tr>
-                  <tr><td onClick={() => { UrlReset(); setCurrentPage("연혁"); }}>연혁</td></tr>
+                  <tr><td onClick={() => setCurrentPage("총장 인사")}>총장 인사</td></tr>
+                  <tr><td onClick={() => setCurrentPage("오시는 길")}>오시는 길</td></tr>
+                  <tr><td onClick={() => setCurrentPage("학교 조직도")}>학교 조직도</td></tr>
+                  <tr><td onClick={() => setCurrentPage("연혁")}>연혁</td></tr>
                 </tbody>
               </table>
 
@@ -131,9 +129,9 @@ function Header({ currentPage, setCurrentPage }) {
                 style={{ visibility: subMenu3Visibility }}
               >
                 <tbody>
-                  <tr><td onClick={() => { UrlReset(); setCurrentPage("수강중인 과목"); }}>수강중인 과목</td></tr>
-                  <tr><td onClick={() => { UrlReset(); setCurrentPage("수강과목 공지사항"); }}>수강과목 공지사항</td></tr>
-                  <tr><td onClick={() => { UrlReset(); setCurrentPage("실시간 상담"); }}>실시간 상담</td></tr>
+                  <tr><td onClick={() => setCurrentPage("수강중인 과목")}>수강중인 과목</td></tr>
+                  <tr><td onClick={() => setCurrentPage("수강과목 공지사항")}>수강과목 공지사항</td></tr>
+                  <tr><td onClick={() => setCurrentPage("실시간 상담")}>실시간 상담</td></tr>
                 </tbody>
               </table>
             </div>

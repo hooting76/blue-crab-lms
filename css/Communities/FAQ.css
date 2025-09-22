@@ -1,0 +1,27 @@
+.faq {
+    background-color: antiquewhite;
+    width: 800px;
+    border-radius: 15px;
+    padding: 10px;
+    text-align: start;
+    float: left;
+}
+
+.faqquestion {
+    background-color: aliceblue;
+    border-radius: 10px;
+    margin: 20px 0;
+    padding: 10px;
+}
+
+.faqanswer {
+    background-color: azure;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.right {
+    width: 300px;
+    margin: 25px;
+    float: right;
+}

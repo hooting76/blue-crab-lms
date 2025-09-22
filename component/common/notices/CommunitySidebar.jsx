@@ -4,7 +4,7 @@ import "../../../css/Communities/Notice-nav.css";
 
 const pageToSection = (p) => {
   if (["학사공지", "행정공지", "기타공지"].includes(p)) return "notice";
-  if (p === "FAQ") return "faq";
+  if (p === "FAQ") return "FAQ";
   if (["신청폼", "나의 신청목록", "열람실 신청"].includes(p)) return "facility";
   return null;
 };
