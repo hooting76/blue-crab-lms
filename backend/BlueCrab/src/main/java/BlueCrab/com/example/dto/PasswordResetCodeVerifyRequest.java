@@ -4,12 +4,16 @@
 
 package BlueCrab.com.example.dto;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+// ========== 임포트 구문 ==========
 
+// ========== Java 표준 라이브러리 ==========
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+
+// ========== 외부 라이브러리 ==========
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor

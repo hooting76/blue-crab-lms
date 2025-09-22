@@ -3,9 +3,12 @@
 
 package BlueCrab.com.example.dto;
 
+// ========== 임포트 구문 ==========
+
+// ========== 외부 라이브러리 ==========
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
 
 @Data
@@ -13,19 +16,12 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class PasswordResetCodeVerifyResponse {
 
-
     private boolean success; // 검증 성공 여부
-
     private String message; // 응답 메시지
-
     private String resetToken; // 비밀번호 재설정 토큰 - 성공 시에만 제공
-
     private String maskedEmail; // 마스킹된 이메일 - 성공 시에만 제공
-
     private Integer remainingAttempts; // 남은 시도 횟수 - 실패 시에만 제공
-
     private Long expiresInSeconds; // 코드 만료까지 남은 시간(초) - 실패 시에만 제공
-
     private String status; // 응답 상태 코드
 
     // ========== 정적 팩토리 메서드 ==========
@@ -94,4 +90,4 @@ public class PasswordResetCodeVerifyResponse {
             "SESSION_ERROR"
         ); // 반환하여 유효하지 않음을 나타냄
     }
-}
+} // PasswordResetCodeVerifyResponse 클래스 끝
