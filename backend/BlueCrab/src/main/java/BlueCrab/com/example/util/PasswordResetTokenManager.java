@@ -273,29 +273,43 @@ public class PasswordResetTokenManager {
 
     // ========== 3 단계 : Code Verification용 메서드들 작업자 : 성태준 ==========
     public Map<String, Object> extractIRTTokenData(String irtToken) {
+        // IRT 토큰에서 데이터 추출
+
+        // try-catch로 예외 처리
         try {
             String irtData = redisService.getValue(IRT_PREFIX + irtToken);
+            // IRT 데이터 조회
             if (irtData == null) {
-                logger.warn("IRT 토큰이 존재하지 않음 또는 만료됨: {}", irtToken);
+                // null 또는 만료된 경우
+                logger.warn("IRT token not found or expired: {}", irtToken);
+                //경고 로그
                 return null;
-            }
+                // null 반환
+            } // null 또는 만료된 경우 끝
 
             IRTData data = objectMapper.readValue(irtData, IRTData.class);
+            // JSON을 IRTData 객체로 역직렬화
             
-            Map<String, Object> result = new HashMap<>();
-            result.put("email", data.getEmail());
-            result.put("userId", data.getUserId());
-            result.put("sessionLockToken", data.getLock());
-            
+            Map<String, Object> result = new HashMap<>();       // 결과 맵 생성
+            result.put("email", data.getEmail());           // 이메일 추가
+            result.put("userId", data.getUserId());         // 사용자 ID 추가
+            result.put("sessionLockToken", data.getLock()); // 세션 잠금 토큰 추가
+
             return result;
+            // AuthCodeData 객체 생성 및 반환
             
         } catch (Exception e) {
-            logger.error("IRT 토큰 데이터 추출 실패: {}", irtToken, e);
+            logger.error("IRT token data extraction failed: {}", irtToken, e);
+            // 오류 로그
             return null;
-        }
-    }
+            // null 반환
+        } // try-catch 끝
+    } // extractIRTTokenData 끝
 
     public String generateRTToken(String email, String sessionLockToken) {
+        // RT 토큰 생성 및 저장
+
+        // try-catch로 예외 처리
         try {
             // 1. RT 토큰 생성
             String rtToken = UUID.randomUUID().toString();
@@ -304,26 +318,31 @@ public class PasswordResetTokenManager {
             RTData rtData = new RTData(
                 email, 
                 null, // userId는 RT 토큰에서 불필요
-                sessionLockToken, 
-                LocalDateTime.now().toString()
+                sessionLockToken,   // 현재 세션 락 토큰
+                LocalDateTime.now().toString()  // 생성 일시
             );
             
             // 3. Redis에 저장
             String rtDataJson = objectMapper.writeValueAsString(rtData);
+            // RT 데이터 JSON 직렬화
             redisService.storeValue(
-                RESET_SESSION_PREFIX + rtToken, 
-                rtDataJson, 
-                RT_TTL_MINUTES
-            );
-            
-            logger.info("RT 토큰 생성 완료: email={}", email);
+                RESET_SESSION_PREFIX + rtToken,     // RT 키
+                rtDataJson,     // RT 데이터
+                RT_TTL_MINUTES  // RT TTL
+            ); // Redis에 RT 데이터 저장
+
+            logger.info("RT token creation completed: email={}", email);
+            // 생성 완료 로그
             return rtToken;
+            // 생성된 RT 토큰 반환
             
         } catch (Exception e) {
-            logger.error("RT 토큰 생성 실패: email={}", email, e);
+            logger.error("RT token creation failed: email={}", email, e);
+            // 오류 로그
             return null;
-        }
-    }
+            // null 반환
+        } // try-catch 끝
+    } // generateRTToken 끝
     // ========== 3 단계 : Code Verification용 메서드들 작업자 : 성태준 끝 ==========
 
     /**
