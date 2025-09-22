@@ -1,5 +1,5 @@
 //공용 틀: 배너 + 탭 + 좌측 본문(children) + 우측 사이드(커뮤니티 메뉴)
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useState } from "react";
 import CommunitySidebar from "../notices/CommunitySidebar";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -68,21 +68,31 @@ function FacilityRequest({
 
 const [startDate, setStartDate] = useState(null);
 const [endDate, setEndDate] = useState(null);
+const [selectedReason, setSelectedReason] = useState("");
+const [customReason, setCustomReason] = useState("");
+
 
 const handleSubmit = () => {
-    if (!startDate || !endDate) {
-      alert("시작 및 종료 시간을 모두 선택하세요.");
-      return;
-    }
-    // 예시 제출 처리
-    alert(`신청 완료: ${startDate.toString()} ~ ${endDate.toString()}`);
-  };
+  // 시간 선택 안 했을 경우
+  if (!startDate || !endDate) {
+    alert("시작 및 종료 시간을 모두 선택하세요.");
+    return;
+  }
+  // 기타 사유 선택하고 입력 안 했을 경우
+  if (selectedReason === "EtcReason" && customReason.trim() === "") {
+    alert("기타 사유를 입력해주세요.");
+    return;
+  }
+
+  // 예시 제출 처리
+  alert("신청 완료");
+};
 
   return (
     <div className="notice-page">
       {/* 배너 (현재 카테고리 표기) */}
       <div className="banner" aria-label="공지 배너">
-        <h2></h2>
+        <h2>시설물 대여</h2>
       </div>
 
     <div className="facilityRequest">
@@ -94,13 +104,16 @@ const handleSubmit = () => {
             <option value="Fac02">시설물02</option>
             <option value="Fac03">시설물03</option>
           </select>
+          
           <br/>
           <br/>
+
           <label htmlFor="FacilityReason">대여 사유 선택</label>
-          <select id="FacilityReason">
+          <select id="FacilityReason" value={selectedReason} onChange={(e) => setSelectedReason(e.target.value)}>
             <option value="Reason01">사유01</option>
             <option value="Reason02">사유02</option>
             <option value="Reason03">사유03</option>
+            <option value="EtcReason">기타</option>
           </select>
         </span>
 
@@ -116,7 +129,10 @@ const handleSubmit = () => {
 
       <div className="facEtcReason">
         기타 사유(직접 입력)<br />
-        <textarea placeholder="기타사유일때만 입력"></textarea>
+        <textarea placeholder="기타사유일때만 입력" value={customReason} onChange={(e) => setCustomReason(e.target.value)}
+          disabled={selectedReason !== "EtcReason"}>
+          {/* 기타 사유가 아닐 경우 입력란 비활성화 */}
+        </textarea>
         <br />
         <button type="submit" onClick={handleSubmit}>신청하기</button>
       </div>
