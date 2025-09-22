@@ -73,12 +73,13 @@ const [customReason, setCustomReason] = useState("");
 
 
 const handleSubmit = () => {
+  // 시간 선택 안 했을 경우
   if (!startDate || !endDate) {
     alert("시작 및 종료 시간을 모두 선택하세요.");
     return;
   }
-
-  if (selectedReason === "Reason04" && customReason.trim() === "") {
+  // 기타 사유 선택하고 입력 안 했을 경우
+  if (selectedReason === "EtcReason" && customReason.trim() === "") {
     alert("기타 사유를 입력해주세요.");
     return;
   }
@@ -112,7 +113,7 @@ const handleSubmit = () => {
             <option value="Reason01">사유01</option>
             <option value="Reason02">사유02</option>
             <option value="Reason03">사유03</option>
-            <option value="Reason04">기타</option>
+            <option value="EtcReason">기타</option>
           </select>
         </span>
 
@@ -129,7 +130,8 @@ const handleSubmit = () => {
       <div className="facEtcReason">
         기타 사유(직접 입력)<br />
         <textarea placeholder="기타사유일때만 입력" value={customReason} onChange={(e) => setCustomReason(e.target.value)}
-          disabled={selectedReason !== "Reason04"}>
+          disabled={selectedReason !== "EtcReason"}>
+          {/* 기타 사유가 아닐 경우 입력란 비활성화 */}
         </textarea>
         <br />
         <button type="submit" onClick={handleSubmit}>신청하기</button>
