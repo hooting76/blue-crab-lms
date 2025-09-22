@@ -1,12 +1,9 @@
-import React from 'react';
-import { UseUser } from '../../hook/UseUser';
 import CalendarComp from '../common/Calendar/CalendarComp';
+import Aside from '../common/Aside';
 
 import UserDashCss from '../../css/modules/UserDashboard.module.css';
 
 function UserDashboard() {
-  const { user, logout } = UseUser();
-
   return (
     <>
       <main className={UserDashCss.main}>
@@ -36,15 +33,7 @@ function UserDashboard() {
         {/* calendar wrap end*/}
       </main>
       <aside className={UserDashCss.aside}>
-        <div className={UserDashCss.userInfo}>
-          asdf
-        </div>
-        <div className={UserDashCss.service}>
-          qwer
-        </div>
-        <div className={UserDashCss.quickMenu}>
-          zxcv
-        </div>
+        <Aside />
       </aside>    
     </>
   );
