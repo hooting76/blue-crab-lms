@@ -1,0 +1,59 @@
+.facilityRequest {
+    background-color: var(--white-color);
+    width: 800px;
+    border-radius: 15px;
+    padding: 10px;
+    text-align: start;
+    float: left;
+}
+
+.facWhyDate {
+    display: inline-flex;
+}
+
+button:hover {
+    cursor: pointer;
+}
+
+select {
+    font-size: var(--font-mid);
+}
+
+.facAndWhy {
+    font-size: var(--font-mid);
+    width: 300px;
+    margin-right: 100px;
+    padding: 5px;
+    text-align: right;
+}
+
+.facAndWhy label {
+    width: 250px;
+}
+
+.facAndWhy select {
+    width: 150px;
+}
+
+.date-picker-wrapper {
+    padding: 5px;
+}
+
+.facEtcReason {
+    margin-top: 50px;
+}
+
+.facEtcReason textarea {
+    width: 750px;
+    height: 200px;
+    font-size: var(--font-mid);
+    border-radius: 10px;
+}
+
+textarea::placeholder {
+    color: red;
+}
+
+.facEtcReason button {
+    font-size: var(--font-mid);
+}

@@ -118,7 +118,7 @@ function Header({ currentPage, setCurrentPage }) {
               {/* 단일 */}
                   <tr><td onClick={() => setCurrentPage("FAQ")}>FAQ</td></tr>
               {/* 시설 & 문의 → 기본 ‘신청폼(시설신청)’로 진입 */}
-                  <tr><td onClick={() => setCurrentPage("시설신청")}>시설 & 문의</td></tr>
+                  <tr><td onClick={() => setCurrentPage("신청폼")}>시설 & 문의</td></tr>
                 </tbody>
               </table>
 
