@@ -1,5 +1,5 @@
 .facilityRequest {
-    background-color: var(--white-color);
+    background-color: antiquewhite;
     width: 800px;
     border-radius: 15px;
     padding: 10px;
@@ -9,6 +9,8 @@
 
 .facWhyDate {
     display: inline-flex;
+    background-color: azure;
+    border-radius: 15px;
 }
 
 button:hover {
@@ -23,7 +25,8 @@ select {
     font-size: var(--font-mid);
     width: 300px;
     margin-right: 100px;
-    padding: 5px;
+    padding: 20px;
+    border-radius: 10px;
     text-align: right;
 }
 
@@ -36,7 +39,10 @@ select {
 }
 
 .date-picker-wrapper {
-    padding: 5px;
+    background-color: azure;
+    padding: 20px;
+    border-radius: 10px;
+    margin-right: 20px;
 }
 
 .facEtcReason {
@@ -56,4 +62,7 @@ textarea::placeholder {
 
 .facEtcReason button {
     font-size: var(--font-mid);
+    padding: 5px;
+    border: solid;
+    border-radius: 5px;
 }

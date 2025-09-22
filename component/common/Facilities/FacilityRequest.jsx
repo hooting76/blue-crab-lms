@@ -94,7 +94,8 @@ const handleSubmit = () => {
             <option value="Fac02">시설물02</option>
             <option value="Fac03">시설물03</option>
           </select>
-          <br />
+          <br/>
+          <br/>
           <label htmlFor="FacilityReason">대여 사유 선택</label>
           <select id="FacilityReason">
             <option value="Reason01">사유01</option>
