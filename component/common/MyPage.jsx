@@ -27,10 +27,12 @@ function MyPage({currentPage, setCurrentPage}) {
         <main>
             <div className="mypagetitle">
                 <div id="schoolMyPageText">마이페이지</div><br/>
-                <span onClick={toClassAttendingList} style={{cursor: "pointer", fontWeight: currentPage === "수강중인 과목" ? "bold" : "normal"}}>수강중인 과목</span>
-                <span onClick={toClassAttendingNotice} style={{cursor: "pointer", fontWeight: currentPage === "수강과목 공지사항" ? "bold" : "normal"}}>수강과목 공지사항</span>
-                <span onClick={toConsult} style={{cursor: "pointer", fontWeight: currentPage === "실시간 상담" ? "bold" : "normal"}}>실시간 상담</span>
-            </div>
+                    <div className="myPageMenu">
+                        <div onClick={toClassAttendingList} style={{cursor: "pointer", fontWeight: currentPage === "수강중인 과목" ? "bold" : "normal"}}>수강중인 과목</div>
+                        <div onClick={toClassAttendingNotice} style={{cursor: "pointer", fontWeight: currentPage === "수강과목 공지사항" ? "bold" : "normal"}}>수강과목 공지사항</div>
+                        <div onClick={toConsult} style={{cursor: "pointer", fontWeight: currentPage === "실시간 상담" ? "bold" : "normal"}}>실시간 상담</div>
+                    </div>
+                </div>
             <div>
                 {renderPage()}
             </div>

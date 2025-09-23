@@ -10,11 +10,20 @@
     font-size: var(--font-large);
 }
 
-.mypagetitle span {
+.myPageMenu div {
+    display: inline;
     border: solid;
     border-radius: 5px;
     padding: 5px;
     margin-top: 20px;
     margin-left: 50px;
     margin-right: 50px;
+}
+
+@media (max-width: 1024px) {
+    .mypagetitle {width: 100%;}
+
+    #schoolMyPageText {font-size: var(--font-small);}
+
+    .myPageMenu div {display: block; width: 100px; font-size: var(--font-small); margin: 5px auto;}
 }
