@@ -4,3 +4,7 @@
     width: 750px;
     margin-top: 30px;
 }
+
+@media (max-width: 750px) {
+    .history {width: 100%}
+}

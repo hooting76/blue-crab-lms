@@ -1,1 +1,10 @@
-#presidentsayshi {background-color: aqua; border-radius: 15px; width: 1000px; font-size: var(--font-small);}
+#presidentsayshi {
+    background-color: aqua;
+    border-radius: 15px;
+    width: 1000px;
+    font-size: var(--font-small);
+}
+
+@media (max-width: 1024px) {
+    #presidentsayshi {width: 100%; margin: 0}
+}

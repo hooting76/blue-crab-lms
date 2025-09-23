@@ -5,3 +5,7 @@
     margin-top: 50px;
     margin-left: auto;
     margin-right: auto;}
+
+@media (max-width: 600px) {
+    #map {width: 100%;}
+}
