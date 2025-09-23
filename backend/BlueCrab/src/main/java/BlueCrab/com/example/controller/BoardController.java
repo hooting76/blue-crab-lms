@@ -31,7 +31,7 @@ public class BoardController {
     // ========== 기본 기능 ==========
 
     // 게시글 작성
-    @PostMapping("/create") // : HTTP POST 요청을 처리하는 엔드포인트 매핑
+    @PostMapping("/create") // : HTTP POST 요청을 처리하는 엔드포인트 매핑 (명확한 기능 구분: /api/boards/create)
     public BoardTbl createBoard(@RequestBody BoardTbl boardTbl) {
         // @RequestBody BoardTbl boardTbl : 요청 본문에 포함된 JSON 데이터를 BoardTbl 객체로 매핑
         // BoardService의 createBoard 메서드를 호출하여 게시글 생성해 DB에 저장
@@ -40,7 +40,7 @@ public class BoardController {
     }
 
     // 게시글 목록 조회 (페이징)
-    @GetMapping("/list") // : HTTP GET 요청을 처리하는 엔드포인트 매핑
+    @GetMapping("/list") // : HTTP GET 요청을 처리하는 엔드포인트 매핑 (명확한 기능 구분: /api/boards/list)
     public Page<BoardTbl> getAllBoards(@RequestParam(defaultValue = "1") Integer page,
                                        @RequestParam(defaultValue = "10") Integer size) {
         // @RequestParam : 쿼리 파라미터로 페이지 번호와 페이지 크기를 받음, 기본값 각각 1과 10
@@ -64,7 +64,7 @@ public class BoardController {
     }
 
     // 게시글 수정
-    @PutMapping("/{boardIdx}") // : 특정 게시글 수정을 위한 엔드포인트 매핑
+    @PutMapping("/update/{boardIdx}") // : 특정 게시글 수정을 위한 엔드포인트 매핑 (명확한 기능 구분: /api/boards/update/{boardIdx})
     public BoardTbl updateBoard(@PathVariable Integer boardIdx, 
                                 @RequestBody BoardTbl updatedBoard) {
         
@@ -73,7 +73,7 @@ public class BoardController {
     }
 
     // 게시글 삭제 (비활성화)
-    @DeleteMapping("/{boardIdx}") // : 특정 게시글 삭제를 위한 엔드포인트 매핑
+    @DeleteMapping("/delete/{boardIdx}") // : 특정 게시글 삭제를 위한 엔드포인트 매핑 (명확한 기능 구분: /api/boards/delete/{boardIdx})
     public boolean deleteBoard(@PathVariable Integer boardIdx) {
 
         return boardService.deleteBoard(boardIdx);
@@ -98,5 +98,5 @@ public class BoardController {
         // BoardService의 isBoardExists 메서드를 호출하여 특정 게시글 존재 여부 반환
     }
 
-    
+
 }
