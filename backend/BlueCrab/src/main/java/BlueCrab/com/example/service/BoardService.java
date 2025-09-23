@@ -21,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 // ========== 프로젝트 내부 클래스 ==========
 import BlueCrab.com.example.entity.BoardTbl;
+import BlueCrab.com.example.entity.UserTbl;
 import BlueCrab.com.example.repository.BoardRepository;
 import BlueCrab.com.example.repository.AdminTblRepository;
 import BlueCrab.com.example.repository.UserTblRepository;
@@ -51,10 +52,27 @@ public class BoardService {
         String currentUserEmail = authentication.getName();
         // 현재 인증된 사용자의 이메일(또는 사용자명) 가져오기
 
-        // 관리자 인지 확인을 위한 로직 (필요시 확장 가능)
+        // 관리자 인지 확인을 위한 로직
+        // AdminTblRepository 사용
         boolean isAdmin = adminTblRepository.findByAdminId(currentUserEmail).isPresent();
 
-        // 교수 인지 확인을 위한 로직 (필요시 확장 가능)
+        // 교수 인지 확인을 위한 로직 (userStudent = 1)
+        // UserTblRepository 사용
+        Optional<UserTbl> user = userTblRepository.findByUserEmail(currentUserEmail);
+        // Optional<UserTbl> user : Optional로 감싸서 존재하지 않을 경우에 대비
+        // userTblRepository.findByUserEmail : 이메일을 이용해 사용자 조회
+
+        boolean isProfessor = user.isPresent() && user.get().getUserStudent() == 1;
+        // 사용자가 존재하고, userStudent 필드가 1(교수)인지 확인
+        // user.isPresent() : Optional에서 실제 엔티티가 존재하는지 확인
+        // user.get().getUserStudent() == 1 : userStudent 필드가 1인지 확인 (1: 교수, 0: 학생)
+
+        if (!isAdmin && !isProfessor) {
+            // 관리자도 아니고 교수도 아니면
+            throw new RuntimeException("Only admins or professors can create board posts.");
+            // throw new RuntimeException : 예외 발생
+            // "게시글 작성 권한 없음" 메시지 
+        } // if 끝
         
 
         // ========== 기본 설정 ==========
@@ -152,4 +170,26 @@ public class BoardService {
     public boolean isBoardExists(Integer boardIdx) {
         return boardRepository.findByBoardIdxAndBoardOn(boardIdx, BOARD_ACTIVE).isPresent();
     }
+
+    // ========== 게시글 종류(코드) 별 조회 ==========
+
+    // 코드 별 게시글 조회 (미삭제 게시글 만, 최신순, 페이징)
+    @Transactional(readOnly = true)
+    public Page<BoardTbl> getBoardsByCode(Integer boardCode, Integer page, Integer size) {
+        // boardCode : 게시글 코드 (0: 학교공지, 1: 학사공지, 2: 학과공지, 3: 교수공지)
+        // page : 페이지 번호 (0부터 시작)
+        // size : 페이지 크기 (한 페이지에 표시할 게시글 수)
+        Pageable pageable = PageRequest.of(page, size);
+        // 페이지 정보 생성
+        return boardRepository.findByBoardOnAndBoardCodeOrderByBoardRegDesc(BOARD_ACTIVE, boardCode, pageable);
+        // 특정 코드의 미삭제 게시글을 최신순으로 페이징 조회
+    }
+
+    // 코드 별 게시글 개수 조회 (미삭제 게시글 만)
+    @Transactional(readOnly = true)
+    public long getBoardCountByCode(Integer boardCode) {
+        return boardRepository.countByBoardOnAndBoardCode(BOARD_ACTIVE, boardCode);
+        // 특정 코드의 미삭제 게시글 개수 조회
+    }
+
 }

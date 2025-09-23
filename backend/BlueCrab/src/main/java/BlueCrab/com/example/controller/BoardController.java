@@ -98,5 +98,27 @@ public class BoardController {
         // BoardService의 isBoardExists 메서드를 호출하여 특정 게시글 존재 여부 반환
     }
 
+    // ========== 게시글 종류(코드) 별 조회 ==========
 
+    // 코드 별 게시글 조회 (페이징)
+    @GetMapping("/bycode/{boardCode}") // : 특정 코드별 게시글 조회를 위한 엔드포인트 매핑
+    public Page<BoardTbl> getBoardsByCode(@PathVariable Integer boardCode,
+                                          @RequestParam(defaultValue = "1") Integer page,
+                                          @RequestParam(defaultValue = "10") Integer size) {
+        // @PathVariable Integer boardCode : URL 경로에서 게시글 코드(boardCode)를 추출
+        // boardCode : 조회할 게시글의 코드 (0: 학교공지, 1: 학사공지, 2: 학과공지, 3: 교수공지)
+        // @RequestParam : 쿼리 파라미터로 페이지 번호와 페이지 크기를 받음, 기본값 각각 1과 10
+        // 페이지 번호 : 1부터 시작
+        // 페이지 크기 : 한 페이지에 표시할 게시글 수
+
+        return boardService.getBoardsByCode(boardCode, page, size);
+        // BoardService의 getBoardsByCode 메서드를 호출하여 특정 코드별 페이징된 게시글 목록 반환
+    }
+
+    // 코드 별 게시글 총 개수 조회
+    @GetMapping("/count/bycode/{boardCode}") // : 특정 코드별 게시글 총 개수 조회를 위한 엔드포인트 매핑
+    public long getBoardCountByCode(@PathVariable Integer boardCode) {
+        return boardService.getBoardCountByCode(boardCode);
+        // BoardService의 getBoardCountByCode 메서드를 호출하여 특정 코드별 게시
+    }
 }
