@@ -16,19 +16,29 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 // ========== 프로젝트 내부 클래스 ==========
 import BlueCrab.com.example.entity.BoardTbl;
 import BlueCrab.com.example.repository.BoardRepository;
+import BlueCrab.com.example.repository.AdminTblRepository;
+import BlueCrab.com.example.repository.UserTblRepository;
 
 
 @Service        // 게시글 서비스
 @Transactional  // 트랜잭션 관리 (필요시 메서드별로 오버라이드 가능)
 public class BoardService {
 
-    // 의존성 주입
+    // ========== 의존성 주입 ==========
     @Autowired
     private BoardRepository boardRepository;
+
+    @Autowired
+    private AdminTblRepository adminTblRepository;
+
+    @Autowired
+    private UserTblRepository userTblRepository;
 
     // 상수 정의
     private static final Integer BOARD_ACTIVE = 1; // 활성 상태 코드
@@ -36,6 +46,17 @@ public class BoardService {
 
     // 게시글 작성
     public BoardTbl createBoard(BoardTbl boardTbl) {
+        // ========== 작성자 정보 설정 ==========
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserEmail = authentication.getName();
+        // 현재 인증된 사용자의 이메일(또는 사용자명) 가져오기
+
+        // 관리자 인지 확인을 위한 로직 (필요시 확장 가능)
+        boolean isAdmin = adminTblRepository.findByAdminId(currentUserEmail).isPresent();
+
+        // 교수 인지 확인을 위한 로직 (필요시 확장 가능)
+        
+
         // ========== 기본 설정 ==========
         boardTbl.setBoardOn(BOARD_ACTIVE);          // 개시글 상태(삭제되지 않음)
         boardTbl.setBoardView(0);              // 조회수 0 부터
