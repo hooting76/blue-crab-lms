@@ -42,3 +42,7 @@
     background-color: antiquewhite;
     font-weight: bold;
 }
+
+@media (max-width: 1000px) {
+    .classAttending_list_container, .classAttending_text, .classAttending_list_header tr th {width: 100%; font-size: var(--font-small);}
+}

@@ -1,1 +1,8 @@
-.blueCrabOrganization {margin-top: 50px;}
+.blueCrabOrganization {
+    width: 600px;
+    margin-top: 50px;
+}
+
+@media (max-width: 600px) {
+    .blueCrabOrganization {width: 100%;}
+}

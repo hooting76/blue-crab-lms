@@ -33,6 +33,7 @@ function Introduction({currentPage, setCurrentPage}) {
                 <div id="schoolIntroductionText">학교 소개</div><br/>
                 <span onClick={toPresidentSaysHi} style={{cursor: "pointer", fontWeight: currentPage === "총장 인사" ? "bold" : "normal"}}>총장 인사</span>
                 <span onClick={toWayHere} style={{cursor: "pointer", fontWeight: currentPage === "오시는 길" ? "bold" : "normal"}}>오시는 길</span>
+                <br/><br/>
                 <span onClick={toOrganization} style={{cursor: "pointer", fontWeight: currentPage === "학교 조직도" ? "bold" : "normal"}}>학교 조직도</span>
                 <span onClick={toBlueCrabAcademyHistory} style={{cursor: "pointer", fontWeight: currentPage === "연혁" ? "bold" : "normal"}}>연혁</span>
             </div>

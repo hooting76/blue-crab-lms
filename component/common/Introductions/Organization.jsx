@@ -4,7 +4,7 @@ import AjouPharmOrganization from '../../../src/assets/AjouPharmOrganization.jpe
 function Organization() {
     return (
         <div className="blueCrabOrganization">
-            <img src={AjouPharmOrganization} height={"500px"} />
+            <img src={AjouPharmOrganization}/>
         </div>
     );
 }
