@@ -76,7 +76,6 @@ export default function NoticeList({
         const handleWrite =() => {
             if(!isAdmin) return;
             if(onWrite) return onWrite();     // 외부핸들러있으면 호출
-            alert("작성 페이지는 준비 중입니다.") //임시
         };
 
         return(
