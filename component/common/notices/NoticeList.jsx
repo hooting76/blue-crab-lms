@@ -33,7 +33,7 @@ export default function NoticeList({
         const all = allRaw.filter((n) => n.category === key);
         
         //최신순 보장: 날짜 기준 내림차순
-        all.sort((a,b) => (b.createdAt || "").localeCompare(a.createAt ||""))
+        all.sort((a,b) => (b.createdAt || "").localeCompare(a.createdAt ||""))
 
         const start = (page -1) * size; //현재 페이지 첫 공지 인덱스
         const end = start + size; //현재 페이지 마지막 공지 인덱스
@@ -73,22 +73,21 @@ export default function NoticeList({
         };
 
         //작성하기버튼 핸들러
-        const handleWriter =() => {
+        const handleWrite =() => {
             if(!isAdmin) return;
             if(onWrite) return onWrite();     // 외부핸들러있으면 호출
-            alert("작성 페이지는 준비 중입니다.") //임시
         };
 
         return(
             <>
             {/* 작성 버튼은 관리자만 노출 ->UI단계에서는 주석처리 */}
-            {/* {iaAdmin &&(
+            {isAdmin &&(
                 <div className="notice-actions">
                     <button type="button" className="btn-primary" onClick={handleWrite}>
                         작성하기
                     </button>
                 </div>
-            )} */}
+            )}
 
             {/* 표는 NoticeTable이 rows로 렌더(번호/제목/작성자/조회수/작성일) */}
             <NoticeTable rows={rows} total={state.total} page={page} size={size}/>
