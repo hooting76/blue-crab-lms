@@ -145,8 +145,8 @@ public class UserTbl {
      * 필수 입력 필드
      *
      * 값 의미:
-     * - 1: 학생
-     * - 0: 교수
+     * - 0: 학생
+     * - 1: 교수
      * - 기타 값: 정의되지 않음 (확장 가능)
      *
      * 사용 예시:
@@ -266,7 +266,7 @@ public class UserTbl {
      * @param userCode 사용자 학번/교수 코드
      * @param userPhone 사용자 전화번호
      * @param userBirth 사용자 생년월일
-     * @param userStudent 사용자 유형 (1:학생, 0:교수)
+     * @param userStudent 사용자 유형 (0:학생, 1:교수)
      */
     public UserTbl(String userEmail, String userPw, String userName, Integer userCode, String userPhone, String userBirth, Integer userStudent) {
         this.userEmail = userEmail;
