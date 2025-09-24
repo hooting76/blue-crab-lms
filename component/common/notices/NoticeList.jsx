@@ -5,7 +5,7 @@ import NoticeTable from "./NoticeTable"; //작성중(rows 받아서 표 렌더)
 import Pagination from "../notices/Pagination";
 import{ UseUser } from "../../../hook/UseUser";
 import MOCK_NOTICES from "../../../src/mock/notices";  //목업데이터 임포트
-import { getNotices } from "../../api/noticeAPI.jsx"; //API 함수 임포트,백엔드 붙일때 사용
+import getNotices from "../../api/noticeAPI"; //API 함수 임포트,백엔드 붙일때 사용
 import "../../../css/Communities/Notice-ui.css";
 
 export default function NoticeList({ 
@@ -94,7 +94,7 @@ export default function NoticeList({
             {/* 하단 페이지네이션: URL basepath 제거, 상태 콜백만 사용 */}
             <Pagination
               page={page}
-              pageSize={size}          // ⚠️ Pagination prop명이 size면 pageSize→size로 바꿔야함
+              size={size}
               total={state.total}
               onChange={handlePageChange}/>
     </>
