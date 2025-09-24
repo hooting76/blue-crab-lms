@@ -88,7 +88,7 @@ const handleSubmit = async (e) => {
         <Editor
           ref={editorRef}
           previewStyle="vertical"
-          height="600px"
+          height="300px"
           initialEditType="wysiwyg"
           useCommandShortcut={true}
           language="ko-KR"
