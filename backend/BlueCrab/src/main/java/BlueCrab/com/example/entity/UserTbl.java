@@ -97,12 +97,12 @@ public class UserTbl {
      *
      * 유효성:
      * - 필수 입력 (nullable = false)
-     * - 정수형 (Integer)
+     * - 문자열형 (String)
      *
-     * 사용 예시: 202012345 (학생), 1001 (교수)
+     * 사용 예시: "202500101000" (학생), "1001" (교수)
      */
     @Column(name = "USER_CODE", nullable = false)
-    private Integer userCode;
+    private String userCode;
     
     /**
      * 사용자 전화번호
@@ -268,7 +268,7 @@ public class UserTbl {
      * @param userBirth 사용자 생년월일
      * @param userStudent 사용자 유형 (0:학생, 1:교수)
      */
-    public UserTbl(String userEmail, String userPw, String userName, Integer userCode, String userPhone, String userBirth, Integer userStudent) {
+    public UserTbl(String userEmail, String userPw, String userName, String userCode, String userPhone, String userBirth, Integer userStudent) {
         this.userEmail = userEmail;
         this.userPw = userPw;
         this.userName = userName;
@@ -311,11 +311,11 @@ public class UserTbl {
         this.userName = userName;
     }
     
-    public Integer getUserCode() {
+    public String getUserCode() {
         return userCode;
     }
-    
-    public void setUserCode(Integer userCode) {
+
+    public void setUserCode(String userCode) {
         this.userCode = userCode;
     }
     

@@ -205,9 +205,15 @@
 		<dependency>
 		    <groupId>org.springframework.boot</groupId>
 		    <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
-		</dependency>		
+		</dependency>
 
-		
+		<!-- MinIO Java Client for Object Storage -->
+		<dependency>
+		    <groupId>io.minio</groupId>
+		    <artifactId>minio</artifactId>
+		    <version>8.5.2</version>
+		</dependency>
+
 	</dependencies>
 	
 	
