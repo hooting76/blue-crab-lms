@@ -65,12 +65,18 @@ public class BoardController {
     // 특정 게시글 조회 + 조회수 증가
     @GetMapping("/{boardIdx}")
     // 특정 게시글 상세 조회를 위한 엔드포인트 매핑
-    public Optional<BoardTbl> getBoardDetail (@PathVariable Integer boardIdx) {
+    public ResponseEntity<?> getBoardDetail (@PathVariable Integer boardIdx) {
         // @PathVariable Integer boardIdx : URL 경로에서 게시글 번호(boardIdx)를 추출
         // boardIdx : 조회할 게시글의 고유 번호
-        return boardService.getBoardDetail(boardIdx);
+        Optional<BoardTbl> board = boardService.getBoardDetail(boardIdx);
+        
+        if (board.isPresent()) {
+            return ResponseEntity.ok(board.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
         // BoardService의 getBoardDetail 메서드를 호출하여 해당 게시글 상세 정보 반환
-        // Optional<BoardTbl> : 게시글이 존재하지 않을 경우를 대비해 Optional로 감싸서 반환
+        // Optional 처리를 통해 존재하지 않을 경우 404 반환, 존재하면 실제 객체 반환
         // BoardService의 getBoardDetail 메서드 에는 조회수 증가 기능이 포함되어 있음
     }
 

@@ -44,9 +44,6 @@ import Admin from './Admin';
 // css
 import '../css/App.css';
 
-// PWA ONLINE / OFFLINE 
-import UseOnlineStatus from '../hook/PWA/UseOnlineStatus';
-
 // InApp filter function
 function InAppFilter(){
   const userAgent = navigator.userAgent.toLowerCase();
@@ -56,11 +53,6 @@ function InAppFilter(){
 
 // main app component
 function AppContent() {
-   const { isOnline } = UseOnlineStatus();
-  if(!isOnline){
-      alert('인터넷 연결을 확인하세요.');
-      window.close();
-  };
 
   // user state ctrl
   const { isAuthenticated, isLoading } = UseUser();

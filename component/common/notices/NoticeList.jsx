@@ -31,7 +31,7 @@ export default function NoticeList({
       .then(res => {
         if (!alive) return;
 
-        const allItems = res.items || [];
+        const allItems = Array.isArray(res.items) ? res.items : [];
 
         // ✅ BOARD_CODE 필터링
         const filtered = allItems.filter((item) => item.boardCode === boardCode);
