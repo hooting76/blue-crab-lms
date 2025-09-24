@@ -6,7 +6,7 @@ package BlueCrab.com.example.entity;
 // ========== 임포트 구문 ==========
 
 // ========== Java 표준 라이브러리 ==========
-import java.time.LocalDateTime;
+
 
 // ========== JPA 어노테이션 ==========
 import javax.persistence.Column;
@@ -61,12 +61,11 @@ public class BoardTbl {
     // 개시글 조회수
 
     @Column(name = "BOARD_REG", length = 250, columnDefinition = "VARCHAR", nullable = true)
-    private LocalDateTime boardReg = LocalDateTime.now();
-    // 개시글 작성일
-    // 기본값 현재 시간으로 설정
+    private String boardReg;
+    // 개시글 작성일 (VARCHAR로 저장)
 
-    @Column(name = "BOARD_LAST", length = 250, columnDefinition = "VARCHAR", nullable = true)
-    private LocalDateTime boardLast = LocalDateTime.now();
+    @Column(name = "BOARD_LATEST", length = 250, columnDefinition = "VARCHAR", nullable = true)
+    private String boardLast;
     // 개시글 수정일(마지막 수정일)
     // 기본값 현재 시간으로 설정
 
@@ -147,19 +146,19 @@ public class BoardTbl {
         this.boardView = boardView;
     }
 
-    public LocalDateTime getBoardReg() {
+    public String getBoardReg() {
         return boardReg;
     }
 
-    public void setBoardReg(LocalDateTime boardReg) {
+    public void setBoardReg(String boardReg) {
         this.boardReg = boardReg;
     }
 
-    public LocalDateTime getBoardLast() {
+    public String getBoardLast() {
         return boardLast;
     }
 
-    public void setBoardLast(LocalDateTime boardLast) {
+    public void setBoardLast(String boardLast) {
         this.boardLast = boardLast;
     }
 

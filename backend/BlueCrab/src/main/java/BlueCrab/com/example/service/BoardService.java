@@ -91,12 +91,12 @@ public class BoardService {
         // ========== 기본 설정 ==========
         boardTbl.setBoardOn(BOARD_ACTIVE);          // 개시글 상태(삭제되지 않음)
         boardTbl.setBoardView(0);              // 조회수 0 부터
-        boardTbl.setBoardReg(LocalDateTime.now());  // 현재 시간으로 작성일 설정
-        boardTbl.setBoardLast(LocalDateTime.now()); // 현재 시간으로 최종 수정일 설정
+        boardTbl.setBoardReg(LocalDateTime.now().toString());  // 현재 시간을 문자열로 작성일 설정
+        boardTbl.setBoardLast(LocalDateTime.now().toString()); // 현재 시간을 문자열로 최종 수정일 설정
 
         // ========== 제목 기본값 설정 (코드별) ==========
-        if (boardTbl.getBoardTitle() == null || "공지사항".equals(boardTbl.getBoardTitle().trim())) {
-            // 제목이 null이거나 기본값인 경우 코드에 따라 설정
+        if (boardTbl.getBoardTitle() == null || boardTbl.getBoardTitle().trim().isEmpty() || "공지사항".equals(boardTbl.getBoardTitle().trim())) {
+            // 제목이 null이거나 빈 문자열이거나 기본값인 경우에만 코드에 따라 설정
             if (boardTbl.getBoardCode() == 0) {
                 boardTbl.setBoardTitle("학교 공지사항");
             } else if (boardTbl.getBoardCode() == 1) {
@@ -109,6 +109,7 @@ public class BoardService {
                 boardTbl.setBoardTitle("공지사항");
             }
         }
+        // 사용자가 제목을 입력한 경우 그대로 유지됨
 
         // 게시글 데이터베이스에 저장하고 Optional로 감싸서 반환
         return Optional.of(boardRepository.save(boardTbl));
@@ -158,7 +159,7 @@ public class BoardService {
                 board.setBoardContent(updatedBoard.getBoardContent());
                 // 내용 업데이트
             }   // 내용 null 체크 끝
-            board.setBoardLast(LocalDateTime.now()); 
+            board.setBoardLast(LocalDateTime.now().toString()); 
             // 수정 시점으로 최종 수정일 갱신
             return Optional.of(boardRepository.save(board));
             // 변경된 내용 저장 후 Optional로 감싸서 반환
@@ -180,7 +181,7 @@ public class BoardService {
             // Optional에서 실제 엔티티 추출
             boardToDelete.setBoardOn(BOARD_INACTIVE);
             // 비활성 상태로 변경
-            boardToDelete.setBoardLast(LocalDateTime.now());
+            boardToDelete.setBoardLast(LocalDateTime.now().toString());
             // 최종 수정일 갱신
 
             boardRepository.save(boardToDelete);
