@@ -2,11 +2,14 @@ import React, { useRef, useState } from 'react';
 import { Editor } from '@toast-ui/react-editor';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor/dist/i18n/ko-kr';
+import { UseUser } from '../../../hook/UseUser';
 
 function AdminNoticeWritingPage() {
   const editorRef = useRef();
   const [BOARD_TITLE, setBOARD_TITLE] = useState('');
   const [BOARD_CODE, setBOARD_CODE] = useState('');
+
+  const {user} = UseUser();
 
 const handleSubmit = async (e) => {
   e.preventDefault();
@@ -18,12 +21,14 @@ const handleSubmit = async (e) => {
   }
 
   const BOARD_DATE = new Date().toISOString();
+  const BOARD_WRITER = user.data.user.name;
 
   const NoticeByAdmin = {
     BOARD_TITLE,
     BOARD_CODE,
     BOARD_POST,
-    BOARD_DATE
+    BOARD_DATE,
+    BOARD_WRITER
   };
 
   try {

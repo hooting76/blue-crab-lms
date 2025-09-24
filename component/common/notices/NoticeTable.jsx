@@ -6,21 +6,21 @@ export default function NoticeTable({ rows = [] }) {
         <table className="notice-table">
             <thead>
                 <tr>
-                    <th>번호</th>
-                    <th>제목</th>
-                    <th>작성자</th>
-                    <th>조회수</th>
-                    <th>작성일</th>
+                    <th style={{width: "10%"}}>번호</th>
+                    <th style={{width: "40%"}}>제목</th>
+                    <th style={{width: "20%"}}>작성자</th>
+                    <th style={{width: "10%"}}>조회수</th>
+                    <th style={{width: "20%"}}>작성일</th>
                 </tr>
             </thead>
             <tbody> 
                 {rows.map(r =>(
-                    <tr key={r.id}>
-                        <td>{r.id}</td>
-                        <td>{r.title}</td>  
-                        <td>{r.author}</td>
-                        <td>{r.views}</td>
-                        <td>{r.date}</td>
+                    <tr key={r.BOARD_IDX}>
+                        <td>{r.BOARD_IDX}</td>
+                        <td>{r.BOARD_TITLE}</td>  
+                        <td>{r.BOARD_WRITER}</td>
+                        <td>{r.BOARD_VIEWS}</td>
+                        <td>{r.BOARD_DATE}</td>
                     </tr>
                 ))}
             </tbody>

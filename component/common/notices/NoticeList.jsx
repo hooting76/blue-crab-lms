@@ -5,11 +5,11 @@ import NoticeTable from "./NoticeTable"; //작성중(rows 받아서 표 렌더)
 import Pagination from "../notices/Pagination";
 import{ UseUser } from "../../../hook/UseUser";
 import MOCK_NOTICES from "../../../src/mock/notices";  //목업데이터 임포트
-//import { getNotices } from "../../api/noticeAPI"; //API 함수 임포트,백엔드 붙일때 사용
+import { getNotices } from "../../api/noticeAPI.jsx"; //API 함수 임포트,백엔드 붙일때 사용
 import "../../../css/Communities/Notice-ui.css";
 
 export default function NoticeList({ 
-    category = "academy", 
+    BOARD_CODE = "0", 
     page = 1, 
     size = 10,
     onPageChange,
@@ -24,43 +24,42 @@ export default function NoticeList({
     const[state, setState] = useState({items: [], total:0, loading: true});
 
     useEffect(() => {
-        let alive = true; 
-        setState((s) =>({...s, loading: true})); //로딩 시작
-        
-        //------------------(A) UI 전용 단계 : 목업데이터로 페이징-----------------
-        const key = String(category).toLowerCase(); // 'academy'|'admin'|'etc'
-        const allRaw = Array.isArray(MOCK_NOTICES) ? MOCK_NOTICES : [];
-        const all = allRaw.filter((n) => n.category === key);
-        
-        //최신순 보장: 날짜 기준 내림차순
-        all.sort((a,b) => (b.createdAt || "").localeCompare(a.createdAt ||""))
+    let alive = true;
+    setState((s) => ({ ...s, loading: true }));
 
-        const start = (page -1) * size; //현재 페이지 첫 공지 인덱스
-        const end = start + size; //현재 페이지 마지막 공지 인덱스
-        const pageItems = all.slice(start, end); //현재 페이지 공지 목록
-        const totalItems = all.length; //전체 공지 개수
+    getNotices() // ⚠️ BOARD_CODE 제거: 전체를 가져오고, 프론트에서 필터링
+      .then(res => {
+        if (!alive) return;
 
-        const timer = setTimeout(() => {
-            if(!alive) return;
-            setState({items: pageItems, total: totalItems, loading: false}); //로딩 완료
-        }, 150) //0.15초 후에 로딩 완료(로딩 애니메이션 효과를 위해 약간의 딜레이)
+        const allItems = res.items || [];
 
-        //------------------(B) 백엔드 연동 시 (A)대신 이 블록사용------------------
-        //getNotices(category, page, size).then(res => {
-        //if(!alive) return;
-        //setState({items: res.data.items, 
-        // total: res.total, //백엔드 스키마에 맞게 조정
-        // loading: false}); //로딩 완료
-        //}).catch(()=> {
-        //if(!alive) return;
-        //setState({items: [], total: 0, loading: false}); //로딩 완료
-        //});
+        // ✅ BOARD_CODE 필터링
+        const filtered = allItems.filter((item) => item.BOARD_CODE === BOARD_CODE);
 
-        return () => {
-            alive = false;
-            clearTimeout(timer);
-        };
-        },[category, page, size]);
+        // ✅ 최신순 정렬 (작성일 기준)
+        filtered.sort((a, b) => (b.BOARD_DATE || "").localeCompare(a.BOARD_DATE || ""));
+
+        // ✅ 페이징 처리
+        const start = (page - 1) * size;
+        const end = start + size;
+        const pageItems = filtered.slice(start, end);
+
+        setState({
+          items: pageItems,
+          total: filtered.length,
+          loading: false
+        });
+      })
+      .catch(() => {
+        if (!alive) return;
+        setState({ items: [], total: 0, loading: false });
+      });
+
+    return () => {
+      alive = false;
+    };
+    }, [BOARD_CODE, page, size]);
+
 
         const rows = useMemo(() => state.items, [state.items]); //공지 목록
 
