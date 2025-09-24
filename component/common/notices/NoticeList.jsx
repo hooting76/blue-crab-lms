@@ -1,11 +1,10 @@
 //표(번호/제목/작성자/조회수/작성일) + 하단 Pagination 출력
 //'작성하기' 버튼은 관리자만 노출
 import { useEffect, useState, useMemo } from "react";
-import NoticeTable from "./NoticeTable"; //작성중(rows 받아서 표 렌더)
+import NoticeTable from "./NoticeTable";
 import Pagination from "../notices/Pagination";
-import{ UseUser } from "../../../hook/UseUser";
-import MOCK_NOTICES from "../../../src/mock/notices";  //목업데이터 임포트
-import getNotices from "../../api/noticeAPI"; //API 함수 임포트,백엔드 붙일때 사용
+import { UseUser } from "../../../hook/UseUser";
+import { getNotices, getNoticesByCode } from "../../api/noticeAPI";
 import "../../../css/Communities/Notice-ui.css";
 
 export default function NoticeList({ 
@@ -24,41 +23,51 @@ export default function NoticeList({
     const[state, setState] = useState({items: [], total:0, loading: true});
 
     useEffect(() => {
-    let alive = true;
-    setState((s) => ({ ...s, loading: true }));
+        let alive = true;
+        setState((s) => ({ ...s, loading: true }));
 
-    getNotices() // ⚠️ BOARD_CODE 제거: 전체를 가져오고, 프론트에서 필터링
-      .then(res => {
-        if (!alive) return;
+        // accessToken 가져오기
+        const accessToken = user?.data?.token;
+        
+        // 페이지 인덱스 조정 (백엔드는 0-based, 프론트엔드는 1-based)
+        const pageIndex = page - 1;
+        
+        if (boardCode === "0") {
+            // 전체 게시글 조회
+            getNotices(accessToken, pageIndex, size)
+                .then(res => {
+                    if (!alive) return;
+                    
+                    setState({
+                        items: res.content || [], // Spring Data JPA Page 응답 구조
+                        total: res.totalElements || 0,
+                        loading: false
+                    });
+                })
+                .catch(error => {
+                    console.error('게시글 로딩 실패:', error);
+                    setState(s => ({ ...s, loading: false }));
+                });
+        } else {
+            // 특정 코드의 게시글 조회
+            getNoticesByCode(accessToken, parseInt(boardCode), pageIndex, size)
+                .then(res => {
+                    if (!alive) return;
+                    
+                    setState({
+                        items: res.content || [],
+                        total: res.totalElements || 0,
+                        loading: false
+                    });
+                })
+                .catch(error => {
+                    console.error('게시글 로딩 실패:', error);
+                    setState(s => ({ ...s, loading: false }));
+                });
+        }
 
-        const allItems = Array.isArray(res.items) ? res.items : [];
-
-        // ✅ BOARD_CODE 필터링
-        const filtered = allItems.filter((item) => item.boardCode === boardCode);
-
-        // ✅ 최신순 정렬 (작성일 기준)
-        filtered.sort((a, b) => (b.boardReg || "").localeCompare(a.boardReg || ""));
-
-        // ✅ 페이징 처리
-        const start = (page - 1) * size;
-        const end = start + size;
-        const pageItems = filtered.slice(start, end);
-
-        setState({
-          items: pageItems,
-          total: filtered.length,
-          loading: false
-        });
-      })
-      .catch(() => {
-        if (!alive) return;
-        setState({ items: [], total: 0, loading: false });
-      });
-
-    return () => {
-      alive = false;
-    };
-    }, [boardCode, page, size]);
+        return () => { alive = false };
+    }, [boardCode, page, size, user?.data?.token]);
 
 
         const rows = useMemo(() => state.items, [state.items]); //공지 목록
