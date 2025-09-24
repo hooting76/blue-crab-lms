@@ -37,7 +37,11 @@ function InAppFilter(){
   );
 };
 
-// currentPage 상태를 이 컴포넌트에서 보유
+
+function AuthTof(){
+    const { isAuthenticated, isLoading } = UseAdmin();  
+    
+    // currentPage 상태를 이 컴포넌트에서 보유
   const [currentPage, setCurrentPage] = useState("");
 
   // 현재 URL 경로 사용 (관리자 라우팅 분기에서 필요)
@@ -71,10 +75,7 @@ const renderPage = () => {
       default:
         return <AdminDashboard/>;
     }
-}
-
-function AuthTof(){
-    const { isAuthenticated, isLoading } = UseAdmin();    
+  }
 
     if (isLoading) {
         return <LoadingSpinner/>
