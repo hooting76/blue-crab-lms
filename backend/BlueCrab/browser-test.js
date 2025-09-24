@@ -23,6 +23,10 @@ async function apiRequest(url, method = 'GET', data = null, requireAuth = false)
     // 인증이 필요한 경우 토큰 추가
     if (requireAuth && authToken) {
         options.headers['Authorization'] = `Bearer ${authToken}`;
+        console.log('🔑 Authorization 헤더 추가됨');
+        console.log('토큰 앞부분:', authToken.substring(0, 50) + '...');
+    } else if (requireAuth && !authToken) {
+        console.log('❌ 인증이 필요하지만 토큰이 없습니다!');
     }
 
     // POST, PUT 요청시 데이터 추가
@@ -234,6 +238,59 @@ async function logout() {
     return false;
 }
 
+// 2-3. 사용자 권한 상세 확인
+async function checkUserPermissions() {
+    if (!authToken || !currentUser) {
+        console.log('❌ 로그인 상태가 아닙니다.');
+        return false;
+    }
+    
+    console.log('\n🔍 사용자 권한 상세 분석:');
+    console.log('사용자 ID:', currentUser.id);
+    console.log('사용자 이름:', currentUser.name);
+    console.log('사용자 이메일:', currentUser.email);
+    console.log('userStudent 값:', currentUser.userStudent);
+    console.log('현재 설정: 0=학생, 1=교수');
+    console.log('이 사용자는:', currentUser.userStudent === 1 ? '교수' : '학생');
+    console.log('게시글 작성 권한:', currentUser.userStudent === 1 ? '있음 ✅' : '없음 ❌');
+    console.log('JWT 토큰 보유:', !!authToken);
+    console.log('토큰 길이:', authToken?.length);
+    
+    return currentUser.userStudent === 1;
+}
+
+// 2-4. JWT 토큰 디코딩 (base64 디코딩으로 페이로드 확인)
+function decodeJWTPayload(token) {
+    try {
+        // JWT는 header.payload.signature 구조
+        const parts = token.split('.');
+        if (parts.length !== 3) {
+            console.log('❌ JWT 형식이 잘못되었습니다.');
+            return null;
+        }
+        
+        // payload 부분 디코딩
+        const payload = parts[1];
+        // URL-safe base64 디코딩
+        const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+        const jsonPayload = JSON.parse(decoded);
+        
+        console.log('🔓 JWT Payload 내용:');
+        console.log('  - 발급자(iss):', jsonPayload.iss);
+        console.log('  - 주제(sub):', jsonPayload.sub);
+        console.log('  - 발급시간(iat):', new Date(jsonPayload.iat * 1000));
+        console.log('  - 만료시간(exp):', new Date(jsonPayload.exp * 1000));
+        console.log('  - 현재시간:', new Date());
+        console.log('  - 토큰 유효:', jsonPayload.exp * 1000 > Date.now() ? '✅' : '❌');
+        console.log('  - 전체 페이로드:', jsonPayload);
+        
+        return jsonPayload;
+    } catch (error) {
+        console.log('❌ JWT 디코딩 실패:', error.message);
+        return null;
+    }
+}
+
 // ========== 게시글 관련 함수 ==========
 
 // 3. 게시글 작성 테스트
@@ -257,7 +314,7 @@ async function createTestBoard() {
 
     // 제목이 입력된 경우에만 추가
     if (title && title.trim() !== '') {
-        boardData.boardTitle = title;
+        boardData.boardTit = title; // boardTitle → boardTit로 수정
     }
 
     console.log('전송할 데이터:', boardData);
@@ -329,7 +386,7 @@ async function updateTestBoard() {
     const updateData = {};
     
     if (title && title.trim() !== '') {
-        updateData.boardTitle = title;
+        updateData.boardTit = title; // boardTitle → boardTit로 수정
     }
     
     if (content && content.trim() !== '') {

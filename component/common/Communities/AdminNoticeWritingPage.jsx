@@ -6,7 +6,7 @@ import { UseUser } from '../../../hook/UseUser';
 
 function AdminNoticeWritingPage() {
   const editorRef = useRef();
-  const [BOARD_TITLE, setBOARD_TITLE] = useState('');
+  const [BOARD_TIT, setBOARD_TIT] = useState('');
   const [BOARD_CODE, setBOARD_CODE] = useState('');
 
   const {user} = UseUser();
@@ -14,20 +14,18 @@ function AdminNoticeWritingPage() {
 const handleSubmit = async (e) => {
   e.preventDefault();
 
-  const BOARD_POST = editorRef.current.getInstance().getMarkdown();
-  if (!BOARD_TITLE || !BOARD_CODE || !BOARD_POST.trim()) {
+  const BOARD_CONT = editorRef.current.getInstance().getMarkdown();
+  if (!BOARD_TIT || !BOARD_CODE || !BOARD_CONT.trim()) {
     alert('모든 필드를 입력해주세요.');
     return;
   }
 
-  const BOARD_DATE = new Date().toISOString();
   const BOARD_WRITER = user.data.user.name;
 
   const NoticeByAdmin = {
-    BOARD_TITLE,
+    BOARD_TIT,
     BOARD_CODE,
-    BOARD_POST,
-    BOARD_DATE,
+    BOARD_CONT,
     BOARD_WRITER
   };
 
@@ -46,7 +44,7 @@ const handleSubmit = async (e) => {
 
     const result = await response.json();
     alert('공지사항이 성공적으로 등록되었습니다!');
-    setBOARD_TITLE('');
+    setBOARD_TIT('');
     setBOARD_CODE('');
     editorRef.current.getInstance().setMarkdown('');
   } catch (error) {
@@ -61,8 +59,8 @@ const handleSubmit = async (e) => {
         <label>제목</label><br />
         <input
           type="text"
-          value={BOARD_TITLE}
-          onChange={(e) => setBOARD_TITLE(e.target.value)}
+          value={BOARD_TIT}
+          onChange={(e) => setBOARD_TIT(e.target.value)}
           required
           style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
         />
@@ -88,7 +86,7 @@ const handleSubmit = async (e) => {
         <Editor
           ref={editorRef}
           previewStyle="vertical"
-          height="600px"
+          height="300px"
           initialEditType="wysiwyg"
           useCommandShortcut={true}
           language="ko-KR"

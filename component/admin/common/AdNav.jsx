@@ -4,7 +4,7 @@ import AdNavCss from "../../../css/admin/module/AdNav.module.css";
 function AdNav({currentPage, setCurrentPage}){
     return(
         <nav className={AdNavCss.nav}>
-            <div onClick={setCurrentPage("학사공지")}>공지</div>
+            <div onClick={() => setCurrentPage("학사공지")}>공지</div>
         </nav>
     );
 }
