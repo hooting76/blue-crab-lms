@@ -61,13 +61,15 @@ public class LoginResponse {
         private Integer id;
         private String name;
         private String email;
+        private Integer userStudent;
         
         public UserInfo() {}
         
-        public UserInfo(Integer id, String name, String email) {
+        public UserInfo(Integer id, String name, String email, Integer userStudent) {
             this.id = id;
             this.name = name;
             this.email = email;
+            this.userStudent = userStudent;
         }
         
         public Integer getId() {
@@ -92,6 +94,14 @@ public class LoginResponse {
         
         public void setEmail(String email) {
             this.email = email;
+        }
+        
+        public Integer getUserStudent() {
+            return userStudent;
+        }
+        
+        public void setUserStudent(Integer userStudent) {
+            this.userStudent = userStudent;
         }
     }
 }
