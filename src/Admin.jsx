@@ -44,9 +44,6 @@ function AuthTof(){
     // currentPage 상태를 이 컴포넌트에서 보유
   const [currentPage, setCurrentPage] = useState("");
 
-  // 현재 URL 경로 사용 (관리자 라우팅 분기에서 필요)
-  const { pathname } = useLocation();
-
   // 컴포넌트 마운트 시 localStorage에서 currentPage 읽기
   useEffect(() => {
     const savedCurrentPage = localStorage.getItem('currentPage');
@@ -86,7 +83,7 @@ const renderPage = () => {
             {isAuthenticated ? <AdNav/> : null}
             <div id="content" className={AdminBdCss.content}>
                 {isAuthenticated ? <AdHeader /> : null }
-                {isAuthenticated ? {renderPage} : <AdminLogin/>}
+                {isAuthenticated ? renderPage() : <AdminLogin/>}
                 {isAuthenticated ? <AdFooter /> : null }
             </div>
         </div>
