@@ -91,8 +91,8 @@ public class BoardService {
         // ========== 기본 설정 ==========
         boardTbl.setBoardOn(BOARD_ACTIVE);          // 개시글 상태(삭제되지 않음)
         boardTbl.setBoardView(0);              // 조회수 0 부터
-        boardTbl.setBoardReg(LocalDateTime.now());  // 현재 시간으로 작성일 설정
-        boardTbl.setBoardLast(LocalDateTime.now()); // 현재 시간으로 최종 수정일 설정
+        boardTbl.setBoardReg(LocalDateTime.now().toString());  // 현재 시간을 문자열로 작성일 설정
+        boardTbl.setBoardLast(LocalDateTime.now().toString()); // 현재 시간을 문자열로 최종 수정일 설정
 
         // ========== 제목 기본값 설정 (코드별) ==========
         if (boardTbl.getBoardTitle() == null || "공지사항".equals(boardTbl.getBoardTitle().trim())) {
@@ -158,7 +158,7 @@ public class BoardService {
                 board.setBoardContent(updatedBoard.getBoardContent());
                 // 내용 업데이트
             }   // 내용 null 체크 끝
-            board.setBoardLast(LocalDateTime.now()); 
+            board.setBoardLast(LocalDateTime.now().toString()); 
             // 수정 시점으로 최종 수정일 갱신
             return Optional.of(boardRepository.save(board));
             // 변경된 내용 저장 후 Optional로 감싸서 반환
@@ -180,7 +180,7 @@ public class BoardService {
             // Optional에서 실제 엔티티 추출
             boardToDelete.setBoardOn(BOARD_INACTIVE);
             // 비활성 상태로 변경
-            boardToDelete.setBoardLast(LocalDateTime.now());
+            boardToDelete.setBoardLast(LocalDateTime.now().toString());
             // 최종 수정일 갱신
 
             boardRepository.save(boardToDelete);
