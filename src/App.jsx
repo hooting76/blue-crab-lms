@@ -46,7 +46,6 @@ import '../css/App.css';
 
 // PWA ONLINE / OFFLINE 
 import UseOnlineStatus from '../hook/PWA/UseOnlineStatus';
-import AdminNoticeWritingPage from '../component/common/Communities/AdminNoticeWritingPage';
 
 // InApp filter function
 function InAppFilter(){
