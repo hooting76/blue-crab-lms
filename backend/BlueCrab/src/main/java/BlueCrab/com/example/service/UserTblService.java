@@ -481,17 +481,9 @@ public class UserTblService {
                 return BlueCrab.com.example.dto.FindIdResponse.failure();
             }
             
-            // userCode를 String에서 Integer로 변환
-            Integer userCode;
-            try {
-                userCode = Integer.parseInt(userCodeStr.trim());
-            } catch (NumberFormatException e) {
-                return BlueCrab.com.example.dto.FindIdResponse.failure();
-            }
-            
             // 2. 데이터베이스에서 일치하는 사용자 조회
             Optional<UserTbl> userOptional = userTblRepository.findByUserCodeAndUserNameAndUserPhone(
-                userCode, userName.trim(), userPhone.trim()
+                userCodeStr.trim(), userName.trim(), userPhone.trim()
             );
             
             // 3. 결과 처리

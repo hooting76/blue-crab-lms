@@ -28,8 +28,8 @@ public class PasswordResetIdentityRequest {
      * 사용자 학번 또는 교수 코드
      * 가입 시 입력한 코드와 정확히 일치해야 함
      */
-    @NotNull(message = "학번/교수코드는 필수 입력입니다")
-    private Integer userCode;
+    @NotBlank(message = "학번/교수코드는 필수 입력입니다")
+    private String userCode;
 
     /**
      * 사용자 실명
@@ -52,7 +52,7 @@ public class PasswordResetIdentityRequest {
     public PasswordResetIdentityRequest() {}
 
     // 전체 필드 생성자
-    public PasswordResetIdentityRequest(String email, Integer userCode, String userName, String userPhone) {
+    public PasswordResetIdentityRequest(String email, String userCode, String userName, String userPhone) {
         this.email = email;
         this.userCode = userCode;
         this.userName = userName;
@@ -68,11 +68,11 @@ public class PasswordResetIdentityRequest {
         this.email = email;
     }
 
-    public Integer getUserCode() {
+    public String getUserCode() {
         return userCode;
     }
 
-    public void setUserCode(Integer userCode) {
+    public void setUserCode(String userCode) {
         this.userCode = userCode;
     }
 
