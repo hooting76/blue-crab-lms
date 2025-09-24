@@ -1,10 +1,12 @@
 import AdNavCss from "../../../css/admin/module/AdNav.module.css";
+import { useState } from 'react';
 
 // custom hook
-function AdNav(){
+function AdNav({currentPage, setCurrentPage}){
+    const [currentPage, setCurrentPage] = useState("");
     return(
         <nav className={AdNavCss.nav}>
-            nav
+            <div onClick={setCurrentPage("학사공지")}>공지</div>
         </nav>
     );
 }
