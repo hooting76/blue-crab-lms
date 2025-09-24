@@ -8,8 +8,8 @@ async function getNotices() {
   if (!response.ok) {
     throw new Error('Failed to fetch notices');
   }
-  const data = await response.json();
-  return data;
+  const items = await response.json();
+  return items;
 };
 
 export default getNotices;
