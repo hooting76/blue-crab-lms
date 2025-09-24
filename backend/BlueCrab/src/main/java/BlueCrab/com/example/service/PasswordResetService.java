@@ -146,8 +146,8 @@ public class PasswordResetService {
             // 3. 상수시간 비교 수행 (4개 필드)
             boolean emailMatch = constantTimeEquals(actualUser.getUserEmail(), requestUser.getUserEmail());
             boolean codeMatch = constantTimeEquals(
-                actualUser.getUserCode().toString(), 
-                requestUser.getUserCode().toString()
+                actualUser.getUserCode(),
+                requestUser.getUserCode()
             );
             boolean nameMatch = constantTimeEquals(actualUser.getUserName(), requestUser.getUserName());
             boolean phoneMatch = constantTimeEquals(actualUser.getUserPhone(), requestUser.getUserPhone());
@@ -193,7 +193,7 @@ public class PasswordResetService {
     private UserTbl createDummyUser() {
         UserTbl dummy = new UserTbl();
         dummy.setUserEmail("dummy@example.com");
-        dummy.setUserCode(99999999);
+        dummy.setUserCode("99999999");
         dummy.setUserName("더미사용자");
         dummy.setUserPhone("01099999999");
         return dummy;

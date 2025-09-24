@@ -195,7 +195,7 @@ public interface UserTblRepository extends JpaRepository<UserTbl, Integer> {
     /**
      * 학번, 이름, 전화번호로 사용자 조회
      * ID 찾기, 비밀번호 찾기 등에서 사용자 신원 확인 시 사용
-     * 
+     *
      * 세 정보가 모두 정확히 일치하는 사용자를 검색
      * 보안을 위해 부분 일치는 허용하지 않음
      *
@@ -205,9 +205,9 @@ public interface UserTblRepository extends JpaRepository<UserTbl, Integer> {
      * @return Optional<UserTbl> - 일치하는 사용자가 있으면 반환, 없으면 empty
      *
      * 사용 예시:
-     * Optional<UserTbl> user = userRepository.findByUserCodeAndUserNameAndUserPhone(202012345, "홍길동", "01012345678");
+     * Optional<UserTbl> user = userRepository.findByUserCodeAndUserNameAndUserPhone("202012345", "홍길동", "01012345678");
      */
-    Optional<UserTbl> findByUserCodeAndUserNameAndUserPhone(Integer userCode, String userName, String userPhone);
+    Optional<UserTbl> findByUserCodeAndUserNameAndUserPhone(String userCode, String userName, String userPhone);
 
     /**
      * 이메일, 학번, 이름, 전화번호로 사용자 조회 (비밀번호 재설정용 - 강화된 보안)
@@ -222,8 +222,8 @@ public interface UserTblRepository extends JpaRepository<UserTbl, Integer> {
      *
      * 사용 예시:
      * Optional<UserTbl> user = userRepository.findByUserEmailAndUserCodeAndUserNameAndUserPhone(
-     *     "student@university.edu", 202012345, "홍길동", "01012345678");
+     *     "student@university.edu", "202012345", "홍길동", "01012345678");
      */
     Optional<UserTbl> findByUserEmailAndUserCodeAndUserNameAndUserPhone(
-        String userEmail, Integer userCode, String userName, String userPhone);
+        String userEmail, String userCode, String userName, String userPhone);
 }

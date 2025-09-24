@@ -40,7 +40,7 @@ public class UserVerificationUtils {
      * @param userPhone 전화번호
      * @return 검증된 사용자 정보 (Optional)
      */
-    public Optional<UserTbl> verifyUserByCodeNamePhone(Integer userCode, String userName, String userPhone) {
+    public Optional<UserTbl> verifyUserByCodeNamePhone(String userCode, String userName, String userPhone) {
         try {
             // 세 정보가 모두 일치하는 사용자 조회
             return userTblRepository.findByUserCodeAndUserNameAndUserPhone(userCode, userName, userPhone);
@@ -134,7 +134,7 @@ public class UserVerificationUtils {
      * @param userCode 사용자 코드
      * @return 유효한 코드 여부
      */
-    public boolean isValidUserCode(Integer userCode) {
-        return userCode != null && userCode > 0;
+    public boolean isValidUserCode(String userCode) {
+        return userCode != null && !userCode.trim().isEmpty();
     }
 }
