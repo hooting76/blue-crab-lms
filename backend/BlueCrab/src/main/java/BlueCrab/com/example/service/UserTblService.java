@@ -93,7 +93,7 @@ public class UserTblService {
      * - SlowQueryLogger를 사용하여 쿼리 성능 측정
      * - 학생 수에 따라 성능 차이가 있을 수 있음
      *
-     * @return List<UserTbl> 학생 사용자 목록 (userStudent = 1)
+     * @return List<UserTbl> 학생 사용자 목록 (userStudent = 0)
      *
      * 사용 예시:
      * List<UserTbl> students = userService.getStudentUsers();
@@ -101,21 +101,21 @@ public class UserTblService {
      */
     public List<UserTbl> getStudentUsers() {
         return SlowQueryLogger.measureAndLog("getStudentUsers", 
-            () -> userTblRepository.findByUserStudent(1));
+            () -> userTblRepository.findByUserStudent(0));
     }
     
     /**
      * 교수 사용자만 조회하는 메서드
      * 교수 목록을 별도로 관리해야 하는 경우 사용
      *
-     * @return List<UserTbl> 교수 사용자 목록 (userStudent = 0)
+     * @return List<UserTbl> 교수 사용자 목록 (userStudent = 1)
      *
      * 사용 예시:
      * List<UserTbl> professors = userService.getProfessorUsers();
      * // 교수 목록 조회나 교수별 권한 부여
      */
     public List<UserTbl> getProfessorUsers() {
-        return userTblRepository.findByUserStudent(0);
+        return userTblRepository.findByUserStudent(1);
     }
     
     /**
@@ -267,7 +267,7 @@ public class UserTblService {
      */
     public UserTbl toggleUserRole(Integer id) {
         UserTbl user = findUserById(id);
-        // 학생(1) ↔ 교수(0) 전환
+        // 학생(0) ↔ 교수(1) 전환
         user.setUserStudent(user.getUserStudent() == 1 ? 0 : 1);
         return userTblRepository.save(user);
     }

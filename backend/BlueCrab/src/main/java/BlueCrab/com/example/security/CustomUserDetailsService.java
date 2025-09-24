@@ -168,8 +168,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         
         // 단계 2: 학생/교수 구분 권한 부여
         // userStudent 필드 값에 따라 역할 구분
-        // 1: 학생, 0: 교수
-        if (user.getUserStudent() == 1) {
+        // 0: 학생, 1: 교수
+        if (user.getUserStudent() == 0) {
             authorities.add(new SimpleGrantedAuthority("ROLE_STUDENT"));
         } else {
             authorities.add(new SimpleGrantedAuthority("ROLE_PROFESSOR"));

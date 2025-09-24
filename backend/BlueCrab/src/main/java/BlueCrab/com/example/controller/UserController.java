@@ -158,7 +158,7 @@ public class UserController {
     @PatchMapping("/{id}/toggle-role")
     public ResponseEntity<ApiResponse<UserTbl>> toggleUserRole(@PathVariable Integer id) {
         UserTbl user = userTblService.toggleUserRole(id);
-        String roleMessage = user.getUserStudent() == 1 ? "학생" : "교수";
+        String roleMessage = user.getUserStudent() == 0 ? "학생" : "교수";
         ApiResponse<UserTbl> response = ApiResponse.success(
             String.format("사용자 역할이 '%s'로 변경되었습니다.", roleMessage), user);
         return ResponseEntity.ok(response);
