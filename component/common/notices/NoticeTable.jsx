@@ -15,12 +15,12 @@ export default function NoticeTable({ rows = [] }) {
             </thead>
             <tbody> 
                 {rows.map(r =>(
-                    <tr key={r.BOARD_IDX}>
-                        <td>{r.BOARD_IDX}</td>
-                        <td>{r.BOARD_TIT}</td>  
-                        <td>{r.BOARD_WRITER}</td>
-                        <td>{r.BOARD_VIEWS}</td>
-                        <td>{r.BOARD_REG}</td>
+                    <tr key={r.boardIdx}>
+                        <td>{r.boardIdx}</td>
+                        <td>{r.boardTitle}</td>  
+                        <td>{r.boardWriter}</td>
+                        <td>{r.boardView}</td>
+                        <td>{r.boardReg}</td>
                     </tr>
                 ))}
             </tbody>

@@ -9,7 +9,7 @@ import getNotices from "../../api/noticeAPI"; //API 함수 임포트,백엔드 �
 import "../../../css/Communities/Notice-ui.css";
 
 export default function NoticeList({ 
-    BOARD_CODE = "0", 
+    boardCode = "0", 
     page = 1, 
     size = 10,
     onPageChange,
@@ -34,10 +34,10 @@ export default function NoticeList({
         const allItems = res.items || [];
 
         // ✅ BOARD_CODE 필터링
-        const filtered = allItems.filter((item) => item.BOARD_CODE === BOARD_CODE);
+        const filtered = allItems.filter((item) => item.boardCode === boardCode);
 
         // ✅ 최신순 정렬 (작성일 기준)
-        filtered.sort((a, b) => (b.BOARD_DATE || "").localeCompare(a.BOARD_DATE || ""));
+        filtered.sort((a, b) => (b.boardReg || "").localeCompare(a.boardReg || ""));
 
         // ✅ 페이징 처리
         const start = (page - 1) * size;
@@ -58,7 +58,7 @@ export default function NoticeList({
     return () => {
       alive = false;
     };
-    }, [BOARD_CODE, page, size]);
+    }, [boardCode, page, size]);
 
 
         const rows = useMemo(() => state.items, [state.items]); //공지 목록
