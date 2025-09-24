@@ -314,7 +314,7 @@ async function createTestBoard() {
 
     // 제목이 입력된 경우에만 추가
     if (title && title.trim() !== '') {
-        boardData.boardTit = title; // boardTitle → boardTit로 수정
+        boardData.boardTitle = title; // 올바른 필드명 사용
     }
 
     console.log('전송할 데이터:', boardData);
@@ -386,7 +386,7 @@ async function updateTestBoard() {
     const updateData = {};
     
     if (title && title.trim() !== '') {
-        updateData.boardTit = title; // boardTitle → boardTit로 수정
+        updateData.boardTitle = title; // 올바른 필드명 사용
     }
     
     if (content && content.trim() !== '') {

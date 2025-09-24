@@ -95,8 +95,8 @@ public class BoardService {
         boardTbl.setBoardLast(LocalDateTime.now().toString()); // 현재 시간을 문자열로 최종 수정일 설정
 
         // ========== 제목 기본값 설정 (코드별) ==========
-        if (boardTbl.getBoardTitle() == null || "공지사항".equals(boardTbl.getBoardTitle().trim())) {
-            // 제목이 null이거나 기본값인 경우 코드에 따라 설정
+        if (boardTbl.getBoardTitle() == null || boardTbl.getBoardTitle().trim().isEmpty() || "공지사항".equals(boardTbl.getBoardTitle().trim())) {
+            // 제목이 null이거나 빈 문자열이거나 기본값인 경우에만 코드에 따라 설정
             if (boardTbl.getBoardCode() == 0) {
                 boardTbl.setBoardTitle("학교 공지사항");
             } else if (boardTbl.getBoardCode() == 1) {
@@ -109,6 +109,7 @@ public class BoardService {
                 boardTbl.setBoardTitle("공지사항");
             }
         }
+        // 사용자가 제목을 입력한 경우 그대로 유지됨
 
         // 게시글 데이터베이스에 저장하고 Optional로 감싸서 반환
         return Optional.of(boardRepository.save(boardTbl));
