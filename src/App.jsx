@@ -25,6 +25,7 @@ import Introduction from '../component/common/Introduction';
 import AcademyNotice from '../component/common/Communities/AcademyNotice';
 import AdminNotice from '../component/common/Communities/AdminNotice';
 import EtcNotice from '../component/common/Communities/EtcNotice';
+import AdminNoticeWritingPage from '../component/common/Communities/AdminNoticeWritingPage';
 
 // FAQ
 import FAQ from '../component/common/FAQ/FAQ';
@@ -54,14 +55,14 @@ function InAppFilter(){
 function AppContent() {
 
   // user state ctrl
-  const { isAuthenticated, isLoading } = UseUser();  
-  // user state ctrl end
-
+  const { isAuthenticated, isLoading } = UseUser();
+  //user state ctrl end
   if (isLoading) {
-    return <LoadingSpinner/>
+  return <LoadingSpinner/>
   }
 
-  // paging ctrl
+  //const isAuthenticated = true;   // ← 로그인 상태로 강제
+
   // currentPage 상태를 이 컴포넌트에서 보유
   const [currentPage, setCurrentPage] = useState("");
 
@@ -86,6 +87,7 @@ function AppContent() {
     return <Admin />;
   }
 
+
   const renderPage = () => {
     switch (currentPage) {
 
@@ -109,20 +111,22 @@ function AppContent() {
         return <AdminNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
       case '기타공지':
         return <EtcNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
+      case 'Admin 공지 작성':
+        return <AdminNoticeWritingPage currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
 
       // ===== FAQ =====
       case 'FAQ':
         return <FAQ currentPage={currentPage} setCurrentPage={setCurrentPage} />;
 
       // ===== 시설 & 문의 =====
-      case '신청폼':
+      case '시설신청':
         return <FacilityRequest currentPage={currentPage} setCurrentPage={setCurrentPage} />;
       case '나의 신청목록':
         return <MyFacilityRequests currentPage={currentPage} setCurrentPage={setCurrentPage} />;
       case '열람실 신청':
         return <ReadingRoom currentPage={currentPage} setCurrentPage={setCurrentPage} />;
-      
-      // 기본값: 대시보드
+    
+  // 기본값: 대시보드
       default:
         return <UserDashboard/>;
     };
@@ -130,33 +134,32 @@ function AppContent() {
 
   return (
     <div id="wrap">
-      <Header 
-        currentPage={currentPage} 
-        setCurrentPage={setCurrentPage} />
+      <Header currentPage={currentPage} setCurrentPage={setCurrentPage}/>
 
-      <div id="content">       
+      <div id="content">
           {isAuthenticated ?(
             renderPage()
           ) : (
-              <Routes>
-                <Route path="/" element={<LoginForm/>} />
-                <Route path="/FindInfoId" element={<FindInfo/>} />
-                <Route path="/FindInfoPw" element={<FindInfo/>} />
-                {/* 비로그인 상태에서 다른 경로로 오면 로그인으로 돌림 */}
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
+          // 로그인 안했으면 로그인폼 or 아이디/비번 찾기폼 
+            <Routes>
+              <Route path="/" element={<LoginForm/>} />
+              <Route path="/FindInfoId" element={<FindInfo/>} />
+              <Route path="/FindInfoPw" element={<FindInfo/>} />
+              {/* 비로그인 상태에서 다른 경로로 오면 로그인으로 돌림 */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
           )}
       </div>
       
       {/* 푸터 */}
       <Footer />
-    </div>
-  ); // return end
+   </div>
+    ); // return end
 } // AppContent end
 
 function App() {
   return (
-    <>   
+    <>
       <InAppFilter />
       <UserProvider>
         <BrowserRouter>

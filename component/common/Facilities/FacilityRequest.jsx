@@ -61,7 +61,7 @@ function DatePick({ startDate, endDate, setStartDate, setEndDate }) {
 
 
 function FacilityRequest({ 
-    currentPage ="신청폼", 
+    currentPage ="시설신청", 
     setCurrentPage = () => {},
     children
  }) {

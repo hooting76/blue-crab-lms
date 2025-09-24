@@ -130,6 +130,14 @@ public class SecurityConfig {
                 .requestMatchers("/", "/status").permitAll() // 메인 페이지 및 상태 페이지
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll() // 정적 리소스
                 
+                // 🔓 게시판 공개 조회 API (인증 불필요)
+                .requestMatchers(HttpMethod.GET, "/api/boards/health").permitAll() // 게시판 헬스체크
+                .requestMatchers(HttpMethod.GET, "/api/boards/count").permitAll() // 게시글 수 조회
+                .requestMatchers(HttpMethod.GET, "/api/boards/list").permitAll() // 게시글 목록 조회
+                .requestMatchers(HttpMethod.GET, "/api/boards/bycode/**").permitAll() // 코드별 게시글 조회
+                .requestMatchers(HttpMethod.GET, "/api/boards/*/view").permitAll() // 특정 게시글 조회 (조회수 증가)
+                .requestMatchers(HttpMethod.GET, "/api/boards/*").permitAll() // 특정 게시글 상세 조회
+                
                 // 🌐 CORS Preflight 요청 허용 (중요!)
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 모든 OPTIONS 요청 허용
                 

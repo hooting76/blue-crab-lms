@@ -165,9 +165,9 @@ public class AuthService {
             String refreshToken = jwtUtil.generateRefreshToken(user.getUserEmail(), user.getUserIdx());
 
             // 단계 4: 사용자 정보 객체 생성
-            // 응답에 포함할 사용자 정보 생성
+            // 응답에 포함할 사용자 정보 생성 (userStudent 포함)
             LoginResponse.UserInfo userInfo = new LoginResponse.UserInfo(
-                user.getUserIdx(), user.getUserName(), user.getUserEmail()
+                user.getUserIdx(), user.getUserName(), user.getUserEmail(), user.getUserStudent()
             );
 
             // 단계 5: 토큰 만료시간 설정 가져오기
@@ -250,9 +250,9 @@ public class AuthService {
             // 새로운 리프레시 토큰도 생성 (토큰 로테이션)
             String newRefreshToken = jwtUtil.generateRefreshToken(username, userId);
 
-            // 단계 6: 사용자 정보 객체 재생성
+            // 단계 6: 사용자 정보 객체 재생성 (userStudent 포함)
             LoginResponse.UserInfo userInfo = new LoginResponse.UserInfo(
-                user.getUserIdx(), user.getUserName(), user.getUserEmail()
+                user.getUserIdx(), user.getUserName(), user.getUserEmail(), user.getUserStudent()
             );
 
             // 단계 7: 토큰 만료시간 설정 가져오기
