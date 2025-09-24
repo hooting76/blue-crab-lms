@@ -125,18 +125,19 @@ public class SecurityConfig {
                 .requestMatchers("/api/admin/login").permitAll() // 어드민 1차 로그인 허용
                 .requestMatchers("/api/admin/verify-email").permitAll() // 어드민 이메일 인증 허용
                 .requestMatchers("/api/admin/email-auth/**").permitAll() // 어드민 이메일 인증코드 시스템 허용
-                .requestMatchers("/api/health").permitAll() // 헬스체크 엔드포인트
                 .requestMatchers("/api/ping").permitAll() // 연결 테스트 엔드포인트
                 .requestMatchers("/", "/status").permitAll() // 메인 페이지 및 상태 페이지
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll() // 정적 리소스
                 
-                // 🔓 게시판 공개 조회 API (인증 불필요)
-                .requestMatchers(HttpMethod.GET, "/api/boards/health").permitAll() // 게시판 헬스체크
-                .requestMatchers(HttpMethod.GET, "/api/boards/count").permitAll() // 게시글 수 조회
-                .requestMatchers(HttpMethod.GET, "/api/boards/list").permitAll() // 게시글 목록 조회
-                .requestMatchers(HttpMethod.GET, "/api/boards/bycode/**").permitAll() // 코드별 게시글 조회
-                .requestMatchers(HttpMethod.GET, "/api/boards/*/view").permitAll() // 특정 게시글 조회 (조회수 증가)
-                .requestMatchers(HttpMethod.GET, "/api/boards/*").permitAll() // 특정 게시글 상세 조회
+                // � 게시판 조회 API (로그인 사용자만 접근 가능)
+                .requestMatchers(HttpMethod.GET, "/api/boards/count").authenticated() // 게시글 수 조회
+                .requestMatchers(HttpMethod.GET, "/api/boards/list").authenticated() // 게시글 목록 조회
+                .requestMatchers(HttpMethod.GET, "/api/boards/bycode/**").authenticated() // 코드별 게시글 조회
+                .requestMatchers(HttpMethod.GET, "/api/boards/*/view").authenticated() // 특정 게시글 조회 (조회수 증가)
+                .requestMatchers(HttpMethod.GET, "/api/boards/*").authenticated() // 특정 게시글 상세 조회
+                .requestMatchers(HttpMethod.GET, "/api/boards/health").permitAll() // 서버 상태 확인 (디버깅용, 공개)
+                .requestMatchers(HttpMethod.GET, "/api/boards/exists/*").authenticated() // 게시글 존재 여부 확인
+                .requestMatchers(HttpMethod.GET, "/api/boards/count/bycode/*").authenticated() // 코드별 게시글 수 조회
                 
                 // 🌐 CORS Preflight 요청 허용 (중요!)
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 모든 OPTIONS 요청 허용
