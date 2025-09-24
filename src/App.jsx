@@ -25,6 +25,7 @@ import Introduction from '../component/common/Introduction';
 import AcademyNotice from '../component/common/Communities/AcademyNotice';
 import AdminNotice from '../component/common/Communities/AdminNotice';
 import EtcNotice from '../component/common/Communities/EtcNotice';
+import AdminNoticeWritingPage from '../component/common/Communities/AdminNoticeWritingPage';
 
 // FAQ
 import FAQ from '../component/common/FAQ/FAQ';
@@ -45,6 +46,7 @@ import '../css/App.css';
 
 // PWA ONLINE / OFFLINE 
 import UseOnlineStatus from '../hook/PWA/UseOnlineStatus';
+import AdminNoticeWritingPage from '../component/common/Communities/AdminNoticeWritingPage';
 
 // InApp filter function
 function InAppFilter(){
@@ -117,6 +119,8 @@ function AppContent() {
         return <AdminNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
       case '기타공지':
         return <EtcNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
+      case 'Admin 공지 작성':
+        return <AdminNoticeWritingPage currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
 
       // ===== FAQ =====
       case 'FAQ':
