@@ -7,7 +7,7 @@ const getHeaders = (accessToken) => ({
 });
 
 // 게시글 목록 조회 (페이징)
-export const getNotices = async (accessToken, page = 0, size = 10) => {
+const getNotices = async (accessToken, page = 0, size = 10) => {
   try {
     const response = await fetch(`${BASE_URL}/list?page=${page}&size=${size}`, {
       headers: getHeaders(accessToken)
@@ -94,3 +94,5 @@ export const getNoticesByCode = async (accessToken, boardCode, page = 0, size = 
     throw error;
   }
 };
+
+export default getNotices;
