@@ -17,10 +17,10 @@ export default function NoticeTable({ rows = [] }) {
                 {rows.map(r =>(
                     <tr key={r.BOARD_IDX}>
                         <td>{r.BOARD_IDX}</td>
-                        <td>{r.BOARD_TITLE}</td>  
+                        <td>{r.BOARD_TIT}</td>  
                         <td>{r.BOARD_WRITER}</td>
                         <td>{r.BOARD_VIEWS}</td>
-                        <td>{r.BOARD_DATE}</td>
+                        <td>{r.BOARD_REG}</td>
                     </tr>
                 ))}
             </tbody>
