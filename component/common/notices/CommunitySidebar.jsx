@@ -4,14 +4,14 @@ import "../../../css/Communities/Notice-nav.css";
 
 const pageToSection = (p) => {
   if (["학사공지", "행정공지", "기타공지"].includes(p)) return "notice";
-  if (p === "FAQ") return "FAQ";
-  if (["신청폼", "나의 신청목록", "열람실 신청"].includes(p)) return "facility";
+  if (p === "FAQ") return "faq";
+  if (["시설신청", "신청폼", "나의 신청목록", "열람실 신청"].includes(p)) return "facility";
   return null;
 };
 
 
 function CommunitySidebar({ currentPage, setCurrentPage }) {
-    const active = useMemo(() => pageToSection(currentPage), [currentPage]);
+    useMemo(() => pageToSection(currentPage), [currentPage]);
     const[open, setOpen] = useState({ notice: false, faq: false, facility: false })
 
     useEffect(() => {
@@ -94,7 +94,7 @@ function CommunitySidebar({ currentPage, setCurrentPage }) {
         {open.facility && (
             <div className="acc-panel">
         {/* 라벨과 currentPage 값(컴포넌트 매핑용)을 분리하고 싶으면 pageValue로 전달 */}
-            <Item name="신청폼" pageValue="신청폼" />
+            <Item name="시설신청" pageValue="시설신청" />
             <Item name="나의 신청목록" pageValue="나의 신청목록" />
             <Item name="열람실 신청" pageValue="열람실 신청" />
             </div>
