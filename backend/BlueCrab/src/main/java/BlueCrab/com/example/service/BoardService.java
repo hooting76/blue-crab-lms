@@ -20,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 // ========== 프로젝트 내부 클래스 ==========
+import BlueCrab.com.example.entity.AdminTbl;
 import BlueCrab.com.example.entity.BoardTbl;
 import BlueCrab.com.example.entity.UserTbl;
 import BlueCrab.com.example.repository.BoardRepository;
@@ -46,7 +47,7 @@ public class BoardService {
     private static final Integer BOARD_INACTIVE = 0; // 비활성 상태 코드
 
     // 게시글 작성
-    public BoardTbl createBoard(BoardTbl boardTbl) {
+    public Optional<BoardTbl> createBoard(BoardTbl boardTbl) {
         // ========== 작성자 정보 설정 ==========
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserEmail = authentication.getName();
@@ -68,12 +69,24 @@ public class BoardService {
         // user.get().getUserStudent() == 1 : userStudent 필드가 1인지 확인 (1: 교수, 0: 학생)
 
         if (!isAdmin && !isProfessor) {
-            // 관리자도 아니고 교수도 아니면
-            throw new RuntimeException("Only admins or professors can create board posts.");
-            // throw new RuntimeException : 예외 발생
-            // "게시글 작성 권한 없음" 메시지 
+            // 관리자도 아니고 교수도 아니면 권한 없음으로 Optional.empty() 반환
+            return Optional.empty();
         } // if 끝
         
+        // ========== 작성자 이름 설정 ==========
+        if (isAdmin) {
+            // 관리자인 경우 AdminTbl에서 이름 가져오기
+            Optional<AdminTbl> admin = adminTblRepository.findByAdminId(currentUserEmail);
+            if (admin.isPresent()) {
+                boardTbl.setBoardWriter(admin.get().getName());
+            } else {
+                // 관리자 정보를 찾을 수 없는 경우 이메일을 작성자로 설정
+                boardTbl.setBoardWriter(currentUserEmail);
+            }
+        } else if (isProfessor) {
+            // 교수인 경우 UserTbl에서 이름 가져오기 (user는 이미 위에서 조회했음)
+            boardTbl.setBoardWriter(user.get().getUserName());
+        }
 
         // ========== 기본 설정 ==========
         boardTbl.setBoardOn(BOARD_ACTIVE);          // 개시글 상태(삭제되지 않음)
@@ -81,7 +94,24 @@ public class BoardService {
         boardTbl.setBoardReg(LocalDateTime.now());  // 현재 시간으로 작성일 설정
         boardTbl.setBoardLast(LocalDateTime.now()); // 현재 시간으로 최종 수정일 설정
 
-        return boardRepository.save(boardTbl);
+        // ========== 제목 기본값 설정 (코드별) ==========
+        if (boardTbl.getBoardTitle() == null || "공지사항".equals(boardTbl.getBoardTitle().trim())) {
+            // 제목이 null이거나 기본값인 경우 코드에 따라 설정
+            if (boardTbl.getBoardCode() == 0) {
+                boardTbl.setBoardTitle("학교 공지사항");
+            } else if (boardTbl.getBoardCode() == 1) {
+                boardTbl.setBoardTitle("학사 공지사항");
+            } else if (boardTbl.getBoardCode() == 2) {
+                boardTbl.setBoardTitle("학과 공지사항");
+            } else if (boardTbl.getBoardCode() == 3) {
+                boardTbl.setBoardTitle("교수 공지사항");
+            } else {
+                boardTbl.setBoardTitle("공지사항");
+            }
+        }
+
+        // 게시글 데이터베이스에 저장하고 Optional로 감싸서 반환
+        return Optional.of(boardRepository.save(boardTbl));
         // 저장 후 저장된 엔티티 반환 (ID 포함)
     }   // createBoard 끝
 
@@ -108,8 +138,8 @@ public class BoardService {
 
     // ========== 게시글 수정/삭제 관련 메서드 ==========
 
-    // 게시글 수정
-    public BoardTbl updateBoard(Integer boardIdx, BoardTbl updatedBoard) {
+    // 게시글 수정 (Optional 반환으로 예외 처리 대신 사용)
+    public Optional<BoardTbl> updateBoard(Integer boardIdx, BoardTbl updatedBoard) {
         Optional<BoardTbl> existingBoard = boardRepository.findByBoardIdxAndBoardOn(boardIdx, BOARD_ACTIVE);
         // 수정할 게시글 조회 (활성 상태인 것만)
         // Optional<BoardTbl> board : Optional로 감싸서 반환 (존재하지 않을 수도 있으므로)
@@ -123,13 +153,18 @@ public class BoardService {
                 board.setBoardTitle(updatedBoard.getBoardTitle());
                 // 제목 업데이트
             }   // 제목 null 체크 끝
+            if (updatedBoard.getBoardContent() != null) {
+                // 내용이 null이 아니면
+                board.setBoardContent(updatedBoard.getBoardContent());
+                // 내용 업데이트
+            }   // 내용 null 체크 끝
             board.setBoardLast(LocalDateTime.now()); 
             // 수정 시점으로 최종 수정일 갱신
-            return boardRepository.save(board);
-            // 변경된 내용 저장 후 저장된 엔티티 반환
+            return Optional.of(boardRepository.save(board));
+            // 변경된 내용 저장 후 Optional로 감싸서 반환
         } else {
-            throw new RuntimeException("Can not find board ID : " + boardIdx);
-            // 게시글이 존재하지 않으면 예외 발생
+            return Optional.empty();
+            // 게시글이 존재하지 않으면 Optional.empty() 반환
         }   // if-else 끝
     }   // updateBoard 끝
 
