@@ -33,13 +33,11 @@ function Header({ currentPage, setCurrentPage }) {
   const { user, isAuthenticated, logout } = UseUser();
 
   // ====== 여기서부터 테스트 하드코딩(로그인 강제) ======
-  // const isAuthenticated = true;
-  // const user = { data: { user: { id: 1, name: '테스트유저', student: 0, role: 'user' } } };
-  // const logout = () => alert('로그아웃(테스트)');
+  //const isAuthenticated = true;
+  //const user = { data: { user: { id: 1, name: '테스트유저', student: 0, role: 'user' } } };
+  //const logout = () => alert('로그아웃(테스트)');
   // ===============================================
-  
-  
-  
+
   const Reset = () => {
     navigate('/');           // SPA 네비게이션
     setCurrentPage("");      // 대시보드 등 기본으로
@@ -84,7 +82,8 @@ function Header({ currentPage, setCurrentPage }) {
             <div className={HeaderCss.navMenu}>
               <ul>
                 <li onMouseOver={() => { showSubMenu1(); hideSubMenu2(); hideSubMenu3(); }}>학교소개</li>
-                <li onMouseOver={() => { hideSubMenu1(); showSubMenu2(); hideSubMenu3(); }}>커뮤니티</li>
+                <li onMouseOver={() => {hideSubMenu1(); showSubMenu2(); hideSubMenu3();}}
+                onClick={() => setCurrentPage('학사공지')}>커뮤니티</li>
                 <li onMouseOver={() => { hideSubMenu1(); hideSubMenu2(); showSubMenu3(); }}>마이페이지</li>
               </ul>
 
@@ -96,14 +95,14 @@ function Header({ currentPage, setCurrentPage }) {
                 style={{ visibility: subMenu1Visibility }}
               >
                 <tbody>
-                  <tr><td onClick={() => setCurrentPage("총장 인사")}>총장 인사</td></tr>
-                  <tr><td onClick={() => setCurrentPage("오시는 길")}>오시는 길</td></tr>
-                  <tr><td onClick={() => setCurrentPage("학교 조직도")}>학교 조직도</td></tr>
-                  <tr><td onClick={() => setCurrentPage("연혁")}>연혁</td></tr>
+                  <tr><td onClick={() => { Reset(); setCurrentPage("총장 인사"); }}>총장 인사</td></tr>
+                  <tr><td onClick={() => { Reset(); setCurrentPage("오시는 길"); }}>오시는 길</td></tr>
+                  <tr><td onClick={() => { Reset(); setCurrentPage("학교 조직도"); }}>학교 조직도</td></tr>
+                  <tr><td onClick={() => { Reset(); setCurrentPage("연혁"); }}>연혁</td></tr>
                 </tbody>
               </table>
 
-              {/* 커뮤니티 */}
+              {/* 커뮤니티 (공지사항/FAQ/시설&문의) */}
               <table
                 className={HeaderCss.navSubMenu2}
                 onMouseOver={showSubMenu2}
@@ -111,15 +110,16 @@ function Header({ currentPage, setCurrentPage }) {
                 style={{ visibility: subMenu2Visibility }}
               >
                 <tbody>
-       {/* FIX: 공지사항 → 기본 학사공지로 진입 */}
+              {/* FIX: 공지사항 → 기본 학사공지로 진입 */}
                   <tr><td onClick={() => setCurrentPage("학사공지")}>공지사항</td></tr>
               {/* 단일 */}
                   <tr><td onClick={() => setCurrentPage("FAQ")}>FAQ</td></tr>
               {/* 시설 & 문의 → 기본 ‘신청폼(시설신청)’로 진입 */}
-                  <tr><td onClick={() => setCurrentPage("신청폼")}>시설 & 문의</td></tr>
+                  <td onClick={() => {
+                  navigate('/Community', { state: { page: '시설신청' }, replace: true });
+                  setCurrentPage?.('시설신청');}}>시설 & 문의</td>
                 </tbody>
               </table>
-
 
               {/* 마이페이지 */}
               <table
@@ -129,9 +129,9 @@ function Header({ currentPage, setCurrentPage }) {
                 style={{ visibility: subMenu3Visibility }}
               >
                 <tbody>
-                  <tr><td onClick={() => setCurrentPage("수강중인 과목")}>수강중인 과목</td></tr>
-                  <tr><td onClick={() => setCurrentPage("수강과목 공지사항")}>수강과목 공지사항</td></tr>
-                  <tr><td onClick={() => setCurrentPage("실시간 상담")}>실시간 상담</td></tr>
+                  <tr><td onClick={() => { Reset(); setCurrentPage("수강중인 과목"); }}>수강중인 과목</td></tr>
+                  <tr><td onClick={() => { Reset(); setCurrentPage("수강과목 공지사항"); }}>수강과목 공지사항</td></tr>
+                  <tr><td onClick={() => { Reset(); setCurrentPage("실시간 상담"); }}>실시간 상담</td></tr>
                 </tbody>
               </table>
             </div>
