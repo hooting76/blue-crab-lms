@@ -66,7 +66,7 @@ public class BoardService {
         boolean isProfessor = user.isPresent() && user.get().getUserStudent() == 1;
         // 사용자가 존재하고, userStudent 필드가 1(교수)인지 확인
         // user.isPresent() : Optional에서 실제 엔티티가 존재하는지 확인
-        // user.get().getUserStudent() == 1 : userStudent 필드가 1인지 확인 (1: 교수, 0: 학생)
+        // user.get().getUserStudent() == 1 : userStudent 필드가 1인지 확인 (0: 학생, 1: 교수)
 
         if (!isAdmin && !isProfessor) {
             // 관리자도 아니고 교수도 아니면 권한 없음으로 Optional.empty() 반환

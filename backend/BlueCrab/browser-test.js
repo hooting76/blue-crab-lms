@@ -1,9 +1,10 @@
 // 브라우저 콘솔 테스트용 JavaScript 코드
-// 교수 계정으로 로그인 후 게시글 CRUD 테스트
+// 교수 계정(userStudent=1)으로 로그인 후 게시글 CRUD 테스트
 
 // ========== 설정 및 전역 변수 ==========
 const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0';
-let authToken = null; // JWT 토큰 저장용
+let authToken = null; // JWT 액세스 토큰 저장용
+let refreshToken = null; // JWT 리프레시 토큰 저장용
 let currentUser = null; // 현재 사용자 정보
 
 // ========== 유틸리티 함수 ==========
@@ -109,67 +110,128 @@ async function checkServerConnection() {
     return false;
 }
 
-// 1. 교수 로그인 함수
+// 1. 교수 로그인 함수 (userStudent=1인 계정으로 로그인)
 async function loginAsProfessor() {
     // 사용자에게 로그인 정보 입력 받기
-    const email = prompt('교수 이메일을 입력하세요:', 'professor@example.com');
+    const username = prompt('교수 이메일을 입력하세요:', 'professor@example.com');
     const password = prompt('비밀번호를 입력하세요:', '');
     
-    if (!email || !password) {
+    if (!username || !password) {
         console.log('❌ 로그인 정보가 입력되지 않았습니다.');
         return false;
     }
 
+    // 실제 API 스펙에 맞는 LoginRequest 형식
     const loginData = {
-        email: email,  // 또는 userEmail (실제 API 스펙에 맞게)
-        password: password  // 또는 userPw
+        username: username,  // userEmail을 username으로 사용
+        password: password   // 평문 비밀번호
     };
 
-    // 여러 가능한 로그인 엔드포인트 시도
-    const possibleEndpoints = [
-        `${API_BASE_URL}/api/auth/login`,
-        `${API_BASE_URL}/api/user/login`,
-        `${API_BASE_URL}/api/login`
-    ];
-
-    for (const endpoint of possibleEndpoints) {
-        const result = await apiRequest(endpoint, 'POST', loginData);
+    const result = await apiRequest(`${API_BASE_URL}/api/auth/login`, 'POST', loginData);
+    
+    if (result.success && result.data && result.data.data) {
+        const loginResponse = result.data.data;
         
-        if (result.success) {
-            // JWT 토큰 추출 (여러 가능한 응답 구조 고려)
-            let token = null;
-            if (result.data.token) {
-                token = result.data.token;
-            } else if (result.data.accessToken) {
-                token = result.data.accessToken;
-            } else if (result.data.jwt) {
-                token = result.data.jwt;
-            } else if (typeof result.data === 'string' && result.data.includes('.')) {
-                // 응답 자체가 토큰인 경우
-                token = result.data;
-            }
+        // JWT 토큰 추출
+        if (loginResponse.accessToken) {
+            authToken = loginResponse.accessToken;
+            refreshToken = loginResponse.refreshToken;
+            currentUser = loginResponse.user;
             
-            if (token) {
-                authToken = token;
-                currentUser = result.data.user || { email: email };
-                console.log('✅ 로그인 성공!');
-                console.log('토큰:', authToken.substring(0, 50) + '...');
-                console.log('사용자 정보:', currentUser);
+            console.log('✅ 로그인 성공!');
+            console.log('메시지:', result.data.message);
+            console.log('사용자 정보:', currentUser);
+            console.log('토큰 타입:', loginResponse.tokenType);
+            console.log('만료 시간:', loginResponse.expiresIn + '초');
+            
+            // 교수 계정인지 확인 (userStudent=1)
+            if (currentUser && currentUser.userStudent === 1) {
+                console.log('🎓 교수 계정으로 로그인되었습니다.');
                 return true;
+            } else {
+                console.log('⚠️ 학생 계정입니다. userStudent:', currentUser?.userStudent);
+                console.log('게시글 작성 권한이 없을 수 있습니다.');
+                return true; // 로그인은 성공했으므로 true 반환
             }
         }
     }
     
     console.log('❌ 로그인 실패');
+    console.log('응답:', result.data);
     return false;
 }
 
 // 2. 로그인 상태 확인
 function checkLoginStatus() {
     console.log('\n📋 현재 로그인 상태:');
-    console.log('토큰 있음:', !!authToken);
+    console.log('액세스 토큰 있음:', !!authToken);
+    console.log('리프레시 토큰 있음:', !!refreshToken);
     console.log('현재 사용자:', currentUser);
+    
+    if (currentUser) {
+        console.log('사용자 정보:');
+        console.log('  - 이름:', currentUser.userName);
+        console.log('  - 이메일:', currentUser.userEmail);
+        console.log('  - 유형:', currentUser.userStudent === 1 ? '교수' : '학생');
+        console.log('  - 사용자 ID:', currentUser.userIdx);
+    }
+    
     return !!authToken;
+}
+
+// 2-1. JWT 토큰 갱신 함수
+async function refreshAccessToken() {
+    if (!refreshToken) {
+        console.log('❌ 리프레시 토큰이 없습니다.');
+        return false;
+    }
+
+    const refreshData = {
+        refreshToken: refreshToken
+    };
+
+    const result = await apiRequest(`${API_BASE_URL}/api/auth/refresh`, 'POST', refreshData);
+    
+    if (result.success && result.data && result.data.data) {
+        const refreshResponse = result.data.data;
+        
+        if (refreshResponse.accessToken) {
+            authToken = refreshResponse.accessToken;
+            console.log('✅ 토큰 갱신 성공!');
+            console.log('새로운 액세스 토큰 발급됨');
+            return true;
+        }
+    }
+    
+    console.log('❌ 토큰 갱신 실패');
+    console.log('응답:', result.data);
+    return false;
+}
+
+// 2-2. 로그아웃 함수
+async function logout() {
+    if (!authToken) {
+        console.log('❌ 로그인 상태가 아닙니다.');
+        return false;
+    }
+
+    const logoutData = {
+        refreshToken: refreshToken
+    };
+
+    const result = await apiRequest(`${API_BASE_URL}/api/auth/logout`, 'POST', logoutData, true);
+    
+    if (result.success) {
+        authToken = null;
+        refreshToken = null;
+        currentUser = null;
+        console.log('✅ 로그아웃 성공!');
+        return true;
+    }
+    
+    console.log('❌ 로그아웃 실패');
+    console.log('응답:', result.data);
+    return false;
 }
 
 // ========== 게시글 관련 함수 ==========
@@ -405,7 +467,7 @@ console.log(`
 - 프로토콜: HTTPS (SSL)
 
 📝 사용 방법:
-1. loginAsProfessor()       - 교수 계정으로 로그인
+1. loginAsProfessor()       - 교수 계정(userStudent=1)으로 로그인
 2. createTestBoard()        - 게시글 작성 테스트
 3. getBoardList()           - 게시글 목록 조회
 4. getBoardDetail()         - 특정 게시글 조회
@@ -414,9 +476,15 @@ console.log(`
 7. getBoardsByCode()        - 코드별 게시글 조회
 8. runFullTest()            - 전체 테스트 자동 실행
 
-🔧 유틸리티:
-- checkLoginStatus()        - 현재 로그인 상태 확인
-- authToken                 - 현재 JWT 토큰 확인
+🔧 인증 관련:
+- checkLoginStatus()        - 현재 로그인 상태 및 사용자 정보 확인
+- refreshAccessToken()      - JWT 액세스 토큰 갱신
+- logout()                  - 로그아웃 및 토큰 무효화
+
+🔍 디버깅 변수:
+- authToken                 - 현재 JWT 액세스 토큰
+- refreshToken              - 현재 JWT 리프레시 토큰  
+- currentUser               - 현재 사용자 정보 (UserTbl 객체)
 
 💡 사용 예시:
 await loginAsProfessor();
@@ -435,4 +503,17 @@ await getBoardList();
 - 1: 학사공지  
 - 2: 학과공지
 - 3: 교수공지
+
+👥 사용자 유형 (userStudent 필드):
+- 0: 학생 (일반적으로 게시글 작성 권한 없음)
+- 1: 교수 (게시글 작성 권한 있음)
+
+🔐 게시글 작성 권한:
+- 관리자 (AdminTbl) 또는 교수 (userStudent=1)만 게시글 작성 가능
+- 학생 계정으로는 게시글 작성이 제한됨
+
+💡 테스트 팁:
+- 먼저 checkLoginStatus()로 로그인된 사용자가 교수인지 확인
+- 학생 계정으로 테스트하려면 조회 기능만 사용
+- 교수 계정이 필요한 경우 관리자에게 계정 요청
 `);
