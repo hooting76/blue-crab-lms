@@ -146,4 +146,32 @@ public class BoardController {
         return boardService.getBoardCountByCode(boardCode);
         // BoardService의 getBoardCountByCode 메서드를 호출하여 특정 코드별 게시글 총 개수 반환
     }
+    
+    // ========== 디버깅용 엔드포인트 ==========
+    
+    // 서버 상태 확인용
+    @GetMapping("/health")
+    public ResponseEntity<String> health() {
+        return ResponseEntity.ok("Board API is working! Server time: " + java.time.LocalDateTime.now());
+    }
+    
+    // 간단한 게시글 작성 테스트 (제목 없이)
+    @PostMapping("/simple-create")
+    public ResponseEntity<?> simpleCreateBoard() {
+        // 하드코딩된 간단한 게시글 생성
+        BoardTbl boardTbl = new BoardTbl();
+        boardTbl.setBoardCode(3); // 교수공지
+        boardTbl.setBoardContent("테스트 게시글입니다.");
+        // 제목은 기본값 사용 (설정 안함)
+        
+        Optional<BoardTbl> result = boardService.createBoard(boardTbl);
+        
+        if (result.isPresent()) {
+            return ResponseEntity.ok(result.get());
+        } else {
+            return ResponseEntity.badRequest()
+                    .body("게시글 생성 실패");
+        }
+    }
+    
 }
