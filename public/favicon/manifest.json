@@ -2,21 +2,28 @@
     "name": "Blue Crab Academy - LMS",
     "short_name": "Blue Crab Academy",
     "description": "Blue Crab Academy LMS App",
-
     "start_url": "/",
     "scope": "/",
     "id": "Blue Crab",
-
     "display": "minimal-ui",    
+    "display_override": ["window-controls-overlay"],
     "orientation": "any",
-
     "background_color": "#FFFFFF",
     "theme_color": "#FFFFFF",
 
     "lang": "ko-KR",
     "dir": "auto",
-
     "categories": ["education", "books"],
+
+    "file_handlers": [
+        {
+            "action": "/",
+            "accept": {
+                "image/jpeg": [".jpeg", ".jpg"],
+                "image/png": [".png"]
+            }
+        }
+    ],
 
     "icons": [
     {
@@ -57,21 +64,21 @@
 
     "screenshots": [
     {
-        "src": "/src/assets/screenShot/login_1280720.png",
+        "src": "./login_1280720.png",
         "sizes": "1272x716",
         "type": "image/png",
         "platform": "wide",
         "label": "로그인 페이지(PC)"
     },
     {
-        "src": "/src/assets/screenShot/login_425800.png",
+        "src": "./login_425800.png",
         "sizes": "393x753",
         "type": "image/png",
         "platform": "narrow",
         "label": "로그인 페이지(모바일)"
     },
     {
-        "src": "/src/assets/screenShot/shot_wide.png",
+        "src": "./shot_wide.png",
         "sizes": "1602x882",
         "type": "image/png",
         "platform": "wide",
