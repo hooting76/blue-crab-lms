@@ -6,27 +6,27 @@ import { UseUser } from '../../../hook/UseUser';
 
 function AdminNoticeWritingPage() {
   const editorRef = useRef();
-  const [BOARD_TIT, setBOARD_TIT] = useState('');
-  const [BOARD_CODE, setBOARD_CODE] = useState('');
+  const [boardTitle, setBoardTitle] = useState('');
+  const [boardCode, setBoardCode] = useState('');
 
   const {user} = UseUser();
 
 const handleSubmit = async (e) => {
   e.preventDefault();
 
-  const BOARD_CONT = editorRef.current.getInstance().getMarkdown();
-  if (!BOARD_TIT || !BOARD_CODE || !BOARD_CONT.trim()) {
+  const boardContent = editorRef.current.getInstance().getMarkdown();
+  if (!boardTitle || !boardCode || !boardContent.trim()) {
     alert('모든 필드를 입력해주세요.');
     return;
   }
 
-  const BOARD_WRITER = user.data.user.name;
+  const boardWriter = user.data.user.name;
 
   const NoticeByAdmin = {
-    BOARD_TIT,
-    BOARD_CODE,
-    BOARD_CONT,
-    BOARD_WRITER
+    boardTitle,
+    boardCode,
+    boardContent,
+    boardWriter
   };
 
   try {
@@ -44,8 +44,8 @@ const handleSubmit = async (e) => {
 
     const result = await response.json();
     alert('공지사항이 성공적으로 등록되었습니다!');
-    setBOARD_TIT('');
-    setBOARD_CODE('');
+    setBoardTitle('');
+    setBoardCode('');
     editorRef.current.getInstance().setMarkdown('');
   } catch (error) {
     alert(error.message);
@@ -59,8 +59,8 @@ const handleSubmit = async (e) => {
         <label>제목</label><br />
         <input
           type="text"
-          value={BOARD_TIT}
-          onChange={(e) => setBOARD_TIT(e.target.value)}
+          value={boardTitle}
+          onChange={(e) => setBoardTitle(e.target.value)}
           required
           style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
         />
@@ -69,8 +69,8 @@ const handleSubmit = async (e) => {
       <div>
         <label>카테고리</label><br />
         <select
-          value={BOARD_CODE}
-          onChange={(e) => setBOARD_CODE(e.target.value)}
+          value={boardCode}
+          onChange={(e) => setBoardCode(e.target.value)}
           required
           style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
         >
