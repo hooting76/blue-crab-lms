@@ -1,33 +1,31 @@
 // src/component/common/Facilities/ReadingRoom.jsx
-// 목적: 열람실 좌석 신청 화면(UI + 더미 연동)
-// ▸ API 명세 전: /api/readingRoom.js의 더미 함수 호출로 동작
-// ▸ API 명세 후: /api/readingRoom.js 내부 구현만 fetch로 교체
-
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { getSeats, reserveSeat } from "../../../src/api/readingRoom";
 import "../../../css/Facilities/ReadingRoom.css";
 
 const STATUS = {
-  OCCUPIED: "occupied",   // 1 = 사용중(핑크)
-  AVAILABLE: "available", // 0 = 예약가능(초록)
+  OCCUPIED: "occupied",
+  AVAILABLE: "available",
 };
 
 export default function ReadingRoom() {
-  // 좌석 목록(프론트 표준형 {id, label, status})
   const [seats, setSeats] = useState([]);
-  // 로딩/에러
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
-  // 모달 상태
-  const [showGuide, setShowGuide] = useState(false); // 이용안내 모달
-  const [confirmSeat, setConfirmSeat] = useState(null); // 예약 확인 모달 대상 좌석
-
+  const [showGuide, setShowGuide] = useState(false);     // 이용안내 팝오버
+  const [confirmSeat, setConfirmSeat] = useState(null);  // 예약 확인 모달
+  const [isReserving, setIsReserving] = useState(false); // 중복 클릭 방지
+  
+  const cardRef = useRef(null);                          
+  
   // ────────────────────────────────────────────────────────────
   // 초기 로딩: 더미 API → 프론트 표준형으로 매핑
   // 백엔드 DTO: { id, seat_no, state(0/1) }
   // 프론트 매핑: status = 1 ? 'occupied' : 'available'
   // ────────────────────────────────────────────────────────────
+  
+  // 좌석 로딩
   useEffect(() => {
     let alive = true;
     (async () => {
@@ -48,56 +46,48 @@ export default function ReadingRoom() {
         if (alive) setLoading(false);
       }
     })();
-    return () => {
-      alive = false;
-    };
+    return () => { alive = false; };
   }, []);
 
-  // 예약 가능 좌석 수
   const availableCount = useMemo(
     () => seats.filter((s) => s.status === STATUS.AVAILABLE).length,
     [seats]
   );
 
-  // 좌석 클릭(초록만 가능) → 상단 확인 모달 오픈
   const onSeatClick = (seat) => {
     if (seat.status !== STATUS.AVAILABLE) return;
-    setConfirmSeat(seat);
+    setConfirmSeat(seat); // 예약 확인 모달만 띄움
   };
 
-  // 확인 모달에서 "신청하기"
   const onReserveConfirm = async () => {
-    if (!confirmSeat) return;
-    const r = await reserveSeat(confirmSeat.id);
-    if (r.ok === false) {
-      // 선점 등 실패 시 메시지 노출(상단 에러 영역)
-      setErr(
-        r.code === "occupied"
-          ? "이미 다른 사용자가 선점했습니다. 새로고침 후 다시 시도해주세요."
-          : "예약에 실패했습니다. 잠시 후 다시 시도해주세요."
-      );
-      setConfirmSeat(null);
-      return;
-    }
-
-    // 성공: 해당 좌석만 즉시 핑크로 반영(낙관적 업데이트)
+    if (!confirmSeat || isReserving) return; // PREVENT: 중복 실행
+    setIsReserving(true);                    
+    try {
+      const r = await reserveSeat(confirmSeat.id);
+      if (r.ok === false) {
+        setErr(
+          r.code === "occupied"
+            ? "이미 다른 사용자가 선점했습니다. 잠시 후 다시 시도해주세요."
+            : "예약에 실패했습니다. 잠시 후 다시 시도해주세요."
+        );
+        setConfirmSeat(null);
+        return;
+      }
     setSeats((prev) =>
       prev.map((s) =>
         s.id === confirmSeat.id ? { ...s, status: STATUS.OCCUPIED } : s
       )
     );
     setConfirmSeat(null);
+  } finally {
+      setIsReserving(false);             
+    }
   };
 
-  // ────────────────────────────────────────────────────────────
-  // 렌더
-  // ────────────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="readingroom-wrap">
-        <div className="banner banner-center">
-          <h2>열람실 신청</h2>
-        </div>
+        <div className="banner banner-center"><h2>열람실 신청</h2></div>
         <div className="loading">불러오는 중…</div>
       </div>
     );
@@ -105,7 +95,15 @@ export default function ReadingRoom() {
 
   return (
     <div className="readingroom-wrap">
-      {/* 상단 배너: 제목 가운데 + 우측 정보 */}
+      {/* 백드롭은 예약확인 모달에만 적용.*/}
+      {confirmSeat && (
+        <div
+          className="global-backdrop"
+          onClick={() => setConfirmSeat(null)}
+        />
+      )}
+
+      {/* 배너(제목 가운데 + 우측 버튼) */}
       <div className="banner banner-center">
         <h2>열람실 신청</h2>
         <div className="banner-right">
@@ -116,69 +114,34 @@ export default function ReadingRoom() {
         </div>
       </div>
 
-      {/* 에러 안내(있을 때만) */}
+      {/* 에러 메시지 */}
       {err && <div className="error-inline">{err}</div>}
 
-      {/* 상단 이용안내 모달(배너 아래 중앙) */}
+      {/* 이용안내 우측 상단(배너 아래) 고정 */}
       {showGuide && (
-        <div className="top-modal" role="dialog" aria-modal="true">
-          <div className="top-modal__content">
-            <div className="top-modal__title">이용 안내</div>
-            <div className="top-modal__body">
-              <p>클릭 시 자리 예약이 가능합니다.</p>
-              <ul>
-                <li>
-                  <b>초록</b>: 예약가능 좌석
-                </li>
-                <li>
-                  <b>핑크</b>: 사용중인 좌석
-                </li>
-              </ul>
-            </div>
-            <div className="top-modal__actions">
-              <button className="primary" onClick={() => setShowGuide(false)}>
-                확인
-              </button>
-            </div>
+        <div className="guide-popover" role="dialog" aria-modal="true">
+          <div className="popover-arrow" />
+          <div className="guide-title">이용 안내</div>
+          <div className="guide-body">
+            <p>클릭 시 자리 예약이 가능합니다.</p>
+            <ul>
+              <li><b>초록</b>: 예약가능 좌석</li>
+              <li><b>핑크</b>: 사용중인 좌석</li>
+            </ul>
           </div>
-        </div>
-      )}
-
-      {/* 예약 확인 모달(배너 아래 중앙) */}
-      {confirmSeat && (
-        <div className="top-modal" role="dialog" aria-modal="true">
-          <div className="top-modal__content">
-            <div className="top-modal__title">예약 확인</div>
-            <div className="top-modal__body">
-              <p>
-                <b>일반열람실 {confirmSeat.label}번</b> 좌석으로 예약하시겠습니까?
-              </p>
-            </div>
-            <div className="top-modal__actions">
-              <button className="primary" onClick={onReserveConfirm}>
-                신청하기
-              </button>
-              <button className="ghost" onClick={() => setConfirmSeat(null)}>
-                취소
-              </button>
-            </div>
+          <div className="guide-actions">
+            <button className="primary" onClick={() => setShowGuide(false)}>확인</button>
           </div>
         </div>
       )}
 
       {/* 좌석 카드 */}
-      <div className="room-card">
+      <div className="room-card" ref={cardRef}>
         <div className="room-header">
           <span className="gate">출구</span>
         </div>
 
-        {/* 좌석 그리드: 기본 10열(가로 확장) */}
-        <div
-          className="seat-grid"
-          role="grid"
-          aria-label="열람실 좌석"
-          style={{ "--cols": 10 }} /* 기본 10열 */
-        >
+        <div className="seat-grid" role="grid" aria-label="열람실 좌석" style={{ "--cols": 10 }}>
           {seats.map((seat) => {
             const cls =
               seat.status === STATUS.AVAILABLE ? "seat available" : "seat occupied";
@@ -189,9 +152,7 @@ export default function ReadingRoom() {
                 type="button"
                 disabled={seat.status !== STATUS.AVAILABLE}
                 onClick={() => onSeatClick(seat)}
-                aria-label={`${seat.label}번 좌석 ${
-                  seat.status === STATUS.AVAILABLE ? "예약 가능" : "사용 중"
-                }`}
+                aria-label={`${seat.label}번 좌석 ${seat.status === STATUS.AVAILABLE ? "예약 가능" : "사용 중"}`}
                 title={`${seat.label}번`}
               >
                 {seat.label}
@@ -200,16 +161,25 @@ export default function ReadingRoom() {
           })}
         </div>
 
-        {/* 범례 */}
         <div className="legend">
-          <span>
-            <i className="chip chip-available" /> 예약 가능
-          </span>
-          <span>
-            <i className="chip chip-occupied" /> 사용 중
-          </span>
+          <span><i className="chip chip-available" /> 예약 가능</span>
+          <span><i className="chip chip-occupied" /> 사용 중</span>
         </div>
       </div>
+
+      {/* 예약확인 모달(가운데) */}
+      {confirmSeat && (
+        <div className="confirm-modal" role="dialog" aria-modal="true">
+          <div className="confirm-title">예약 확인</div>
+          <div className="confirm-body">
+            <p><b>{confirmSeat.label}번 좌석</b>을 예약하시겠습니까?</p>
+          </div>
+          <div className="confirm-actions">
+            <button className="primary" onClick={onReserveConfirm}>신청하기</button>
+            <button className="ghost" onClick={() => setConfirmSeat(null)}>취소</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
