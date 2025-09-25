@@ -23,7 +23,7 @@ export default function AdminNotice({currentPage,setCurrentPage}) {
         <NoticeLayout currentPage={currentPage} setCurrentPage={setCurrentPage}>
             <h2>행정공지 테스트 출력</h2>
             <NoticeList
-              boardCode="1"
+              boardCode={1}
               page={page}
               size={10}
               onPageChange={setPage}

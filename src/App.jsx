@@ -38,6 +38,9 @@ import ReadingRoom from '../component/common/Facilities/ReadingRoom';
 // 마이페이지 페이지들
 import MyPage from '../component/common/MyPage';
 
+// PWA serviceworker
+import ServiceWorker from './ServiceWorkerFunc';
+
 // 관리자 페이지
 import Admin from './Admin';
 
@@ -53,7 +56,6 @@ function InAppFilter(){
 
 // main app component
 function AppContent() {
-
   // user state ctrl
   const { isAuthenticated, isLoading } = UseUser();
   //user state ctrl end
@@ -133,7 +135,7 @@ function AppContent() {
   }; // paging ctrl end
 
   return (
-    <div id="wrap">
+    <div id="wrap">      
       <Header currentPage={currentPage} setCurrentPage={setCurrentPage}/>
 
       <div id="content">
@@ -153,13 +155,14 @@ function AppContent() {
       
       {/* 푸터 */}
       <Footer />
-   </div>
+    </div>
     ); // return end
 } // AppContent end
 
 function App() {
   return (
     <>
+      <ServiceWorker />
       <InAppFilter />
       <UserProvider>
         <BrowserRouter>

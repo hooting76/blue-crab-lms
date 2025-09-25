@@ -1,30 +1,30 @@
-const BASE_URL = 'https://bluecrab.chickenkiller.com/Bluecrab-1.0.0/api/boards';
-
-// API 요청에 사용할 공통 헤더
-const getHeaders = (accessToken) => ({
-  'Authorization': `Bearer ${accessToken}`,
-  'Content-Type': 'application/json'
-});
+const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/boards';
 
 // 게시글 목록 조회 (POST 방식)
-const getNotices = async (accessToken, boardCode, page = 0, size = 10) => {
+const getNotices = async (accessToken, page, size) => {
   try {
-    const url = `${BASE_URL}/list`; // 쿼리 파라미터 제거
+    // const url = `${BASE_URL}/list`; // 쿼리 파라미터 제거
 
     // 요청에 포함할 바디 데이터
     const requestBody = {
       page,
-      size,
+      size
     };
-    if (boardCode) {
-      requestBody.BOARD_CODE = boardCode;
-    }
 
-    const response = await fetch(url, {
+    console.log(requestBody);
+    // console.log(url);
+
+    const response = await fetch(`${BASE_URL}/list`, {
       method: 'POST',
-      headers: getHeaders(accessToken),
+      headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+      },
       body: JSON.stringify(requestBody)
     });
+
+    console.log(response);
+    console.log(requestBody);
 
     if (!response.ok) throw new Error('게시판 목록을 불러오는 데 실패했습니다.');
     return await response.json();
@@ -33,6 +33,14 @@ const getNotices = async (accessToken, boardCode, page = 0, size = 10) => {
     throw error;
   }
 };
+
+
+// API 요청에 사용할 공통 헤더
+const getHeaders = (accessToken) => ({
+  'Authorization': `Bearer ${accessToken}`,
+  'Content-Type': 'application/json'
+});
+
 
 // 특정 게시글 상세 조회
 export const getNoticeDetail = async (accessToken, boardIdx) => {
