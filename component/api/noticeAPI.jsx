@@ -3,16 +3,11 @@ const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/boards';
 // 게시글 목록 조회 (POST 방식)
 const getNotices = async (accessToken, page, size) => {
   try {
-    // const url = `${BASE_URL}/list`; // 쿼리 파라미터 제거
-
     // 요청에 포함할 바디 데이터
     const requestBody = {
       page,
       size
     };
-
-    console.log(requestBody);
-    // console.log(url);
 
     const response = await fetch(`${BASE_URL}/list`, {
       method: 'POST',
@@ -22,9 +17,6 @@ const getNotices = async (accessToken, page, size) => {
       },
       body: JSON.stringify(requestBody)
     });
-
-    console.log(response);
-    console.log(requestBody);
 
     if (!response.ok) throw new Error('게시판 목록을 불러오는 데 실패했습니다.');
     return await response.json();

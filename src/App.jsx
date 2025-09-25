@@ -38,14 +38,14 @@ import ReadingRoom from '../component/common/Facilities/ReadingRoom';
 // 마이페이지 페이지들
 import MyPage from '../component/common/MyPage';
 
-// PWA serviceworker
-import ServiceWorker from './ServiceWorkerFunc';
-
 // 관리자 페이지
 import Admin from './Admin';
 
 // css
 import '../css/App.css';
+
+//serviceWorker start
+import "./ServiceWorkerFunc";
 
 // InApp filter function
 function InAppFilter(){
@@ -60,10 +60,8 @@ function AppContent() {
   const { isAuthenticated, isLoading } = UseUser();
   //user state ctrl end
   if (isLoading) {
-  return <LoadingSpinner/>
+    return <LoadingSpinner/>
   }
-
-  //const isAuthenticated = true;   // ← 로그인 상태로 강제
 
   // currentPage 상태를 이 컴포넌트에서 보유
   const [currentPage, setCurrentPage] = useState("");
@@ -162,7 +160,6 @@ function AppContent() {
 function App() {
   return (
     <>
-      <ServiceWorker />
       <InAppFilter />
       <UserProvider>
         <BrowserRouter>
