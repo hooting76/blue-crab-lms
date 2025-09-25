@@ -19,6 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+// ========== 로깅 ==========
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 // ========== 프로젝트 내부 클래스 ==========
 import BlueCrab.com.example.entity.AdminTbl;
 import BlueCrab.com.example.entity.BoardTbl;
@@ -31,6 +35,9 @@ import BlueCrab.com.example.repository.UserTblRepository;
 @Service        // 게시글 서비스
 @Transactional  // 트랜잭션 관리 (필요시 메서드별로 오버라이드 가능)
 public class BoardService {
+    
+    // ========== 로거 ==========
+    private static final Logger logger = LoggerFactory.getLogger(BoardService.class);
 
     // ========== 의존성 주입 ==========
     @Autowired
@@ -52,68 +59,89 @@ public class BoardService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserEmail = authentication.getName();
         // 현재 인증된 사용자의 이메일(또는 사용자명) 가져오기
+        
+        logger.info("게시글 생성 시도 - 사용자: {}", currentUserEmail);
+        logger.info("인증 객체: {}", authentication != null ? authentication.getClass().getSimpleName() : "null");
 
         // 관리자 인지 확인을 위한 로직
         // AdminTblRepository 사용
-        boolean isAdmin = adminTblRepository.findByAdminId(currentUserEmail).isPresent();
+        try {
+            boolean isAdmin = adminTblRepository.findByAdminId(currentUserEmail).isPresent();
+            logger.info("관리자 확인 결과: {} (이메일: {})", isAdmin, currentUserEmail);
 
-        // 교수 인지 확인을 위한 로직 (userStudent = 1)
-        // UserTblRepository 사용
-        Optional<UserTbl> user = userTblRepository.findByUserEmail(currentUserEmail);
-        // Optional<UserTbl> user : Optional로 감싸서 존재하지 않을 경우에 대비
-        // userTblRepository.findByUserEmail : 이메일을 이용해 사용자 조회
+            // 교수 인지 확인을 위한 로직 (userStudent = 1)
+            // UserTblRepository 사용
+            Optional<UserTbl> user = userTblRepository.findByUserEmail(currentUserEmail);
+            // Optional<UserTbl> user : Optional로 감싸서 존재하지 않을 경우에 대비
+            // userTblRepository.findByUserEmail : 이메일을 이용해 사용자 조회
+            logger.info("사용자 확인 결과: {} (이메일: {})", user.isPresent(), currentUserEmail);
 
-        boolean isProfessor = user.isPresent() && user.get().getUserStudent() == 1;
-        // 사용자가 존재하고, userStudent 필드가 1(교수)인지 확인
-        // user.isPresent() : Optional에서 실제 엔티티가 존재하는지 확인
-        // user.get().getUserStudent() == 1 : userStudent 필드가 1인지 확인 (0: 학생, 1: 교수)
+            boolean isProfessor = user.isPresent() && user.get().getUserStudent() == 1;
+            // 사용자가 존재하고, userStudent 필드가 1(교수)인지 확인
+            // user.isPresent() : Optional에서 실제 엔티티가 존재하는지 확인
+            // user.get().getUserStudent() == 1 : userStudent 필드가 1인지 확인 (0: 학생, 1: 교수)
+            logger.info("교수 확인 결과: {} (사용자 존재: {}, userStudent: {})", 
+                       isProfessor, user.isPresent(), user.isPresent() ? user.get().getUserStudent() : "N/A");
 
-        if (!isAdmin && !isProfessor) {
-            // 관리자도 아니고 교수도 아니면 권한 없음으로 Optional.empty() 반환
-            return Optional.empty();
-        } // if 끝
+            if (!isAdmin && !isProfessor) {
+                // 관리자도 아니고 교수도 아니면 권한 없음으로 Optional.empty() 반환
+                logger.warn("권한 없음 - 관리자: {}, 교수: {} (이메일: {})", isAdmin, isProfessor, currentUserEmail);
+                return Optional.empty();
+            } // if 끝
+            
+            logger.info("권한 확인 완료 - 관리자: {}, 교수: {} (이메일: {})", isAdmin, isProfessor, currentUserEmail);
         
-        // ========== 작성자 이름 설정 ==========
-        if (isAdmin) {
-            // 관리자인 경우 AdminTbl에서 이름 가져오기
-            Optional<AdminTbl> admin = adminTblRepository.findByAdminId(currentUserEmail);
-            if (admin.isPresent()) {
-                boardTbl.setBoardWriter(admin.get().getName());
-            } else {
-                // 관리자 정보를 찾을 수 없는 경우 이메일을 작성자로 설정
-                boardTbl.setBoardWriter(currentUserEmail);
+            // ========== 작성자 이름 설정 ==========
+            if (isAdmin) {
+                // 관리자인 경우 AdminTbl에서 이름 가져오기
+                Optional<AdminTbl> admin = adminTblRepository.findByAdminId(currentUserEmail);
+                if (admin.isPresent()) {
+                    boardTbl.setBoardWriter(admin.get().getName());
+                    logger.info("관리자 이름 설정: {}", admin.get().getName());
+                } else {
+                    // 관리자 정보를 찾을 수 없는 경우 이메일을 작성자로 설정
+                    boardTbl.setBoardWriter(currentUserEmail);
+                    logger.warn("관리자 정보 없음, 이메일로 설정: {}", currentUserEmail);
+                }
+            } else if (isProfessor) {
+                // 교수인 경우 UserTbl에서 이름 가져오기 (user는 이미 위에서 조회했음)
+                boardTbl.setBoardWriter(user.get().getUserName());
+                logger.info("교수 이름 설정: {}", user.get().getUserName());
             }
-        } else if (isProfessor) {
-            // 교수인 경우 UserTbl에서 이름 가져오기 (user는 이미 위에서 조회했음)
-            boardTbl.setBoardWriter(user.get().getUserName());
-        }
 
-        // ========== 기본 설정 ==========
-        boardTbl.setBoardOn(BOARD_ACTIVE);          // 개시글 상태(삭제되지 않음)
-        boardTbl.setBoardView(0);              // 조회수 0 부터
-        boardTbl.setBoardReg(LocalDateTime.now().toString());  // 현재 시간을 문자열로 작성일 설정
-        boardTbl.setBoardLast(LocalDateTime.now().toString()); // 현재 시간을 문자열로 최종 수정일 설정
+            // ========== 기본 설정 ==========
+            boardTbl.setBoardOn(BOARD_ACTIVE);          // 개시글 상태(삭제되지 않음)
+            boardTbl.setBoardView(0);              // 조회수 0 부터
+            boardTbl.setBoardReg(LocalDateTime.now().toString());  // 현재 시간을 문자열로 작성일 설정
+            boardTbl.setBoardLast(LocalDateTime.now().toString()); // 현재 시간을 문자열로 최종 수정일 설정
 
-        // ========== 제목 기본값 설정 (코드별) ==========
-        if (boardTbl.getBoardTitle() == null || boardTbl.getBoardTitle().trim().isEmpty() || "공지사항".equals(boardTbl.getBoardTitle().trim())) {
-            // 제목이 null이거나 빈 문자열이거나 기본값인 경우에만 코드에 따라 설정
-            if (boardTbl.getBoardCode() == 0) {
-                boardTbl.setBoardTitle("학교 공지사항");
-            } else if (boardTbl.getBoardCode() == 1) {
-                boardTbl.setBoardTitle("학사 공지사항");
-            } else if (boardTbl.getBoardCode() == 2) {
-                boardTbl.setBoardTitle("학과 공지사항");
-            } else if (boardTbl.getBoardCode() == 3) {
-                boardTbl.setBoardTitle("교수 공지사항");
-            } else {
-                boardTbl.setBoardTitle("공지사항");
+            // ========== 제목 기본값 설정 (코드별) ==========
+            if (boardTbl.getBoardTitle() == null || boardTbl.getBoardTitle().trim().isEmpty() || "공지사항".equals(boardTbl.getBoardTitle().trim())) {
+                // 제목이 null이거나 빈 문자열이거나 기본값인 경우에만 코드에 따라 설정
+                if (boardTbl.getBoardCode() == 0) {
+                    boardTbl.setBoardTitle("학교 공지사항");
+                } else if (boardTbl.getBoardCode() == 1) {
+                    boardTbl.setBoardTitle("학사 공지사항");
+                } else if (boardTbl.getBoardCode() == 2) {
+                    boardTbl.setBoardTitle("학과 공지사항");
+                } else if (boardTbl.getBoardCode() == 3) {
+                    boardTbl.setBoardTitle("교수 공지사항");
+                } else {
+                    boardTbl.setBoardTitle("공지사항");
+                }
+                logger.info("기본 제목 설정: {}", boardTbl.getBoardTitle());
             }
-        }
-        // 사용자가 제목을 입력한 경우 그대로 유지됨
+            // 사용자가 제목을 입력한 경우 그대로 유지됨
 
-        // 게시글 데이터베이스에 저장하고 Optional로 감싸서 반환
-        return Optional.of(boardRepository.save(boardTbl));
-        // 저장 후 저장된 엔티티 반환 (ID 포함)
+            // 게시글 데이터베이스에 저장하고 Optional로 감싸서 반환
+            logger.info("게시글 저장 중... 제목: {}, 작성자: {}", boardTbl.getBoardTitle(), boardTbl.getBoardWriter());
+            return Optional.of(boardRepository.save(boardTbl));
+            // 저장 후 저장된 엔티티 반환 (ID 포함)
+            
+        } catch (Exception e) {
+            logger.error("게시글 생성 중 오류 발생 - 사용자: {}, 오류: {}", currentUserEmail, e.getMessage(), e);
+            throw new RuntimeException("게시글 생성 중 오류가 발생했습니다: " + e.getMessage(), e);
+        }
     }   // createBoard 끝
 
     // ========== 게시글 조회 관련 메서드 ==========
