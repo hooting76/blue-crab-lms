@@ -49,6 +49,7 @@ const NoticeDetail = ({ boardIdx, isAuthenticated, user }) => {
       <div className='noticeDetailTitle'>{notice.boardTitle}</div>
       <div className='noticeDetailCode'>{getNoticeCode(notice.boardCode)}</div>
       <div className='noticeDetailWriter'>{notice.boardWriter}</div>
+      <div className='noticeDetailReg'>{notice.boardReg}</div>
       <div className='noticeDetailContent'>{notice.boardContent}</div>
     </div>
   );

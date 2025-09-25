@@ -36,7 +36,7 @@ public class ProfileView {
     private Integer userType;  // 0: 학생, 1: 교수
 
     @Column(name = "major_code")
-    private Integer majorCode;
+    private String majorCode;  // 학번 (큰 숫자이므로 String 타입 사용)
 
     @Column(name = "zip_code")
     private String zipCode;
@@ -153,11 +153,11 @@ public class ProfileView {
         this.userType = userType;
     }
 
-    public Integer getMajorCode() {
+    public String getMajorCode() {
         return majorCode;
     }
 
-    public void setMajorCode(Integer majorCode) {
+    public void setMajorCode(String majorCode) {
         this.majorCode = majorCode;
     }
 

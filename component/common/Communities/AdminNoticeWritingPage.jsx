@@ -21,12 +21,14 @@ const handleSubmit = async (e) => {
   }
 
   const boardWriter = user.data.user.name;
+  const boardReg = new Date().toISOString();
 
   const NoticeByAdmin = {
     boardTitle,
     boardCode,
     boardContent,
-    boardWriter
+    boardWriter,
+    boardReg
   };
 
   try {
