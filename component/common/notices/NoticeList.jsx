@@ -22,12 +22,13 @@ export default function NoticeList({
     const isAdmin = user?.data?.user?.role === "admin"; //관리자 여부
     
     const[state, setState] = useState({items: [], total:0, loading: true});
+    const accessToken = isAuthenticated ? user.data.accessToken : null;
 
     useEffect(() => {
     let alive = true;
     setState((s) => ({ ...s, loading: true }));
 
-    getNotices() // ⚠️ BOARD_CODE 제거: 전체를 가져오고, 프론트에서 필터링
+    getNotices(accessToken, boardCode, 0, 1000) // ⚠️ BOARD_CODE 제거: 전체를 가져오고, 프론트에서 필터링
       .then(res => {
         if (!alive) return;
 
@@ -58,7 +59,7 @@ export default function NoticeList({
     return () => {
       alive = false;
     };
-    }, [boardCode, page, size]);
+    }, [accessToken, boardCode, page, size]);
 
 
         const rows = useMemo(() => state.items, [state.items]); //공지 목록

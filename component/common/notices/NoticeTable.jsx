@@ -1,5 +1,11 @@
 // 공지테이블
+import {useState} from "react";
 import "../../../css/Communities/Notice-ui.css";
+import NoticeDetail from "../Communities/NoticeDetail";
+
+const openNoticeDetail = (boardIdx) => {
+    <NoticeDetail boardIdx={boardIdx} />
+}
 
 export default function NoticeTable({ rows = [] }) {
     return(
@@ -15,7 +21,7 @@ export default function NoticeTable({ rows = [] }) {
             </thead>
             <tbody> 
                 {rows.map(r =>(
-                    <tr key={r.boardIdx}>
+                    <tr key={r.boardIdx} onClick={openNoticeDetail(r.boardIdx)} style={{cursor: "pointer"}}>
                         <td>{r.boardIdx}</td>
                         <td>{r.boardTitle}</td>  
                         <td>{r.boardWriter}</td>

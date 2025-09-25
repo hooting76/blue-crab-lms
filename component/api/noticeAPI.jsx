@@ -6,16 +6,30 @@ const getHeaders = (accessToken) => ({
   'Content-Type': 'application/json'
 });
 
-// 게시글 목록 조회 (페이징)
-const getNotices = async (accessToken, page = 0, size = 10) => {
+// 게시글 목록 조회 (POST 방식)
+const getNotices = async (accessToken, boardCode, page = 0, size = 10) => {
   try {
-    const response = await fetch(`${BASE_URL}/list?page=${page}&size=${size}`, {
-      headers: getHeaders(accessToken)
+    const url = `${BASE_URL}/list`; // 쿼리 파라미터 제거
+
+    // 요청에 포함할 바디 데이터
+    const requestBody = {
+      page,
+      size,
+    };
+    if (boardCode) {
+      requestBody.BOARD_CODE = boardCode;
+    }
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: getHeaders(accessToken),
+      body: JSON.stringify(requestBody)
     });
-    if (!response.ok) throw new Error('게시글 목록을 불러오는데 실패했습니다.');
+
+    if (!response.ok) throw new Error('게시판 목록을 불러오는 데 실패했습니다.');
     return await response.json();
   } catch (error) {
-    console.error('게시글 목록 조회 에러:', error);
+    console.error('게시판 목록 조회 에러:', error);
     throw error;
   }
 };
@@ -23,9 +37,14 @@ const getNotices = async (accessToken, page = 0, size = 10) => {
 // 특정 게시글 상세 조회
 export const getNoticeDetail = async (accessToken, boardIdx) => {
   try {
-    const response = await fetch(`${BASE_URL}/${boardIdx}`, {
-      headers: getHeaders(accessToken)
+    const url = `${BASE_URL}/${boardIdx}`;
+    
+    const response = await fetch(url, {
+      method: 'POST', // POST 방식 명시
+      headers: getHeaders(accessToken),
+      body: JSON.stringify({ boardIdx }) // boardIdx를 body에 담음
     });
+
     if (!response.ok) throw new Error('게시글을 불러오는데 실패했습니다.');
     return await response.json();
   } catch (error) {
@@ -33,6 +52,7 @@ export const getNoticeDetail = async (accessToken, boardIdx) => {
     throw error;
   }
 };
+
 
 // 게시글 작성
 export const createNotice = async (accessToken, noticeData) => {
