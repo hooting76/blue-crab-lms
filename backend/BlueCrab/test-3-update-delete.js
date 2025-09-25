@@ -97,7 +97,7 @@ async function updateBoard() {
     
     // 먼저 현재 게시글 정보를 조회
     console.log('현재 게시글 정보를 조회 중...');
-    const currentBoardResult = await apiRequest(`${API_BASE_URL}/api/boards/${boardIdx}`, 'GET', null, true);
+    const currentBoardResult = await apiRequest(`${API_BASE_URL}/api/boards/detail`, 'POST', { boardIdx }, true);
     
     if (!currentBoardResult.success) {
         console.log('❌ 게시글 조회 실패:', currentBoardResult.data);
@@ -176,7 +176,7 @@ async function getBoardDetail() {
     
     const boardIdx = parseInt(prompt('조회할 게시글 번호를 입력하세요:', '1'));
 
-    const result = await apiRequest(`${API_BASE_URL}/api/boards/${boardIdx}`, 'GET', null, true);
+    const result = await apiRequest(`${API_BASE_URL}/api/boards/detail`, 'POST', { boardIdx }, true);
     
     if (result.success) {
         console.log('✅ 게시글 조회 성공!');

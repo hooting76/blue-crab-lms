@@ -1,6 +1,10 @@
 package BlueCrab.com.example.security;
 
 // 명시적 import 추가
+// 성태준 추가
+import BlueCrab.com.example.entity.AdminTbl;
+import BlueCrab.com.example.repository.AdminTblRepository;
+// 성태준 추가 끝
 import BlueCrab.com.example.entity.UserTbl;
 import BlueCrab.com.example.repository.UserTblRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +71,15 @@ public class CustomUserDetailsService implements UserDetailsService {
      */
     @Autowired
     private UserTblRepository userTblRepository;
+    
+    // 성태준 추가
+    /**
+     * 관리자 리포지토리
+     * 관리자 ID로 관리자 정보를 조회하기 위한 의존성 주입
+     */
+    @Autowired
+    private AdminTblRepository adminTblRepository;
+    // 성태준 추가 끝
 
     /**
      * 사용자명(이메일)으로 사용자 정보를 로드하는 핵심 메서드
@@ -103,7 +116,18 @@ public class CustomUserDetailsService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // 단계 1: 이메일로 사용자 조회
+        // 성태준 추가
+        // 단계 1: 관리자인지 먼저 확인
+        // AdminTbl에서 관리자 정보 검색
+        java.util.Optional<AdminTbl> adminOpt = adminTblRepository.findByAdminId(username);
+        if (adminOpt.isPresent()) {
+            // 관리자인 경우
+            AdminTbl admin = adminOpt.get();
+            return createAdminUserDetails(admin);
+        }
+        // 성태준 추가 끝
+        
+        // 단계 2: 일반 사용자 조회
         // 데이터베이스에서 이메일로 사용자 정보 검색
         // 존재하지 않으면 UsernameNotFoundException 발생
         UserTbl user = userTblRepository.findByUserEmail(username)
@@ -185,4 +209,35 @@ public class CustomUserDetailsService implements UserDetailsService {
         // 생성된 권한 목록 반환
         return authorities;
     }
+    
+    // 성태준 추가
+    /**
+     * 관리자 정보로 UserDetails 객체 생성
+     * 
+     * @param admin 관리자 정보
+     * @return UserDetails Spring Security 사용자 정보 객체
+     */
+    private UserDetails createAdminUserDetails(AdminTbl admin) {
+        // 관리자 권한 생성
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        
+        // 관리자 시스템 권한에 따라 추가 권한 부여
+        if (admin.getAdminSys() != null && admin.getAdminSys() > 0) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_SUPER_ADMIN"));
+        }
+        
+        // Spring Security User 객체 생성 및 반환
+        return new org.springframework.security.core.userdetails.User(
+            admin.getAdminId(),           // 사용자명(관리자 ID)
+            admin.getPassword(),          // 비밀번호
+            true,                         // 계정 활성화 여부
+            true,                         // 계정 만료 여부
+            true,                         // 자격 증명 만료 여부  
+            true,                         // 계정 잠금 여부
+            authorities                   // 권한 목록
+        );
+    }
+    // 성태준 추가 끝
 }

@@ -71,24 +71,32 @@ public class BoardController {
     }
 
     // 게시글 목록 조회 (페이징)
-    @GetMapping("/list")
-    // HTTP GET 요청을 처리하는 엔드포인트 매핑 (명확한 기능 구분: /api/boards/list)
-    public Page<BoardTbl> getAllBoards(@RequestParam(defaultValue = "0") Integer page,
-                                       @RequestParam(defaultValue = "10") Integer size) {
-        // @RequestParam : 쿼리 파라미터로 페이지 번호와 페이지 크기를 받음, 기본값 각각 0과 10
-        // 페이지 번호 : 0부터 시작
-        // 페이지 크기 : 한 페이지에 표시할 게시글 수
+    @PostMapping("/list")
+    // HTTP POST 요청을 처리하는 엔드포인트 매핑 (명확한 기능 구분: /api/boards/list)
+    public Page<BoardTbl> getAllBoards(@RequestBody java.util.Map<String, Integer> request) {
+        // @RequestBody Map<String, Integer> request : POST 요청 본문에서 페이지 정보를 받음
+        // JSON 형태: {"page": 0, "size": 10}
+        Integer page = request.getOrDefault("page", 0);
+        Integer size = request.getOrDefault("size", 10);
+        // 페이지 번호 : 0부터 시작, 기본값 0
+        // 페이지 크기 : 한 페이지에 표시할 게시글 수, 기본값 10
 
         return boardService.getAllBoards(page, size);
         // BoardService의 getAllBoards 메서드를 호출하여 페이징된 게시글 목록 반환
     }
 
     // 특정 게시글 조회 + 조회수 증가
-    @GetMapping("/{boardIdx}")
-    // 특정 게시글 상세 조회를 위한 엔드포인트 매핑
-    public ResponseEntity<?> getBoardDetail (@PathVariable Integer boardIdx) {
-        // @PathVariable Integer boardIdx : URL 경로에서 게시글 번호(boardIdx)를 추출
-        // boardIdx : 조회할 게시글의 고유 번호
+    @PostMapping("/detail")
+    // 특정 게시글 상세 조회를 위한 엔드포인트 매핑 (POST 방식)
+    public ResponseEntity<?> getBoardDetail (@RequestBody java.util.Map<String, Integer> request) {
+        // @RequestBody Map<String, Integer> request : POST 요청 본문에서 boardIdx를 추출
+        // JSON 형태: {"boardIdx": 1}
+        Integer boardIdx = request.get("boardIdx");
+        
+        if (boardIdx == null) {
+            return ResponseEntity.badRequest().body("boardIdx is required");
+        }
+        
         Optional<BoardTbl> board = boardService.getBoardDetail(boardIdx);
         
         if (board.isPresent()) {
@@ -131,8 +139,8 @@ public class BoardController {
     // ========== 기타 유틸리티 메서드 ==========
 
     // 활성화된 게시글 총 개수 조회
-    @GetMapping("/count")
-    // 활성화된 게시글 총 개수 조회를 위한 엔드포인트 매핑
+    @PostMapping("/count")
+    // 활성화된 게시글 총 개수 조회를 위한 엔드포인트 매핑 (POST 방식)
     public long getActiveBoardCount() {
 
         return boardService.getActiveBoardCount();
@@ -140,9 +148,16 @@ public class BoardController {
     }
 
     // 특정 게시글 존재 여부 확인
-    @GetMapping("/exists/{boardIdx}")
-    // 특정 게시글 존재 여부 확인을 위한 엔드포인트 매핑
-    public boolean isBoardExists(@PathVariable Integer boardIdx) {
+    @PostMapping("/exists")
+    // 특정 게시글 존재 여부 확인을 위한 엔드포인트 매핑 (POST 방식)
+    public boolean isBoardExists(@RequestBody java.util.Map<String, Integer> request) {
+        // @RequestBody Map<String, Integer> request : POST 요청 본문에서 boardIdx를 추출
+        // JSON 형태: {"boardIdx": 1}
+        Integer boardIdx = request.get("boardIdx");
+        
+        if (boardIdx == null) {
+            return false;
+        }
 
         return boardService.isBoardExists(boardIdx);
         // BoardService의 isBoardExists 메서드를 호출하여 특정 게시글 존재 여부 반환
@@ -151,25 +166,38 @@ public class BoardController {
     // ========== 게시글 종류(코드) 별 조회 ==========
 
     // 코드 별 게시글 조회 (페이징)
-    @GetMapping("/bycode/{boardCode}")
-    // 특정 코드별 게시글 조회를 위한 엔드포인트 매핑
-    public Page<BoardTbl> getBoardsByCode(@PathVariable Integer boardCode,
-                                          @RequestParam(defaultValue = "0") Integer page,
-                                          @RequestParam(defaultValue = "10") Integer size) {
-        // @PathVariable Integer boardCode : URL 경로에서 게시글 코드(boardCode)를 추출
+    @PostMapping("/bycode")
+    // 특정 코드별 게시글 조회를 위한 엔드포인트 매핑 (POST 방식)
+    public Page<BoardTbl> getBoardsByCode(@RequestBody java.util.Map<String, Integer> request) {
+        // @RequestBody Map<String, Integer> request : POST 요청 본문에서 조회 정보를 받음
+        // JSON 형태: {"boardCode": 0, "page": 0, "size": 10}
+        Integer boardCode = request.get("boardCode");
+        Integer page = request.getOrDefault("page", 0);
+        Integer size = request.getOrDefault("size", 10);
         // boardCode : 조회할 게시글의 코드 (0: 학교공지, 1: 학사공지, 2: 학과공지, 3: 교수공지)
-        // @RequestParam : 쿼리 파라미터로 페이지 번호와 페이지 크기를 받음, 기본값 각각 0과 10
-        // 페이지 번호 : 0부터 시작
-        // 페이지 크기 : 한 페이지에 표시할 게시글 수
+        // 페이지 번호 : 0부터 시작, 기본값 0
+        // 페이지 크기 : 한 페이지에 표시할 게시글 수, 기본값 10
+
+        if (boardCode == null) {
+            return null; // 또는 적절한 예외 처리
+        }
 
         return boardService.getBoardsByCode(boardCode, page, size);
         // BoardService의 getBoardsByCode 메서드를 호출하여 특정 코드별 페이징된 게시글 목록 반환
     }
 
     // 코드 별 게시글 총 개수 조회
-    @GetMapping("/count/bycode/{boardCode}")
-    // 특정 코드별 게시글 총 개수 조회를 위한 엔드포인트 매핑
-    public long getBoardCountByCode(@PathVariable Integer boardCode) {
+    @PostMapping("/count/bycode")
+    // 특정 코드별 게시글 총 개수 조회를 위한 엔드포인트 매핑 (POST 방식)
+    public long getBoardCountByCode(@RequestBody java.util.Map<String, Integer> request) {
+        // @RequestBody Map<String, Integer> request : POST 요청 본문에서 boardCode를 추출
+        // JSON 형태: {"boardCode": 0}
+        Integer boardCode = request.get("boardCode");
+        
+        if (boardCode == null) {
+            return 0;
+        }
+        
         return boardService.getBoardCountByCode(boardCode);
         // BoardService의 getBoardCountByCode 메서드를 호출하여 특정 코드별 게시글 총 개수 반환
     }
@@ -177,7 +205,7 @@ public class BoardController {
     // ========== 디버깅용 엔드포인트 ==========
     
     // 서버 상태 확인용
-    @GetMapping("/health")
+    @PostMapping("/health")
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("Board API is working! Server time: " + java.time.LocalDateTime.now());
     }

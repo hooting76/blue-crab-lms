@@ -95,7 +95,7 @@ async function getBoardDetail() {
     
     const boardIdx = parseInt(prompt('조회할 게시글 번호를 입력하세요:', '1'));
 
-    const result = await apiRequest(`${API_BASE_URL}/api/boards/${boardIdx}`, 'GET', null, true);
+    const result = await apiRequest(`${API_BASE_URL}/api/boards/detail`, 'POST', { boardIdx }, true);
     
     if (result.success) {
         console.log('✅ 게시글 조회 성공!');
@@ -122,7 +122,7 @@ async function getBoardList() {
 
     console.log('\n📋 게시글 목록 조회 (최신 5개)...');
 
-    const result = await apiRequest(`${API_BASE_URL}/api/boards/list?page=0&size=5`, 'GET', null, true);
+    const result = await apiRequest(`${API_BASE_URL}/api/boards/list`, 'POST', { page: 0, size: 5 }, true);
     
     if (result.success) {
         console.log('✅ 게시글 목록 조회 성공!');
@@ -155,7 +155,7 @@ async function getBoardsByCode() {
     const codeNames = { 0: '학교공지', 1: '학사공지', 2: '학과공지', 3: '교수공지' };
     const codeName = codeNames[boardCode] || '알 수 없음';
 
-    const result = await apiRequest(`${API_BASE_URL}/api/boards/bycode/${boardCode}?page=0&size=5`, 'GET', null, true);
+    const result = await apiRequest(`${API_BASE_URL}/api/boards/bycode`, 'POST', { boardCode, page: 0, size: 5 }, true);
     
     if (result.success) {
         console.log(`✅ ${codeName} 조회 성공!`);
@@ -185,7 +185,7 @@ async function checkBoardExists() {
     
     const boardIdx = parseInt(prompt('존재 여부를 확인할 게시글 번호:', '1'));
 
-    const result = await apiRequest(`${API_BASE_URL}/api/boards/exists/${boardIdx}`, 'GET', null, true);
+    const result = await apiRequest(`${API_BASE_URL}/api/boards/exists`, 'POST', { boardIdx }, true);
     
     if (result.success) {
         const exists = result.data;
@@ -206,7 +206,7 @@ async function getBoardCount() {
 
     console.log('\n📊 전체 게시글 개수 조회...');
 
-    const result = await apiRequest(`${API_BASE_URL}/api/boards/count`, 'GET', null, true);
+    const result = await apiRequest(`${API_BASE_URL}/api/boards/count`, 'POST', {}, true);
     
     if (result.success) {
         console.log('✅ 전체 게시글 개수:', result.data + '개');
