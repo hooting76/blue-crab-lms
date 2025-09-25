@@ -56,6 +56,17 @@ public class MinIOService {
     private MinioClient minioClient;
 
     /**
+     * 이미지 키로부터 MinIO 객체 이름 생성
+     * 프로필 폴더가 설정된 경우 폴더/키 형태로, 없으면 키만 사용
+     */
+    private String buildObjectName(String imageKey) {
+        if (profileFolder == null || profileFolder.trim().isEmpty()) {
+            return imageKey;
+        }
+        return profileFolder + "/" + imageKey;
+    }
+
+    /**
      * MinIO 클라이언트 초기화
      * 서비스 시작 시 MinIO 서버와 연결 설정
      */
@@ -91,7 +102,7 @@ public class MinIOService {
 
         try {
             // 프로필 폴더 내 이미지 경로 생성
-            String objectName = profileFolder + "/" + imageKey;
+            String objectName = buildObjectName(imageKey);
 
             logger.debug("프로필 이미지 URL 생성 요청 - Object: {}", objectName);
 
@@ -136,7 +147,7 @@ public class MinIOService {
         }
 
         try {
-            String objectName = profileFolder + "/" + imageKey;
+            String objectName = buildObjectName(imageKey);
 
             // 객체 정보 조회로 존재 여부 확인
             minioClient.statObject(
@@ -204,7 +215,7 @@ public class MinIOService {
         }
 
         try {
-            String objectName = profileFolder + "/" + imageKey;
+            String objectName = buildObjectName(imageKey);
 
             logger.debug("프로필 이미지 스트림 조회 - Object: {}", objectName);
 
@@ -239,7 +250,7 @@ public class MinIOService {
         }
 
         try {
-            String objectName = profileFolder + "/" + imageKey;
+            String objectName = buildObjectName(imageKey);
 
             StatObjectResponse metadata = minioClient.statObject(
                 StatObjectArgs.builder()

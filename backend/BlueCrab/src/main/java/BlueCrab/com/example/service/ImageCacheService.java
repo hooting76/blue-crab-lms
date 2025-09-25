@@ -50,7 +50,7 @@ public class ImageCacheService {
      * @param imageStream MinIO에서 가져온 이미지 스트림 (캐시 미스 시 사용)
      * @return 캐시된 이미지 바이트 배열
      */
-    @Cacheable(key = "#imageKey", condition = "#root.target.cacheEnabled")
+    // @Cacheable 어노테이션 제거하여 캐시 기능 임시 비활성화 (타입 캐스팅 오류 해결)
     public byte[] getCachedImageBytes(String imageKey, InputStream imageStream) {
         try {
             logger.debug("캐시 미스 - MinIO에서 이미지 로딩: {}", imageKey);
@@ -141,6 +141,16 @@ public class ImageCacheService {
         if (cacheEnabled) {
             logger.info("전체 이미지 캐시 무효화 실행");
         }
+    }
+
+    /**
+     * 캐시 활성화 여부 반환
+     * Spring Cache의 SpEL 표현식에서 접근하기 위한 public getter
+     *
+     * @return 캐시 활성화 여부
+     */
+    public boolean isCacheEnabled() {
+        return cacheEnabled;
     }
 
     /**

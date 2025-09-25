@@ -73,7 +73,7 @@ public class ProfileController {
      * @return 사용자의 종합 프로필 정보
      *
      * 요청 예시:
-     * GET /api/profile/me
+     * POST /api/profile/me
      * Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
      *
      * 응답 예시:
@@ -85,7 +85,7 @@ public class ProfileController {
      *     "userName": "테스트 사용자",
      *     "userPhone": "01087654321",
      *     "userType": 1,
-     *     "majorCode": 12345,
+     *     "majorCode": "202500101000",
      *     "zipCode": "12345",
      *     "mainAddress": "서울특별시 강남구",
      *     "detailAddress": "테헤란로 123",
@@ -101,7 +101,7 @@ public class ProfileController {
      *   "timestamp": "2024-08-27T10:30:00Z"
      * }
      */
-    @GetMapping("/me")
+    @PostMapping("/me")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getMyProfile(HttpServletRequest request) {
         try {
             // JWT 토큰에서 사용자 이메일 추출
@@ -142,7 +142,7 @@ public class ProfileController {
      * @return 프로필 완성도 정보
      *
      * 요청 예시:
-     * GET /api/profile/me/completeness
+     * POST /api/profile/me/completeness
      * Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
      *
      * 응답 예시:
@@ -157,7 +157,7 @@ public class ProfileController {
      *   "timestamp": "2024-08-27T10:30:00Z"
      * }
      */
-    @GetMapping("/me/completeness")
+    @PostMapping("/me/completeness")
     public ResponseEntity<ApiResponse<Map<String, Object>>> checkProfileCompleteness(HttpServletRequest request) {
         try {
             // JWT 토큰에서 사용자 이메일 추출
@@ -236,7 +236,7 @@ public class ProfileController {
      * @return 프로필 이미지 URL 정보
      *
      * 요청 예시:
-     * GET /api/profile/me/image
+     * POST /api/profile/me/image
      * Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
      *
      * 응답 예시:
@@ -251,7 +251,7 @@ public class ProfileController {
      *   "timestamp": "2024-08-27T10:30:00Z"
      * }
      */
-    @GetMapping("/me/image")
+    @PostMapping("/me/image")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getMyProfileImage(HttpServletRequest request) {
         try {
             // JWT 토큰에서 사용자 이메일 추출
@@ -373,7 +373,7 @@ public class ProfileController {
         profileData.put("userPhone", profile.getUserPhone() != null ? profile.getUserPhone() : "");
         profileData.put("userType", profile.getUserType() != null ? profile.getUserType() : 0);
         profileData.put("userTypeText", profile.getUserTypeText() != null ? profile.getUserTypeText() : "");
-        profileData.put("majorCode", profile.getMajorCode() != null ? profile.getMajorCode() : 0);
+        profileData.put("majorCode", profile.getMajorCode() != null ? profile.getMajorCode() : "");
         
         // 주소 정보
         profileData.put("zipCode", profile.getZipCode() != null ? profile.getZipCode() : "");
