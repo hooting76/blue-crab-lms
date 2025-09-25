@@ -4,13 +4,12 @@ import { useEffect, useState, useMemo } from "react";
 import NoticeTable from "./NoticeTable"; //작성중(rows 받아서 표 렌더)
 import Pagination from "../notices/Pagination";
 import{ UseUser } from "../../../hook/UseUser";
-import MOCK_NOTICES from "../../../src/mock/notices";  //목업데이터 임포트
 import getNotices from "../../api/noticeAPI"; //API 함수 임포트,백엔드 붙일때 사용
 import "../../../css/Communities/Notice-ui.css";
 
 export default function NoticeList({ 
-    boardCode = "0", 
-    page = 1, 
+    boardCode = 0, 
+    page = 0, 
     size = 10,
     onPageChange,
     onWrite,
@@ -25,41 +24,45 @@ export default function NoticeList({
     const accessToken = isAuthenticated ? user.data.accessToken : null;
 
     useEffect(() => {
-    let alive = true;
-    setState((s) => ({ ...s, loading: true }));
+      let alive = true;
+      setState((s) => ({ ...s, loading: true }));
 
-    getNotices(accessToken, boardCode, 0, 1000) // ⚠️ BOARD_CODE 제거: 전체를 가져오고, 프론트에서 필터링
-      .then(res => {
-        if (!alive) return;
+      getNotices(accessToken, 0, 10) // BOARD_CODE 제거: 전체를 가져오고, 프론트에서 필터링
+        .then(res => {
+          if (!alive) return;
 
-        const allItems = Array.isArray(res.items) ? res.items : [];
+          const allItems = Array.isArray(res.items) ? res.items : [];
 
-        // ✅ BOARD_CODE 필터링
-        const filtered = allItems.filter((item) => item.boardCode === boardCode);
+          // ✅ BOARD_CODE 필터링
+          // const filtered = allItems.filter((item) => item.boardCode === boardCode);
 
-        // ✅ 최신순 정렬 (작성일 기준)
-        filtered.sort((a, b) => (b.boardReg || "").localeCompare(a.boardReg || ""));
+          // ✅ 최신순 정렬 (작성일 기준)
+          // filtered.sort((a, b) => (b.boardReg || "").localeCompare(a.boardReg || ""));
 
-        // ✅ 페이징 처리
-        const start = (page - 1) * size;
-        const end = start + size;
-        const pageItems = filtered.slice(start, end);
+          allItems.sort((a, b) => (b.boardReg || "").localeCompare(a.boardReg || ""));
 
-        setState({
-          items: pageItems,
-          total: filtered.length,
-          loading: false
+          console.log(allItems);
+
+          // ✅ 페이징 처리
+          const start = (page - 1) * size;
+          const end = start + size;
+          const pageItems = allItems.slice(start, end);
+
+          setState({
+            items: pageItems,
+            total: allItems.length,
+            loading: false
+          });
+        })
+        .catch(() => {
+          if (!alive) return;
+          setState({ items: [], total: 0, loading: false });
         });
-      })
-      .catch(() => {
-        if (!alive) return;
-        setState({ items: [], total: 0, loading: false });
-      });
 
-    return () => {
-      alive = false;
-    };
-    }, [accessToken, boardCode, page, size]);
+      return () => {
+        alive = false;
+      };
+    }, [accessToken, page, size]);
 
 
         const rows = useMemo(() => state.items, [state.items]); //공지 목록
