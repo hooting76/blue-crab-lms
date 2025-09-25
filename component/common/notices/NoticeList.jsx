@@ -41,7 +41,7 @@ export default function NoticeList({
 
           allItems.sort((a, b) => (b.boardReg || "").localeCompare(a.boardReg || ""));
 
-          console.log(allItems);
+          console.log(res);
 
           // ✅ 페이징 처리
           const start = (page - 1) * size;
