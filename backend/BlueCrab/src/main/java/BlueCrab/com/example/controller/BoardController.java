@@ -14,6 +14,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+// ========== 로깅 ==========
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 // ========== 프로젝트 내부 클래스 ==========
 import BlueCrab.com.example.entity.BoardTbl;
 import BlueCrab.com.example.service.BoardService;
@@ -22,6 +26,9 @@ import BlueCrab.com.example.service.BoardService;
 @RestController
 @RequestMapping("/api/boards")
 public class BoardController {
+    
+    // ========== 로거 ==========
+    private static final Logger logger = LoggerFactory.getLogger(BoardController.class);
 
     // =========== 의존성 주입 ==========
 
@@ -36,16 +43,30 @@ public class BoardController {
     // HTTP POST 요청을 처리하는 엔드포인트 매핑 (명확한 기능 구분: /api/boards/create)
     public ResponseEntity<?> createBoard(@RequestBody BoardTbl boardTbl) {
         // @RequestBody BoardTbl boardTbl : 요청 본문에 포함된 JSON 데이터를 BoardTbl 객체로 매핑
-        Optional<BoardTbl> result = boardService.createBoard(boardTbl);
-        // BoardService의 createBoard 메서드를 호출하여 게시글 생성해 DB에 저장
+        logger.info("BoardController.createBoard 호출됨 - 제목: {}, 코드: {}", 
+                   boardTbl.getBoardTitle(), boardTbl.getBoardCode());
         
-        if (result.isPresent()) {
-            return ResponseEntity.ok(result.get());
-            // 게시글 생성 성공 - 200 OK와 함께 생성된 게시글 반환
-        } else {
-            return ResponseEntity.badRequest()
-                    .body("관리자 또는 교수만 게시글을 작성할 수 있습니다");
-            // 게시글 생성 실패 (권한 없음) - 400 Bad Request와 함께 에러 메시지 반환
+        try {
+            Optional<BoardTbl> result = boardService.createBoard(boardTbl);
+            // BoardService의 createBoard 메서드를 호출하여 게시글 생성해 DB에 저장
+            
+            logger.info("BoardService.createBoard 완료 - 결과: {}", result.isPresent() ? "성공" : "실패");
+        
+            if (result.isPresent()) {
+                logger.info("게시글 생성 성공 - ID: {}, 제목: {}", result.get().getBoardIdx(), result.get().getBoardTitle());
+                return ResponseEntity.ok(result.get());
+                // 게시글 생성 성공 - 200 OK와 함께 생성된 게시글 반환
+            } else {
+                logger.warn("게시글 생성 실패 - 권한 없음");
+                return ResponseEntity.badRequest()
+                        .body("관리자 또는 교수만 게시글을 작성할 수 있습니다");
+                // 게시글 생성 실패 (권한 없음) - 400 Bad Request와 함께 에러 메시지 반환
+            }
+            
+        } catch (Exception e) {
+            logger.error("BoardController.createBoard 에러 발생: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError()
+                    .body("게시글 생성 중 서버 오류가 발생했습니다: " + e.getMessage());
         }
     }
 

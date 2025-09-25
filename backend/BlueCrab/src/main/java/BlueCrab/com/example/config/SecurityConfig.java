@@ -129,15 +129,8 @@ public class SecurityConfig {
                 .requestMatchers("/", "/status").permitAll() // 메인 페이지 및 상태 페이지
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll() // 정적 리소스
                 
-                // � 게시판 조회 API (로그인 사용자만 접근 가능)
-                .requestMatchers(HttpMethod.GET, "/api/boards/count").authenticated() // 게시글 수 조회
-                .requestMatchers(HttpMethod.GET, "/api/boards/list").authenticated() // 게시글 목록 조회
-                .requestMatchers(HttpMethod.GET, "/api/boards/bycode/**").authenticated() // 코드별 게시글 조회
-                .requestMatchers(HttpMethod.GET, "/api/boards/*/view").authenticated() // 특정 게시글 조회 (조회수 증가)
-                .requestMatchers(HttpMethod.GET, "/api/boards/*").authenticated() // 특정 게시글 상세 조회
-                .requestMatchers(HttpMethod.GET, "/api/boards/health").permitAll() // 서버 상태 확인 (디버깅용, 공개)
-                .requestMatchers(HttpMethod.GET, "/api/boards/exists/*").authenticated() // 게시글 존재 여부 확인
-                .requestMatchers(HttpMethod.GET, "/api/boards/count/bycode/*").authenticated() // 코드별 게시글 수 조회
+                // � 게시판 조회 API (임시로 모두 허용 - 디버깅용)
+                .requestMatchers("/api/boards/**").permitAll() // 모든 boards API 임시 허용
                 
                 // 🌐 CORS Preflight 요청 허용 (중요!)
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 모든 OPTIONS 요청 허용
