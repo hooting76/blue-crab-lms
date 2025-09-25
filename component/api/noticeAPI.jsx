@@ -7,13 +7,32 @@ const getHeaders = (accessToken) => ({
 });
 
 // 게시글 목록 조회 (페이징)
+const BASE_URL = 'https://bluecrab.chickenkiller.com/Bluecrab-1.0.0/api/boards';
+
+// 공통 헤더 생성 함수
+const getHeaders = (accessToken) => ({
+  'Authorization': `Bearer ${accessToken}`,
+  'Content-Type': 'application/json'
+});
+
+// 게시글 목록 조회 (POST 방식)
 const getNotices = async (accessToken, boardCode, page = 0, size = 10) => {
   try {
-    let url = `${BASE_URL}/list?page=${page}&size=${size}`;
-    if (boardCode) url += `&BOARD_CODE=${boardCode}`;
+    const url = `${BASE_URL}/list`; // 쿼리 파라미터 제거
+
+    // 요청에 포함할 바디 데이터
+    const requestBody = {
+      page,
+      size,
+    };
+    if (boardCode) {
+      requestBody.BOARD_CODE = boardCode;
+    }
 
     const response = await fetch(url, {
+      method: 'POST',
       headers: getHeaders(accessToken),
+      body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) throw new Error('게시판 목록을 불러오는 데 실패했습니다.');
