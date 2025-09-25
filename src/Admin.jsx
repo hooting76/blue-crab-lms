@@ -80,10 +80,14 @@ const renderPage = () => {
 
     return (
         <div id="wrap" className={AdminBdCss.wrap}>
-            {isAuthenticated ? <AdNav/> : null}
+            {isAuthenticated ? 
+            <AdNav currentPage={currentPage} setCurrentPage={setCurrentPage}/>
+             : null}
             <div id="content" className={AdminBdCss.content}>
                 {isAuthenticated ? <AdHeader /> : null }
-                {isAuthenticated ? renderPage() : <AdminLogin/>}
+                {isAuthenticated ? 
+                renderPage()
+                 : <AdminLogin/>}
                 {isAuthenticated ? <AdFooter /> : null }
             </div>
         </div>
