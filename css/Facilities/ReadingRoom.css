@@ -1,0 +1,202 @@
+/* 페이지 래핑 */
+.readingroom-wrap {
+  padding: 16px;
+  background: #f3f5f9;
+  min-height: 100%;
+}
+
+/* 배너: 제목 가운데, 우측 정보는 오른쪽 고정 */
+.banner {
+  background: #eef2f7;
+  border: 1px solid #e2e8f0;
+  padding: 12px 16px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* ⬅ 제목 가운데 */
+  position: relative;
+  margin-bottom: 12px;
+}
+.banner-center h2 {
+  margin: 0;
+  font-size: 20px;
+  text-align: center;
+}
+/* 우측 정보 영역 */
+.banner-right {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.avail-chip {
+  background: #ecfeff;
+  border: 1px solid #a5f3fc;
+  color: #0e7490;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.use-guide {
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+/* 배너 아래 상단 모달(가이드/확인 공용) */
+.top-modal {
+  position: sticky;
+  top: 8px; /* 배너 아래에 고정되는 느낌 */
+  z-index: 30;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+.top-modal__content {
+  width: clamp(320px, 40vw, 520px);
+  background: #ffffff;
+  border: 1px solid #e1e5ee;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+.top-modal__title {
+  padding: 10px 14px;
+  font-weight: 700;
+  border-bottom: 1px solid #eef2f7;
+  background: #f8fafc;
+}
+.top-modal__body {
+  padding: 12px 14px;
+}
+.top-modal__body ul {
+  margin: 8px 0 0 18px;
+}
+.top-modal__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 10px 14px;
+  border-top: 1px solid #eef2f7;
+}
+.primary {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+.ghost {
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+/* 카드 */
+.room-card {
+  background: #fff;
+  border: 1px solid #e1e5ee;
+  border-radius: 12px;
+  padding: 12px;
+  width: clamp(720px, 70vw, 1100px);
+  margin: 0 auto;
+}
+.room-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.gate {
+  background: #e9edf6;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+/* 좌석 그리드 — 기본 10열 (가로 확장) */
+.seat-grid {
+  margin: 12px auto;
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 10), 38px); /* 기본 10열 */
+  gap: 10px 18px;
+  justify-content: center;
+}
+
+/* 반응형: 화면이 좁아지면 열 수 조정(선택) */
+@media (max-width: 1200px) {
+  .seat-grid {
+    grid-template-columns: repeat(10, 36px);
+  }
+}
+@media (max-width: 900px) {
+  .seat-grid {
+    grid-template-columns: repeat(8, 34px);
+  }
+}
+
+/* 좌석 버튼 */
+.seat {
+  width: 38px;
+  height: 38px;
+  border-radius: 6px;
+  border: none;
+  font-size: 12px;
+  color: #fff;
+}
+.seat.available {
+  background: #20c933;
+}
+.seat.occupied {
+  background: #ff4db8;
+  cursor: not-allowed;
+}
+.seat:disabled {
+  opacity: 0.9;
+}
+
+/* 범례 */
+.legend {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  color: #444;
+  font-size: 14px;
+  margin-top: 10px;
+}
+.legend .chip {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  margin-right: 6px;
+  position: relative;
+  top: 2px;
+}
+.chip-available {
+  background: #20c933;
+}
+.chip-occupied {
+  background: #ff4db8;
+}
+
+/* 상태 메시지 */
+.loading,
+.error {
+  text-align: center;
+  padding: 28px 0;
+  color: #475569;
+}
+.error-inline {
+  background: #fff1f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  padding: 8px 12px;
+  border-radius: 8px;
+  width: clamp(720px, 70vw, 1100px);
+  margin: 0 auto 12px auto;
+}
