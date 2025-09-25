@@ -7,15 +7,19 @@ const getHeaders = (accessToken) => ({
 });
 
 // 게시글 목록 조회 (페이징)
-const getNotices = async (accessToken, page = 0, size = 10) => {
+const getNotices = async (accessToken, boardCode, page = 0, size = 10) => {
   try {
-    const response = await fetch(`${BASE_URL}/list?page=${page}&size=${size}`, {
-      headers: getHeaders(accessToken)
+    let url = `${BASE_URL}/list?page=${page}&size=${size}`;
+    if (boardCode) url += `&BOARD_CODE=${boardCode}`;
+
+    const response = await fetch(url, {
+      headers: getHeaders(accessToken),
     });
-    if (!response.ok) throw new Error('게시글 목록을 불러오는데 실패했습니다.');
+
+    if (!response.ok) throw new Error('게시판 목록을 불러오는 데 실패했습니다.');
     return await response.json();
   } catch (error) {
-    console.error('게시글 목록 조회 에러:', error);
+    console.error('게시판 목록 조회 에러:', error);
     throw error;
   }
 };
