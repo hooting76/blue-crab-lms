@@ -104,7 +104,7 @@ async function getBoardDetail() {
         console.log('내용:', result.data.boardContent);
         console.log('작성자:', result.data.boardWriter);
         console.log('작성일:', result.data.boardReg || result.data.boardDate);
-        console.log('조회수:', result.data.boardView || result.data.boardViews);
+        console.log('조회수:', result.data.boardView ?? result.data.boardViews ?? 0);
         console.log('코드:', result.data.boardCode);
         return result.data;
     } else {
@@ -130,9 +130,10 @@ async function getBoardList() {
         
         result.data.content.forEach((board, index) => {
             const codeNames = { 0: '학교공지', 1: '학사공지', 2: '학과공지', 3: '교수공지' };
+            const viewCount = board.boardView ?? board.boardViews ?? 0; // null/undefined일 때만 0 사용
             console.log(`\n${index + 1}. [${board.boardIdx}] ${board.boardTitle}`);
             console.log(`   작성자: ${board.boardWriter} | 날짜: ${board.boardReg || board.boardDate}`);
-            console.log(`   유형: ${codeNames[board.boardCode]} | 조회수: ${board.boardView || board.boardViews}`);
+            console.log(`   유형: ${codeNames[board.boardCode]} | 조회수: ${viewCount}`);
         });
         
         return result.data;
@@ -162,9 +163,10 @@ async function getBoardsByCode() {
         console.log(`총 ${result.data.totalElements}개 중 ${result.data.content.length}개 표시`);
         
         result.data.content.forEach((board, index) => {
+            const viewCount = board.boardView ?? board.boardViews ?? 0; // null/undefined일 때만 0 사용
             console.log(`\n${index + 1}. [${board.boardIdx}] ${board.boardTitle}`);
             console.log(`   작성자: ${board.boardWriter} | 날짜: ${board.boardReg || board.boardDate}`);
-            console.log(`   조회수: ${board.boardView || board.boardViews}`);
+            console.log(`   조회수: ${viewCount}`);
         });
         
         return result.data;
