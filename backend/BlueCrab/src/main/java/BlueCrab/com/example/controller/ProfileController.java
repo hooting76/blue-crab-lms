@@ -1,6 +1,7 @@
 package BlueCrab.com.example.controller;
 
 import BlueCrab.com.example.dto.ApiResponse;
+import BlueCrab.com.example.dto.ImageRequest;
 import BlueCrab.com.example.entity.ProfileView;
 import BlueCrab.com.example.service.ProfileService;
 import BlueCrab.com.example.service.MinIOService;
@@ -28,7 +29,7 @@ import java.util.Map;
  * 주요 기능:
  * - 내 프로필 정보 조회 (/api/profile/me)
  * - 프로필 완성도 체크 (/api/profile/me/completeness)
- * - 프로필 이미지 파일 조회 (/api/profile/me/image/{imageKey})
+ * - 프로필 이미지 파일 조회 (POST /api/profile/me/image/file)
  *
  * 보안 사항:
  * - JWT 토큰을 통한 인증 필수
@@ -283,30 +284,43 @@ public class ProfileController {
     }
 
     /**
-     * 프로필 이미지 파일 직접 조회 (프록시 방식)
+     * 프로필 이미지 파일 직접 조회 (프록시 방식) - POST 방식
      * JWT 토큰으로 본인 인증 후 MinIO에서 이미지를 가져와 직접 전달
      *
-     * @param imageKey 이미지 파일 키
+     * @param imageRequest 이미지 요청 정보 (imageKey 포함)
      * @param request HTTP 요청 (Authorization 헤더에서 토큰 추출)
      * @return 이미지 파일 바이너리 데이터
      *
      * 요청 예시:
-     * GET /api/profile/me/image/profile_123.jpg
+     * POST /api/profile/me/image/file
+     * Content-Type: application/json
      * Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+     * {
+     *   "imageKey": "profile_123.jpg"
+     * }
      *
      * 장점:
      * - MinIO 서버 직접 노출 없음
      * - JWT 기반 보안 (본인 이미지만 접근)
-     * - 클라이언트는 일반적인 이미지 URL로 접근 가능
+     * - POST 방식으로 보안 강화
      */
-    @GetMapping("/me/image/{imageKey}")
+    @PostMapping("/me/image/file")
     public ResponseEntity<Resource> getMyProfileImageFile(
-            @PathVariable String imageKey,
+            @RequestBody ImageRequest imageRequest,
             HttpServletRequest request) {
 
         try {
             // JWT 토큰에서 사용자 이메일 추출
             String userEmail = extractUserEmailFromToken(request);
+            
+            // 요청에서 이미지 키 추출
+            String imageKey = imageRequest.getImageKey();
+            
+            // 입력 유효성 검사
+            if (imageKey == null || imageKey.trim().isEmpty()) {
+                logger.warn("이미지 키가 제공되지 않음 - 사용자: {}", userEmail);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
 
             logger.info("프로필 이미지 파일 조회 요청 - 사용자: {}, 이미지: {}", userEmail, imageKey);
 
@@ -344,14 +358,17 @@ public class ProfileController {
                     .body(resource);
 
         } catch (IllegalArgumentException e) {
+            String imageKey = imageRequest != null ? imageRequest.getImageKey() : "unknown";
             logger.warn("잘못된 이미지 요청 - 이미지: {}, 오류: {}", imageKey, e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
         } catch (RuntimeException e) {
+            String imageKey = imageRequest != null ? imageRequest.getImageKey() : "unknown";
             logger.warn("프로필 이미지 접근 실패 - 이미지: {}, 오류: {}", imageKey, e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
         } catch (Exception e) {
+            String imageKey = imageRequest != null ? imageRequest.getImageKey() : "unknown";
             logger.error("프로필 이미지 조회 중 시스템 오류 - 이미지: {}, 오류: {}", imageKey, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -379,7 +396,6 @@ public class ProfileController {
         profileData.put("zipCode", profile.getZipCode() != null ? profile.getZipCode() : "");
         profileData.put("mainAddress", profile.getMainAddress() != null ? profile.getMainAddress() : "");
         profileData.put("detailAddress", profile.getDetailAddress() != null ? profile.getDetailAddress() : "");
-        profileData.put("fullAddress", profile.getFullAddress() != null ? profile.getFullAddress() : "");
         
         // 개인 정보
         profileData.put("birthDate", profile.getBirthDate() != null ? profile.getBirthDate() : "");
@@ -403,43 +419,33 @@ public class ProfileController {
     }
 
     /**
-     * 이미지 응답 데이터 생성 (단일 원본 이미지 방식)
-     * 원본 이미지 URL만 제공, 썸네일은 프론트엔드에서 생성
+     * 이미지 응답 데이터 생성 (간소화된 버전)
+     * 이미지 존재 여부와 키만 제공, URL은 프론트엔드에서 생성
      *
      * @param imageKey 프로필 이미지 키
-     * @return 이미지 URL 정보
+     * @return 이미지 기본 정보 (hasImage, imageKey)
      */
     private Map<String, Object> createImageResponseData(String imageKey) {
         boolean hasImage = imageKey != null && !imageKey.trim().isEmpty();
-        String imageUrl = "";
 
         if (hasImage) {
             try {
-                // 원본 이미지 프록시 URL만 생성
-                imageUrl = appDomain + "/api/profile/me/image/" + imageKey;
-
                 // MinIO 연결 상태 확인 (이미지가 실제로 존재하는지 체크)
                 boolean imageExists = minIOService.imageExists(imageKey);
                 if (!imageExists) {
                     hasImage = false;
-                    imageUrl = "";
                     logger.warn("MinIO에서 이미지를 찾을 수 없음 - Key: {}", imageKey);
                 }
 
             } catch (Exception e) {
-                logger.warn("이미지 URL 생성 중 오류 발생 - Key: {}, Error: {}", imageKey, e.getMessage());
+                logger.warn("이미지 존재 확인 중 오류 발생 - Key: {}, Error: {}", imageKey, e.getMessage());
                 hasImage = false;
-                imageUrl = "";
             }
         }
 
         return Map.of(
             "hasImage", hasImage,
-            "imageKey", imageKey != null ? imageKey : "",
-            "imageUrl", imageUrl,
-            "minioHealthy", minIOService.isMinioHealthy(),
-            "proxyMode", true,  // 프록시 모드임을 명시
-            "clientSideResize", true  // 프론트엔드에서 리사이징함을 명시
+            "imageKey", imageKey != null ? imageKey : ""
         );
     }
 
