@@ -37,9 +37,14 @@ const getNotices = async (accessToken, boardCode, page = 0, size = 10) => {
 // 특정 게시글 상세 조회
 export const getNoticeDetail = async (accessToken, boardIdx) => {
   try {
-    const response = await fetch(`${BASE_URL}/${boardIdx}`, {
-      headers: getHeaders(accessToken)
+    const url = `${BASE_URL}/${boardIdx}`;
+    
+    const response = await fetch(url, {
+      method: 'POST', // POST 방식 명시
+      headers: getHeaders(accessToken),
+      body: JSON.stringify({ boardIdx }) // boardIdx를 body에 담음
     });
+
     if (!response.ok) throw new Error('게시글을 불러오는데 실패했습니다.');
     return await response.json();
   } catch (error) {
@@ -47,6 +52,7 @@ export const getNoticeDetail = async (accessToken, boardIdx) => {
     throw error;
   }
 };
+
 
 // 게시글 작성
 export const createNotice = async (accessToken, noticeData) => {
