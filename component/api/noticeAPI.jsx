@@ -6,15 +6,6 @@ const getHeaders = (accessToken) => ({
   'Content-Type': 'application/json'
 });
 
-// 게시글 목록 조회 (페이징)
-const BASE_URL = 'https://bluecrab.chickenkiller.com/Bluecrab-1.0.0/api/boards';
-
-// 공통 헤더 생성 함수
-const getHeaders = (accessToken) => ({
-  'Authorization': `Bearer ${accessToken}`,
-  'Content-Type': 'application/json'
-});
-
 // 게시글 목록 조회 (POST 방식)
 const getNotices = async (accessToken, boardCode, page = 0, size = 10) => {
   try {
