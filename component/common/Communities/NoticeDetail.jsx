@@ -1,11 +1,13 @@
 import "../../../css/Communities/NoticeDetail.css"
 import React, { useEffect, useState } from 'react';
 import { getNoticeDetail } from '../../api/noticeAPI';
+import { UseUser } from "../../../hook/UseUser";
 
 const NoticeDetail = ({ boardIdx, isAuthenticated, user }) => {
   const [notice, setNotice] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { user, isAuthenticated } = UseUser();
 
   const accessToken = isAuthenticated ? user?.data?.accessToken : null;
 
