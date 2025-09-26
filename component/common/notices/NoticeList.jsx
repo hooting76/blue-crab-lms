@@ -96,7 +96,7 @@ export default function NoticeList({
 
             {/* 하단 페이지네이션: URL basepath 제거, 상태 콜백만 사용 */}
             <Pagination
-              page={currentNoticePage}
+              page={page}
               size={10}
               total={state.total}
               onChange={handlePageChange}/>
