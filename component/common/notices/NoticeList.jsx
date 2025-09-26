@@ -31,7 +31,7 @@ export default function NoticeList({
         .then(res => {
           if (!alive) return;
 
-          const allItems = res.items;
+          const allItems = res.content;
 
           // ✅ BOARD_CODE 필터링
           const filtered = allItems.filter((item) => item.boardCode === boardCode);
@@ -61,7 +61,7 @@ export default function NoticeList({
       return () => {
         alive = false;
       };
-    }, [accessToken, page, size]);
+    }, [accessToken, page, size, boardCode]);
 
 
         const rows = useMemo(() => state.items, [state.items]); //공지 목록
