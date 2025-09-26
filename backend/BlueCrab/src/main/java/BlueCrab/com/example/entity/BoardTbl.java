@@ -16,6 +16,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Table;
 
+// ========== Validation 어노테이션 ==========
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Max;
+
 @Entity
 @Table(name = "BOARD_TBL")
 public class BoardTbl {
@@ -25,6 +32,9 @@ public class BoardTbl {
     private Integer boardIdx;
     // 개시글 번호(기본키, 자동생성)
 
+    @NotNull(message = "게시글 코드는 필수입니다")
+    @Min(value = 0, message = "게시글 코드는 0 이상이어야 합니다")
+    @Max(value = 3, message = "게시글 코드는 3 이하여야 합니다")
     @Column(name = "BOARD_CODE", length = 5, columnDefinition = "INTEGER", nullable = false)
     private Integer boardCode;
     // 개시글 코드(0 : 학교공지 / 1 : 학사공지 / 2 : 학과공지 / 3 : 교수공지)
@@ -38,11 +48,14 @@ public class BoardTbl {
     private String boardWriter;
     // 개시글 작성자
 
+    @Size(max = 100, message = "게시글 제목은 100자를 초과할 수 없습니다")
     @Column(name = "BOARD_TIT", length = 100, columnDefinition = "VARCHAR", nullable = true)
     private String boardTitle = "공지사항";
     // 개시글 제목
     // 기본값 "공지사항"으로 설정
 
+    @NotBlank(message = "게시글 내용은 필수입니다")
+    @Size(max = 200, message = "게시글 내용은 200자를 초과할 수 없습니다")
     @Column(name = "BOARD_CONT", length = 200, columnDefinition = "VARCHAR", nullable = true)
     private String boardContent;
     // 개시글 내용
@@ -72,6 +85,14 @@ public class BoardTbl {
     @Column(name = "BOARD_IP", length = 250, columnDefinition = "VARCHAR", nullable = true)
     private String boardIp;
     // 개시글 작성자 IP
+
+    @Column(name = "BOARD_WRITER_IDX", length = 11, columnDefinition = "INTEGER", nullable = false)
+    private Integer boardWriterIdx;
+    // 개시글 작성자 식별자 (UserTbl의 UserIdx 또는 AdminTbl의 AdminIdx)
+
+    @Column(name = "BOARD_WRITER_TYPE", length = 11, columnDefinition = "INTEGER", nullable = false)
+    private Integer boardWriterType;
+    // 개시글 작성자 유형 (0: 일반 사용자(교수), 1: 관리자)
 
     // ========== Getter & Setter ==========
     public Integer getBoardIdx() {
@@ -170,6 +191,22 @@ public class BoardTbl {
         this.boardIp = boardIp;
     }
 
+    public Integer getBoardWriterIdx() {
+        return boardWriterIdx;
+    }
+
+    public void setBoardWriterIdx(Integer boardWriterIdx) {
+        this.boardWriterIdx = boardWriterIdx;
+    }
+    
+    public Integer getBoardWriterType() {
+        return boardWriterType;
+    }
+
+    public void setBoardWriterType(Integer boardWriterType) {
+        this.boardWriterType = boardWriterType;
+    }
+
     // ========== toString ==========
     @Override
     public String toString() {
@@ -186,6 +223,8 @@ public class BoardTbl {
                 ", boardReg=" + boardReg +
                 ", boardLast=" + boardLast +
                 ", boardIp='" + boardIp + '\'' +
+                ", boardWriterIdx=" + boardWriterIdx +
+                ", boardWriterType=" + boardWriterType +
                 '}';
     }
 

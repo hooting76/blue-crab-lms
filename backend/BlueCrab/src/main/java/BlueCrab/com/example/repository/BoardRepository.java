@@ -26,7 +26,7 @@ public interface BoardRepository extends JpaRepository<BoardTbl, Integer> {
     // ========== 조회 관련 메서드 ==========
 
     // 미삭제(활성화) 개시글 만을 조회(최신순)
-    @Query("SELECT b FROM BoardTbl b WHERE b.boardOn = :boardOn ORDER BY b.boardIdx DESC")
+    @Query("SELECT b FROM BoardTbl b WHERE b.boardOn = :boardOn ORDER BY b.boardReg DESC")
     Page<BoardTbl> findByBoardOnOrderByBoardRegDesc(@Param("boardOn") Integer boardOn, Pageable pageable);
     
     // 코드별 + 미삭제(활성화) 게시글 조회(최신순)
