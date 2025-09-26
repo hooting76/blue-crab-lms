@@ -7,9 +7,8 @@ import{ UseUser } from "../../../hook/UseUser";
 import getNotices from "../../api/noticeAPI"; //API 함수 임포트,백엔드 붙일때 사용
 import "../../../css/Communities/Notice-ui.css";
 
-export default function NoticeList({ 
-    boardCode = 0, 
-    page = 0, 
+export default function NoticeList({
+    page = 1, 
     size = 10,
     onPageChange,
     onWrite,
@@ -41,7 +40,8 @@ export default function NoticeList({
 
           allItems.sort((a, b) => (b.boardReg || "").localeCompare(a.boardReg || ""));
 
-          console.log(res);
+          console.log("res :", res);
+          console.log("allItems:", allItems);
 
           // ✅ 페이징 처리
           const start = (page - 1) * size;

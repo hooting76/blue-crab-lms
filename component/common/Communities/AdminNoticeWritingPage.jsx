@@ -21,7 +21,11 @@ const handleSubmit = async (e) => {
   }
 
   const boardWriter = user.data.user.name;
-  const boardReg = new Date().toISOString();
+  const date = new Date().toLocaleString("sv-SE", {
+  timeZone: "Asia/Seoul",
+  hour12: false,
+});
+const boardReg = date.replace(" ", "T"); // "2025-09-26T15:43:21"
 
   const NoticeByAdmin = {
     boardTitle,
@@ -32,7 +36,7 @@ const handleSubmit = async (e) => {
   };
 
   try {
-    const response = await fetch('https://bluecrab.chickenkiller.com/Bluecrab-1.0.0/api/boards/create', {
+    const response = await fetch('https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/boards/create', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
