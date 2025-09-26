@@ -1,7 +1,9 @@
 .classAttending_list_container {
-    width: 1000px;
+    width: 100%;      /* 고정폭은 제거 / 카드폭에 맞춤 */
+    max-width: 1000px;  
     margin-left: auto;
     margin-right: auto;
+    box-sizing: border-box;
 }
 
 .selectSemester {
@@ -14,21 +16,18 @@
     margin-top: 50px;
 }
 
-.classAttending_list_header {
-    width: 1000px;
-    margin-top: 50px;
-    margin-left: auto;
-    margin-right: auto;
-    background-color: aqua;
-    border-collapse: collapse;
-}
-
+.classAttending_list_header,
 .classAttending_list_body {
-    width: 1000px;
+    /* width: 1000px; */                  
+    width: 100%;                          /* 표는 항상 컨테이너 안에서만 */
     margin-left: auto;
     margin-right: auto;
     background-color: var(--white-color);
     border-collapse: collapse;
+}
+
+.classAttending_list_header {
+    background-color: aqua;
 }
 
 .class_details_row {
@@ -36,13 +35,63 @@
 }
 
 .totalpoints {
-    float: right;
-    width: 150px;
-    padding-right: 25px;
+    /* float: right; width: 150px; padding-right: 25px; */  
+    padding: 8px 0;                                         
+    text-align: right;                                      /* 우측 정렬 */
     background-color: antiquewhite;
     font-weight: bold;
+    box-sizing: border-box;                                
 }
 
+/* 표 안전 설정 */
+.table-wrap {
+  width: 100%;
+  overflow-x: hidden;              
+}
+
+.table-wrap table {
+  width: 100%;
+  max-width: 100%;
+  table-layout: fixed;               /* 셀 폭 고정 → 넘침 방지 */
+  border-collapse: separate;        /* 둥근 모서리/클리핑 이슈 방지 */
+  border-spacing: 0;
+  box-sizing: border-box;
+}
+
+/* 긴 텍스트 줄바꿈 */
+.table-wrap th,
+.table-wrap td {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* 교과목명 3열은 줄바꿈 허용(모두 보이게) */
+.table-wrap thead th:nth-child(3),
+.table-wrap tbody td:nth-child(3) {
+  white-space: normal;      /* 여러 줄 허용 */
+  overflow: visible;        /* 잘라내지 않음 */
+  text-overflow: clip;      /* ellipsis 해제 */
+  line-height: 1.4;         /* 가독성 */
+  vertical-align: top;      /* 여러 줄일 때 위 정렬 */
+}
+
+/* 선택: 교과목명 폭 25% → 30% */
+.table-wrap thead th:nth-child(3),
+.table-wrap tbody td:nth-child(3) { width: 30%; }
+
+.table-wrap thead th:nth-child(5),
+.table-wrap tbody td:nth-child(5) { width: 12%; } /* 수업계획 */
+.table-wrap thead th:nth-child(6),
+.table-wrap tbody td:nth-child(6) { width: 13%; } /* 담당교수 */
+
+
 @media (max-width: 1000px) {
-    .classAttending_list_container, .classAttending_text, .classAttending_list_header tr th {width: 100%; font-size: var(--font-small);}
+    .classAttending_list_container { max-width: 100%; }                
+    .classAttending_text,
+    .classAttending_list_header tr th {
+      width: 100%;
+      font-size: var(--font-small);
+    }
 }

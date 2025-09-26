@@ -1,4 +1,4 @@
-// 우측 커뮤니티 메뉴
+// 우측 커뮤니티 사이드메뉴
 import React, { useState, useMemo, useEffect } from "react";
 import "../../../css/Communities/Notice-nav.css";
 
@@ -51,12 +51,14 @@ function CommunitySidebar({ currentPage, setCurrentPage }) {
       {/* 공지사항 */}
         <section className="acc-item">
         <button
-            className="acc-header"
-            aria-expanded={open.notice}
-            onClick={() => setOpen((s) => ({ ...s, notice: !s.notice }))}
+          className="acc-header"
+          aria-expanded={open.notice}
+          onClick={() => toggle("notice")}
         >
-        공지사항
+          <span>공지사항</span>
+          <span className="acc-arrow" aria-hidden="true">{open.notice ? "▾" : "▸"}</span>
         </button>
+        
         {open.notice && (
             <div className="acc-panel">
                 <Item name="학사공지" />
@@ -69,11 +71,12 @@ function CommunitySidebar({ currentPage, setCurrentPage }) {
       {/* FAQ */}
         <section className="acc-item">
             <button
-                className="acc-header"
-                aria-expanded={open.faq}
-            onClick={() => setOpen((s) => ({ ...s, faq: !s.faq }))}
-            >
-        FAQ
+          className="acc-header"
+          aria-expanded={open.faq}
+          onClick={() => toggle("faq")}
+        >
+          <span>FAQ</span>
+          <span className="acc-arrow" aria-hidden="true">{open.faq ? "▾" : "▸"}</span>
         </button>
         {open.faq && (
             <div className="acc-panel">
@@ -85,11 +88,12 @@ function CommunitySidebar({ currentPage, setCurrentPage }) {
       {/* 시설 & 문의 */}
         <section className="acc-item">
             <button
-                className="acc-header"
-                aria-expanded={open.facility}
-                onClick={() => setOpen((s) => ({ ...s, facility: !s.facility }))}
-            >
-        시설 & 문의
+          className="acc-header"
+          aria-expanded={open.facility}
+          onClick={() => toggle("facility")}
+        >
+          <span>시설 & 문의</span>
+          <span className="acc-arrow" aria-hidden="true">{open.facility ? "▾" : "▸"}</span>
         </button>
         {open.facility && (
             <div className="acc-panel">

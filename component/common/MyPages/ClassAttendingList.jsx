@@ -80,6 +80,7 @@ const [selectedSemester, setSelectedSemester] = useState(currentSemesterValue); 
                 수강과목 클릭 시 해당과목 진행사항 표시
             </div>
 
+        <div className="table-wrap">
             <table>
                 <thead className='classAttending_list_header'>
                     <tr>
@@ -128,6 +129,8 @@ const [selectedSemester, setSelectedSemester] = useState(currentSemesterValue); 
                     ))}
                 </tbody>
             </table>
+            </div>
+
 
             <div className='totalpoints'>
                 이수학점: {totalCredits}점

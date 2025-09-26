@@ -1,44 +1,72 @@
-import "../../css/MyPages/MyPage.css"
+import "../../css/MyPages/MyPage.css";
 import ClassAttendingList from "./MyPages/ClassAttendingList";
 import ClassAttendingNotice from "./MyPages/ClassAttendingNotice";
 import Consult from "./MyPages/Consult";
 import UserDashboard from "../auth/UserDashboard";
+import ClassAttendingProgress from "./MyPages/ClassAttendingProgress";
+import ProfileEdit from "./MyPages/ProfileEdit"; // 개인정보 페이지
+import MyPageSidebar from "./MyPages/MyPageSidebar"; // 사이드탭
 
-function MyPage({currentPage, setCurrentPage}) {
+import { useState } from "react";
 
-    const toClassAttendingList = () => {setCurrentPage("수강중인 과목")};
-    const toClassAttendingNotice = () => {setCurrentPage("수강과목 공지사항")};
-    const toConsult = () => {setCurrentPage("실시간 상담")};
+function MyPage({ currentPage, setCurrentPage }) {
+    //수강중인 과목 화면 내에서만 쓰는 진행사항 표시용 선택 과목
+    const [selectedCourseId, setSelectedCourseId] = useState("");
 
-    const renderPage = () => {
-        switch (currentPage) {
-            case "수강중인 과목":
-                return <ClassAttendingList/>;
-            case "수강과목 공지사항":
-                return <ClassAttendingNotice/>;
-            case "실시간 상담":
-                return <Consult/>;
-            default:
-                return <UserDashboard/>; // 기본 페이지
-        }
-    };
+    const handleSelectCourse = (courseId) => {
+        setSelectedCourseId(courseId); // 같은 화면 하단에 진행사항 표시
+  };
 
-    return(
-        <main>
-            <div className="mypagetitle">
-                <div id="schoolMyPageText">마이페이지</div><br/>
-                    <div className="myPageMenu">
-                        <div onClick={toClassAttendingList} style={{cursor: "pointer", fontWeight: currentPage === "수강중인 과목" ? "bold" : "normal"}}>수강중인 과목</div>
-                        <div onClick={toClassAttendingNotice} style={{cursor: "pointer", fontWeight: currentPage === "수강과목 공지사항" ? "bold" : "normal"}}>수강과목 공지사항</div>
-                        <div onClick={toConsult} style={{cursor: "pointer", fontWeight: currentPage === "실시간 상담" ? "bold" : "normal"}}>실시간 상담</div>
-                    </div>
-                </div>
-            <div>
-                {renderPage()}
+    const body = () => {
+    switch (currentPage) {
+        case "개인정보":
+            return <ProfileEdit />;
+        case "수강중인 과목":
+            return (
+        <>
+            <ClassAttendingList onSelectCourse={handleSelectCourse} />
+            {selectedCourseId && (
+            <div style={{ marginTop: 16 }}>
+                <ClassAttendingProgress courseId={selectedCourseId} />
             </div>
-        </main>
-    )
+            )}
+        </>
+        );
+        case "수강과목 공지사항":
+            return <ClassAttendingNotice />;
+        case "실시간 상담":
+            return <Consult />;
+        default:
+        return <UserDashboard />;
+    }
+  };
 
+    return (
+    <main className="mypage-page">
+        {/* 커뮤니티와 동일한 중앙 정렬  */}
+        <div className="page-wrap"></div>
+        {/* 배너영역 */}
+        <div className="banner">
+        <h2>마이페이지</h2>
+    </div>
+
+    <div className="grid">
+        <section className="left">
+            <div className="card">
+                <div className="content-safe">   
+                {body()}
+            </div>
+    </div>
+    </section>
+
+
+        {/* 우측: 사이드탭 */}
+        <aside className="right">
+        <MyPageSidebar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        </aside>
+        </div>
+    </main>
+  );
 }
 
 export default MyPage;
