@@ -18,6 +18,10 @@ export default function NoticeTable({ rows = [] }) {
         setIsModalOpen(false);
     };
 
+    const formattedTime = (boardReg) => {
+    boardReg.replace('T', ' ').slice(0, 16);
+  }
+
     return(
         <>
         <table className="notice-table">
@@ -41,7 +45,7 @@ export default function NoticeTable({ rows = [] }) {
                         <td>{r.boardTitle}</td>  
                         <td>{r.boardWriter}</td>
                         <td>{r.boardView}</td>
-                        <td>{r.boardReg}</td>
+                        <td>{formattedTime(r.boardReg)}</td>
                     </tr>
                 ))}
             </tbody>

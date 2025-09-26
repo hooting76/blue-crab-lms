@@ -25,6 +25,10 @@ const NoticeDetail = ({ boardIdx }) => {
     }
   };
 
+  const formattedTime = (boardReg) => {
+    boardReg.replace('T', ' ').slice(0, 16);
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -51,7 +55,7 @@ const NoticeDetail = ({ boardIdx }) => {
       <div className='noticeDetailTitle'>{notice.boardTitle}</div>
       <div className='noticeDetailCode'>{getNoticeCode(notice.boardCode)}</div>
       <div className='noticeDetailWriter'>{notice.boardWriter}</div>
-      <div className='noticeDetailReg'>{notice.boardReg}</div>
+      <div className='noticeDetailReg'>{formattedTime(notice.boardReg)}</div>
       <div className='noticeDetailContent'>{notice.boardContent}</div>
     </div>
   );
