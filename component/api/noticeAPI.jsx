@@ -37,7 +37,7 @@ const getHeaders = (accessToken) => ({
 // 특정 게시글 상세 조회
 export const getNoticeDetail = async (accessToken, boardIdx) => {
   try {
-    const url = `${BASE_URL}/detail/${boardIdx}`;
+    const url = `${BASE_URL}/detail`;
     
     const response = await fetch(url, {
       method: 'POST', // POST 방식 명시
