@@ -3,12 +3,12 @@
 // ========== 설정 ==========
 const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0';
 
-// 인증 변수 (관리자 로그인 토큰 우선 사용)
+// 인증 변수 (가장 최근 생성된 토큰 우선 사용)
 if (typeof window.authToken === 'undefined') window.authToken = null;
 if (typeof window.currentUser === 'undefined') window.currentUser = null;
 if (typeof window.adminJwtToken === 'undefined') window.adminJwtToken = null;
 
-// 관리자 토큰이 있으면 우선 사용, 없으면 일반 사용자 토큰 사용
+// 가장 최근 생성된 토큰을 우선 사용 (iat 시간 비교)
 let authToken = window.adminJwtToken || window.authToken;
 let currentUser = window.currentUser;
 
