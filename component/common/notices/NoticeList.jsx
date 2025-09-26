@@ -10,7 +10,7 @@ import "../../../css/Communities/Notice-ui.css";
 export default function NoticeList({
     boardCode,
     page = 1, 
-    size = 10,
+    size,
     onPageChange,
     onWrite,
 }) {
@@ -27,7 +27,7 @@ export default function NoticeList({
       let alive = true;
       setState((s) => ({ ...s, loading: true }));
 
-      getNotices(accessToken, 0, 10) // BOARD_CODE 제거: 전체를 가져오고, 프론트에서 필터링
+      getNotices(accessToken, page, size) // BOARD_CODE 제거: 전체를 가져오고, 프론트에서 필터링
         .then(res => {
           if (!alive) return;
 
