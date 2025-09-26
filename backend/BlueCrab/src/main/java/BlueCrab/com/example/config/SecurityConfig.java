@@ -130,7 +130,7 @@ public class SecurityConfig {
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll() // 정적 리소스
                 
                 // � 게시판 조회 API (임시로 모두 허용 - 디버깅용)
-                .requestMatchers("/api/boards/**").permitAll() // 모든 boards API 인증 필요
+                .requestMatchers("/api/boards/**").permitAll() //
                 
                 // 🌐 CORS Preflight 요청 허용 (중요!)
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 모든 OPTIONS 요청 허용

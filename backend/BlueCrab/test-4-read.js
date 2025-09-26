@@ -24,14 +24,40 @@ async function apiRequest(url, method = 'GET', data = null, requireAuth = false)
         credentials: 'include'
     };
 
-    // 매번 최신 토큰 확인 (관리자 토큰 우선)
+    // 매번 최신 토큰 확인 (최신 로그인 토큰 우선)
     const currentAdminToken = window.adminJwtToken || localStorage.getItem('adminJwtToken');
     const currentUserToken = window.authToken;
-    const currentToken = currentAdminToken || currentUserToken;
+    
+    // 최신 토큰 결정 로직: 더 최근에 생성된 토큰을 우선 사용
+    let currentToken;
+    let tokenType;
+    
+    if (currentAdminToken && currentUserToken) {
+        // 두 토큰이 모두 있으면 더 최근 것을 사용
+        try {
+            const adminDecoded = JSON.parse(atob(currentAdminToken.split('.')[1]));
+            const userDecoded = JSON.parse(atob(currentUserToken.split('.')[1]));
+            
+            if (adminDecoded.iat > userDecoded.iat) {
+                currentToken = currentAdminToken;
+                tokenType = '관리자 JWT (최신)';
+            } else {
+                currentToken = currentUserToken;
+                tokenType = '일반 사용자 (최신)';
+            }
+        } catch (e) {
+            // 토큰 파싱 실패 시 기본 우선순위
+            currentToken = currentUserToken || currentAdminToken;
+            tokenType = currentUserToken ? '일반 사용자 (기본)' : '관리자 JWT (기본)';
+        }
+    } else {
+        currentToken = currentUserToken || currentAdminToken;
+        tokenType = currentUserToken ? '일반 사용자' : '관리자 JWT';
+    }
     
     if (requireAuth && currentToken) {
         options.headers['Authorization'] = `Bearer ${currentToken}`;
-        console.log('🔑 사용 토큰:', currentAdminToken ? '관리자 JWT' : '일반 사용자');
+        console.log('🔑 사용 토큰:', tokenType);
     } else if (requireAuth && !currentToken) {
         console.log('❌ 토큰 없음 - 인증 필요!');
     }
@@ -59,11 +85,24 @@ async function apiRequest(url, method = 'GET', data = null, requireAuth = false)
 
 // ========== 상태 확인 ==========
 function checkLoginStatus() {
-    // 최신 전역 변수 값으로 업데이트 (관리자 토큰 우선)
+    // 최신 전역 변수 값으로 업데이트 (최신 로그인 토큰 우선)
     const adminToken = window.adminJwtToken || localStorage.getItem('adminJwtToken');
     const userToken = window.authToken;
     
-    authToken = adminToken || userToken;
+    // 최신 토큰 결정 로직
+    if (adminToken && userToken) {
+        try {
+            const adminDecoded = JSON.parse(atob(adminToken.split('.')[1]));
+            const userDecoded = JSON.parse(atob(userToken.split('.')[1]));
+            
+            authToken = (adminDecoded.iat > userDecoded.iat) ? adminToken : userToken;
+        } catch (e) {
+            authToken = userToken || adminToken;
+        }
+    } else {
+        authToken = userToken || adminToken;
+    }
+    
     currentUser = window.currentUser;
     
     const isLoggedIn = !!authToken;
