@@ -5,11 +5,6 @@ import { Link } from 'react-router-dom';
 import LoginFrm from '../../css/modules/LoginForm.module.css';
 import { FaDownload } from 'react-icons/fa';
 
-// PWA START
-import { UsePWA } from '../../hook/PWA/UsePWA';
-import UseOnlineStatus from '../../hook/PWA/UseOnlineStatus';
-import UseInstallPrompt from '../../hook/PWA/UseInstallPrompt';
-// PWA END
 
 function LoginForm() {
     const { login, isLoading, error, clearError, isAuthenticated } = UseUser();
@@ -18,16 +13,6 @@ function LoginForm() {
 
     const [emailCheck, setEmailCheck] = useState(false);
     const [pwCheck, setPwCheck]       = useState(false);   
-
-    const { needRefresh, updateServiceWorker } = UsePWA();
-    const { isOnline } = UseOnlineStatus();
-    const { isInstallable, installApp } = UseInstallPrompt();
-
-    if(!isOnline){
-        // offline
-        alert('인터넷 연결을 확인하세요.');
-        window.location.reload();
-    };
 
     if(isAuthenticated){
         alert('잘못된 접근입니다.');
@@ -82,7 +67,7 @@ function LoginForm() {
         }else{
             alert('이메일과 비밀번호 형식을 확인해주세요.');
             return;
-        }
+        };
         
         clearError();
         await login(email, password);
@@ -96,65 +81,67 @@ function LoginForm() {
     };
 
     return (
-    <div className={LoginFrm.frm_wrap}>
-        <h2 className={LoginFrm.h2}>
-            로그인
-            {isInstallable && 
-                <span onClick={installApp}>
-                    <FaDownload/>
-                </span>}
-        </h2>
-            
-        <div>
-            {/* 이메일 입력 */}
-            <div className={LoginFrm.frm_row}>
-                <label htmlFor='frm_id'>이메일</label>
-                <input
-                    type="text"
-                    value={email}
-                    onChange={handleInputChange}
-                    onKeyDown={handleKeyPress}
-                    name='frm_id'
-                    id='frm_id'
-                    placeholder="ex) example@google.com"
-                    readOnly = {isLoading}
-                />
-            </div>
+        <>
+            <div className={LoginFrm.frm_wrap}>
+                <h2 className={LoginFrm.h2}>
+                    로그인
+                    {
+                        <span>
+                            <FaDownload/>
+                        </span>}
+                </h2>
+                    
+                <div>
+                    {/* 이메일 입력 */}
+                    <div className={LoginFrm.frm_row}>
+                        <label htmlFor='frm_id'>이메일</label>
+                        <input
+                            type="text"
+                            value={email}
+                            onChange={handleInputChange}
+                            onKeyDown={handleKeyPress}
+                            name='frm_id'
+                            id='frm_id'
+                            placeholder="ex) example@google.com"
+                            readOnly = {isLoading}
+                        />
+                    </div>
 
-            {/* 비밀번호 입력 */}
-            <div className={LoginFrm.frm_row}>
-                <label htmlFor='frm_pw'>비밀번호</label>
-                <input
-                    type="password"
-                    value={password}
-                    onChange={handleInputChange}
-                    onKeyDown={handleKeyPress}
-                    name='frm_pw'
-                    id='frm_pw'
-                    readOnly = {isLoading} />
-            </div>
+                    {/* 비밀번호 입력 */}
+                    <div className={LoginFrm.frm_row}>
+                        <label htmlFor='frm_pw'>비밀번호</label>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={handleInputChange}
+                            onKeyDown={handleKeyPress}
+                            name='frm_pw'
+                            id='frm_pw'
+                            readOnly = {isLoading} />
+                    </div>
 
-        {/* 에러 메시지 */}
-        {error && (
-            <div className={LoginFrm.error} >
-                {error}
-            </div>
-        )}
+                {/* 에러 메시지 */}
+                {error && (
+                    <div className={LoginFrm.error} >
+                        {error}
+                    </div>
+                )}
 
-        {/* 로그인 버튼 */}
-            <button
-                onClick={handleLogin}
-                disabled={isLoading || !email || !password}
-                className={LoginFrm.submit}>
-                로그인
-            </button>
-        </div>
-        
-        <div className={LoginFrm.sub}>
-            <span><Link to='/FindInfoId' state={{userPrs: true }}>아이디찾기</Link></span>
-            <span><Link to='/FindInfoPw' state={{userPrs: false }}>비밀번호찾기</Link></span>
-        </div>
-    </div>
+                {/* 로그인 버튼 */}
+                    <button
+                        onClick={handleLogin}
+                        disabled={isLoading || !email || !password}
+                        className={LoginFrm.submit}>
+                        로그인
+                    </button>
+                </div>
+                
+                <div className={LoginFrm.sub}>
+                    <span><Link to='/FindInfoId' state={{userPrs: true }}>아이디찾기</Link></span>
+                    <span><Link to='/FindInfoPw' state={{userPrs: false }}>비밀번호찾기</Link></span>
+                </div>
+            </div>        
+        </>
     );
 };
 

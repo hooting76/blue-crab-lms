@@ -44,6 +44,9 @@ import Admin from './Admin';
 // css
 import '../css/App.css';
 
+//serviceWorker start
+import "./ServiceWorkerFunc";
+
 // InApp filter function
 function InAppFilter(){
   const userAgent = navigator.userAgent.toLowerCase();
@@ -53,15 +56,12 @@ function InAppFilter(){
 
 // main app component
 function AppContent() {
-
   // user state ctrl
   const { isAuthenticated, isLoading } = UseUser();
   //user state ctrl end
   if (isLoading) {
-  return <LoadingSpinner/>
+    return <LoadingSpinner/>
   }
-
-  //const isAuthenticated = true;   // ← 로그인 상태로 강제
 
   // currentPage 상태를 이 컴포넌트에서 보유
   const [currentPage, setCurrentPage] = useState("");
@@ -133,7 +133,7 @@ function AppContent() {
   }; // paging ctrl end
 
   return (
-    <div id="wrap">
+    <div id="wrap">      
       <Header currentPage={currentPage} setCurrentPage={setCurrentPage}/>
 
       <div id="content">
@@ -153,7 +153,7 @@ function AppContent() {
       
       {/* 푸터 */}
       <Footer />
-   </div>
+    </div>
     ); // return end
 } // AppContent end
 
