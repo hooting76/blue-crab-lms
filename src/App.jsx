@@ -121,7 +121,8 @@ function AppContent() {
       case "연혁":
         return <Introduction currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
       
-      // 마이페이지
+      // 마이페이지(하위 탭/진행사항 전환은 MtPage 내부에서 처리)
+      case "개인정보": 
       case "수강중인 과목":
       case "수강과목 공지사항":
       case "실시간 상담":
