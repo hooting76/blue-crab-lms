@@ -47,6 +47,25 @@ import '../css/App.css';
 //serviceWorker start
 import "./ServiceWorkerFunc";
 
+// window close evt
+function ClearState() {
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      localStorage.clear();
+      sessionStorage.clear();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
+  return null;
+}
+
 // InApp filter function
 function InAppFilter(){
   const userAgent = navigator.userAgent.toLowerCase();
@@ -160,6 +179,7 @@ function AppContent() {
 function App() {
   return (
     <>
+      <ClearState />
       <InAppFilter />
       <UserProvider>
         <BrowserRouter>
