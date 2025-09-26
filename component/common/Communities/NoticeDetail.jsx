@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { getNoticeDetail } from '../../api/noticeAPI';
 import { UseUser } from "../../../hook/UseUser";
 
-const NoticeDetail = ({ boardIdx, isAuthenticated, user }) => {
+const NoticeDetail = ({ boardIdx }) => {
   const [notice, setNotice] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
