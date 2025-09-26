@@ -5,7 +5,15 @@
   min-height: 100%;
 }
 
-/* 배너: 제목 가운데, 우측 정보는 오른쪽 고정 */
+/* 전역 백드롭(예약확인 모달 때만) */
+.global-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 5000; /* confirm-modal(5020)보다 아래 */
+}
+
+/* 배너 */
 .banner {
   background: #eef2f7;
   border: 1px solid #e2e8f0;
@@ -13,8 +21,8 @@
   border-radius: 10px;
   display: flex;
   align-items: center;
-  justify-content: center; /* ⬅ 제목 가운데 */
-  position: relative;
+  justify-content: center; /* 제목 가운데 */
+  position: relative;      /* ▷ .banner-right 절대배치 기준 */
   margin-bottom: 12px;
 }
 .banner-center h2 {
@@ -22,7 +30,7 @@
   font-size: 20px;
   text-align: center;
 }
-/* 우측 정보 영역 */
+/* 배너 우측 정보 */
 .banner-right {
   position: absolute;
   right: 12px;
@@ -47,55 +55,32 @@
   border-radius: 8px;
 }
 
-/* 배너 아래 상단 모달(가이드/확인 공용) */
-.top-modal {
-  position: sticky;
-  top: 8px; /* 배너 아래에 고정되는 느낌 */
-  z-index: 30;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 12px;
+/* 이용안내 팝오버 — 화면 고정(좌석 가리지 않음) */
+.guide-popover {
+  position: fixed;
+  right: 24px;     /* 화면 우측 여백 */
+  top: 120px;      /* 헤더/배너 아래로 */
+  z-index: 5010;   /* 백드롭(5000) 위, 확인모달(5020) 아래 */
+  width: 560px;
+  max-width: min(560px, 40vw);
+  background:#fff;
+  border:1px solid #e1e5ee;
+  border-radius:12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.12);
 }
-.top-modal__content {
-  width: clamp(320px, 40vw, 520px);
-  background: #ffffff;
-  border: 1px solid #e1e5ee;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
+.popover-arrow {
+  position: absolute;
+  top: -8px;
+  right: 92px;
+  width: 0; height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #e1e5ee;
 }
-.top-modal__title {
-  padding: 10px 14px;
-  font-weight: 700;
-  border-bottom: 1px solid #eef2f7;
-  background: #f8fafc;
-}
-.top-modal__body {
-  padding: 12px 14px;
-}
-.top-modal__body ul {
-  margin: 8px 0 0 18px;
-}
-.top-modal__actions {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-  padding: 10px 14px;
-  border-top: 1px solid #eef2f7;
-}
-.primary {
-  background: #2563eb;
-  color: #fff;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
-}
-.ghost {
-  background: #fff;
-  border: 1px solid #cbd5e1;
-  padding: 8px 12px;
-  border-radius: 8px;
-}
+.guide-title   { padding:10px 16px; font-weight:700; background:#f8fafc; border-bottom:1px solid #eef2f7; }
+.guide-body    { padding: 14px 16px; }
+.guide-body ul { margin:8px 0 0 18px; }
+.guide-actions { display:flex; justify-content:flex-end; gap:8px; padding: 10px 16px; border-top:1px solid #eef2f7; }
 
 /* 카드 */
 .room-card {
@@ -118,25 +103,18 @@
   border-radius: 999px;
 }
 
-/* 좌석 그리드 — 기본 10열 (가로 확장) */
+/* 좌석 그리드 — 기본 10열 */
 .seat-grid {
   margin: 12px auto;
   display: grid;
-  grid-template-columns: repeat(var(--cols, 10), 38px); /* 기본 10열 */
+  grid-template-columns: repeat(var(--cols, 10), 38px);
   gap: 10px 18px;
   justify-content: center;
 }
 
-/* 반응형: 화면이 좁아지면 열 수 조정(선택) */
-@media (max-width: 1200px) {
-  .seat-grid {
-    grid-template-columns: repeat(10, 36px);
-  }
-}
-@media (max-width: 900px) {
-  .seat-grid {
-    grid-template-columns: repeat(8, 34px);
-  }
+/* 반응형: 팝오버 폭 줄이기 */
+@media (max-width: 1100px) {
+  .guide-popover { right: 16px; top: 112px; max-width: 360px; }
 }
 
 /* 좌석 버튼 */
@@ -148,16 +126,9 @@
   font-size: 12px;
   color: #fff;
 }
-.seat.available {
-  background: #20c933;
-}
-.seat.occupied {
-  background: #ff4db8;
-  cursor: not-allowed;
-}
-.seat:disabled {
-  opacity: 0.9;
-}
+.seat.available { background: #20c933; }
+.seat.occupied  { background: #ff4db8; cursor: not-allowed; }
+.seat:disabled  { opacity: 0.9; }
 
 /* 범례 */
 .legend {
@@ -177,26 +148,37 @@
   position: relative;
   top: 2px;
 }
-.chip-available {
-  background: #20c933;
+.chip-available { background: #20c933; }
+.chip-occupied  { background: #ff4db8; }
+
+/* 예약확인 모달 */
+.confirm-modal {
+  position: fixed;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5020;  /* 백드롭 위 */
+  width: clamp(320px, 40vw, 520px);
+  background: #ffffff;
+  border: 1px solid #e1e5ee;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.12);
 }
-.chip-occupied {
-  background: #ff4db8;
-}
+.confirm-title   { padding: 10px 14px; font-weight: 700; border-bottom: 1px solid #eef2f7; background: #f8fafc; }
+.confirm-body    { padding: 12px 14px; }
+.confirm-actions { display:flex; gap:8px; justify-content:flex-end; padding: 10px 14px; border-top:1px solid #eef2f7; }
+
+/* 버튼 공통 */
+.primary { background:#2563eb; color:#fff; border:none; padding:8px 12px; border-radius:8px; }
+.ghost   { background:#fff; border:1px solid #cbd5e1; padding:8px 12px; border-radius:8px; }
 
 /* 상태 메시지 */
-.loading,
-.error {
-  text-align: center;
-  padding: 28px 0;
-  color: #475569;
-}
+.loading, .error { text-align:center; padding:28px 0; color:#475569; }
 .error-inline {
-  background: #fff1f2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
-  padding: 8px 12px;
-  border-radius: 8px;
-  width: clamp(720px, 70vw, 1100px);
-  margin: 0 auto 12px auto;
+  background:#fff1f2; color:#b91c1c; border:1px solid #fecaca;
+  padding:8px 12px; border-radius:8px; width:clamp(720px, 70vw, 1100px);
+  margin:0 auto 12px auto;
+}
+/* 반응형: 좌석 그리드 열수 줄이기 */
+@media (max-width: 900px) {
+  .seat-grid { grid-template-columns: repeat(var(--cols, 7), 38px); }
 }

@@ -57,7 +57,9 @@
 .acc-header {
   width:100%; text-align:left; padding:10px 12px; border-radius:10px;
   font-weight:700; background:#f6f9ff; border:1px solid #e3ecff;
+  display:flex; align-items:center; justify-content:space-between;
 }
+.acc-arrow { margin-left: 8px; }
 .acc-panel { padding:10px 4px 4px; }
 .side-item {
   display:block; width:100%; text-align:left; padding:10px; border-radius:8px;

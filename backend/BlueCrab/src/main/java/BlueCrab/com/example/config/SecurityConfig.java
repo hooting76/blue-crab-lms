@@ -135,10 +135,12 @@ public class SecurityConfig {
                 // 🌐 CORS Preflight 요청 허용 (중요!)
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 모든 OPTIONS 요청 허용
                 
-                // � 프로필 API (인증된 사용자만 접근 가능)
+                // 📝 프로필 API (인증된 사용자만 접근 가능)
                 .requestMatchers(HttpMethod.POST, "/api/profile/me").authenticated() // 프로필 조회
                 .requestMatchers(HttpMethod.POST, "/api/profile/me/completeness").authenticated() // 프로필 완성도 체크
-                .requestMatchers(HttpMethod.GET, "/api/profile/me/image/**").authenticated() // 프로필 이미지 조회
+                .requestMatchers(HttpMethod.POST, "/api/profile/me/image").authenticated() // 프로필 이미지 URL 조회
+                .requestMatchers(HttpMethod.POST, "/api/profile/me/image/file").authenticated() // 프로필 이미지 파일 조회
+                .requestMatchers(HttpMethod.GET, "/api/profile/me/image/**").authenticated() // 프로필 이미지 조회 (레거시 - 제거 예정)
                 
                 // �🔧 관리자 전용 엔드포인트 (현재 임시로 개방)
                 .requestMatchers("/admin/logs/**").permitAll() // 로그 모니터링 (TODO: ADMIN 권한 필요)

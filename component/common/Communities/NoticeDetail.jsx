@@ -1,11 +1,13 @@
 import "../../../css/Communities/NoticeDetail.css"
 import React, { useEffect, useState } from 'react';
 import { getNoticeDetail } from '../../api/noticeAPI';
+import { UseUser } from "../../../hook/UseUser";
 
-const NoticeDetail = ({ boardIdx, isAuthenticated, user }) => {
+const NoticeDetail = ({ boardIdx }) => {
   const [notice, setNotice] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { user, isAuthenticated } = UseUser();
 
   const accessToken = isAuthenticated ? user?.data?.accessToken : null;
 
@@ -22,6 +24,10 @@ const NoticeDetail = ({ boardIdx, isAuthenticated, user }) => {
         return "공지";
     }
   };
+
+  const formattedTime = (boardReg) => {
+    boardReg.replace('T', ' ').slice(0, 16);
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,7 +55,7 @@ const NoticeDetail = ({ boardIdx, isAuthenticated, user }) => {
       <div className='noticeDetailTitle'>{notice.boardTitle}</div>
       <div className='noticeDetailCode'>{getNoticeCode(notice.boardCode)}</div>
       <div className='noticeDetailWriter'>{notice.boardWriter}</div>
-      <div className='noticeDetailReg'>{notice.boardReg}</div>
+      <div className='noticeDetailReg'>{formattedTime(notice.boardReg)}</div>
       <div className='noticeDetailContent'>{notice.boardContent}</div>
     </div>
   );

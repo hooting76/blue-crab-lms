@@ -1,29 +1,70 @@
-.mypagetitle {
-    border-radius: 15px;
-    padding: 30px;
-    background-color: var(--white-color);
-    text-align: center;
-    justify-content: space-between;
+/* 커뮤니티와 동일 중앙 폭으로! */
+.mypage-page .page-wrap {
+  max-width: 1080px;    
+  margin: 0 auto;
+  padding: 0 16px;
+  box-sizing: border-box;
 }
 
-#schoolMyPageText {
-    font-size: var(--font-large);
+/* 배너도 동일 높이/여백 */
+.mypage-page .banner {
+  height: 120px;        /* 커뮤니티 배너 높이와 동일 */
+  background: #e8f3ff;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 24px 0 16px;
+}
+.mypage-page .banner h2 { margin:0; font-size:24px; font-weight:800; color:#0b5db7; }
+
+/* 그리드 */
+.mypage-page .grid { display:grid; grid-template-columns: 1fr 300px; gap:20px; }
+
+/* .left는 레이아웃만! 배경/패딩/모서리 제거 */
+.mypage-page .left { background: transparent; border: 0; padding: 0; border-radius: 0; }
+
+/* 카드: 여기서만 모서리+클리핑 */
+.mypage-page .card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;          
+  position: relative;        
+}
+.mypage-page .content-safe {
+  padding: 16px;
+  box-sizing: border-box;
+  overflow: hidden;          /* 내부 요소가 밀려나도 카드 밖으로 안 튐 */
 }
 
-.myPageMenu div {
-    display: inline;
-    border: solid;
-    border-radius: 5px;
-    padding: 5px;
-    margin-top: 20px;
-    margin-left: 50px;
-    margin-right: 50px;
+/* 표 안전 설정 */
+.mypage-page .table-wrap {
+  width: 100%;
+  overflow-x: auto;          /* 폭 넘치면 가로 스크롤 */
+  -webkit-overflow-scrolling: touch;
+}
+.mypage-page .table-wrap table {
+  width: 100%;
+  max-width: 100%;
+  table-layout: fixed;       /* 셀 폭 고정 → 넘침 방지 */
+  border-collapse: separate;  
+  border-spacing: 0;
+  margin: 0;
+}
+.mypage-page .table-wrap th,
+.mypage-page .table-wrap td {
+  word-break: break-word;    /* 긴 텍스트 강제 줄바꿈 */
 }
 
+/* 이미지/SVG 등 폭 제한 */
+.mypage-page .content-safe img,
+.mypage-page .content-safe svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* 반응형 */
 @media (max-width: 1024px) {
-    .mypagetitle {width: 100%;}
-
-    #schoolMyPageText {font-size: var(--font-small);}
-
-    .myPageMenu div {display: block; width: 100px; font-size: var(--font-small); margin: 5px auto;}
+  .mypage-page .grid { grid-template-columns: 1fr; }
+  .mypage-page .page-wrap { padding: 0 12px; }
 }

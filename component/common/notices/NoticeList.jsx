@@ -7,10 +7,10 @@ import{ UseUser } from "../../../hook/UseUser";
 import getNotices from "../../api/noticeAPI"; //API 함수 임포트,백엔드 붙일때 사용
 import "../../../css/Communities/Notice-ui.css";
 
-export default function NoticeList({ 
-    boardCode = 0, 
-    page = 0, 
-    size = 10,
+export default function NoticeList({
+    boardCode,
+    page = 1, 
+    size,
     onPageChange,
     onWrite,
 }) {
@@ -27,30 +27,29 @@ export default function NoticeList({
       let alive = true;
       setState((s) => ({ ...s, loading: true }));
 
-      getNotices(accessToken, 0, 10) // BOARD_CODE 제거: 전체를 가져오고, 프론트에서 필터링
+      getNotices(accessToken, page, size) // BOARD_CODE 제거: 전체를 가져오고, 프론트에서 필터링
         .then(res => {
           if (!alive) return;
 
-          const allItems = res.items;
+          const allItems = res.content;
 
           // ✅ BOARD_CODE 필터링
-          // const filtered = allItems.filter((item) => item.boardCode === boardCode);
+          const filtered = allItems.filter((item) => item.boardCode === boardCode);
 
           // ✅ 최신순 정렬 (작성일 기준)
-          // filtered.sort((a, b) => (b.boardReg || "").localeCompare(a.boardReg || ""));
+          filtered.sort((a, b) => (b.boardReg || "").localeCompare(a.boardReg || ""));
 
-          allItems.sort((a, b) => (b.boardReg || "").localeCompare(a.boardReg || ""));
-
-          console.log(res);
+          console.log("res :", res);
+          console.log("filtered:", filtered);
 
           // ✅ 페이징 처리
           const start = (page - 1) * size;
           const end = start + size;
-          const pageItems = allItems.slice(start, end);
+          const pageItems = filtered.slice(start, end);
 
           setState({
             items: pageItems,
-            total: allItems.length,
+            total: filtered.length,
             loading: false
           });
         })
@@ -62,7 +61,7 @@ export default function NoticeList({
       return () => {
         alive = false;
       };
-    }, [accessToken, page, size]);
+    }, [accessToken, page, size, boardCode]);
 
 
         const rows = useMemo(() => state.items, [state.items]); //공지 목록
@@ -98,7 +97,7 @@ export default function NoticeList({
             {/* 하단 페이지네이션: URL basepath 제거, 상태 콜백만 사용 */}
             <Pagination
               page={page}
-              size={size}
+              size={10}
               total={state.total}
               onChange={handlePageChange}/>
     </>

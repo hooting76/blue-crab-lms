@@ -41,6 +41,7 @@ function Header({ currentPage, setCurrentPage }) {
   const Reset = () => {
     navigate('/');           // SPA 네비게이션
     setCurrentPage("");      // 대시보드 등 기본으로
+    closeAllSubMenus();      // 서브메뉴 닫기
   };
 
   const [subMenu1Visibility, setSubMenu1Visibility] = useState("hidden");
@@ -52,7 +53,8 @@ function Header({ currentPage, setCurrentPage }) {
   const hideSubMenu2 = () => setSubMenu2Visibility("hidden");
   const showSubMenu3 = () => setSubMenu3Visibility("visible");
   const hideSubMenu3 = () => setSubMenu3Visibility("hidden");
-
+  const closeAllSubMenus = () => {hideSubMenu1(); hideSubMenu2(); hideSubMenu3();};
+  
   return (
     <>
       <header>
@@ -126,16 +128,16 @@ function Header({ currentPage, setCurrentPage }) {
                 className={HeaderCss.navSubMenu3}
                 onMouseOver={showSubMenu3}
                 onMouseOut={hideSubMenu3}
-                style={{ visibility: subMenu3Visibility }}
-              >
-                <tbody>
-                  <tr><td onClick={() => { Reset(); setCurrentPage("수강중인 과목"); }}>수강중인 과목</td></tr>
-                  <tr><td onClick={() => { Reset(); setCurrentPage("수강과목 공지사항"); }}>수강과목 공지사항</td></tr>
-                  <tr><td onClick={() => { Reset(); setCurrentPage("실시간 상담"); }}>실시간 상담</td></tr>
+                style={{ visibility: subMenu3Visibility }}>
+                
+                <tbody><tr><td onClick={() => { Reset(); setCurrentPage("개인정보"); closeAllSubMenus(); }}>개인정보</td></tr>
+                {/* 두 항목(수강중인/공지사항)을 하나로 통합 → '나의강의실' 클릭 시 수강중인 과목으로 진입 */}
+                <tr><td onClick={() => { Reset(); setCurrentPage("수강중인 과목"); closeAllSubMenus(); }}>나의강의실</td></tr>
+                <tr><td onClick={() => { Reset(); setCurrentPage("실시간 상담"); closeAllSubMenus(); }}>실시간 상담</td></tr>
                 </tbody>
               </table>
-            </div>
-          )}
+              </div>
+        )}
         </h1>
 
         {/* 세션타이머(15분). 로그인 중에만 활성화. 만료시 로그아웃됨. */}
@@ -194,11 +196,12 @@ function Header({ currentPage, setCurrentPage }) {
       {/* 모바일 메뉴: 로그인시에만 노출 */}
       {isAuthenticated && (
         <div className={HeaderCss.mobMenu}>
-          <ul>
-            <li>학교소개</li>
-            <li>커뮤니티</li>
-            <li>마이페이지</li>
-          </ul>
+      <ul>
+      <li onClick={() => { setCurrentPage("총장 인사"); closeAllSubMenus(); }}>학교소개</li>
+      <li onClick={() => { setCurrentPage("학사공지"); closeAllSubMenus(); }}>커뮤니티</li>
+      {/* 마이페이지 → 수강중인 과목으로 진입 */}
+      <li onClick={() => { setCurrentPage("수강중인 과목"); closeAllSubMenus(); }}>마이페이지</li>
+      </ul>
         </div>
       )}
     </>

@@ -18,7 +18,6 @@ export default function AcademyNotice({currentPage, setCurrentPage}) {
     
     return(
         <NoticeLayout currentPage={currentPage} setCurrentPage={setCurrentPage}>
-            <h2>학사공지 테스트 출력</h2>
             <NoticeList
               boardCode={0}
               page={page}

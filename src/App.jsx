@@ -38,14 +38,37 @@ import ReadingRoom from '../component/common/Facilities/ReadingRoom';
 // 마이페이지 페이지들
 import MyPage from '../component/common/MyPage';
 
-// PWA serviceworker
-import ServiceWorker from './ServiceWorkerFunc';
-
 // 관리자 페이지
 import Admin from './Admin';
 
 // css
 import '../css/App.css';
+
+//serviceWorker start
+import "./ServiceWorkerFunc";
+
+// window close evt
+function ClearState() {
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      localStorage.clear();
+      sessionStorage.clear();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('pagehide', handleBeforeUnload);
+    window.addEventListener('visibilitychange', handleBeforeUnload);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('pagehide', handleBeforeUnload);
+      window.removeEventListener('visibilitychange', handleBeforeUnload);
+    };
+  }, []);
+
+  return null;
+}
 
 // InApp filter function
 function InAppFilter(){
@@ -60,10 +83,8 @@ function AppContent() {
   const { isAuthenticated, isLoading } = UseUser();
   //user state ctrl end
   if (isLoading) {
-  return <LoadingSpinner/>
+    return <LoadingSpinner/>
   }
-
-  //const isAuthenticated = true;   // ← 로그인 상태로 강제
 
   // currentPage 상태를 이 컴포넌트에서 보유
   const [currentPage, setCurrentPage] = useState("");
@@ -100,7 +121,8 @@ function AppContent() {
       case "연혁":
         return <Introduction currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
       
-      // 마이페이지
+      // 마이페이지(하위 탭/진행사항 전환은 MtPage 내부에서 처리)
+      case "개인정보": 
       case "수강중인 과목":
       case "수강과목 공지사항":
       case "실시간 상담":
@@ -162,7 +184,7 @@ function AppContent() {
 function App() {
   return (
     <>
-      <ServiceWorker />
+      <ClearState />
       <InAppFilter />
       <UserProvider>
         <BrowserRouter>

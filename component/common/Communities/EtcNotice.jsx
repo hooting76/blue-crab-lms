@@ -17,7 +17,6 @@ export default function EtcNotice({currentPage,setCurrentPage}) {
     
     return(
         <NoticeLayout currentPage={currentPage} setCurrentPage={setCurrentPage}>
-            <h2>기타공지 테스트 출력</h2>
             <NoticeList
               boardCode={2}
               page={page}

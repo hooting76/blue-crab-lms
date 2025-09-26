@@ -1,13 +1,11 @@
 // serviceworker 등록 및 상태관리
-function ServiceWorker(){
-    async function registerServiceWorker(){
+    export async function registerServiceWorker(){
         if ("serviceWorker" in navigator) {
             try {
                 const registration = await navigator.serviceWorker.register('/sw.js');
 
                 //check
                 console.log('registration', registration);
-                console.log('registration.scope', registration.scope);
                 //check end
 
                 if(registration.installing){
@@ -29,8 +27,8 @@ function ServiceWorker(){
 
 
     // serviceworker 설치상태 추적
-    function trackInstalling(worker){
-        worker.AddEventListener('statechange',() =>{
+    export function trackInstalling(worker){
+        worker.addEventListener('statechange',() =>{
             console.log('worker', worker.state);
 
             switch(worker.state){
@@ -47,12 +45,12 @@ function ServiceWorker(){
 
 
     // 업데이트 감지 및 처리함수
-    function handleServiceWorkerUpdates(registration){
-        registration.AddEventListener('updatefound', () =>{
+    export function handleServiceWorkerUpdates(registration){
+        registration.addEventListener('updatefound', () =>{
             console.log('새로운 서비스워커 발견');
 
             const newWorker = registration.installing;
-            newWorker.AddEventListener('statechange',() => {
+            newWorker.addEventListener('statechange',() => {
                 if(newWorker.state === 'installed' && registration.active){
                     // 새 버전 사용가능 알림 표시
                     showUpdateNotification();
@@ -63,7 +61,7 @@ function ServiceWorker(){
 
 
     // 푸시알림 구독 
-    async function subscribeToPushNotifications(registration){
+    export async function subscribeToPushNotifications(registration){
         try {
             // 알림 권한 요청
             const permission = await Notification.requestPermission();
@@ -89,7 +87,7 @@ function ServiceWorker(){
 
 
     // 알림표시
-    async function showNotification(registration){
+    export async function showNotification(registration){
         try {
             await registration.showNotification('새 메시지', {
                 body: '새로운 업데이트가 있습니다.',
@@ -109,7 +107,7 @@ function ServiceWorker(){
 
 
     // 기존 알림 조회
-    async function getExistingNotifications(registration) {
+    export async function getExistingNotifications(registration) {
         try {
             const notifications = await registration.getNotifications();
             console.log('기존 알림들:', notifications);
@@ -129,7 +127,7 @@ function ServiceWorker(){
 
 
     // 백그라운드 동기화 등록
-    async function registerBackgroundSync(registration) {
+    export async function registerBackgroundSync(registration) {
         try {
             await registration.sync.register('background-sync');
             console.log('백그라운드 동기화 등록됨');
@@ -140,7 +138,7 @@ function ServiceWorker(){
 
 
     // 주기적 백그라운드 동기화
-    async function registerPeriodicSync(registration) {
+    export async function registerPeriodicSync(registration) {
         try {
             // 권한 상태 확인
             const status = await navigator.permissions.query({
@@ -160,7 +158,7 @@ function ServiceWorker(){
 
 
     // 서비스 워커 업데이트 강제 실행
-    async function updateServiceWorker(registration) {
+    export async function updateServiceWorker(registration) {
         try {
             console.log('서비스 워커 업데이트 확인 중...');
             await registration.update();
@@ -173,7 +171,7 @@ function ServiceWorker(){
 
 
     // 서비스 워커 등록 해제
-    async function unregisterServiceWorker(registration) {
+    export async function unregisterServiceWorker(registration) {
         try {
             const result = await registration.unregister();
             if (result) {
@@ -187,7 +185,7 @@ function ServiceWorker(){
 
 
     // 캐시 업데이트 정책 확인
-    function checkCacheUpdatePolicy(registration) {
+    export function checkCacheUpdatePolicy(registration) {
         console.log('캐시 업데이트 정책:', registration.updateViaCache);
         // 가능한 값: 'imports', 'all', 'none'
         
@@ -207,7 +205,7 @@ function ServiceWorker(){
 
 
     // 완전한 초기화 함수
-    async function initializeServiceWorker() {
+    export async function initializeServiceWorker() {
         const registration = await registerServiceWorker();
         
         if (registration) {
@@ -229,7 +227,7 @@ function ServiceWorker(){
     // 유틸리티 함수
 
     // 푸시 구독 관련 키값 함수
-    function urlBase64ToUint8Array(base64String) {
+    export function urlBase64ToUint8Array(base64String) {
         const padding = '='.repeat((4 - base64String.length % 4) % 4);
         const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
 
@@ -244,7 +242,7 @@ function ServiceWorker(){
 
 
     // ui에 업데이트 표시
-    function showUpdateAvailable() {
+    export function showUpdateAvailable() {
         // UI에 업데이트 알림 표시
         const updateBanner = document.createElement('div');
         updateBanner.innerHTML = `
@@ -259,14 +257,14 @@ function ServiceWorker(){
 
 
     // 사용자에게 새 버전 알림
-    function showUpdateNotification() {
+    export function showUpdateNotification() {
         console.log('새 버전 사용 가능 - 사용자에게 알림');
         showUpdateAvailable();
     }; // 사용자에게 새 버전 알림 end
 
 
     // 실제 서버 엔드포인트로 구독 정보 전송
-    async function sendSubscriptionToServer(subscription) {
+    export async function sendSubscriptionToServer(subscription) {
         try {
             const response = await fetch('/api/push-subscriptions', {
                 method: 'POST',
@@ -284,13 +282,4 @@ function ServiceWorker(){
         }
     }; // 실제 서버 엔드포인트로 구독 정보 전송 end
 
-    // 초기화 실행
-    return(
-        <>
-            {document.addEventListener('DOMContentLoaded', initializeServiceWorker)}
-            {console.log(initializeServiceWorker.body)}
-        </>
-    );
-};
-
-export default ServiceWorker;
+document.addEventListener('DOMContentLoaded', initializeServiceWorker);
