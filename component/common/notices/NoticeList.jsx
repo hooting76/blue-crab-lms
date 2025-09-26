@@ -8,6 +8,7 @@ import getNotices from "../../api/noticeAPI"; //API 함수 임포트,백엔드 �
 import "../../../css/Communities/Notice-ui.css";
 
 export default function NoticeList({
+    boardCode,
     page = 1, 
     size = 10,
     onPageChange,
@@ -33,24 +34,22 @@ export default function NoticeList({
           const allItems = res.items;
 
           // ✅ BOARD_CODE 필터링
-          // const filtered = allItems.filter((item) => item.boardCode === boardCode);
+          const filtered = allItems.filter((item) => item.boardCode === boardCode);
 
           // ✅ 최신순 정렬 (작성일 기준)
-          // filtered.sort((a, b) => (b.boardReg || "").localeCompare(a.boardReg || ""));
-
-          allItems.sort((a, b) => (b.boardReg || "").localeCompare(a.boardReg || ""));
+          filtered.sort((a, b) => (b.boardReg || "").localeCompare(a.boardReg || ""));
 
           console.log("res :", res);
-          console.log("allItems:", allItems);
+          console.log("filtered:", filtered);
 
           // ✅ 페이징 처리
           const start = (page - 1) * size;
           const end = start + size;
-          const pageItems = allItems.slice(start, end);
+          const pageItems = filtered.slice(start, end);
 
           setState({
             items: pageItems,
-            total: allItems.length,
+            total: filtered.length,
             loading: false
           });
         })

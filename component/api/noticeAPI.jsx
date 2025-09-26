@@ -5,7 +5,7 @@ const getNotices = async (accessToken, page, size) => {
   try {
     // 요청에 포함할 바디 데이터
     const requestBody = {
-      page,
+      page : page-1,
       size
     };
 
