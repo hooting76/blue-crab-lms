@@ -56,10 +56,14 @@ function ClearState() {
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('pagehide', handleBeforeUnload);
+    window.addEventListener('visibilitychange', handleBeforeUnload);
 
     // Cleanup
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('pagehide', handleBeforeUnload);
+      window.removeEventListener('visibilitychange', handleBeforeUnload);
     };
   }, []);
 
