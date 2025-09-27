@@ -4,10 +4,6 @@
             try {
                 const registration = await navigator.serviceWorker.register('/sw.js');
 
-                //check
-                console.log('registration', registration);
-                //check end
-
                 if(registration.installing){
                     console.log('서비스 워커 설치 중...');
                     trackInstalling(registration.installing);                
@@ -17,7 +13,6 @@
                 }else if(registration.active){
                     console.log('서비스 워커 활성화됨');
                 }
-
                 return registration;
             } catch (error) {
                 console.error('서비스 워커 등록 실패:', error);
@@ -69,10 +64,11 @@
                 throw new Error('알림 권한이 거부되었음!');
             }
 
+            const vapidPublicKey = 'BFH1FPAvU0xBq1_SuGJs_4TYFN6a9D7qktiEzOcsE2OHhjfLRqlyvelzI8ZiLQVwd2FJN-4gXjQ4Yc0Xpo-bQ2E'; // Replace with your actual VAPID public key
             // 푸시 구독 생성
             const subscription = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array(key)
+                applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
             });
 
             console.log('푸시알림 구독성공:', subscription);
@@ -97,7 +93,9 @@
                     {action: 'view', title: '보기'},
                     {action: 'dismiss', title: '닫기'}
                 ],
-                data: {url: '/'},
+                data: {
+                    url: 'https://www.dtmch.synology.me:56000'
+                },
                 tag:'update-notification'
             });
         } catch (error) {
@@ -157,7 +155,7 @@
     }; // 주기적 백그라운드 동기화 end
 
 
-    // 서비스 워커 업데이트 강제 실행
+    // 서비스 워커 업데이트 실행
     export async function updateServiceWorker(registration) {
         try {
             console.log('서비스 워커 업데이트 확인 중...');
@@ -207,13 +205,10 @@
     // 완전한 초기화 함수
     export async function initializeServiceWorker() {
         const registration = await registerServiceWorker();
-        
         if (registration) {
             handleServiceWorkerUpdates(registration);
-            await subscribeToPushNotifications(registration);
-            await getExistingNotifications(registration);
-            await registerBackgroundSync(registration);
             checkCacheUpdatePolicy(registration);
+            await registerBackgroundSync(registration);
             
             // 정기적으로 업데이트 확인
             setInterval(() => {
@@ -221,7 +216,7 @@
             }, 600000); // 10분마다
         }
     }; // 완전한 초기화 함수 end
-
+    
 
 
     // 유틸리티 함수
@@ -246,9 +241,13 @@
         // UI에 업데이트 알림 표시
         const updateBanner = document.createElement('div');
         updateBanner.innerHTML = `
-            <div style="background: #4CAF50; color: white; padding: 10px; text-align: center;">
-            새 버전이 사용 가능합니다! 
-            <button onclick="window.location.reload()">새로고침</button>
+            <div style="background: #4CAF50; color: white; padding: 10px; text-align: center; display:flex; justify-content: center; align-items: center; gap: 7.5px;">
+                새 버전이 업데이트 되었습니다!
+                <button 
+                    onclick="window.location.reload()"
+                    style="padding:2.5px; border-radius:5px; font-weight:bold;">
+                    새로고침
+                </button>
             </div>
         `;
         document.body.insertBefore(updateBanner, document.body.firstChild);
