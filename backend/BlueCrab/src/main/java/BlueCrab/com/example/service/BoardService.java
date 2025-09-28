@@ -177,15 +177,55 @@ public class BoardService {
     // ========== 게시글 수정/삭제 관련 메서드 ==========
 
     // 게시글 수정 (Optional 반환으로 예외 처리 대신 사용)
-    public Optional<BoardTbl> updateBoard(Integer boardIdx, BoardTbl updatedBoard) {
+    public Optional<BoardTbl> updateBoard(Integer boardIdx, BoardTbl updatedBoard, String currentUserEmail) {
         Optional<BoardTbl> existingBoard = boardRepository.findByBoardIdxAndBoardOn(boardIdx, BOARD_ACTIVE);
         // 수정할 게시글 조회 (활성 상태인 것만)
         // Optional<BoardTbl> board : Optional로 감싸서 반환 (존재하지 않을 수도 있으므로)
-            
+           
             if (existingBoard.isPresent()) {
                 // 수정할 게시글이 존재하면
+
+                // 작성자 권한 확인 로직
                 BoardTbl board = existingBoard.get();
-                // null 체크 후 업데이트
+
+                // 작성자 유형과 작성자 식별 정보 가져오기
+                Integer boardWriterIdx = board.getBoardWriterIdx();
+                Integer boardWriterType = board.getBoardWriterType();
+
+                logger.info("checking permission - boardIdx: {}, writerIdx: {}, writerType: {}, requester: {}",
+                            boardIdx, boardWriterIdx, boardWriterType, currentUserEmail);
+
+                if (boardWriterType == 1) {
+                    // 작성자가 관리자(boardWriterType이 1)인 경우
+                    Optional<AdminTbl> admin = adminTblRepository.findByAdminId(currentUserEmail);
+                    if (!admin.isPresent() || !admin.get().getAdminIdx().equals(boardWriterIdx)) {
+                        // 현재 사용자가 관리자 테이블에 없거나, AdminIdx가 일치하지 않으면
+                        logger.warn("Permission denied - not the admin writer. requester: {}", currentUserEmail);
+                        // 권한 없음 로그
+                        return Optional.empty();
+                        // Optional.empty() 반환
+                    }
+                } else if (boardWriterType == 0) {
+                    // 작성자가 교수(boardWriterType이 0)인 경우
+                    Optional<UserTbl> user = userTblRepository.findByUserEmail(currentUserEmail);
+                    if (!user.isPresent() || !user.get().getUserIdx().equals(boardWriterIdx) || user.get().getUserStudent() != 1) {
+                        // 현재 사용자가 사용자 테이블에 없거나, UserIdx가 일치하지 않거나, 교수(userStudent != 1)가 아니면
+                        logger.warn("Permission denied - not the professor writer. requester: {}", currentUserEmail);
+                        // 권한 없음 로그
+                        return Optional.empty();
+                        // Optional.empty() 반환
+                    }
+                } else {
+                    // 작성자 유형이 관리자(1)도 교수(0)도 아닌 경우
+                    logger.warn("Permission denied - unknown writer type: {}. requester: {}", boardWriterType, currentUserEmail);
+                    // 권한 없음 로그
+                    return Optional.empty();
+                    // Optional.empty() 반환
+                }
+
+                logger.info("Permission Check passed - proceeding with update. boardIdx: {}, requester: {}",
+                            boardIdx, currentUserEmail);
+
                 if (updatedBoard.getBoardTitle() != null) {
                     // 제목이 null이 아니면
                     board.setBoardTitle(updatedBoard.getBoardTitle());
@@ -208,13 +248,53 @@ public class BoardService {
     }   // updateBoard 끝
 
     // 게시글 삭제 (비활성 상태로 변경)
-    public boolean deleteBoard (Integer boardIdx) {
+    public boolean deleteBoard (Integer boardIdx, String currentUserEmail) {
         Optional<BoardTbl> board = boardRepository.findByBoardIdxAndBoardOn(boardIdx, BOARD_ACTIVE);
         // 삭제할 게시글 조회 (활성 상태인 것만)
         // Optional<BoardTbl> board : Optional로 감싸서 반환 (존재하지 않을 수도 있으므로)
 
         if (board.isPresent()) {
             // 삭제할 게시글이 존재하면
+
+            // 작성자 권한 확인 로직
+            Integer boardWriterIdx = board.get().getBoardWriterIdx();
+            Integer boardWriterType = board.get().getBoardWriterType();
+
+            logger.info("Checking permission for delete - boardIdx: {}, writerIdx: {}, writerType: {}, requester: {}",
+                        boardIdx, boardWriterIdx, boardWriterType, currentUserEmail);
+            
+            if (boardWriterType == 1) {
+                // 작성자가 관리자(boardWriterType이 1)인 경우
+                Optional<AdminTbl> admin = adminTblRepository.findByAdminId(currentUserEmail);
+                if (!admin.isPresent() || !admin.get().getAdminIdx().equals(boardWriterIdx)) {
+                    // 현재 사용자가 관리자 테이블에 없거나, AdminIdx가 일치하지 않으면
+                    logger.warn("Permission denied for delete - not the admin writer. requester: {}", currentUserEmail);
+                    // 권한 없음 로그
+                    return false;
+                    // 삭제 실패 반환
+                }
+                
+            } else if (boardWriterType == 0) {
+                // 작성자가 교수(boardWriterType이 0)인 경우
+                Optional<UserTbl> user = userTblRepository.findByUserEmail(currentUserEmail);
+                if (!user.isPresent() || !user.get().getUserIdx().equals(boardWriterIdx) || user.get().getUserStudent() != 1) {
+                    // 현재 사용자가 사용자 테이블에 없거나, UserIdx가 일치하지 않거나, 교수(userStudent != 1)가 아니면
+                    logger.warn("Permission denied for delete - not the professor writer. requester: {}", currentUserEmail);
+                    // 권한 없음 로그
+                    return false;
+                    // 삭제 실패 반환
+                }
+            } else {
+                // 작성자 유형이 관리자(1)도 교수(0)도 아닌 경우
+                logger.warn("Permission denied for delete - unknown writer type: {}. requester: {}", boardWriterType, currentUserEmail);
+                // 권한 없음 로그
+                return false;
+                // 삭제 실패 반환
+            }
+
+            logger.info("permission check for delete passed - proceeding with delete. boardIdx: {}, requester: {}",
+                        boardIdx, currentUserEmail);
+
             BoardTbl boardToDelete = board.get();
             // Optional에서 실제 엔티티 추출
             boardToDelete.setBoardOn(BOARD_INACTIVE);
