@@ -1,9 +1,21 @@
+import { useEffect } from 'react';
 import CalendarComp from '../common/Calendar/CalendarComp';
 import Aside from '../common/Aside';
 
 import UserDashCss from '../../css/modules/UserDashboard.module.css';
 
+// firebase  service-worker config
+import PushNotificationManager from '../../firebase/PushNotification';
+
 function UserDashboard() {
+
+  //firebase start========================
+    useEffect(() => {
+        const pushManager = new PushNotificationManager();
+        pushManager.initialize();
+    }, []);
+  //firebase end===========================  
+
   return (
     <>
       <main className={UserDashCss.main}>

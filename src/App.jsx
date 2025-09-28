@@ -44,10 +44,7 @@ import Admin from './Admin';
 // css
 import '../css/App.css';
 
-//serviceWorker start
-import "./ServiceWorkerFunc";
-
-// window close evt
+// window / mobile close logout func
 function ClearState() {
   useEffect(() => {
     const handleBeforeUnload = () => {
@@ -68,7 +65,7 @@ function ClearState() {
   }, []);
 
   return null;
-}
+};
 
 // InApp filter function
 function InAppFilter(){
@@ -121,8 +118,7 @@ function AppContent() {
       case "연혁":
         return <Introduction currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
       
-      // 마이페이지(하위 탭/진행사항 전환은 MtPage 내부에서 처리)
-      case "개인정보": 
+      // 마이페이지
       case "수강중인 과목":
       case "수강과목 공지사항":
       case "실시간 상담":
@@ -184,6 +180,7 @@ function AppContent() {
 function App() {
   return (
     <>
+      {/* {initializeServiceWorker} */}
       <ClearState />
       <InAppFilter />
       <UserProvider>
