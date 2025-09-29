@@ -2,14 +2,16 @@ import React, { useRef, useState } from 'react';
 import { Editor } from '@toast-ui/react-editor';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor/dist/i18n/ko-kr';
-import { UseUser } from '../../../hook/UseUser';
+import { UseAdmin } from '../../../hook/UseAdmin';
 
 function AdminNoticeWritingPage() {
   const editorRef = useRef();
   const [boardTitle, setBoardTitle] = useState('');
   const [boardCode, setBoardCode] = useState('');
 
-  const {user} = UseUser();
+  const {admin, isAuthenticated } = UseAdmin();
+
+  const adminWriteToken = isAuthenticated ? admin.data.accessToken : null;
 
 const handleSubmit = async (e) => {
   e.preventDefault();
@@ -20,18 +22,16 @@ const handleSubmit = async (e) => {
     return;
   }
 
-  const boardWriter = user.data.user.name;
   const date = new Date().toLocaleString("sv-SE", {
   timeZone: "Asia/Seoul",
   hour12: false,
-});
-const boardReg = date.replace(" ", "T"); // "2025-09-26T15:43:21"
+  });
+  const boardReg = date.replace(" ", "T"); // "2025-09-26T15:43:21"
 
   const NoticeByAdmin = {
     boardTitle,
-    boardCode,
+    boardCode: Number(boardCode),
     boardContent,
-    boardWriter,
     boardReg
   };
 
@@ -40,6 +40,7 @@ const boardReg = date.replace(" ", "T"); // "2025-09-26T15:43:21"
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminWriteToken}`
       },
       body: JSON.stringify(NoticeByAdmin),
     });
@@ -81,9 +82,9 @@ const boardReg = date.replace(" ", "T"); // "2025-09-26T15:43:21"
           style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
         >
           <option value=''>카테고리를 선택하세요</option>
-          <option value={0}>학사공지</option>
-          <option value={1}>행정공지</option>
-          <option value={2}>기타공지</option>
+          <option value='0'>학사공지</option>
+          <option value='1'>행정공지</option>
+          <option value='2'>기타공지</option>
         </select>
       </div>
 
