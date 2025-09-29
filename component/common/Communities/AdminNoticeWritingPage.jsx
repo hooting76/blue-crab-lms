@@ -8,16 +8,20 @@ function AdminNoticeWritingPage() {
   const editorRef = useRef();
   const [boardTitle, setBoardTitle] = useState('');
   const [boardCode, setBoardCode] = useState('');
-
   const {admin, isAuthenticated } = UseAdmin();
 
-  const adminWriteToken = isAuthenticated ? admin.data.accessToken : null;
+ const adminWriteToken = isAuthenticated && admin.data.accessToken;
+if (!adminWriteToken) {
+  alert('관리자 인증 정보가 없습니다.');
+  return;
+}
+
 
 const handleSubmit = async (e) => {
   e.preventDefault();
 
   const boardContent = editorRef.current.getInstance().getMarkdown();
-  if (!boardTitle || !boardCode || !boardContent.trim()) {
+  if (!boardTitle || boardCode === '' || !boardContent.trim()) {
     alert('모든 필드를 입력해주세요.');
     return;
   }
@@ -32,7 +36,8 @@ const handleSubmit = async (e) => {
     boardTitle,
     boardCode: Number(boardCode),
     boardContent,
-    boardReg
+    boardReg,
+    boardOn : 1
   };
 
   try {
