@@ -74,6 +74,7 @@ function InAppFilter(){
 function AppContent() {
   // user state ctrl
   const { isAuthenticated, isLoading } = UseUser();
+  console.log('[Auth]', { isAuthenticated, isLoading });  // ← 확인용
   //user state ctrl end
   if (isLoading) {
     return <LoadingSpinner/>
@@ -115,6 +116,7 @@ function AppContent() {
         return <Introduction currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
       
       // 마이페이지
+      case "개인정보":
       case "수강중인 과목":
       case "수강과목 공지사항":
       case "실시간 상담":
@@ -177,7 +179,7 @@ function App() {
   return (
     <>
       {/* {initializeServiceWorker} */}
-      <ClearState />
+      {/* <ClearState /> */}
       <InAppFilter />
       <UserProvider>
         <BrowserRouter>
