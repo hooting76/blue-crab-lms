@@ -55,23 +55,22 @@ function AuthTof(){
   // currentPage가 바뀔 때 localStorage에 저장
   useEffect(() => {
     localStorage.setItem('currentPage', currentPage);
+    console.log("currentPage 변화 감지됨:", currentPage);
   }, [currentPage]);
 
 const renderPage = () => {
     switch (currentPage) {
-        // ===== 커뮤니티 섹션 (상태 전환만 사용) =====
-      case '학사공지':
-        return <AcademyNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
-      case '행정공지':
-        return <AdminNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
-      case '기타공지':
-        return <EtcNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
-      case 'Admin 공지 작성':
-        return <AdminNoticeWritingPage currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
-
-      default:
-        return <AdminDashboard/>;
-    }
+        case '학사공지':
+          return <AcademyNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
+        case '행정공지':
+          return <AdminNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
+        case '기타공지':
+          return <EtcNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
+        case 'Admin 공지 작성':
+          return <AdminNoticeWritingPage currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
+        default:
+          return <AdminDashboard />;
+      }
   }
 
     if (isLoading) {
