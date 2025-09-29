@@ -4,7 +4,7 @@ import "../../../css/Communities/Notice-ui.css";
 import "../../../css/Communities/NoticeDetailModal.css";
 import NoticeDetail from "../Communities/NoticeDetail";
 
-export default function NoticeTable({ rows = [], boardOn = 1 }) {
+export default function NoticeTable({ rows = [] }) {
     const [selectedIdx, setSelectedIdx] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 

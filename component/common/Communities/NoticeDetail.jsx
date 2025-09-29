@@ -9,7 +9,7 @@ const NoticeDetail = ({ boardIdx }) => {
   const [error, setError] = useState(null);
   const { user, isAuthenticated } = UseUser();
 
-  const accessToken = isAuthenticated ? user?.data?.accessToken : null;
+  const accessToken = isAuthenticated ? user.data.accessToken : null;
 
   // boardCode에 따른 공지 종류 반환
   const getNoticeCode = (boardCode) => {
