@@ -1,6 +1,6 @@
 import "../../../css/Communities/NoticeDetail.css"
 import React, { useEffect, useState } from 'react';
-import { getNoticeDetail, updateBoardOn } from '../../api/noticeAPI';
+import { getNoticeDetail } from '../../api/noticeAPI';
 import { UseUser } from "../../../hook/UseUser";
 
 const NoticeDetail = ({ boardIdx }) => {
@@ -9,7 +9,7 @@ const NoticeDetail = ({ boardIdx }) => {
   const [error, setError] = useState(null);
   const { user, isAuthenticated } = UseUser();
 
-  const accessToken = isAuthenticated ? user.data.accessToken : null;
+  const accessToken = isAuthenticated ? user?.data?.accessToken : null;
 
   // boardCode에 따른 공지 종류 반환
   const getNoticeCode = (boardCode) => {
@@ -45,7 +45,7 @@ const NoticeDetail = ({ boardIdx }) => {
       }
     };
 
-    if (accessToken && boardIdx !== undefined && boardIdx !== null) {
+    if (accessToken && boardIdx) {
       fetchData();
     }
   }, [accessToken, boardIdx]);
@@ -54,41 +54,22 @@ const NoticeDetail = ({ boardIdx }) => {
   if (error) return <div>오류: {error}</div>;
   if (!notice) return <div>데이터가 없습니다.</div>;
 
- const toggleBoardOn = async () => {
-  const nextStatus = notice.boardOn === 1 ? 0 : 1;
-  try {
-    const updated = await updateBoardOn(accessToken, notice.boardIdx, nextStatus);
-    setNotice(prev => ({ ...prev, boardOn: updated.boardOn }));
-  } catch (err) {
-    alert("공지 상태 변경 실패: " + err.message);
-  }
-};
-
-
   return (
-    <>
+    <div>
       <div>
-        <div>
-          <span className='noticeDetailTitle'>제목 : {notice.boardTitle}</span>
-          <span className='noticeDetailCode'>{getNoticeCode(notice.boardCode)}</span>
-        </div>
-        <div>
-          <span className='noticeDetailWriter'>작성자 : {notice.boardWriter}</span>
-          <span className='noticeDetailView'>조회수 : {notice.boardView}</span>
-        </div>
-        <div>
-          <span className='noticeDetailReg'>작성일 : {formattedReg(notice.boardReg)}</span>
-          <span className='noticeDetailLast'>최종 수정일: {formattedLatest(notice.boardLast)}</span>
-        </div>
-        <div className='noticeDetailContent'>{notice.boardContent}</div>
+        <span className='noticeDetailTitle'>제목 : {notice.boardTitle}</span>
+        <span className='noticeDetailCode'>{getNoticeCode(notice.boardCode)}</span>
       </div>
-
-      <div className='boardOnButton'>
-        <button onClick={toggleBoardOn}>
-          {notice.boardOn === 1 ? "공지 비활성화" : "공지 활성화"}
-        </button>
+      <div>
+        <span className='noticeDetailWriter'>작성자 : {notice.boardWriter}</span>
+        <span className='noticeDetailView'>조회수 : {notice.boardView}</span>
       </div>
-    </>
+      <div>
+        <span className='noticeDetailReg'>작성일 : {formattedReg(notice.boardReg)}</span>
+        <span className='noticeDetailLast'>최종 수정일: {formattedLatest(notice.boardLast)}</span>
+      </div>
+      <div className='noticeDetailContent'>{notice.boardContent}</div>
+    </div>
   );
 };
 

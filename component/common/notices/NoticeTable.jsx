@@ -3,14 +3,11 @@ import {useState} from "react";
 import "../../../css/Communities/Notice-ui.css";
 import "../../../css/Communities/NoticeDetailModal.css";
 import NoticeDetail from "../Communities/NoticeDetail";
-import { UseUser } from "../../../hook/UseUser";
 
-export default function NoticeTable({ rows = [] }) {
+export default function NoticeTable({ rows = [], boardOn = 1 }) {
     const [selectedIdx, setSelectedIdx] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const { user } = UseUser();
-
-    const isAdmin = user.data.user.role === "admin"; //관리자 여부
+    const [noticeVisibility, setNoticeVisibility] = useState("visible");
 
     const openModal = (boardIdx) => {
         setSelectedIdx(boardIdx);
@@ -26,6 +23,10 @@ export default function NoticeTable({ rows = [] }) {
     return boardReg.replace('T', ' ').slice(0, 16);
     };
 
+    useEffect(() => {
+        setNoticeVisibility(boardOn === 1 ? "visible" : "hidden");
+    }, [boardOn]);
+
     return(
         <>
         <table className="notice-table">
@@ -39,12 +40,11 @@ export default function NoticeTable({ rows = [] }) {
                 </tr>
             </thead>
             <tbody> 
-                {rows.filter((r) => isAdmin || r.boardOn === 1) // 관리자면 전부, 일반유저면 boardOn이 1인것만
-                    .map(r =>(
+                {rows.map(r =>(
                     <tr
                     key={r.boardIdx}
                     onClick={() => openModal(r.boardIdx)}
-                    style={{ cursor: "pointer" }}
+                    style={{ cursor: "pointer", visibility: noticeVisibility }}
                     >
                         <td>{r.boardIdx}</td>
                         <td>{r.boardTitle}</td>  
@@ -65,7 +65,7 @@ export default function NoticeTable({ rows = [] }) {
                         <button className="modal-close" onClick={closeModal}>
                             ✖
                         </button>
-                        <NoticeDetail boardIdx={selectedIdx}/>
+                        <NoticeDetail boardIdx={selectedIdx} />
                     </div>
                 </div>
             )}

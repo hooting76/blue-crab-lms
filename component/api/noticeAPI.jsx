@@ -1,13 +1,5 @@
 const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/boards';
 
-// API 요청에 사용할 공통 헤더
-const getHeaders = (accessToken) => ({
-  'Authorization': `Bearer ${accessToken}`,
-  'Content-Type': 'application/json'
-});
-
-
-
 // 게시글 목록 조회 (POST 방식)
 const getNotices = async (accessToken, page, size) => {
   try {
@@ -35,6 +27,13 @@ const getNotices = async (accessToken, page, size) => {
 };
 
 
+// API 요청에 사용할 공통 헤더
+const getHeaders = (accessToken) => ({
+  'Authorization': `Bearer ${accessToken}`,
+  'Content-Type': 'application/json'
+});
+
+
 // 특정 게시글 상세 조회
 export const getNoticeDetail = async (accessToken, boardIdx) => {
   try {
@@ -54,29 +53,6 @@ export const getNoticeDetail = async (accessToken, boardIdx) => {
   }
 };
 
-// 게시글 활성화/비활성화
-export const updateBoardOn = async (accessToken, boardIdx, newBoardOn) => {
-  try {
-    const response = await fetch(`${BASE_URL}/delete/${boardIdx}`, {
-      method: 'POST',
-      headers: getHeaders(accessToken),
-      body: JSON.stringify({
-        boardIdx,
-        boardOn: newBoardOn,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || '공지 상태 업데이트 실패');
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    throw new Error(error.message || '네트워크 오류로 공지 상태 변경 실패');
-  }
-};
 
 // 게시글 작성
 export const createNotice = async (accessToken, noticeData) => {
@@ -106,6 +82,21 @@ export const updateNotice = async (accessToken, boardIdx, updateData) => {
     return await response.json();
   } catch (error) {
     console.error('게시글 수정 에러:', error);
+    throw error;
+  }
+};
+
+// 게시글 삭제
+export const deleteNotice = async (accessToken, boardIdx) => {
+  try {
+    const response = await fetch(`${BASE_URL}/delete/${boardIdx}`, {
+      method: 'DELETE',
+      headers: getHeaders(accessToken)
+    });
+    if (!response.ok) throw new Error('게시글 삭제에 실패했습니다.');
+    return await response.json();
+  } catch (error) {
+    console.error('게시글 삭제 에러:', error);
     throw error;
   }
 };
