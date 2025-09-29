@@ -18,7 +18,7 @@ export default function NoticeList({
     const { user, isAuthenticated } = UseUser()
 
     //<권한 판별>       
-    const isAdmin = user?.data?.user?.role === "admin"; //관리자 여부
+    const isAdmin = user.data.user.role === "admin"; //관리자 여부
     
     const[state, setState] = useState({items: [], total:0, loading: true});
     const accessToken = isAuthenticated ? user.data.accessToken : null;

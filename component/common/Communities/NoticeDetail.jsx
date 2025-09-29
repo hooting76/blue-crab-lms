@@ -64,7 +64,7 @@ const NoticeDetail = ({ boardIdx }) => {
 };
 
   return (
-    <div>
+    <div className="noticeDetailContainer">
       <div>
         <span className='noticeDetailTitle'>제목 : {notice.boardTitle}</span>
         <span className='noticeDetailCode'>{getNoticeCode(notice.boardCode)}</span>
@@ -78,7 +78,7 @@ const NoticeDetail = ({ boardIdx }) => {
         <span className='noticeDetailLast'>최종 수정일 : {formattedLatest(notice.boardLast)}</span>
       </div>
       <div className='noticeDetailContent'>{notice.boardContent}</div>
-      {notice.boardWriter === user.data.userName &&
+      {notice.boardWriterIdx === user.data.userIdx &&
       <button className='noticeDeleteButton' onClick={handleDelete}>공지 비활성화</button>}
     </div>
   );
