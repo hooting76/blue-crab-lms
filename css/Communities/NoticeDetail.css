@@ -1,19 +1,20 @@
-.noticeDetailTitle {
+* {
+    text-align: start;
     background-color: var(--white-color);
+}
+
+.noticeDetailTitle {
+    width: 800px;
 }
 
 .noticeDetailCode {
-    background-color: var(--white-color);
+    width: 150px;
 }
 
-.noticeDetailWriter {
-    background-color: var(--white-color);
-}
-
-.noticeDetailReg {
-    background-color: var(--white-color);
+.noticeDetailWriter, .noticeDetailView, .noticeDetailReg, .noticeDetailLast {
+    width: 475px;
 }
 
 .noticeDetailContent {
-    background-color: var(--white-color);
+    border-top: solid 1px var(--light-gray-color);
 }

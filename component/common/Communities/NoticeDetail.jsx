@@ -14,19 +14,23 @@ const NoticeDetail = ({ boardIdx }) => {
   // boardCode에 따른 공지 종류 반환
   const getNoticeCode = (boardCode) => {
     switch (boardCode) {
-      case "0":
+      case 0:
         return "학사공지";
-      case "1":
+      case 1:
         return "행정공지";
-      case "2":
+      case 2:
         return "기타공지";
       default:
         return "공지";
     }
   };
 
-  const formattedTime = (boardReg) => {
-    boardReg.replace('T', ' ').slice(0, 16);
+  const formattedReg = (boardReg) => {
+    return boardReg.replace('T', ' ').slice(0, 16);
+  }
+
+  const formattedLatest = (boardLast) => {
+    return boardLast ? boardLast.replace('T', ' ').slice(0, 16) : '';
   }
 
   useEffect(() => {
@@ -52,10 +56,18 @@ const NoticeDetail = ({ boardIdx }) => {
 
   return (
     <div>
-      <div className='noticeDetailTitle'>{notice.boardTitle}</div>
-      <div className='noticeDetailCode'>{getNoticeCode(notice.boardCode)}</div>
-      <div className='noticeDetailWriter'>{notice.boardWriter}</div>
-      <div className='noticeDetailReg'>{formattedTime(notice.boardReg)}</div>
+      <div>
+        <span className='noticeDetailTitle'>제목 : {notice.boardTitle}</span>
+        <span className='noticeDetailCode'>{getNoticeCode(notice.boardCode)}</span>
+      </div>
+      <div>
+        <span className='noticeDetailWriter'>작성자 : {notice.boardWriter}</span>
+        <span className='noticeDetailView'>조회수 : {notice.boardView}</span>
+      </div>
+      <div>
+        <span className='noticeDetailReg'>작성일 : {formattedReg(notice.boardReg)}</span>
+        <span className='noticeDetailLast'>최종 수정일: {formattedLatest(notice.boardLast)}</span>
+      </div>
       <div className='noticeDetailContent'>{notice.boardContent}</div>
     </div>
   );
