@@ -18,3 +18,12 @@
 .noticeDetailContent {
     border-top: solid 1px var(--light-gray-color);
 }
+
+.noticeDeleteButton {
+    background-color: var(--red-color);
+    color: var(--white-color);
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 20px;
+}
