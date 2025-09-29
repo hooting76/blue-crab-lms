@@ -80,10 +80,10 @@ const boardReg = date.replace(" ", "T"); // "2025-09-26T15:43:21"
           required
           style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
         >
-          <option value="">카테고리를 선택하세요</option>
-          <option value="0">학사공지</option>
-          <option value="1">행정공지</option>
-          <option value="2">기타공지</option>
+          <option value=''>카테고리를 선택하세요</option>
+          <option value={0}>학사공지</option>
+          <option value={1}>행정공지</option>
+          <option value={2}>기타공지</option>
         </select>
       </div>
 

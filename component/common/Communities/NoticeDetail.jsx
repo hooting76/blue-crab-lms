@@ -29,8 +29,8 @@ const NoticeDetail = ({ boardIdx }) => {
     return boardReg.replace('T', ' ').slice(0, 16);
   }
 
-  const formattedLatest = (boardLast) => {
-    return boardLast ? boardLast.replace('T', ' ').slice(0, 16) : '';
+  const formattedLatest = (boardLast, boardReg) => {
+    return boardLast ? boardLast.replace('T', ' ').slice(0, 16) : formattedReg(boardReg);
   }
 
   useEffect(() => {
