@@ -217,4 +217,17 @@ public class JwtUtil {
             return false;
         }
     }
+
+    /**
+     * 토큰 유효성 검증 (단순한 형태)
+     * ReadingRoomController 호환성을 위한 메서드
+     * 
+     * @param token 검증할 JWT 토큰
+     * @return 토큰 유효성 여부
+     */
+    public boolean validateToken(String token) {
+        return isTokenValid(token);
+    }
+
+
 }
