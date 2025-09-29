@@ -1,6 +1,6 @@
 import "../../../css/Communities/NoticeDetail.css"
 import React, { useEffect, useState } from 'react';
-import { getNoticeDetail } from '../../api/noticeAPI';
+import { getNoticeDetail, deleteNotice } from '../../api/noticeAPI';
 import { UseUser } from "../../../hook/UseUser";
 
 const NoticeDetail = ({ boardIdx }) => {
@@ -54,6 +54,15 @@ const NoticeDetail = ({ boardIdx }) => {
   if (error) return <div>오류: {error}</div>;
   if (!notice) return <div>데이터가 없습니다.</div>;
 
+  const handleDelete = async () => {
+  try {
+    await deleteNotice(accessToken, notice.boardIdx);
+    alert("삭제되었습니다.");
+  } catch (error) {
+    alert("삭제 중 오류 발생: " + error.message);
+  }
+};
+
   return (
     <div>
       <div>
@@ -66,9 +75,11 @@ const NoticeDetail = ({ boardIdx }) => {
       </div>
       <div>
         <span className='noticeDetailReg'>작성일 : {formattedReg(notice.boardReg)}</span>
-        <span className='noticeDetailLast'>최종 수정일: {formattedLatest(notice.boardLast)}</span>
+        <span className='noticeDetailLast'>최종 수정일 : {formattedLatest(notice.boardLast)}</span>
       </div>
       <div className='noticeDetailContent'>{notice.boardContent}</div>
+      {notice.boardWriter === user.data.userName &&
+      <button className='noticeDeleteButton' onClick={handleDelete}>공지 비활성화</button>}
     </div>
   );
 };
