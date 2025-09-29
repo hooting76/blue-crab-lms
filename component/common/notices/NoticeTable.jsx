@@ -19,7 +19,7 @@ export default function NoticeTable({ rows = [] }) {
     };
 
     const formattedTime = (boardReg) => {
-    return boardReg.replace('T', ' ').slice(0, 16);
+    return boardReg.replace('T', '\n').slice(0, 16);
     };
 
     return(
