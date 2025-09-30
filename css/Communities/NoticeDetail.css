@@ -3,30 +3,19 @@
     background-color: var(--white-color);
 }
 
-.noticeDetailTitleAndCode {
+.noticeDetailTitleAndCode, .noticeDetailWriterAndView, .noticeDetailRegAndLast {
     display: flex;
+    background-color: azure;
 }
 
 .noticeDetailTitle {
     display: inline-block;
     width: 800px;
-    background-color: azure;
 }
 
 .noticeDetailCode {
     display: inline-block;
     width: 150px;
-    background-color: aliceblue;
-}
-
-.noticeDetailWriterAndView {
-    display: flex;
-    background-color: beige;
-}
-
-.noticeDetailRegAndLast {
-    display: flex;
-    background-color: bisque;
 }
 
 .noticeDetailWriter, .noticeDetailView, .noticeDetailReg, .noticeDetailLast {
@@ -36,11 +25,11 @@
 
 .noticeDetailContent {
     margin-top: 10px;
-    border-top: solid 1px var(--light-gray-color);
+    border: solid 1px black;
 }
 
 .noticeDeleteButton {
-    background-color: var(--red-color);
+    background-color: red;
     color: var(--white-color);
     border: none;
     padding: 10px 20px;
@@ -49,7 +38,7 @@
 }
 
 .noticeEditButton {
-    background-color: var(--blue-color);
+    background-color: blue;
     color: var(--white-color);
     border: none;
     padding: 10px 20px;
