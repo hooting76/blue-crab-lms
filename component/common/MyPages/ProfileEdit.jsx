@@ -1,6 +1,6 @@
 // src/component/common/MyPages/ProfileEdit.jsx
 import { useEffect, useMemo, useState } from 'react';
-import { getMyProfile, getMyProfileImage } from '../../../api/profileApi'; // ← 별칭 X, 상대경로
+import { getMyProfile, getMyProfileImage } from '../../../src/api/profileApi';
 
 // 전화번호 자동 하이픈
 const phoneMask = (v='') =>
