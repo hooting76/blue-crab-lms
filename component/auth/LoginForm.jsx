@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import LoginFrm from '../../css/modules/LoginForm.module.css';
 import { FaDownload } from 'react-icons/fa';
 
-
 function LoginForm() {
     const { login, isLoading, error, clearError, isAuthenticated } = UseUser();
     const [email, setEmail] = useState('');
@@ -87,8 +86,9 @@ function LoginForm() {
                     로그인
                     {
                         <span>
-                            <FaDownload/>
-                        </span>}
+                            <FaDownload />
+                        </span>
+                    }
                 </h2>
                     
                 <div>

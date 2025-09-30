@@ -1,20 +1,43 @@
-* {
+.noticeDetailContainer {
     text-align: start;
     background-color: var(--white-color);
 }
 
 .noticeDetailTitle {
+    display: inline-block;
     width: 800px;
+    background-color: azure;
 }
 
 .noticeDetailCode {
+    display: inline-block;
     width: 150px;
+    background-color: aliceblue;
+}
+
+.noticeDetailWriterAndView {
+    background-color: beige;
+}
+
+.noticeDetailRegAndLast {
+    background-color: bisque;
 }
 
 .noticeDetailWriter, .noticeDetailView, .noticeDetailReg, .noticeDetailLast {
+    display: inline-block;
     width: 475px;
 }
 
 .noticeDetailContent {
+    margin-top: 10px;
     border-top: solid 1px var(--light-gray-color);
+}
+
+.noticeDeleteButton {
+    background-color: var(--red-color);
+    color: var(--white-color);
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 20px;
 }

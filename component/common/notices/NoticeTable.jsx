@@ -4,10 +4,9 @@ import "../../../css/Communities/Notice-ui.css";
 import "../../../css/Communities/NoticeDetailModal.css";
 import NoticeDetail from "../Communities/NoticeDetail";
 
-export default function NoticeTable({ rows = [], boardOn = 1 }) {
+export default function NoticeTable({ rows = [] }) {
     const [selectedIdx, setSelectedIdx] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [noticeVisibility, setNoticeVisibility] = useState("visible");
 
     const openModal = (boardIdx) => {
         setSelectedIdx(boardIdx);
@@ -20,12 +19,8 @@ export default function NoticeTable({ rows = [], boardOn = 1 }) {
     };
 
     const formattedTime = (boardReg) => {
-    return boardReg.replace('T', ' ').slice(0, 16);
+    return boardReg.replace('T', '\n').slice(0, 16);
     };
-
-    useEffect(() => {
-        setNoticeVisibility(boardOn === 1 ? "visible" : "hidden");
-    }, [boardOn]);
 
     return(
         <>
@@ -44,7 +39,7 @@ export default function NoticeTable({ rows = [], boardOn = 1 }) {
                     <tr
                     key={r.boardIdx}
                     onClick={() => openModal(r.boardIdx)}
-                    style={{ cursor: "pointer", visibility: noticeVisibility }}
+                    style={{ cursor: "pointer" }}
                     >
                         <td>{r.boardIdx}</td>
                         <td>{r.boardTitle}</td>  
