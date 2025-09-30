@@ -1,10 +1,10 @@
 // src/api/profileApi.js
-// BlueCrab LMS - 프로필 API (실서버 연동, 무한로딩/401 자동 복구)
+// BlueCrab LMS - 프로필 API (실서버 연동, POST-only, 401 자동 갱신 후 1회 재시도)
 
 import { ensureAccessTokenOrRedirect } from '../utils/authFlow';
 import { readAccessToken } from '../utils/readAccessToken';
 
-const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/profile'; // ← 절대 URL 유지
+const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/profile'; // 절대 URL 유지
 const REQ_TIMEOUT_MS = 10000; // 10s
 
 const getHeaders = (accessToken) => ({
@@ -24,33 +24,39 @@ const fetchWithTimeout = (url, opts = {}, ms = REQ_TIMEOUT_MS) =>
     new Promise((_, rej) => setTimeout(() => rej(new Error('요청 시간 초과')), ms)),
   ]);
 
-// 401일 때 1회 재시도(리프레시 후) 유틸
-async function fetchRetry401(url, opts) {
+// 401 이면 1회 갱신 후 재시도
+async function fetchRetry401(url, bodyObj) {
   let token = readAccessToken();
-  let res = await fetchWithTimeout(url, { ...opts, headers: getHeaders(token) });
+  let res = await fetchWithTimeout(url, {
+    method: 'POST',
+    headers: getHeaders(token),
+    body: JSON.stringify(bodyObj ?? {}),
+  });
 
   if (res.status === 401) {
-    // 토큰 연장 시도
     token = await ensureAccessTokenOrRedirect();
-    res = await fetchWithTimeout(url, { ...opts, headers: getHeaders(token) });
+    res = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: getHeaders(token),
+      body: JSON.stringify(bodyObj ?? {}),
+    });
   }
   return res;
 }
 
-/*
+/**
  * 1) 내 프로필 조회
  * POST /api/profile/me  (body: {})
+ * 공통 래퍼: { success, message, data, errorCode, timestamp }
  */
 export const getMyProfile = async () => {
   try {
-    // 최소 1차 보장
+    // 최소 1차 보장: 토큰 확보(없으면 refresh → 실패시 로그인 이동)
     await ensureAccessTokenOrRedirect();
-    const res = await fetchRetry401(`${BASE_URL}/me`, {
-      method: 'POST',
-      body: JSON.stringify({}),
-    });
 
+    const res = await fetchRetry401(`${BASE_URL}/me`, {});
     const payload = await parseJsonSafe(res);
+
     if (!res.ok) {
       const msg = typeof payload === 'object' ? (payload.message || '프로필 조회 실패') : '프로필 조회 실패';
       throw new Error(msg);
@@ -68,22 +74,20 @@ export const getMyProfile = async () => {
   }
 };
 
-/*
+/**
  * 2) 내 프로필 이미지 조회
  * POST /api/profile/me/image/file  (body: { imageKey })
- * 반환: objectURL
+ * 응답: 바이너리 → objectURL
  */
 export const getMyProfileImage = async (imageKey) => {
   try {
     if (!imageKey) throw new Error('imageKey가 필요합니다.');
     await ensureAccessTokenOrRedirect();
 
-    const res = await fetchRetry401(`${BASE_URL}/me/image/file`, {
-      method: 'POST',
-      body: JSON.stringify({ imageKey }),
-    });
+    const res = await fetchRetry401(`${BASE_URL}/me/image/file`, { imageKey });
 
     if (!res.ok) {
+      // 이미지 API는 상태코드로 에러 표현
       throw new Error(`프로필 이미지 로드 실패 (HTTP ${res.status})`);
     }
     const blob = await res.blob();

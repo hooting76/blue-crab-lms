@@ -12,8 +12,8 @@ export default function ProfileEdit() {
   const [err, setErr] = useState('');
   const [msg, setMsg] = useState('');
   const [imageUrl, setImageUrl] = useState('');
-  const [origin, setOrigin] = useState(null);
-  const [form, setForm] = useState(null);
+  const [origin, setOrigin] = useState(null); // 원본 프로필
+  const [form, setForm] = useState(null);  // 편집 폼
 
   // 프로필 + 이미지 조회
   useEffect(() => {
