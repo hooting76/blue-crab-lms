@@ -45,8 +45,8 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
 
 
     const currentAdminId = () => {
-      if (isAdminAuth && admin?.data?.adminId) {
-          return admin.data.adminId;
+      if (isAdminAuth && admin?.adminId) {
+          return admin.adminId;
       }
       return null;
   };
