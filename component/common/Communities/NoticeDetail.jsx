@@ -4,7 +4,6 @@ import { getNoticeDetail, deleteNotice } from '../../api/noticeAPI';
 import { UseUser } from "../../../hook/UseUser";
 import { UseAdmin } from "../../../hook/UseAdmin";
 import AdminNoticeWritingPage from './AdminNoticeWritingPage';
-import { el } from "date-fns/locale";
 
 const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
   const [notice, setNotice] = useState(null);

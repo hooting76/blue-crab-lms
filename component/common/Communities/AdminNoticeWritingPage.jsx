@@ -14,7 +14,7 @@ function AdminNoticeWritingPage({ boardIdx, notice, accessToken, currentPage, se
   const [boardCode, setBoardCode] = useState(
   typeof notice?.boardCode === 'number' ? notice.boardCode : null
 );
-  const { admin, isAuthenticated } = UseAdmin();
+  const { isAuthenticated } = UseAdmin();
 
 useEffect(() => {
     if (notice && notice.boardContent && editorRef.current) {
@@ -22,7 +22,7 @@ useEffect(() => {
     }
 }, [notice]);
 
- if (!isAuthenticated || !admin?.data?.accessToken) {
+ if (!isAuthenticated || !accessToken) {
   return <p>관리자 인증 정보를 불러오는 중입니다...</p>;
 }
 
