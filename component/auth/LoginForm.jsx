@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 
 import LoginFrm from '../../css/modules/LoginForm.module.css';
 import { FaDownload } from 'react-icons/fa';
+import { persistTokens } from '../../src/utils/authFlow';
 
 function LoginForm() {
     const { login, isLoading, error, clearError, isAuthenticated } = UseUser();
@@ -63,6 +64,19 @@ function LoginForm() {
         if (emailCheck && pwCheck) {
             clearError();
             await login(email, password);
+             //  추가: 로그인 이후, user에 담긴 토큰을 정규화/보강 저장
+    try {
+        const raw = localStorage.getItem('user');
+        if (raw) {
+            const obj = JSON.parse(raw);
+            const accessToken  = obj?.data?.accessToken  || obj?.accessToken  || '';
+            const refreshToken = obj?.data?.refreshToken || obj?.refreshToken || '';
+            if (accessToken || refreshToken) {
+            persistTokens({ accessToken, refreshToken });
+            }
+        }
+      } catch { /* noop */ }
+        
         }else{
             alert('이메일과 비밀번호 형식을 확인해주세요.');
             return;

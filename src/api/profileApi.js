@@ -3,6 +3,7 @@
 
 import { ensureAccessTokenOrRedirect } from '../utils/authFlow';
 import { readAccessToken } from '../utils/readAccessToken';
+//console.log('[profileApi] tokenLen=', (readAccessToken() || '').length);
 
 const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/profile'; // 절대 URL 유지
 const REQ_TIMEOUT_MS = 10000; // 10s
