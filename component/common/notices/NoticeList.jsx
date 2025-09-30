@@ -3,7 +3,6 @@
 import { useEffect, useState, useMemo } from "react";
 import NoticeTable from "./NoticeTable"; //작성중(rows 받아서 표 렌더)
 import Pagination from "../notices/Pagination";
-import { UseAdmin } from "../../../hook/UseAdmin"; //관리자 컨텍스트 훅
 import { UseUser } from "../../../hook/UseUser";
 import getNotices from "../../api/noticeAPI"; //API 함수 임포트,백엔드 붙일때 사용
 import "../../../css/Communities/Notice-ui.css";
@@ -16,14 +15,13 @@ export default function NoticeList({
     onWrite,
 }) {
 
-    const { admin, isAuthenticated } = UseAdmin();
-    const { user } = UseUser();
+    const { user, isAuthenticated } = UseUser();
 
     //<권한 판별>       
-    const isAdmin = admin.role === "ADMIN"; //관리자 여부
+    const isAdmin = user.data.role === "ADMIN"; //관리자 여부
     
     const[state, setState] = useState({items: [], total:0, loading: true});
-    const accessToken = isAuthenticated ? ( isAdmin ? admin.data.accessToken: user.data.accessToken) : null;
+    const accessToken = isAuthenticated ? user.data.accessToken : null;
 
     useEffect(() => {
       let alive = true;
