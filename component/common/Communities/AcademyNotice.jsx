@@ -50,7 +50,6 @@ export default function AcademyNotice({currentPage, setCurrentPage}) {
     return (
         <AdminNoticeWritingPage
             currentPage={currentPage}
-            accessToken={accessToken}
             setCurrentPage={setCurrentPage}
         />
     );

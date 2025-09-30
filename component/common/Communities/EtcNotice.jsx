@@ -47,7 +47,6 @@ export default function EtcNotice({currentPage,setCurrentPage}) {
     return (
         <AdminNoticeWritingPage
             currentPage={currentPage}
-            accessToken={accessToken}
             setCurrentPage={setCurrentPage}
         />
     );

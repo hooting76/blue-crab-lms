@@ -51,7 +51,6 @@ export default function AdminNotice({currentPage,setCurrentPage}) {
         return (
             <AdminNoticeWritingPage
                 currentPage={currentPage}
-                accessToken={accessToken}
                 setCurrentPage={setCurrentPage}
             />
         );

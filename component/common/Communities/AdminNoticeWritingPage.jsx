@@ -8,7 +8,7 @@ import AdminNotice from './AdminNotice';
 import EtcNotice from './EtcNotice';
 
 
-function AdminNoticeWritingPage({ boardIdx, notice, accessToken, currentPage, setCurrentPage }) {
+function AdminNoticeWritingPage({ boardIdx, notice, accessToken: propToken, currentPage, setCurrentPage }) {
   const editorRef = useRef();
   const [boardTitle, setBoardTitle] = useState(notice ? notice.boardTitle : '');
   const [boardCode, setBoardCode] = useState(
