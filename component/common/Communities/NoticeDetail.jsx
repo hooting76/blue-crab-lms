@@ -12,11 +12,6 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
   const { user, isAuthenticated: isUserAuth } = UseUser();
   const { admin, isAuthenticated: isAdminAuth } = UseAdmin();
 
- // 권한 판별 - Admin 또는 User role이 ADMIN인 경우
-    const isAdmin = admin?.isAuthenticated || user?.data?.role === "ADMIN";
-    
-    const[state, setState] = useState({items: [], total:0, loading: true});
-
     // Admin 또는 User의 accessToken 가져오기
     const getAccessToken = () => {
         // Admin 토큰 우선 확인
