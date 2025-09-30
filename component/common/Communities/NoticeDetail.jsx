@@ -44,9 +44,9 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
 }, []);
 
 
-    const currentUserIdx = () => {
-      if (isAdminAuth && admin?.data?.adminIdx) {
-          return admin.data.adminIdx;
+    const currentUserId = () => {
+      if (isAdminAuth && admin?.adminId) {
+          return admin.adminId;
       }
       return null;
   };
@@ -126,9 +126,9 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
         <span className="noticeDetailLast">최종 수정일 : {formattedLatest(notice.boardLast, notice.boardReg)}</span>
       </div>
       <div className="noticeDetailContent">{notice.boardContent}</div>
-      {notice.boardWriterIdx === currentUserIdx && notice.boardOn === 1 &&
+      {notice.boardWriterId === currentUserId && notice.boardOn === 1 &&
       <button className="noticeDeleteButton" onClick={handleDelete}>공지 비활성화</button>}
-      {notice.boardWriterIdx === currentUserIdx &&
+      {notice.boardWriterId === currentUserId &&
       <button className="noticeEditButton" onClick={handleEdit}>공지 수정</button>}
     </div>
   );
