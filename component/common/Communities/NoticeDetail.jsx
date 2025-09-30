@@ -20,8 +20,6 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
 
     // 권한 판별 - Admin으로 로그인했거나 User의 role이 ADMIN인 경우
     const isAdmin = isAdminAuth || (isUserAuth && user?.data?.role === "ADMIN");
-    
-    const[state, setState] = useState({items: [], total:0, loading: true});
 
     // Admin 또는 User의 accessToken 가져오기
     const getAccessToken = () => {
