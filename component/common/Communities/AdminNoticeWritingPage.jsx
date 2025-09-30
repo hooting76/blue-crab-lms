@@ -22,7 +22,7 @@ useEffect(() => {
     }
 }, [notice]);
 
- if (!isAuthenticated || !accessToken) {
+ if (!isAuthenticated) {
   return <p>관리자 인증 정보를 불러오는 중입니다...</p>;
 }
 
