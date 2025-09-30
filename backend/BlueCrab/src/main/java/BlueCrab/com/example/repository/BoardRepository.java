@@ -25,12 +25,38 @@ public interface BoardRepository extends JpaRepository<BoardTbl, Integer> {
 
     // ========== 조회 관련 메서드 ==========
 
-    // 미삭제(활성화) 개시글 만을 조회(최신순)
-    @Query("SELECT b FROM BoardTbl b WHERE b.boardOn = :boardOn ORDER BY b.boardReg DESC")
-    Page<BoardTbl> findByBoardOnOrderByBoardRegDesc(@Param("boardOn") Integer boardOn, Pageable pageable);
+        // ========== 목록 조회 전용 메서드 (본문 제외) ==========
     
-    // 코드별 + 미삭제(활성화) 게시글 조회(최신순)
-    Page<BoardTbl> findByBoardOnAndBoardCodeOrderByBoardRegDesc(Integer boardOn, Integer boardCode, Pageable pageable);
+    // 미삭제 게시글 목록 조회 (본문 제외, 최신순)
+    @Query("SELECT b.boardIdx, b.boardCode, b.boardOn, b.boardWriter, " +
+           "b.boardTitle, b.boardImg, b.boardFile, b.boardView, " +
+           "b.boardReg, b.boardLast, b.boardIp, b.boardWriterIdx, b.boardWriterType " +
+           "FROM BoardTbl b WHERE b.boardOn = :boardOn ORDER BY b.boardReg DESC")
+    Page<Object[]> findBoardListWithoutContent(@Param("boardOn") Integer boardOn, Pageable pageable);
+    // @Query : 직접 JPQL 쿼리 작성
+    // SELECT 절에서 boardContent 필드만 의도적으로 제외
+    // Object[] 반환 : 엔티티가 아닌 필드 배열로 반환 (부분 조회이므로)
+    // 필드 순서 : boardIdx(0), boardCode(1), boardOn(2), boardWriter(3), 
+    //           boardTitle(4), boardImg(5), boardFile(6), boardView(7),
+    //           boardReg(8), boardLast(9), boardIp(10), boardWriterIdx(11), boardWriterType(12)
+
+    // 코드별 미삭제 게시글 목록 조회 (본문 제외, 최신순)
+    @Query("SELECT b.boardIdx, b.boardCode, b.boardOn, b.boardWriter, " +
+           "b.boardTitle, b.boardImg, b.boardFile, b.boardView, " +
+           "b.boardReg, b.boardLast, b.boardIp, b.boardWriterIdx, b.boardWriterType " +
+           "FROM BoardTbl b WHERE b.boardOn = :boardOn AND b.boardCode = :boardCode ORDER BY b.boardReg DESC")
+    Page<Object[]> findBoardListByCodeWithoutContent(@Param("boardOn") Integer boardOn, 
+                                                     @Param("boardCode") Integer boardCode, 
+                                                     Pageable pageable);
+    // 위와 동일하지만 boardCode 조건 추가
+    // WHERE 절에 b.boardCode = :boardCode 조건 추가
+
+    // // 미삭제(활성화) 개시글 만을 조회(최신순)
+    // @Query("SELECT b FROM BoardTbl b WHERE b.boardOn = :boardOn ORDER BY b.boardReg DESC")
+    // Page<BoardTbl> findByBoardOnOrderByBoardRegDesc(@Param("boardOn") Integer boardOn, Pageable pageable);
+    
+    // // 코드별 + 미삭제(활성화) 게시글 조회(최신순)
+    // Page<BoardTbl> findByBoardOnAndBoardCodeOrderByBoardRegDesc(Integer boardOn, Integer boardCode, Pageable pageable);
 
     // 조회수 증가 메서드
     @Modifying // 증가 작업임을 명시

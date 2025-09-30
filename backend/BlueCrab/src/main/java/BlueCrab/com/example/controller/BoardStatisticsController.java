@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // ========== 프로젝트 내부 클래스 ==========
-import BlueCrab.com.example.service.BoardService;
+import BlueCrab.com.example.service.BoardStatsService;
 
 
 @RestController
@@ -28,8 +28,8 @@ public class BoardStatisticsController {
     // =========== 의존성 주입 ==========
 
     @Autowired
-    private BoardService boardService;
-    // 중요 : 실제 게시글 관련 기능이 이루어지는 곳은 BoardService
+    private BoardStatsService boardStatsService;
+    // 게시글 통계 관련 기능
 
     // ========== 게시글 통계 기능 ==========
 
@@ -38,13 +38,13 @@ public class BoardStatisticsController {
     // 활성화된 게시글 총 개수 조회를 위한 엔드포인트 매핑 (POST 방식)
     public ResponseEntity<?> getActiveBoardCount() {
         try {
-            long count = boardService.getActiveBoardCount();
+            long count = boardStatsService.getActiveBoardCount();
             return ResponseEntity.ok(count);
         } catch (Exception e) {
             logger.error("Error occurred while fetching board count: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().body("Server error occurred while fetching board count");
         }
-    // BoardService의 getActiveBoardCount 메서드를 호출하여 활성화된 게시글 총 개수 반환
+    // BoardStatsService의 getActiveBoardCount 메서드를 호출하여 활성화된 게시글 총 개수 반환
     }
 
     // 특정 게시글 존재 여부 확인
@@ -57,13 +57,13 @@ public class BoardStatisticsController {
         
         // ...기존 코드...
         try {
-            boolean exists = boardService.isBoardExists(boardIdx);
+            boolean exists = boardStatsService.isBoardExists(boardIdx);
             return ResponseEntity.ok(exists);
         } catch (Exception e) {
             logger.error("Error occurred while checking board existence - ID: {}, error: {}", boardIdx, e.getMessage(), e);
             return ResponseEntity.internalServerError().body("Server error occurred while checking board existence");
         }
-    // BoardService의 isBoardExists 메서드를 호출하여 특정 게시글 존재 여부 반환
+    // BoardStatsService의 isBoardExists 메서드를 호출하여 특정 게시글 존재 여부 반환
     }
 
     // 코드 별 게시글 총 개수 조회
@@ -76,12 +76,12 @@ public class BoardStatisticsController {
         
         // ...기존 코드...
         try {
-            long count = boardService.getBoardCountByCode(boardCode);
+            long count = boardStatsService.getBoardCountByCode(boardCode);
             return ResponseEntity.ok(count);
         } catch (Exception e) {
             logger.error("Error occurred while fetching board count by code - boardCode: {}, error: {}", boardCode, e.getMessage(), e);
             return ResponseEntity.internalServerError().body("Server error occurred while fetching board count by code");
         }
-    // BoardService의 getBoardCountByCode 메서드를 호출하여 특정 코드별 게시글 총 개수 반환
+    // BoardStatsService의 getBoardCountByCode 메서드를 호출하여 특정 코드별 게시글 총 개수 반환
     }
 }

@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 // ========== 프로젝트 내부 클래스 ==========
 import BlueCrab.com.example.entity.BoardTbl;
-import BlueCrab.com.example.service.BoardService;
+import BlueCrab.com.example.service.BoardManagementService;
 import BlueCrab.com.example.util.JwtUtil;
 
 
@@ -40,8 +40,8 @@ public class BoardUpdateController {
     // =========== 의존성 주입 ==========
 
     @Autowired
-    private BoardService boardService;
-    // 중요 : 실제 게시글 관련 기능이 이루어지는 곳은 BoardService
+    private BoardManagementService boardManagementService;
+    // 게시글 작성, 수정, 삭제 관련 기능
     
     @Autowired
     private JwtUtil jwtUtil;
@@ -106,8 +106,8 @@ public class BoardUpdateController {
         logger.info("Valid JWT token for board update - user: {}, boardId: {}", userEmail, boardIdx);
         
         try {
-            Optional<BoardTbl> result = boardService.updateBoard(boardIdx, updatedBoard, userEmail);
-            // BoardService의 updateBoard 메서드를 호출하여 게시글 수정 시도 (작성자 본인 확인 포함)
+            Optional<BoardTbl> result = boardManagementService.updateBoard(boardIdx, updatedBoard, userEmail);
+            // BoardManagementService의 updateBoard 메서드를 호출하여 게시글 수정 시도 (작성자 본인 확인 포함)
             
             if (result.isPresent()) {
                 logger.info("Board updated successfully - ID: {}, title: {}", boardIdx, result.get().getBoardTitle());
@@ -186,8 +186,8 @@ public class BoardUpdateController {
         logger.info("Valid JWT token for board deletion - user: {}, boardId: {}", userEmail, boardIdx);
         
         try {
-            boolean result = boardService.deleteBoard(boardIdx, userEmail);
-            // BoardService의 deleteBoard 메서드를 호출하여 게시글 비활성화 처리 (작성자 본인 확인 포함)
+            boolean result = boardManagementService.deleteBoard(boardIdx, userEmail);
+            // BoardManagementService의 deleteBoard 메서드를 호출하여 게시글 비활성화 처리 (작성자 본인 확인 포함)
             
             if (result) {
                 logger.info("Board deleted successfully - ID: {}", boardIdx);
