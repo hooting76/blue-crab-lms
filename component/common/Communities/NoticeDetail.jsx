@@ -39,6 +39,11 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
 
     const accessToken = getAccessToken();
 
+    useEffect(() => {
+  console.log("admin: ", admin);
+}, []);
+
+
     const currentUserIdx = () => {
       if (isAdminAuth && admin?.data?.adminIdx) {
           return admin.data.adminIdx;
