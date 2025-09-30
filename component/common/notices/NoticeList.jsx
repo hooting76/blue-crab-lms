@@ -23,7 +23,7 @@ export default function NoticeList({
     const isAdmin = admin.role === "ADMIN"; //관리자 여부
     
     const[state, setState] = useState({items: [], total:0, loading: true});
-    const accessToken = isAuthenticated ? ( admin ? admin.data.accessToken: user.data.accessToken) : null;
+    const accessToken = isAuthenticated ? ( isAdmin ? admin.data.accessToken: user.data.accessToken) : null;
 
     useEffect(() => {
       let alive = true;
