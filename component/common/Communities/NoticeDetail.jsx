@@ -52,6 +52,7 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
   };
 
   console.log("currentAdminId: ", currentAdminId());
+  console.log("boardWriterId: ", notice?.boardWriterId);
 
   // boardCode에 따른 공지 종류 반환
   const getNoticeCode = (boardCode) => {
