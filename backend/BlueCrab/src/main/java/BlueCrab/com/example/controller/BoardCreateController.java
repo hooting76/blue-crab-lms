@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 // ========== 프로젝트 내부 클래스 ==========
 import BlueCrab.com.example.entity.BoardTbl;
-import BlueCrab.com.example.service.BoardService;
+import BlueCrab.com.example.service.BoardManagementService;
 import BlueCrab.com.example.util.JwtUtil;
 
 
@@ -40,8 +40,8 @@ public class BoardCreateController {
     // =========== 의존성 주입 ==========
 
     @Autowired
-    private BoardService boardService;
-    // 중요 : 실제 게시글 관련 기능이 이루어지는 곳은 BoardService
+    private BoardManagementService boardManagementService;
+    // 게시글 작성, 수정, 삭제 관련 기능
     
     @Autowired
     private JwtUtil jwtUtil;
@@ -109,8 +109,8 @@ public class BoardCreateController {
         logger.info("Valid JWT token for user: {}", userEmail);
         
         try {
-            Optional<BoardTbl> result = boardService.createBoard(boardTbl, userEmail);
-            // BoardService의 createBoard 메서드를 호출하여 게시글 생성해 DB에 저장
+            Optional<BoardTbl> result = boardManagementService.createBoard(boardTbl, userEmail);
+            // BoardManagementService의 createBoard 메서드를 호출하여 게시글 생성해 DB에 저장
             
             logger.info("BoardService.createBoard finished - result: {}", result.isPresent() ? "success" : "fail");
             if (result.isPresent()) {
