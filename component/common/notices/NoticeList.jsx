@@ -1,10 +1,11 @@
 //표(번호/제목/작성자/조회수/작성일) + 하단 Pagination 출력
 //'작성하기' 버튼은 관리자만 노출
 import { useEffect, useState, useMemo } from "react";
-import NoticeTable from "./NoticeTable"; //작성중(rows 받아서 표 렌더)
+import NoticeTable from "./NoticeTable";
 import Pagination from "../notices/Pagination";
 import { UseUser } from "../../../hook/UseUser";
-import getNotices from "../../api/noticeAPI"; //API 함수 임포트,백엔드 붙일때 사용
+import { UseAdmin } from "../../../hook/UseAdmin";
+import getNotices from "../../api/noticeAPI";
 import "../../../css/Communities/Notice-ui.css";
 
 export default function NoticeList({
@@ -15,13 +16,29 @@ export default function NoticeList({
     onWrite,
 }) {
 
-    const { user, isAuthenticated } = UseUser();
+    const { user, isAuthenticated: isUserAuth } = UseUser();
+    const { admin, isAuthenticated: isAdminAuth } = UseAdmin();
 
-    //<권한 판별>       
-    const isAdmin = user.data.role === "ADMIN"; //관리자 여부
+    // 권한 판별 - Admin 또는 User role이 ADMIN인 경우
+    const isAdmin = admin?.isAuthenticated || user?.data?.role === "ADMIN";
     
     const[state, setState] = useState({items: [], total:0, loading: true});
-    const accessToken = isAuthenticated ? user.data.accessToken : null;
+
+    // Admin 또는 User의 accessToken 가져오기
+    const getAccessToken = () => {
+        // Admin 토큰 우선 확인
+        if (isAdminAuth && admin?.accessToken) {
+            return admin.accessToken;
+        }
+        // User 토큰 확인
+        if (isUserAuth && user?.data?.accessToken) {
+            return user.data.accessToken;
+        }
+        // 로컬스토리지에서 토큰 확인
+        return localStorage.getItem('accessToken');
+    };
+
+    const accessToken = getAccessToken();
 
     useEffect(() => {
       let alive = true;
