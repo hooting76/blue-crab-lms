@@ -16,6 +16,8 @@ function AdminNoticeWritingPage({ boardIdx, notice, accessToken, currentPage, se
 );
   const { isAuthenticated } = UseAdmin();
 
+  console.log('AdminNoticeWritingPage accessToken:', accessToken); // 디버그용
+
 useEffect(() => {
     if (notice && notice.boardContent && editorRef.current) {
         editorRef.current.getInstance().setMarkdown(notice.boardContent);
