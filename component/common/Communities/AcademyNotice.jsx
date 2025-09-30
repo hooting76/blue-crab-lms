@@ -40,9 +40,21 @@ export default function AcademyNotice({currentPage, setCurrentPage}) {
     
         const accessToken = getAccessToken();
 
-  if (currentPage === "Admin 공지 작성" && accessToken) {
-    return <AdminNoticeWritingPage currentPage={currentPage} accessToken={accessToken} setCurrentPage={setCurrentPage} />;
-  }
+        console.log('AcademyNotice accessToken:', accessToken); // 디버그용
+
+  if (currentPage === "Admin 공지 작성") {
+    if (!accessToken) {
+        return <p>인증 토큰을 불러오는 중입니다...</p>;
+    }
+
+    return (
+        <AdminNoticeWritingPage
+            currentPage={currentPage}
+            accessToken={accessToken}
+            setCurrentPage={setCurrentPage}
+        />
+    );
+}
     
     return(
         <NoticeLayout currentPage={currentPage} setCurrentPage={setCurrentPage}>

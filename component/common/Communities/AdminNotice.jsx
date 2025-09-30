@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import "../notices/NoticeLayout";
 import NoticeLayout from "../notices/NoticeLayout";
 import NoticeList from "../notices/NoticeList";
+import AdminNoticeWritingPage from "./AdminNoticeWritingPage";
 import { UseUser } from "../../../hook/UseUser";
 import { UseAdmin } from "../../../hook/UseAdmin";
 
@@ -43,8 +44,18 @@ export default function AdminNotice({currentPage,setCurrentPage}) {
             const accessToken = getAccessToken();
     
       if (currentPage === "Admin 공지 작성") {
-        return <AdminNoticeWritingPage currentPage={currentPage} accessToken={accessToken} setCurrentPage={setCurrentPage} />;
-      }
+        if (!accessToken) {
+            return <p>인증 토큰을 불러오는 중입니다...</p>;
+        }
+
+        return (
+            <AdminNoticeWritingPage
+                currentPage={currentPage}
+                accessToken={accessToken}
+                setCurrentPage={setCurrentPage}
+            />
+        );
+    }
 
     return(
         <NoticeLayout currentPage={currentPage} setCurrentPage={setCurrentPage}>
