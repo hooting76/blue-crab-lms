@@ -27,8 +27,6 @@ function AdminNoticeWritingPage({ boardIdx, notice, accessToken: propToken, curr
 
   const accessToken = propToken || getAccessToken();  // ✅ props가 없으면 직접 가져오기
 
-  console.log('AdminNoticeWritingPage accessToken:', accessToken); // 디버그용
-
 useEffect(() => {
     if (notice && notice.boardContent && editorRef.current) {
         editorRef.current.getInstance().setMarkdown(notice.boardContent);
