@@ -40,7 +40,7 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
     const accessToken = getAccessToken();
 
     const currentUserIdx = () => {
-      if (isAdminAuth && admin?.data?.userIdx) {
+      if (isAdminAuth && admin?.data?.adminIdx) {
           return admin.data.userIdx;
       } else if (isUserAuth && user?.data?.userIdx) {
           return user.data.userIdx;
