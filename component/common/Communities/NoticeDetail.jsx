@@ -74,7 +74,7 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
 
   return (
     <div className="noticeDetailContainer">
-      <div>
+      <div className="noticeDetailTitleAndCode">
         <span className="noticeDetailTitle">제목 : {notice.boardTitle}</span>
         <span className="noticeDetailCode">{getNoticeCode(notice.boardCode)}</span>
       </div>

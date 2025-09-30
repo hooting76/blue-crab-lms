@@ -3,6 +3,10 @@
     background-color: var(--white-color);
 }
 
+.noticeDetailTitleAndCode {
+    display: flex;
+}
+
 .noticeDetailTitle {
     display: inline-block;
     width: 800px;
@@ -16,10 +20,12 @@
 }
 
 .noticeDetailWriterAndView {
+    display: flex;
     background-color: beige;
 }
 
 .noticeDetailRegAndLast {
+    display: flex;
     background-color: bisque;
 }
 
