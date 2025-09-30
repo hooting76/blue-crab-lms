@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import NoticeLayout from "../notices/NoticeLayout";
 import NoticeList from "../notices/NoticeList";
+import AdminNoticeWritingPage from "./AdminNoticeWritingPage";
 import { UseUser } from "../../../hook/UseUser";
 import { UseAdmin } from "../../../hook/UseAdmin";
 
