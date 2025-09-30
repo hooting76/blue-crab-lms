@@ -41,3 +41,12 @@
     cursor: pointer;
     margin-top: 20px;
 }
+
+.noticeEditButton {
+    background-color: var(--blue-color);
+    color: var(--white-color);
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 20px;
+}

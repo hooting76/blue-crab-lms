@@ -2,8 +2,9 @@ import "../../../css/Communities/NoticeDetail.css"
 import React, { useEffect, useState } from 'react';
 import { getNoticeDetail, deleteNotice } from '../../api/noticeAPI';
 import { UseUser } from "../../../hook/UseUser";
+import AdminNoticeWritingPage from './AdminNoticeWritingPage';
 
-const NoticeDetail = ({ boardIdx }) => {
+const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
   const [notice, setNotice] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -63,6 +64,14 @@ const NoticeDetail = ({ boardIdx }) => {
   }
 };
 
+  const handleEdit = () => {
+    setCurrentPage("Admin 공지 작성")
+  }
+
+  if (currentPage === "Admin 공지 작성") {
+    return <AdminNoticeWritingPage boardIdx={notice.boardIdx} notice={notice} accessToken={accessToken} setCurrentPage={setCurrentPage} />;
+  }
+
   return (
     <div className="noticeDetailContainer">
       <div>
@@ -75,11 +84,13 @@ const NoticeDetail = ({ boardIdx }) => {
       </div>
       <div className="noticeDetailRegAndLast">
         <span className="noticeDetailReg">작성일 : {formattedReg(notice.boardReg)}</span>
-        <span className="noticeDetailLast">최종 수정일 : {formattedLatest(notice.boardLast)}</span>
+        <span className="noticeDetailLast">최종 수정일 : {formattedLatest(notice.boardLast, notice.boardReg)}</span>
       </div>
       <div className="noticeDetailContent">{notice.boardContent}</div>
       {notice.boardWriterIdx === user.data.userIdx &&
       <button className="noticeDeleteButton" onClick={handleDelete}>공지 비활성화</button>}
+      {notice.boardWriterIdx === user.data.userIdx &&
+      <button className="noticeEditButton" onClick={handleEdit}>공지 수정</button>}
     </div>
   );
 };
