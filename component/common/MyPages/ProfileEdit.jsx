@@ -1,6 +1,8 @@
 // component/common/MyPages/ProfileEdit.jsx
 import { useEffect, useMemo, useState } from 'react';
 import { getMyProfile, getMyProfileImage } from "../../../src/api/profileApi";
+import { readAccessToken } from '../../../src/utils/readAccessToken';
+
 
 // 저장 API 아직 없을 때 버튼 참조 에러 방지용 상수
 const UPDATE_ENABLED = false; // 나중에 true로 변경
@@ -19,9 +21,10 @@ const withTimeout = (p, ms) =>
   ]);
 
 export default function ProfileEdit() {
-  const accessToken =
-    localStorage.getItem('authToken') || localStorage.getItem('accessToken') || '';
+  // 토큰
+  const accessToken = readAccessToken();
 
+  // 상태
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
   const [msg, setMsg] = useState('');
