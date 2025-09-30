@@ -16,6 +16,17 @@ function AdminNoticeWritingPage({ boardIdx, notice, accessToken, currentPage, se
 );
   const { isAuthenticated } = UseAdmin();
 
+  const getAccessToken = () => {
+    const storedToken = localStorage.getItem('accessToken');
+    if (storedToken) return storedToken;
+
+    if (isAdminAuth && admin?.data?.accessToken) return admin.data.accessToken;
+
+    return null;
+  };
+
+  const accessToken = propToken || getAccessToken();  // ✅ props가 없으면 직접 가져오기
+
   console.log('AdminNoticeWritingPage accessToken:', accessToken); // 디버그용
 
 useEffect(() => {
