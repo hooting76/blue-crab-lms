@@ -44,14 +44,14 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
 }, []);
 
 
-    const currentAdminIdx = () => {
-      if (isAdminAuth && admin?.data?.adminIdx) {
-          return admin.data.adminIdx;
+    const currentAdminId = () => {
+      if (isAdminAuth && admin?.data?.adminId) {
+          return admin.data.adminId;
       }
       return null;
   };
 
-  console.log("currentAdminId: ", currentAdminIdx());
+  console.log("currentAdminId: ", currentAdminId());
 
   // boardCode에 따른 공지 종류 반환
   const getNoticeCode = (boardCode) => {
@@ -128,9 +128,9 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
         <span className="noticeDetailLast">최종 수정일 : {formattedLatest(notice.boardLast, notice.boardReg)}</span>
       </div>
       <div className="noticeDetailContent">{notice.boardContent}</div>
-      {notice.boardWriterIdx === currentAdminIdx && notice.boardOn === 1 &&
+      {notice.boardWriterId === currentAdminId && notice.boardOn === 1 &&
       <button className="noticeDeleteButton" onClick={handleDelete}>공지 비활성화</button>}
-      {notice.boardWriterIdx === currentAdminIdx &&
+      {notice.boardWriterId === currentAdminId &&
       <button className="noticeEditButton" onClick={handleEdit}>공지 수정</button>}
     </div>
   );
