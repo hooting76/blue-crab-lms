@@ -9,21 +9,37 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
   const [notice, setNotice] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { user, isAuthenticated: isUserAuth } = UseUser();
-  const { admin, isAuthenticated: isAdminAuth } = UseAdmin();
+
+   // 사용자 컨텍스트
+    const userContext = UseUser();
+    const { user, isAuthenticated: isUserAuth } = userContext || { user: null, isAuthenticated: false };
+
+    // 관리자 컨텍스트
+    const adminContext = UseAdmin() || { admin: null, isAuthenticated: false };
+    const { admin, isAuthenticated: isAdminAuth } = adminContext;
+
+    // 권한 판별 - Admin으로 로그인했거나 User의 role이 ADMIN인 경우
+    const isAdmin = isAdminAuth || (isUserAuth && user?.data?.role === "ADMIN");
+    
+    const[state, setState] = useState({items: [], total:0, loading: true});
 
     // Admin 또는 User의 accessToken 가져오기
     const getAccessToken = () => {
-        // Admin 토큰 우선 확인
-        if (isAdminAuth && admin?.accessToken) {
-            return admin.accessToken;
+        // 로컬스토리지에서 먼저 확인 (가장 최신 토큰)
+        const storedToken = localStorage.getItem('accessToken');
+        if (storedToken) return storedToken;
+
+        // Admin 토큰 확인
+        if (isAdminAuth && admin?.data?.accessToken) {
+            return admin.data.accessToken;
         }
+
         // User 토큰 확인
         if (isUserAuth && user?.data?.accessToken) {
             return user.data.accessToken;
         }
-        // 로컬스토리지에서 토큰 확인
-        return localStorage.getItem('accessToken');
+
+        return null;
     };
 
     const accessToken = getAccessToken();
