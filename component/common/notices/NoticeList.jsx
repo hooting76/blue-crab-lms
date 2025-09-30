@@ -3,7 +3,8 @@
 import { useEffect, useState, useMemo } from "react";
 import NoticeTable from "./NoticeTable"; //작성중(rows 받아서 표 렌더)
 import Pagination from "../notices/Pagination";
-import{ UseAdmin } from "../../../hook/UseAdmin"; //관리자 컨텍스트 훅
+import { UseAdmin } from "../../../hook/UseAdmin"; //관리자 컨텍스트 훅
+import { UseUser } from "../../../hook/UseUser";
 import getNotices from "../../api/noticeAPI"; //API 함수 임포트,백엔드 붙일때 사용
 import "../../../css/Communities/Notice-ui.css";
 
@@ -15,18 +16,20 @@ export default function NoticeList({
     onWrite,
 }) {
 
-    const { admin } = UseAdmin();
+    const { admin, isAuthenticated } = UseAdmin();
+    const { user } = UseUser();
 
     //<권한 판별>       
     const isAdmin = admin.role === "ADMIN"; //관리자 여부
     
     const[state, setState] = useState({items: [], total:0, loading: true});
+    const accessToken = isAuthenticated ? ( admin ? admin.data.accessToken: user.data.accessToken) : null;
 
     useEffect(() => {
       let alive = true;
       setState((s) => ({ ...s, loading: true }));
 
-      getNotices(page, size) // BOARD_CODE 제거: 전체를 가져오고, 프론트에서 필터링
+      getNotices(accessToken, page, size) // BOARD_CODE 제거: 전체를 가져오고, 프론트에서 필터링
         .then(res => {
           if (!alive) return;
 
@@ -60,7 +63,7 @@ export default function NoticeList({
       return () => {
         alive = false;
       };
-    }, [page, size, boardCode]);
+    }, [accessToken, page, size, boardCode]);
 
 
         const rows = useMemo(() => state.items, [state.items]); //공지 목록
