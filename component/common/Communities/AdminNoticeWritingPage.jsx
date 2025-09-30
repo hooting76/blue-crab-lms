@@ -60,6 +60,8 @@ const handleSubmit = async (e) => {
       body: JSON.stringify(NoticeByAdmin),
     });
 
+    console.log('accessToken:', accessToken); // 디버그용
+
     if (!response.ok) {
       throw new Error('서버 에러가 발생했습니다.');
     }
