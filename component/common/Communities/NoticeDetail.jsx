@@ -4,6 +4,7 @@ import { getNoticeDetail, deleteNotice } from '../../api/noticeAPI';
 import { UseUser } from "../../../hook/UseUser";
 import { UseAdmin } from "../../../hook/UseAdmin";
 import AdminNoticeWritingPage from './AdminNoticeWritingPage';
+import { el } from "date-fns/locale";
 
 const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
   const [notice, setNotice] = useState(null);
@@ -17,9 +18,6 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
     // 관리자 컨텍스트
     const adminContext = UseAdmin() || { admin: null, isAuthenticated: false };
     const { admin, isAuthenticated: isAdminAuth } = adminContext;
-
-    // 권한 판별 - Admin으로 로그인했거나 User의 role이 ADMIN인 경우
-    const isAdmin = isAdminAuth || (isUserAuth && user?.data?.role === "ADMIN");
 
     // Admin 또는 User의 accessToken 가져오기
     const getAccessToken = () => {
@@ -41,6 +39,15 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
     };
 
     const accessToken = getAccessToken();
+
+    const currentUserIdx = () => {
+      if (isAdminAuth && admin?.data?.userIdx) {
+          return admin.data.userIdx;
+      } else if (isUserAuth && user?.data?.userIdx) {
+          return user.data.userIdx;
+      }
+      return null;
+  };
 
   // boardCode에 따른 공지 종류 반환
   const getNoticeCode = (boardCode) => {
@@ -117,9 +124,9 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
         <span className="noticeDetailLast">최종 수정일 : {formattedLatest(notice.boardLast, notice.boardReg)}</span>
       </div>
       <div className="noticeDetailContent">{notice.boardContent}</div>
-      {notice.boardWriterIdx === user.data.userIdx &&
+      {notice.boardWriterIdx === currentUserIdx &&
       <button className="noticeDeleteButton" onClick={handleDelete}>공지 비활성화</button>}
-      {notice.boardWriterIdx === user.data.userIdx &&
+      {notice.boardWriterIdx === currentUserIdx &&
       <button className="noticeEditButton" onClick={handleEdit}>공지 수정</button>}
     </div>
   );
