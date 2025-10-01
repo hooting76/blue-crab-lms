@@ -31,7 +31,10 @@ export default function NoticeTable({ rows, currentPage, setCurrentPage, selecte
 const { isAuthenticated: isAdminAuth } = UseAdmin() || { admin: null, isAuthenticated: false };
 
         const handleEdit = () => {
+            const notice = rows.find(row => row.boardIdx === selectedIdx);
+            setSelectedNotice(notice);
             setIsModalOpen(false);
+
             setTimeout(() => {
                 setCurrentPage("Admin 공지 작성");
             }, 0);
