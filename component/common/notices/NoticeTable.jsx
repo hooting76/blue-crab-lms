@@ -9,9 +9,12 @@ import AdminNoticeWritingPage from '../Communities/AdminNoticeWritingPage';
 export default function NoticeTable({ rows = [], currentPage, setCurrentPage }) {
     const [selectedIdx, setSelectedIdx] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedNotice, setSelectedNotice] = useState(null);
 
     const openModal = (boardIdx) => {
+       const notice = rows.find(row => row.boardIdx === boardIdx);
         setSelectedIdx(boardIdx);
+        setSelectedNotice(notice);  // ✅ notice 전체 정보 저장
         setIsModalOpen(true);
     };
 
@@ -33,7 +36,7 @@ const { isAuthenticated: isAdminAuth } = UseAdmin() || { admin: null, isAuthenti
 
 
   if (currentPage === "Admin 공지 작성") {
-    return <AdminNoticeWritingPage />;
+    return <AdminNoticeWritingPage boardIdx={selectedIdx} notice={selectedNotice} setCurrentPage={setCurrentPage}/>;
   }
 
     return(
