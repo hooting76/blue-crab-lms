@@ -44,15 +44,6 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
 }, []);
 
 
-    const currentAdminId = () => {
-      if (isAdminAuth && admin?.adminId) {
-          return admin.adminId;
-      }
-      return null;
-  };
-
-  console.log("currentAdminId: ", currentAdminId());
-
   // boardCode에 따른 공지 종류 반환
   const getNoticeCode = (boardCode) => {
     switch (boardCode) {
