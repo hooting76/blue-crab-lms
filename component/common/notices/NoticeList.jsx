@@ -1,10 +1,11 @@
 //표(번호/제목/작성자/조회수/작성일) + 하단 Pagination 출력
 //'작성하기' 버튼은 관리자만 노출
 import { useEffect, useState, useMemo } from "react";
-import NoticeTable from "./NoticeTable"; //작성중(rows 받아서 표 렌더)
+import NoticeTable from "./NoticeTable";
 import Pagination from "../notices/Pagination";
-import{ UseUser } from "../../../hook/UseUser";
-import getNotices from "../../api/noticeAPI"; //API 함수 임포트,백엔드 붙일때 사용
+import { UseUser } from "../../../hook/UseUser";
+import { UseAdmin } from "../../../hook/UseAdmin";
+import getNotices from "../../api/noticeAPI";
 import "../../../css/Communities/Notice-ui.css";
 
 export default function NoticeList({
@@ -14,33 +15,64 @@ export default function NoticeList({
     onPageChange,
     onWrite,
 }) {
+    // 사용자 컨텍스트
+    const userContext = UseUser();
+    const { user, isAuthenticated: isUserAuth } = userContext || { user: null, isAuthenticated: false };
 
-    const { user, isAuthenticated } = UseUser()
+    // 관리자 컨텍스트
+    const adminContext = UseAdmin() || { admin: null, isAuthenticated: false };
+    const { admin, isAuthenticated: isAdminAuth } = adminContext;
 
-    //<권한 판별>       
-    const isAdmin = user.data.user.role === "admin"; //관리자 여부
+    // 권한 판별 - Admin으로 로그인했거나 User의 role이 ADMIN인 경우
+    const isAdmin = isAdminAuth || (isUserAuth && user?.data?.role === "ADMIN");
     
     const[state, setState] = useState({items: [], total:0, loading: true});
-    const accessToken = isAuthenticated ? user.data.accessToken : null;
+
+    // Admin 또는 User의 accessToken 가져오기
+    const getAccessToken = () => {
+        // 로컬스토리지에서 먼저 확인 (가장 최신 토큰)
+        const storedToken = localStorage.getItem('accessToken');
+        if (storedToken) return storedToken;
+
+        // Admin 토큰 확인
+        if (isAdminAuth && admin?.data?.accessToken) {
+            return admin.data.accessToken;
+        }
+
+        // User 토큰 확인
+        if (isUserAuth && user?.data?.accessToken) {
+            return user.data.accessToken;
+        }
+
+        return null;
+    };
+
+    const accessToken = getAccessToken();
 
     useEffect(() => {
       let alive = true;
       setState((s) => ({ ...s, loading: true }));
 
-      getNotices(accessToken, page, size) // BOARD_CODE 제거: 전체를 가져오고, 프론트에서 필터링
-        .then(res => {
+      const fetchNotices = async () => {
+        try {
+          if (!accessToken) {
+            console.warn('접근 토큰이 없습니다. 로그인이 필요할 수 있습니다.');
+            setState({ items: [], total: 0, loading: false });
+            return;
+          }
+
+          const res = await getNotices(accessToken, page, size);
           if (!alive) return;
 
-          const allItems = res.content;
+          const allItems = Array.isArray(res.content) ? res.content : [];
 
           // ✅ BOARD_CODE 필터링
-          const filtered = allItems.filter((item) => item.boardCode === boardCode);
+          const filtered = boardCode === "0" ? 
+            allItems : 
+            allItems.filter((item) => String(item.boardCode) === String(boardCode));
 
           // ✅ 최신순 정렬 (작성일 기준)
           filtered.sort((a, b) => (b.boardReg || "").localeCompare(a.boardReg || ""));
-
-          console.log("res :", res);
-          console.log("filtered:", filtered);
 
           // ✅ 페이징 처리
           const start = (page - 1) * size;
@@ -52,11 +84,14 @@ export default function NoticeList({
             total: filtered.length,
             loading: false
           });
-        })
-        .catch(() => {
+        } catch (error) {
+          console.error('게시글 목록 조회 실패:', error);
           if (!alive) return;
           setState({ items: [], total: 0, loading: false });
-        });
+        }
+      };
+
+      fetchNotices();
 
       return () => {
         alive = false;

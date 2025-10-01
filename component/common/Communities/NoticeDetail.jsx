@@ -2,14 +2,45 @@ import "../../../css/Communities/NoticeDetail.css"
 import React, { useEffect, useState } from 'react';
 import { getNoticeDetail, deleteNotice } from '../../api/noticeAPI';
 import { UseUser } from "../../../hook/UseUser";
+import { UseAdmin } from "../../../hook/UseAdmin";
+import AdminNoticeWritingPage from './AdminNoticeWritingPage';
 
-const NoticeDetail = ({ boardIdx }) => {
+const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
   const [notice, setNotice] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { user, isAuthenticated } = UseUser();
 
-  const accessToken = isAuthenticated ? user.data.accessToken : null;
+   // 사용자 컨텍스트
+    const userContext = UseUser();
+    const { user, isAuthenticated: isUserAuth } = userContext || { user: null, isAuthenticated: false };
+
+    // 관리자 컨텍스트
+    const adminContext = UseAdmin() || { admin: null, isAuthenticated: false };
+    const { admin, isAuthenticated: isAdminAuth } = adminContext;
+
+    // Admin 또는 User의 accessToken 가져오기
+    const getAccessToken = () => {
+        // 로컬스토리지에서 먼저 확인 (가장 최신 토큰)
+        const storedToken = localStorage.getItem('accessToken');
+        if (storedToken) return storedToken;
+
+        // Admin 토큰 확인
+        if (isAdminAuth && admin?.data?.accessToken) {
+            return admin.data.accessToken;
+        }
+
+        // User 토큰 확인
+        if (isUserAuth && user?.data?.accessToken) {
+            return user.data.accessToken;
+        }
+
+        return null;
+    };
+
+    const accessToken = getAccessToken();
+
+    console.log("NoticeDetail accessToken: ", accessToken);
+
 
   // boardCode에 따른 공지 종류 반환
   const getNoticeCode = (boardCode) => {
@@ -49,23 +80,32 @@ const NoticeDetail = ({ boardIdx }) => {
       fetchData();
     }
   }, [accessToken, boardIdx]);
+  
 
   if (loading) return <div>불러오는 중...</div>;
   if (error) return <div>오류: {error}</div>;
   if (!notice) return <div>데이터가 없습니다.</div>;
 
-  const handleDelete = async () => {
+  const handleDelete = async (accessToken, boardIdx) => {
   try {
-    await deleteNotice(accessToken, notice.boardIdx);
+    await deleteNotice(accessToken, boardIdx);
     alert("삭제되었습니다.");
   } catch (error) {
     alert("삭제 중 오류 발생: " + error.message);
   }
 };
 
+  const handleEdit = () => {
+    setCurrentPage("Admin 공지 작성")
+  }
+
+  if (currentPage === "Admin 공지 작성") {
+    return <AdminNoticeWritingPage boardIdx={notice.boardIdx} notice={notice} accessToken={accessToken} setCurrentPage={setCurrentPage} />;
+  }
+
   return (
     <div className="noticeDetailContainer">
-      <div>
+      <div className="noticeDetailTitleAndCode">
         <span className="noticeDetailTitle">제목 : {notice.boardTitle}</span>
         <span className="noticeDetailCode">{getNoticeCode(notice.boardCode)}</span>
       </div>
@@ -75,11 +115,13 @@ const NoticeDetail = ({ boardIdx }) => {
       </div>
       <div className="noticeDetailRegAndLast">
         <span className="noticeDetailReg">작성일 : {formattedReg(notice.boardReg)}</span>
-        <span className="noticeDetailLast">최종 수정일 : {formattedLatest(notice.boardLast)}</span>
+        <span className="noticeDetailLast">최종 수정일 : {formattedLatest(notice.boardLast, notice.boardReg)}</span>
       </div>
       <div className="noticeDetailContent">{notice.boardContent}</div>
-      {notice.boardWriterIdx === user.data.userIdx &&
-      <button className="noticeDeleteButton" onClick={handleDelete}>공지 비활성화</button>}
+      
+      <button className="noticeDeleteButton" onClick={() => handleDelete(accessToken, notice.boardIdx)}>공지 삭제</button>
+
+      <button className="noticeEditButton" onClick={handleEdit}>공지 수정</button>
     </div>
   );
 };
