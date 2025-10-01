@@ -59,7 +59,7 @@ export default function NoticeTable({ rows = [], currentPage, setCurrentPage }) 
   }
 
   if (currentPage === "Admin 공지 작성") {
-    return <AdminNoticeWritingPage boardIdx={notice.boardIdx} notice={notice} accessToken={accessToken} setCurrentPage={setCurrentPage} />;
+    return <AdminNoticeWritingPage boardIdx={selectedIdx} notice={notice} accessToken={accessToken} setCurrentPage={setCurrentPage} />;
   }
 
     return(
@@ -95,7 +95,7 @@ export default function NoticeTable({ rows = [], currentPage, setCurrentPage }) 
                 <div className="modal-overlay" onClick={closeModal}>
                     <div
                         className="modal-content"
-                        onClick={(e) => e.stopPropagation()} // 내부 클릭 시 닫히지 않게
+                        onClick={(e) => e.stopPropagation()}
                     >
                         <button className="modal-close" onClick={closeModal}>
                             ✖
@@ -105,8 +105,18 @@ export default function NoticeTable({ rows = [], currentPage, setCurrentPage }) 
                             currentPage={currentPage}
                             setCurrentPage={setCurrentPage}
                         />
-                    </div>   
-                    <button className="noticeEditButton" onClick={handleEdit}>공지 수정</button>
+
+                        {/* ✅ modal-content 내부로 이동 */}
+                        {isAdminAuth && (
+                            <button
+                                className="noticeEditButton"
+                                onClick={handleEdit}
+                                style={{ marginTop: '20px' }}
+                            >
+                                공지 수정
+                            </button>
+                        )}
+                    </div>
                 </div>
             )}
         </>
