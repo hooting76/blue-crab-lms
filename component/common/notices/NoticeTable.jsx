@@ -42,7 +42,6 @@ const { isAuthenticated: isAdminAuth } = UseAdmin() || { admin: null, isAuthenti
     return selectedNotice ? (
         <AdminNoticeWritingPage
         notice={selectedNotice}
-        setCurrentPage={setCurrentPage}
         />
     ) : (
         <p>공지 정보를 불러오는 중입니다...</p>
