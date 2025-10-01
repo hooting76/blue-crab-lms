@@ -60,7 +60,7 @@ export default function NoticeTable({ rows = [] }) {
                         <button className="modal-close" onClick={closeModal}>
                             ✖
                         </button>
-                        <NoticeDetail boardIdx={selectedIdx} />
+                        <NoticeDetail boardIdx={selectedIdx} currentPage={currentPage} setCurrentPage={setCurrentPage}/>
                     </div>
                 </div>
             )}

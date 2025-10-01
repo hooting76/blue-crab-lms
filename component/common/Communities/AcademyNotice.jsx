@@ -40,7 +40,6 @@ export default function AcademyNotice({currentPage, setCurrentPage}) {
     
         const accessToken = getAccessToken();
 
-        console.log('AcademyNotice accessToken:', accessToken); // 디버그용
 
   if (currentPage === "Admin 공지 작성") {
     if (!accessToken) {
