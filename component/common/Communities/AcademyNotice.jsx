@@ -40,6 +40,7 @@ export default function AcademyNotice({currentPage, setCurrentPage}) {
     
         const accessToken = getAccessToken();
 
+        console.log('AcademyNotice accessToken:', accessToken); // 디버그용
 
   if (currentPage === "Admin 공지 작성") {
     if (!accessToken) {
@@ -62,8 +63,6 @@ export default function AcademyNotice({currentPage, setCurrentPage}) {
               size={10}
               onPageChange={setPage}
               onWrite={() => setCurrentPage("Admin 공지 작성")}
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
               />
         </NoticeLayout>
     );

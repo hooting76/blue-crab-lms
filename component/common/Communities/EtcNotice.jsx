@@ -6,7 +6,7 @@ import AdminNoticeWritingPage from "./AdminNoticeWritingPage";
 import { UseUser } from "../../../hook/UseUser";
 import { UseAdmin } from "../../../hook/UseAdmin";
 
-export default function EtcNotice({currentPage, setCurrentPage}) {
+export default function EtcNotice({currentPage,setCurrentPage}) {
     const [page,setPage] = useState(1);
     useEffect(() => {setPage(1);}, [currentPage]); //탭 바뀌면 1 페이지로
 
@@ -60,8 +60,6 @@ export default function EtcNotice({currentPage, setCurrentPage}) {
               size={10}
               onPageChange={setPage}
               onWrite={() => setCurrentPage("Admin 공지 작성")}
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
               />
         </NoticeLayout>
     );

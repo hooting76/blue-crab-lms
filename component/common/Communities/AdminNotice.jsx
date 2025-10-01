@@ -10,7 +10,7 @@ import { UseAdmin } from "../../../hook/UseAdmin";
 
 //import "../../css/Communities/AdminNotice.css"
 
-export default function AdminNotice({currentPage, setCurrentPage}) {
+export default function AdminNotice({currentPage,setCurrentPage}) {
     const [page,setPage] = useState(1);
     useEffect(() => {setPage(1);}, [currentPage]); //탭 바뀌면 1 페이지로
 
@@ -64,8 +64,6 @@ export default function AdminNotice({currentPage, setCurrentPage}) {
               size={10}
               onPageChange={setPage}
               onWrite={() => setCurrentPage("Admin 공지 작성")}
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
               />
         </NoticeLayout>
     );
