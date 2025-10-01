@@ -69,11 +69,9 @@ export default function NoticeList({
           const allItems = Array.isArray(res.content) ? res.content : [];
 
           // ✅ BOARD_CODE 필터링
-          // isAdmin이면 boardOn 상관없이, 아니면 boardOn===1인 것만
-          const filtered = isAdmin
-            ? allItems.filter((item) => String(item.boardCode) === String(boardCode))
-            : allItems.filter((item) => item.boardOn === 1 && String(item.boardCode) === String(boardCode));
-
+          const filtered = boardCode === "0" ? 
+            allItems : 
+            allItems.filter((item) => String(item.boardCode) === String(boardCode));
 
           // ✅ 최신순 정렬 (작성일 기준)
           filtered.sort((a, b) => (b.boardReg || "").localeCompare(a.boardReg || ""));
@@ -121,7 +119,7 @@ export default function NoticeList({
 
         return(
             <>
-            {/* 작성 버튼은 관리자에게만 노출 */}
+            {/* 작성 버튼은 관리자만 노출 ->UI단계에서는 주석처리 */}
             {isAdmin &&(
                 <div className="notice-actions">
                     <button type="button" className="btn-primary" onClick={handleWrite}>
@@ -131,7 +129,7 @@ export default function NoticeList({
             )}
 
             {/* 표는 NoticeTable이 rows로 렌더(번호/제목/작성자/조회수/작성일) */}
-            <NoticeTable rows={rows} total={state.total} page={page} size={size} currentPage={currentPage} setCurrentPage={setCurrentPage}/>
+            <NoticeTable rows={rows} total={state.total} page={page} size={size}/>
 
             {/* 하단 페이지네이션: URL basepath 제거, 상태 콜백만 사용 */}
             <Pagination

@@ -3,8 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { getNoticeDetail, deleteNotice } from '../../api/noticeAPI';
 import { UseUser } from "../../../hook/UseUser";
 import { UseAdmin } from "../../../hook/UseAdmin";
+import AdminNoticeWritingPage from './AdminNoticeWritingPage';
 
-const NoticeDetail = ({ boardIdx }) => {
+const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
   const [notice, setNotice] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -94,6 +95,9 @@ const NoticeDetail = ({ boardIdx }) => {
   }
 };
 
+  if (currentPage === "Admin 공지 작성") {
+    return <AdminNoticeWritingPage notice={notice} accessToken={accessToken} setCurrentPage={setCurrentPage} />;
+  }
 
   return (
     <div className="noticeDetailContainer">
@@ -112,7 +116,6 @@ const NoticeDetail = ({ boardIdx }) => {
       <div className="noticeDetailContent">{notice.boardContent}</div>
       
       <button className="noticeDeleteButton" onClick={() => handleDelete(accessToken, notice.boardIdx)}>공지 삭제</button>
-
     </div>
   );
 };
