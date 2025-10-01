@@ -98,9 +98,9 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
   if (error) return <div>오류: {error}</div>;
   if (!notice) return <div>데이터가 없습니다.</div>;
 
-  const handleDelete = async () => {
+  const handleDelete = async (accessToken, boardIdx) => {
   try {
-    await deleteNotice(accessToken, notice.boardIdx);
+    await deleteNotice(accessToken, boardIdx);
     alert("삭제되었습니다.");
   } catch (error) {
     alert("삭제 중 오류 발생: " + error.message);
@@ -131,9 +131,9 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
       </div>
       <div className="noticeDetailContent">{notice.boardContent}</div>
       
-      <button className="noticeDeleteButton" onClick={handleDelete()}>공지 비활성화</button>
+      <button className="noticeDeleteButton" onClick={() => handleDelete(accessToken, notice.boardIdx)}>공지 비활성화</button>
 
-      <button className="noticeEditButton" onClick={handleEdit()}>공지 수정</button>
+      <button className="noticeEditButton" onClick={handleEdit}>공지 수정</button>
     </div>
   );
 };
