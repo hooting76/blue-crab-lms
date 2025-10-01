@@ -43,7 +43,6 @@ const { isAuthenticated: isAdminAuth } = UseAdmin() || { admin: null, isAuthenti
   if (currentPage === "Admin 공지 작성") {
     return selectedIdx && selectedNotice ? (
         <AdminNoticeWritingPage
-        boardIdx={selectedIdx}
         notice={selectedNotice}
         setCurrentPage={setCurrentPage}
         />
