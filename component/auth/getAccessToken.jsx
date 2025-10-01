@@ -1,5 +1,5 @@
-import { UseUser } from "../../../hook/UseUser";
-import { UseAdmin } from "../../../hook/UseAdmin";
+import { UseUser } from "../../hook/UseUser";
+import { UseAdmin } from "../../hook/UseAdmin";
 
         // 사용자 컨텍스트
         const userContext = UseUser();
