@@ -25,6 +25,8 @@ export default function NoticeTable({ rows = [], currentPage, setCurrentPage }) 
     return boardReg.replace('T', '\n').slice(0, 16);
     };
 
+    const selectedNotice = rows.find(r => r.boardIdx === selectedIdx);
+
     // 사용자 컨텍스트
         const userContext = UseUser();
         const { user, isAuthenticated: isUserAuth } = userContext || { user: null, isAuthenticated: false };
@@ -59,7 +61,7 @@ export default function NoticeTable({ rows = [], currentPage, setCurrentPage }) 
   }
 
   if (currentPage === "Admin 공지 작성") {
-    return <AdminNoticeWritingPage boardIdx={selectedIdx} notice={notice} accessToken={accessToken} setCurrentPage={setCurrentPage} />;
+    return <AdminNoticeWritingPage boardIdx={selectedIdx} notice={selectedNotice} accessToken={accessToken} setCurrentPage={setCurrentPage} />;
   }
 
     return(
