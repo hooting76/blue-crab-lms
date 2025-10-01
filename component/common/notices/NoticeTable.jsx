@@ -14,7 +14,7 @@ export default function NoticeTable({ rows = [], currentPage, setCurrentPage }) 
     const openModal = (boardIdx) => {
     const notice = rows.find(row => row.boardIdx === boardIdx);
     console.log("선택된 공지:", notice);
-    setSelectedIdx(boardIdx);
+    setSelectedIdx(notice.boardIdx);
     setSelectedNotice(notice);
     setIsModalOpen(true);
     };
