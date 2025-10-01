@@ -6,10 +6,9 @@ import { UseAdmin } from "../../../hook/UseAdmin";
 import NoticeDetail from "../Communities/NoticeDetail";
 import AdminNoticeWritingPage from '../Communities/AdminNoticeWritingPage';
 
-export default function NoticeTable({ rows = [], currentPage, setCurrentPage }) {
+export default function NoticeTable({ rows, currentPage, setCurrentPage, selectedNotice, setSelectedNotice }) {
     const [selectedIdx, setSelectedIdx] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedNotice, setSelectedNotice] = useState(null);
 
     const openModal = (boardIdx) => {
     const notice = rows.find(row => row.boardIdx === boardIdx);
@@ -39,12 +38,11 @@ const { isAuthenticated: isAdminAuth } = UseAdmin() || { admin: null, isAuthenti
         };
 
   if (currentPage === "Admin 공지 작성") {
-    return selectedNotice ? (
+    return (
         <AdminNoticeWritingPage
         notice={selectedNotice}
+        setCurrentPage={setCurrentPage}
         />
-    ) : (
-        <p>공지 정보를 불러오는 중입니다...</p>
     );
     }
 

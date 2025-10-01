@@ -17,6 +17,10 @@ export default function NoticeList({
     currentPage,
     setCurrentPage
 }) {
+
+  const [selectedNotice, setSelectedNotice] = useState(null);
+
+
     // 사용자 컨텍스트
     const userContext = UseUser();
     const { user, isAuthenticated: isUserAuth } = userContext || { user: null, isAuthenticated: false };
@@ -129,7 +133,17 @@ export default function NoticeList({
             )}
 
             {/* 표는 NoticeTable이 rows로 렌더(번호/제목/작성자/조회수/작성일) */}
-            <NoticeTable rows={rows} total={state.total} page={page} size={size} currentPage={currentPage} setCurrentPage={setCurrentPage}/>
+            <NoticeTable
+              rows={rows}
+              total={state.total}
+              page={page}
+              size={size}
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              selectedNotice={selectedNotice}
+              setSelectedNotice={setSelectedNotice}
+            />
+
 
             {/* 하단 페이지네이션: URL basepath 제거, 상태 콜백만 사용 */}
             <Pagination
