@@ -97,12 +97,22 @@ const NoticeDetail = ({ boardIdx }) => {
 
 console.log("boardContent:", notice.boardContent);
 
-const markdown = `# ${atob(notice.boardContent)}`;
+const decodeBase64 = (str) => {
+  try {
+    return decodeURIComponent(escape(window.atob(str)));
+  } catch (e) {
+    console.error("Base64 디코딩 오류:", e);
+    return "";
+  }
+};
+
+const markdown = `# ${decodeBase64(notice.boardContent)}`;
+
 
   return (
     <div className="noticeDetailContainer">
       <div className="noticeDetailTitleAndCode">
-        <span className="noticeDetailTitle">제목 : {atob(notice.boardTitle)}</span>
+        <span className="noticeDetailTitle">제목 : {decodeBase64(notice.boardTitle)}</span>
         <span className="noticeDetailCode">{getNoticeCode(notice.boardCode)}</span>
       </div>
       <div className="noticeDetailWriterAndView">
