@@ -140,3 +140,49 @@ export async function releaseSeat(seatId) {
     return { ok: false, code, message: e.message };
   }
 }
+
+// ─────────────────────────────────────────────
+// 4) 내 예약 조회
+// POST /api/reading-room/my-reservation
+// 성공(data=null 이면 예약 없음)
+// 반환 형태(프론트 표준):
+//  - 예약 있음: { ok:true, data:{ id, seat_no, state:1, endTime, remainingMinutes } }
+//  - 예약 없음: { ok:true, data:null }
+//  - 실패:     { ok:false, message }
+// ─────────────────────────────────────────────
+
+export async function getMyReservation() {
+  try {
+    await ensureAccessTokenOrRedirect();
+
+    // 명세 경로 그대로 사용
+    const res = await postRetry401('/my-reservation', {});
+    const payload = await ensureOkJson(res, '내 예약 조회에 실패했습니다.');
+
+    // 예약 없음
+    if (!payload?.data) {
+      return { ok: true, data: null };
+    }
+
+    // 예약 있음
+    const seatNumber = payload.data.seatNumber;
+    const isOccupied = !!payload.data.isOccupied;
+
+    // 표준 DTO 변환: id/seat_no/state(1=사용중)
+    const dto = {
+      id: seatNumber,
+      seat_no: seatNumber,
+      state: isOccupied ? 1 : 0,
+      // 편의 필드(있으면 UI에 바로 쓸 수 있음)
+      endTime: payload.data.endTime ?? null,
+      remainingMinutes: Number.isFinite(payload.data.remainingMinutes)
+        ? payload.data.remainingMinutes
+        : null,
+    };
+
+    return { ok: true, data: dto };
+  } catch (e) {
+    console.error('내 예약 조회 에러:', e);
+    return { ok: false, message: e.message };
+  }
+}

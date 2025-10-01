@@ -1,6 +1,6 @@
 // src/component/common/Facilities/ReadingRoom.jsx
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import {getSeats, reserveSeat, releaseSeat, getMyReservation } from "../../../api/readingRoomApi";
+import {getSeats, reserveSeat, releaseSeat, getMyReservation } from "../../../src/api/readingRoomApi.js";
 import "../../../css/Facilities/ReadingRoom.css";
 
 const STATUS = {
@@ -37,7 +37,16 @@ export default function ReadingRoom() {
       status: s.state === 1 ? STATUS.OCCUPIED : STATUS.AVAILABLE,
     }));
 
-    const myNo = myRes?.seatNumber ?? null;
+    const myNo = (() => {
+      // A 형태: { ok, data:{ seat_no } }
+      if (myRes && typeof myRes === 'object' && 'ok' in myRes) {
+        const n = myRes?.data?.seat_no;
+        return Number.isInteger(n) ? n : null;
+      }
+      //B 형태: { seatNumber }
+      const n = myRes?.seatNumber;
+      return Number.isInteger(n) ? n : null;
+    })();
     setMySeatNo(myNo);
 
     if (myNo) {
