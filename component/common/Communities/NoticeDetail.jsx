@@ -97,10 +97,12 @@ const NoticeDetail = ({ boardIdx }) => {
 
 console.log("boardContent:", notice.boardContent);
 
+const markdown = `# ${atob(notice.boardContent)}`;
+
   return (
     <div className="noticeDetailContainer">
       <div className="noticeDetailTitleAndCode">
-        <span className="noticeDetailTitle">제목 : {notice.boardTitle}</span>
+        <span className="noticeDetailTitle">제목 : {atob(notice.boardTitle)}</span>
         <span className="noticeDetailCode">{getNoticeCode(notice.boardCode)}</span>
       </div>
       <div className="noticeDetailWriterAndView">
@@ -111,7 +113,7 @@ console.log("boardContent:", notice.boardContent);
         <span className="noticeDetailReg">작성일 : {formattedReg(notice.boardReg)}</span>
         <span className="noticeDetailLast">최종 수정일 : {formattedLatest(notice.boardLast, notice.boardReg)}</span>
       </div>
-      <Viewer initialValue={notice.boardContent}/>
+      <Viewer initialValue={markdown}/>
       
       <button className="noticeDeleteButton" onClick={() => handleDelete(accessToken, notice.boardIdx)}>공지 삭제</button>
     </div>
