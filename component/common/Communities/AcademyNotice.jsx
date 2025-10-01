@@ -7,7 +7,7 @@ import AdminNoticeWritingPage from "./AdminNoticeWritingPage";
 import { UseUser } from "../../../hook/UseUser";
 import { UseAdmin } from "../../../hook/UseAdmin";
 
-export default function AcademyNotice({currentPage, setCurrentPage}) {
+export default function AcademyNotice({currentPage, setCurrentPage, setSelectedNotice}) {
     const [page,setPage] = useState(1);
     useEffect(() => {setPage(1);}, [currentPage]); //탭 바뀌면 1 페이지로
 
