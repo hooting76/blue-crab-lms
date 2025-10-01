@@ -53,6 +53,14 @@ export default function NoticeTable({ rows = [], currentPage, setCurrentPage }) 
     
         const accessToken = getAccessToken();
 
+        const handleEdit = () => {
+    setCurrentPage("Admin 공지 작성")
+  }
+
+  if (currentPage === "Admin 공지 작성") {
+    return <AdminNoticeWritingPage boardIdx={notice.boardIdx} notice={notice} accessToken={accessToken} setCurrentPage={setCurrentPage} />;
+  }
+
     return(
         <>
         <table className="notice-table">
@@ -91,21 +99,13 @@ export default function NoticeTable({ rows = [], currentPage, setCurrentPage }) 
                         <button className="modal-close" onClick={closeModal}>
                             ✖
                         </button>
-                        {currentPage === "Admin 공지 작성" ? (
-                        <AdminNoticeWritingPage
-                            boardIdx={selectedIdx}
-                            accessToken={accessToken}
-                            setCurrentPage={setCurrentPage}
-                        />
-                        ) : (
                         <NoticeDetail
                             boardIdx={selectedIdx}
                             currentPage={currentPage}
                             setCurrentPage={setCurrentPage}
                         />
-                        )}
-
-                    </div>
+                    </div>   
+                    <button className="noticeEditButton" onClick={handleEdit}>공지 수정</button>
                 </div>
             )}
         </>
