@@ -129,7 +129,7 @@ export default function NoticeList({
             )}
 
             {/* 표는 NoticeTable이 rows로 렌더(번호/제목/작성자/조회수/작성일) */}
-            <NoticeTable rows={rows} total={state.total} page={page} size={size}/>
+            <NoticeTable rows={rows} total={state.total} page={page} size={size} currentPage={currentPage} setCurrentPage={setCurrentPage}/>
 
             {/* 하단 페이지네이션: URL basepath 제거, 상태 콜백만 사용 */}
             <Pagination
