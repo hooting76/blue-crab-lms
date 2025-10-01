@@ -214,6 +214,13 @@
 		    <version>8.5.2</version>
 		</dependency>
 
+		<!-- Firebase Admin SDK -->
+		<dependency>
+			<groupId>com.google.firebase</groupId>
+			<artifactId>firebase-admin</artifactId>
+			<version>9.7.0</version>
+		</dependency>
+
 	</dependencies>
 	
 	
