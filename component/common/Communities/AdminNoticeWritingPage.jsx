@@ -40,10 +40,12 @@ function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, s
   console.log("notice:", notice);
 
 useEffect(() => {
-    if (notice && notice.boardContent && editorRef.current) {
-        editorRef.current.getInstance().setMarkdown(notice.boardContent);
-    }
+  if (notice && notice.boardContent && editorRef.current) {
+    const decodedContent = decodeBase64(notice.boardContent);
+    editorRef.current.getInstance().setMarkdown(decodedContent);
+  }
 }, [notice]);
+
 
  if (!isAuthenticated) {
   return <p>관리자 인증 정보를 불러오는 중입니다...</p>;
@@ -203,7 +205,7 @@ if (currentPage === "기타공지")
           previewStyle="vertical"
           height="300px"
           initialEditType="wysiwyg"
-          initialValue={notice?.boardContent || ''}
+          initialValue={notice ? decodeBase64(notice.boardContent) : ''}
           useCommandShortcut={true}
           language="ko-KR"
         />
