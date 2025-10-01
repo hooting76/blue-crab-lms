@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { getNoticeDetail, deleteNotice } from '../../api/noticeAPI';
 import { UseUser } from "../../../hook/UseUser";
 import { UseAdmin } from "../../../hook/UseAdmin";
+import { Viewer } from '@toast-ui/react-editor';
+import '@toast-ui/editor/dist/toastui-editor-viewer.css';​
 
 const NoticeDetail = ({ boardIdx }) => {
   const [notice, setNotice] = useState(null);
@@ -108,7 +110,7 @@ const NoticeDetail = ({ boardIdx }) => {
         <span className="noticeDetailReg">작성일 : {formattedReg(notice.boardReg)}</span>
         <span className="noticeDetailLast">최종 수정일 : {formattedLatest(notice.boardLast, notice.boardReg)}</span>
       </div>
-      <div className="noticeDetailContent">{notice.boardContent}</div>
+      <Viewer value={notice.boardContent}/>
       
       <button className="noticeDeleteButton" onClick={() => handleDelete(accessToken, notice.boardIdx)}>공지 삭제</button>
     </div>
