@@ -97,12 +97,12 @@ const NoticeDetail = ({ boardIdx }) => {
 
 console.log("boardContent:", notice.boardContent);
 
-const markdown = `# ${JSON.parse(atob(notice.boardContent))}`;
+const markdown = `# ${atob(notice.boardContent)}`;
 
   return (
     <div className="noticeDetailContainer">
       <div className="noticeDetailTitleAndCode">
-        <span className="noticeDetailTitle">제목 : {JSON.parse(atob(notice.boardTitle))}</span>
+        <span className="noticeDetailTitle">제목 : {atob(notice.boardTitle)}</span>
         <span className="noticeDetailCode">{getNoticeCode(notice.boardCode)}</span>
       </div>
       <div className="noticeDetailWriterAndView">
