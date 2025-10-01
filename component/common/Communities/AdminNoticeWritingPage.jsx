@@ -42,9 +42,14 @@ function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, s
 useEffect(() => {
   if (notice && notice.boardContent && editorRef.current) {
     const decodedContent = decodeBase64(notice.boardContent);
-    editorRef.current.getInstance().setMarkdown(decodedContent);
+
+    // setTimeout 사용하여 Editor 렌더링 완료 후 Markdown 세팅
+    setTimeout(() => {
+      editorRef.current.getInstance().setMarkdown(decodedContent);
+    }, 0);
   }
 }, [notice]);
+
 
 
  if (!isAuthenticated) {
@@ -205,7 +210,7 @@ if (currentPage === "기타공지")
           previewStyle="vertical"
           height="300px"
           initialEditType="wysiwyg"
-          initialValue={notice ? decodeBase64(notice.boardContent) : ''}
+          initialValue={''}
           useCommandShortcut={true}
           language="ko-KR"
         />
