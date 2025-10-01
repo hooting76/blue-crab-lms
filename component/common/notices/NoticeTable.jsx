@@ -2,9 +2,8 @@
 import {useState} from "react";
 import "../../../css/Communities/Notice-ui.css";
 import "../../../css/Communities/NoticeDetailModal.css";
-import { UseUser } from "../../../hook/UseUser";
-import { UseAdmin } from "../../../hook/UseAdmin";
 import NoticeDetail from "../Communities/NoticeDetail";
+import getAccessToken from "../../auth/getAccessToken";
 
 export default function NoticeTable({ rows = [], currentPage, setCurrentPage }) {
     const [selectedIdx, setSelectedIdx] = useState(null);
@@ -23,33 +22,6 @@ export default function NoticeTable({ rows = [], currentPage, setCurrentPage }) 
     const formattedTime = (boardReg) => {
     return boardReg.replace('T', '\n').slice(0, 16);
     };
-
-    // 사용자 컨텍스트
-        const userContext = UseUser();
-        const { user, isAuthenticated: isUserAuth } = userContext || { user: null, isAuthenticated: false };
-    
-        // 관리자 컨텍스트
-        const adminContext = UseAdmin() || { admin: null, isAuthenticated: false };
-        const { admin, isAuthenticated: isAdminAuth } = adminContext;
-    
-        // Admin 또는 User의 accessToken 가져오기
-        const getAccessToken = () => {
-            // 로컬스토리지에서 먼저 확인 (가장 최신 토큰)
-            const storedToken = localStorage.getItem('accessToken');
-            if (storedToken) return storedToken;
-    
-            // Admin 토큰 확인
-            if (isAdminAuth && admin?.data?.accessToken) {
-                return admin.data.accessToken;
-            }
-    
-            // User 토큰 확인
-            if (isUserAuth && user?.data?.accessToken) {
-                return user.data.accessToken;
-            }
-    
-            return null;
-        };
     
         const accessToken = getAccessToken();
 
