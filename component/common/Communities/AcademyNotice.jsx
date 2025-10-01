@@ -65,6 +65,7 @@ export default function AcademyNotice({currentPage, setCurrentPage}) {
               onWrite={() => setCurrentPage("Admin 공지 작성")}
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
+              setSelectedNotice={setSelectedNotice}
               />
         </NoticeLayout>
     );

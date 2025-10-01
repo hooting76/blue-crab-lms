@@ -40,6 +40,8 @@ function InAppFilter(){
 
 function AuthTof(){
     const { isAuthenticated, isLoading } = UseAdmin();  
+    const [selectedNotice, setSelectedNotice] = useState(null);
+
     
     // currentPage 상태를 이 컴포넌트에서 보유
   const [currentPage, setCurrentPage] = useState("");
@@ -67,7 +69,7 @@ const renderPage = () => {
         case '기타공지':
           return <EtcNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
         case 'Admin 공지 작성':
-          return <AdminNoticeWritingPage currentPage={currentPage} setCurrentPage={setCurrentPage} notice={selectedNotice}/>;
+          return <AdminNoticeWritingPage setCurrentPage={setCurrentPage} notice={selectedNotice}/>;
         default:
           return <AdminDashboard />;
       }

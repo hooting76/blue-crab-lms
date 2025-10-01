@@ -18,8 +18,6 @@ export default function NoticeList({
     setCurrentPage
 }) {
 
-  const [selectedNotice, setSelectedNotice] = useState(null);
-
 
     // 사용자 컨텍스트
     const userContext = UseUser();
