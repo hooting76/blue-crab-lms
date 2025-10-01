@@ -12,6 +12,7 @@ package BlueCrab.com.example.entity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Table;
@@ -19,7 +20,6 @@ import javax.persistence.Table;
 // ========== Validation 어노테이션 ==========
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Max;
 
@@ -48,15 +48,16 @@ public class BoardTbl {
     private String boardWriter;
     // 개시글 작성자
 
-    @Size(max = 100, message = "게시글 제목은 100자를 초과할 수 없습니다")
-    @Column(name = "BOARD_TIT", length = 100, columnDefinition = "VARCHAR", nullable = true)
+    @NotBlank(message = "게시글 제목은 필수입니다")
+    @Lob
+    @Column(name = "BOARD_TIT", columnDefinition = "TEXT", nullable = true)
     private String boardTitle = "공지사항";
     // 개시글 제목
     // 기본값 "공지사항"으로 설정
 
     @NotBlank(message = "게시글 내용은 필수입니다")
-    @Size(max = 200, message = "게시글 내용은 200자를 초과할 수 없습니다")
-    @Column(name = "BOARD_CONT", length = 200, columnDefinition = "VARCHAR", nullable = true)
+    @Lob
+    @Column(name = "BOARD_CONT", columnDefinition = "TEXT", nullable = true)
     private String boardContent;
     // 개시글 내용
 

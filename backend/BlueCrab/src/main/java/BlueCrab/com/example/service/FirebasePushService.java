@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Service
 @ConditionalOnProperty(name = "firebase.enabled", havingValue = "true")
 public class FirebasePushService {
@@ -26,16 +28,20 @@ public class FirebasePushService {
      * 특정 토큰으로 푸시 알림 전송
      */
     public String sendPushNotification(String token, String title, String body) {
+    return sendPushNotification(token, title, body, null);
+    }
+
+    public String sendPushNotification(String token, String title, String body, Map<String, String> data) {
         try {
-            Message message = Message.builder()
-                    .setToken(token)
-                    .setWebpushConfig(WebpushConfig.builder()
-                            .setNotification(WebpushNotification.builder()
-                                    .setTitle(title)
-                                    .setBody(body)
-                                    .build())
-                            .build())
-                    .build();
+        Message.Builder builder = Message.builder()
+            .setToken(token)
+            .setWebpushConfig(buildWebpushConfig(title, body));
+
+        if (data != null && !data.isEmpty()) {
+        builder.putAllData(data);
+        }
+
+        Message message = builder.build();
 
             String response = FirebaseMessaging.getInstance().send(message);
             log.info("Successfully sent push notification: {}", response);
@@ -50,16 +56,20 @@ public class FirebasePushService {
      * 토픽으로 푸시 알림 전송
      */
     public String sendPushNotificationToTopic(String topic, String title, String body) {
+    return sendPushNotificationToTopic(topic, title, body, null);
+    }
+
+    public String sendPushNotificationToTopic(String topic, String title, String body, Map<String, String> data) {
         try {
-            Message message = Message.builder()
-                    .setTopic(topic)
-                    .setWebpushConfig(WebpushConfig.builder()
-                            .setNotification(WebpushNotification.builder()
-                                    .setTitle(title)
-                                    .setBody(body)
-                                    .build())
-                            .build())
-                    .build();
+        Message.Builder builder = Message.builder()
+            .setTopic(topic)
+            .setWebpushConfig(buildWebpushConfig(title, body));
+
+        if (data != null && !data.isEmpty()) {
+        builder.putAllData(data);
+        }
+
+        Message message = builder.build();
 
             String response = FirebaseMessaging.getInstance().send(message);
             log.info("Successfully sent push notification to topic {}: {}", topic, response);
@@ -68,6 +78,17 @@ public class FirebasePushService {
             log.error("Failed to send push notification to topic: {}", topic, e);
             throw new RuntimeException("Push notification to topic failed", e);
         }
+    }
+
+    private WebpushConfig buildWebpushConfig(String title, String body) {
+    WebpushNotification notification = WebpushNotification.builder()
+        .setTitle(title)
+        .setBody(body)
+        .build();
+
+    return WebpushConfig.builder()
+        .setNotification(notification)
+        .build();
     }
 
     /**

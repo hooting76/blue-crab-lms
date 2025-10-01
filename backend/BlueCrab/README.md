@@ -330,6 +330,18 @@ mvn test
 mvn integration-test
 ```
 
+### Firebase Push 통합 테스트
+실제 FCM 전송을 검증하려면 아래 환경 변수를 설정한 뒤 특정 테스트만 실행하세요.
+
+```pwsh
+cd c:\blue-crab-lms\backend\BlueCrab
+$env:FIREBASE_CREDENTIALS_PATH="C:\\secure\\service-account.json"  # 또는 $env:FIREBASE_CREDENTIALS_JSON
+$env:FCM_TEST_TOKEN="실제_테스트_디바이스_토큰"
+mvn test -Dtest=FirebasePushServiceIntegrationTest
+```
+
+토큰 또는 토픽이 비어 있으면 해당 케이스는 자동으로 건너뛰며, 성공 시 `projects/.../messages/...` 형태의 메시지 ID가 콘솔에 출력됩니다.
+
 ## 📋 추가 문서
 
 프로젝트 루트 디렉토리에서 다음 문서들을 확인할 수 있습니다:
