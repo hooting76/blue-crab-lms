@@ -190,11 +190,6 @@ if (currentPage === "기타공지")
           initialEditType="wysiwyg"
           useCommandShortcut={true}
           language="ko-KR"
-          onLoad={() => {
-            if (notice?.boardContent) {
-              editorRef.current.getInstance().setMarkdown(notice.boardContent);
-            }
-          }}
         />
       </div>
 

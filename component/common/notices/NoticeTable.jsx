@@ -30,9 +30,12 @@ export default function NoticeTable({ rows = [], currentPage, setCurrentPage }) 
 const { isAuthenticated: isAdminAuth } = UseAdmin() || { admin: null, isAuthenticated: false };
 
         const handleEdit = () => {
-        setIsModalOpen(false); // 모달 닫기
-        setCurrentPage("Admin 공지 작성");
+            setIsModalOpen(false);
+            setTimeout(() => {
+                setCurrentPage("Admin 공지 작성");
+            }, 0);
         };
+
 
 
   if (currentPage === "Admin 공지 작성") {
