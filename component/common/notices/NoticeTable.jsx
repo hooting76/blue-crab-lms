@@ -52,9 +52,6 @@ const { isAuthenticated: isAdminAuth } = UseAdmin() || { admin: null, isAuthenti
   }
 };
 
-
-console.log("Base64 원본:", notice.boardContent);
-
     return(
         <>
         <table className="notice-table">
