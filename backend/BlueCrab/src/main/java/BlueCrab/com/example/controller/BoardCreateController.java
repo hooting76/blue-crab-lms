@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import BlueCrab.com.example.entity.BoardTbl;
 import BlueCrab.com.example.service.BoardManagementService;
 import BlueCrab.com.example.util.JwtUtil;
+import BlueCrab.com.example.util.Base64ValidationUtil;
 
 
 @RestController
@@ -107,6 +108,52 @@ public class BoardCreateController {
         
         String userEmail = jwtUtil.extractUsername(jwtToken);
         logger.info("Valid JWT token for user: {}", userEmail);
+        
+        // ========== 원문 길이 검증 및 Base64 인코딩 ==========
+        try {
+            // 제목 검증 및 인코딩
+            String encodedTitle = Base64ValidationUtil.validateAndEncodeTitleIfValid(boardTbl.getBoardTitle());
+            if (encodedTitle == null) {
+                String errorMessage = Base64ValidationUtil.getTitleLengthErrorMessage(
+                    boardTbl.getBoardTitle() != null ? boardTbl.getBoardTitle().length() : 0);
+                logger.warn("Title length validation failed: {}", errorMessage);
+                return ResponseEntity.status(400)
+                        .body(java.util.Map.of(
+                            "success", false,
+                            "message", errorMessage,
+                            "errorCode", "TITLE_LENGTH_EXCEEDED"
+                        ));
+            }
+            
+            // 본문 검증 및 인코딩
+            String encodedContent = Base64ValidationUtil.validateAndEncodeContentIfValid(boardTbl.getBoardContent());
+            if (encodedContent == null) {
+                String errorMessage = Base64ValidationUtil.getContentLengthErrorMessage(
+                    boardTbl.getBoardContent() != null ? boardTbl.getBoardContent().length() : 0);
+                logger.warn("Content length validation failed: {}", errorMessage);
+                return ResponseEntity.status(400)
+                        .body(java.util.Map.of(
+                            "success", false,
+                            "message", errorMessage,
+                            "errorCode", "CONTENT_LENGTH_EXCEEDED"
+                        ));
+            }
+            
+            // 검증 통과 시 Base64로 인코딩된 값으로 설정
+            boardTbl.setBoardTitle(encodedTitle);
+            boardTbl.setBoardContent(encodedContent);
+            
+            logger.info("Base64 validation and encoding completed successfully");
+            
+        } catch (Exception e) {
+            logger.warn("Base64 validation failed: {}", e.getMessage());
+            return ResponseEntity.status(400)
+                    .body(java.util.Map.of(
+                        "success", false,
+                        "message", "제목 또는 본문 처리 중 오류가 발생했습니다.",
+                        "errorCode", "VALIDATION_ERROR"
+                    ));
+        }
         
         try {
             Optional<BoardTbl> result = boardManagementService.createBoard(boardTbl, userEmail);
