@@ -4,9 +4,8 @@ import "../../../css/Communities/Notice-ui.css";
 import "../../../css/Communities/NoticeDetailModal.css";
 import { UseAdmin } from "../../../hook/UseAdmin";
 import NoticeDetail from "../Communities/NoticeDetail";
-import AdminNoticeWritingPage from '../Communities/AdminNoticeWritingPage';
 
-export default function NoticeTable({ rows, currentPage, setCurrentPage, selectedNotice, setSelectedNotice }) {
+export default function NoticeTable({ rows, currentPage, setCurrentPage, setSelectedNotice }) {
     const [selectedIdx, setSelectedIdx] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 

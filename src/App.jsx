@@ -80,6 +80,8 @@ function AppContent() {
     return <LoadingSpinner/>
   }
 
+  const [selectedNotice, setSelectedNotice] = useState(null);
+
   // currentPage 상태를 이 컴포넌트에서 보유
   const [currentPage, setCurrentPage] = useState("");
 
@@ -124,13 +126,13 @@ function AppContent() {
       
       // ===== 커뮤니티 섹션 (상태 전환만 사용) =====
       case '학사공지':
-        return <AcademyNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
+        return <AcademyNotice currentPage={currentPage} setCurrentPage={setCurrentPage} setSelectedNotice={setSelectedNotice} />;
       case '행정공지':
-        return <AdminNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
+        return <AdminNotice currentPage={currentPage} setCurrentPage={setCurrentPage} setSelectedNotice={setSelectedNotice} />;
       case '기타공지':
-        return <EtcNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
+        return <EtcNotice currentPage={currentPage} setCurrentPage={setCurrentPage} setSelectedNotice={setSelectedNotice}/>;
       case 'Admin 공지 작성':
-        return <AdminNoticeWritingPage currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
+        return <AdminNoticeWritingPage currentPage={currentPage} setCurrentPage={setCurrentPage} setSelectedNotice={setSelectedNotice}/>;
 
       // ===== FAQ =====
       case 'FAQ':
