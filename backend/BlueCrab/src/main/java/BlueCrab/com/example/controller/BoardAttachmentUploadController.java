@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory;
 
 // ========== 프로젝트 내부 클래스 ==========
 import BlueCrab.com.example.util.JwtUtil;
+import BlueCrab.com.example.service.BoardAttachmentService;
+import BlueCrab.com.example.entity.BoardAttachmentTbl;
 
 @RestController
 @RequestMapping("/api/board-attachments")
@@ -37,22 +39,20 @@ public class BoardAttachmentUploadController {
 
     // ========== 의존성 주입 ==========
     
-    // TODO: BoardAttachmentService 생성 후 주입 예정
-    // @Autowired
-    // private BoardAttachmentService attachmentService;
+    @Autowired
+    private BoardAttachmentService attachmentService;
 
     @Autowired
     private JwtUtil jwtUtil;
 
     // ========== 첨부파일 업로드 API ==========
 
-    /**
-     * 다중 파일 업로드 API
+    /* 첨부파일 업로드 API
      * POST /api/board-attachments/upload/{boardIdx}
      * @param boardIdx 게시글 IDX
-     * @param files 업로드할 파일들
+     * @param files 업로드할 파일들 (단일 파일: 1개, 다중 파일: 여러개)
      * @param request HTTP 요청 (토큰 검증용)
-     * @return 업로드 결과
+     * @return 업로드 결과 (항상 배열 형태로 응답)
      */
     @PostMapping("/upload/{boardIdx}")
     public ResponseEntity<Map<String, Object>> uploadFiles(
@@ -74,17 +74,17 @@ public class BoardAttachmentUploadController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
 
-            // TODO: 첨부파일 업로드 처리 (Service 구현 후)
-            // List<BoardAttachmentTbl> uploadedAttachments = attachmentService.uploadFiles(boardIdx, files);
+            // 첨부파일 업로드 처리 (Service 구현 완료)
+            List<BoardAttachmentTbl> uploadedAttachments = attachmentService.uploadFiles(boardIdx, files);
 
-            // 임시 응답 (Service 구현 전)
-            logger.info("첨부파일 업로드 요청 처리 완료 - 게시글 IDX: {}", boardIdx);
+            logger.info("첨부파일 업로드 완료 - 게시글 IDX: {}, 성공 파일 수: {}", 
+                       boardIdx, uploadedAttachments.size());
 
             response.put("success", true);
             response.put("message", "첨부파일 업로드가 완료되었습니다.");
             response.put("boardIdx", boardIdx);
-            response.put("fileCount", files.size());
-            // response.put("attachments", uploadedAttachments);
+            response.put("fileCount", uploadedAttachments.size());
+            response.put("attachments", uploadedAttachments);
 
             return ResponseEntity.ok(response);
 
@@ -97,64 +97,9 @@ public class BoardAttachmentUploadController {
         }
     }
 
-    /**
-     * 단일 파일 업로드 API
-     * POST /api/board-attachments/upload-single/{boardIdx}
-     * @param boardIdx 게시글 IDX
-     * @param file 업로드할 파일
-     * @param request HTTP 요청 (토큰 검증용)
-     * @return 업로드 결과
-     */
-    @PostMapping("/upload-single/{boardIdx}")
-    public ResponseEntity<Map<String, Object>> uploadSingleFile(
-            @PathVariable Integer boardIdx,
-            @RequestParam("file") MultipartFile file,
-            HttpServletRequest request) {
-
-        Map<String, Object> response = new HashMap<>();
-        
-        try {
-            logger.info("단일 첨부파일 업로드 요청 - 게시글 IDX: {}, 파일명: {}", 
-                       boardIdx, file.getOriginalFilename());
-
-            // JWT 토큰 검증
-            String token = extractTokenFromRequest(request);
-            if (token == null || !jwtUtil.validateToken(token)) {
-                logger.warn("토큰 검증 실패 - 첨부파일 업로드 거부");
-                response.put("success", false);
-                response.put("message", "인증이 필요합니다.");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-            }
-
-            // TODO: 단일 첨부파일 업로드 처리 (Service 구현 후)
-            // BoardAttachmentTbl uploadedAttachment = attachmentService.uploadSingleFile(boardIdx, file);
-
-            // 임시 응답 (Service 구현 전)
-            logger.info("단일 첨부파일 업로드 요청 처리 완료 - 게시글 IDX: {}, 파일명: {}", 
-                       boardIdx, file.getOriginalFilename());
-
-            response.put("success", true);
-            response.put("message", "첨부파일 업로드가 완료되었습니다.");
-            response.put("boardIdx", boardIdx);
-            response.put("fileName", file.getOriginalFilename());
-            response.put("fileSize", file.getSize());
-            // response.put("attachment", uploadedAttachment);
-
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            logger.error("단일 첨부파일 업로드 실패 - 게시글 IDX: {}, 오류: {}", boardIdx, e.getMessage(), e);
-            
-            response.put("success", false);
-            response.put("message", "첨부파일 업로드 중 오류가 발생했습니다: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
-
     // ========== 유틸리티 메서드 ==========
 
-    /**
-     * HTTP 요청에서 JWT 토큰 추출
+    /* HTTP 요청에서 JWT 토큰 추출
      * @param request HTTP 요청
      * @return JWT 토큰 (없으면 null)
      */

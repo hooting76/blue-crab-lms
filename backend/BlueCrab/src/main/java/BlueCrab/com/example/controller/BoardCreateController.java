@@ -161,8 +161,16 @@ public class BoardCreateController {
             
             logger.info("BoardService.createBoard finished - result: {}", result.isPresent() ? "success" : "fail");
             if (result.isPresent()) {
-                logger.info("Board created successfully - ID: {}, title: {}", result.get().getBoardIdx(), result.get().getBoardTitle());
-                return ResponseEntity.ok(result.get());
+                BoardTbl createdBoard = result.get();
+                logger.info("Board created successfully - ID: {}, title: {}", createdBoard.getBoardIdx(), createdBoard.getBoardTitle());
+                
+                // 게시글 생성 성공 응답
+                return ResponseEntity.ok(java.util.Map.of(
+                    "success", true,
+                    "message", "게시글이 성공적으로 작성되었습니다.",
+                    "board", createdBoard,
+                    "boardIdx", createdBoard.getBoardIdx()
+                ));
             } else {
                 logger.warn("Board creation failed - no permission");
                 return ResponseEntity.status(403)
