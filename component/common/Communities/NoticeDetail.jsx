@@ -95,12 +95,8 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
   }
 };
 
-  const handleEdit = () => {
-    setCurrentPage("Admin 공지 작성")
-  }
-
   if (currentPage === "Admin 공지 작성") {
-    return <AdminNoticeWritingPage boardIdx={notice.boardIdx} notice={notice} accessToken={accessToken} setCurrentPage={setCurrentPage} />;
+    return <AdminNoticeWritingPage notice={notice} accessToken={accessToken} setCurrentPage={setCurrentPage} />;
   }
 
   return (
@@ -120,8 +116,6 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
       <div className="noticeDetailContent">{notice.boardContent}</div>
       
       <button className="noticeDeleteButton" onClick={() => handleDelete(accessToken, notice.boardIdx)}>공지 삭제</button>
-
-      <button className="noticeEditButton" onClick={handleEdit}>공지 수정</button>
     </div>
   );
 };

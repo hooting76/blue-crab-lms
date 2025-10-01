@@ -2,16 +2,23 @@
 import {useState} from "react";
 import "../../../css/Communities/Notice-ui.css";
 import "../../../css/Communities/NoticeDetailModal.css";
+import { UseAdmin } from "../../../hook/UseAdmin";
 import NoticeDetail from "../Communities/NoticeDetail";
+import AdminNoticeWritingPage from '../Communities/AdminNoticeWritingPage';
 
-export default function NoticeTable({ rows = [] }) {
+export default function NoticeTable({ rows = [], currentPage, setCurrentPage }) {
     const [selectedIdx, setSelectedIdx] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedNotice, setSelectedNotice] = useState(null);
 
     const openModal = (boardIdx) => {
-        setSelectedIdx(boardIdx);
-        setIsModalOpen(true);
+    const notice = rows.find(row => row.boardIdx === boardIdx);
+    console.log("선택된 공지:", notice);
+    setSelectedIdx(boardIdx);
+    setSelectedNotice(notice);
+    setIsModalOpen(true);
     };
+
 
     const closeModal = () => {
         setSelectedIdx(null);
@@ -21,6 +28,29 @@ export default function NoticeTable({ rows = [] }) {
     const formattedTime = (boardReg) => {
     return boardReg.replace('T', '\n').slice(0, 16);
     };
+    
+const { isAuthenticated: isAdminAuth } = UseAdmin() || { admin: null, isAuthenticated: false };
+
+        const handleEdit = () => {
+            setIsModalOpen(false);
+            setTimeout(() => {
+                setCurrentPage("Admin 공지 작성");
+            }, 0);
+        };
+
+
+
+  if (currentPage === "Admin 공지 작성") {
+    return selectedIdx && selectedNotice ? (
+        <AdminNoticeWritingPage
+        notice={selectedNotice}
+        setCurrentPage={setCurrentPage}
+        />
+    ) : (
+        <p>공지 정보를 불러오는 중입니다...</p>
+    );
+    }
+
 
     return(
         <>
@@ -55,12 +85,27 @@ export default function NoticeTable({ rows = [] }) {
                 <div className="modal-overlay" onClick={closeModal}>
                     <div
                         className="modal-content"
-                        onClick={(e) => e.stopPropagation()} // 내부 클릭 시 닫히지 않게
+                        onClick={(e) => e.stopPropagation()}
                     >
                         <button className="modal-close" onClick={closeModal}>
                             ✖
                         </button>
-                        <NoticeDetail boardIdx={selectedIdx} />
+                        <NoticeDetail
+                            boardIdx={selectedIdx}
+                            currentPage={currentPage}
+                            setCurrentPage={setCurrentPage}
+                        />
+
+                        {/* ✅ modal-content 내부로 이동 */}
+                        {isAdminAuth && (
+                            <button
+                                className="noticeEditButton"
+                                onClick={handleEdit}
+                                style={{ marginTop: '20px' }}
+                            >
+                                공지 수정
+                            </button>
+                        )}
                     </div>
                 </div>
             )}

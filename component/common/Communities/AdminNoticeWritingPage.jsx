@@ -8,7 +8,7 @@ import AdminNotice from './AdminNotice';
 import EtcNotice from './EtcNotice';
 
 
-function AdminNoticeWritingPage({ boardIdx, notice, accessToken: propToken, currentPage, setCurrentPage }) {
+function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, setCurrentPage }) {
   const editorRef = useRef();
   const [boardTitle, setBoardTitle] = useState(notice ? notice.boardTitle : '');
   const [boardCode, setBoardCode] = useState(
@@ -169,7 +169,7 @@ if (currentPage === "기타공지")
       <div>
         <label>카테고리</label><br />
         <select
-          value={boardCode ?? ''}
+          value={boardCode}
           onChange={(e) => setBoardCode(Number(e.target.value))}
           required
           style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
@@ -193,7 +193,7 @@ if (currentPage === "기타공지")
         />
       </div>
 
-      {typeof boardIdx !== 'undefined' && boardIdx !== null ? 
+      {notice ? 
         (<button type="button" onClick={handleEdit} style={{ marginTop: '20px', padding: '10px 20px' }}>
           수정하기
         </button>)

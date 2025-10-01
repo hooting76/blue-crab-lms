@@ -14,6 +14,8 @@ export default function NoticeList({
     size,
     onPageChange,
     onWrite,
+    currentPage,
+    setCurrentPage
 }) {
     // 사용자 컨텍스트
     const userContext = UseUser();
