@@ -95,6 +95,8 @@ const NoticeDetail = ({ boardIdx }) => {
   }
 };
 
+console.log("boardContent:", notice.boardContent);
+
   return (
     <div className="noticeDetailContainer">
       <div className="noticeDetailTitleAndCode">
