@@ -10,14 +10,20 @@ import EtcNotice from './EtcNotice';
 
 function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, setCurrentPage }) {
 
-  const decodeBase64 = (str) => {
+ const decodeBase64 = (str) => {
   try {
-    return decodeURIComponent(escape(window.atob(str)));
+    const cleanStr = str.replace(/\s/g, '');
+    const binary = atob(cleanStr);
+    const decoded = decodeURIComponent(Array.prototype.map.call(binary, (ch) =>
+      '%' + ('00' + ch.charCodeAt(0).toString(16)).slice(-2)
+    ).join(''));
+    return decoded;
   } catch (e) {
     console.error("Base64 디코딩 오류:", e);
     return "";
   }
 };
+
 
   const editorRef = useRef();
   const [boardTitle, setBoardTitle] = useState(notice ? decodeBase64(notice.boardTitle) : '');
