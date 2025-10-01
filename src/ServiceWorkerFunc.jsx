@@ -125,34 +125,34 @@
 
 
     // 백그라운드 동기화 등록
-    export async function registerBackgroundSync(registration) {
-        try {
-            await registration.sync.register('background-sync');
-            console.log('백그라운드 동기화 등록됨');
-        } catch (error) {
-            console.error('백그라운드 동기화 등록 실패:', error);
-        }
-    }; // 백그라운드 동기화 등록 end
+    // export async function registerBackgroundSync(registration) {
+    //     try {
+    //         await registration.sync.register('background-sync');
+    //         console.log('백그라운드 동기화 등록됨');
+    //     } catch (error) {
+    //         console.error('백그라운드 동기화 등록 실패:', error);
+    //     }
+    // }; // 백그라운드 동기화 등록 end
 
 
     // 주기적 백그라운드 동기화
-    export async function registerPeriodicSync(registration) {
-        try {
-            // 권한 상태 확인
-            const status = await navigator.permissions.query({
-                name: 'periodic-background-sync'
-            });
+    // export async function registerPeriodicSync(registration) {
+    //     try {
+    //         // 권한 상태 확인
+    //         const status = await navigator.permissions.query({
+    //             name: 'periodic-background-sync'
+    //         });
         
-            if (status.state === 'granted') {
-                await registration.periodicSync.register('news-sync', {
-                    minInterval: 24 * 60 * 60 * 1000 // 24시간
-                });
-                console.log('주기적 동기화 등록됨');
-            };
-        } catch (error) {
-            console.error('주기적 동기화 등록 실패:', error);
-        }
-    }; // 주기적 백그라운드 동기화 end
+    //         if (status.state === 'granted') {
+    //             await registration.periodicSync.register('news-sync', {
+    //                 minInterval: 24 * 60 * 60 * 1000 // 24시간
+    //             });
+    //             console.log('주기적 동기화 등록됨');
+    //         };
+    //     } catch (error) {
+    //         console.error('주기적 동기화 등록 실패:', error);
+    //     }
+    // }; // 주기적 백그라운드 동기화 end
 
 
     // 서비스 워커 업데이트 실행
@@ -208,7 +208,7 @@
         if (registration) {
             handleServiceWorkerUpdates(registration);
             checkCacheUpdatePolicy(registration);
-            await registerBackgroundSync(registration);
+            // await registerBackgroundSync(registration);
             
             // 정기적으로 업데이트 확인
             setInterval(() => {
