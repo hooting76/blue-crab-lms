@@ -159,7 +159,7 @@ if (currentPage === "기타공지")
         <label>제목</label><br />
         <input
           type="text"
-          value={boardTitle}
+          value={boardTitle ? boardTitle : ''}
           onChange={(e) => setBoardTitle(e.target.value)}
           required
           style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
@@ -169,7 +169,7 @@ if (currentPage === "기타공지")
       <div>
         <label>카테고리</label><br />
         <select
-          value={boardCode ?? ''}
+          value={boardCode ? boardCode : ''}
           onChange={(e) => setBoardCode(Number(e.target.value))}
           required
           style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
@@ -184,7 +184,7 @@ if (currentPage === "기타공지")
       <div>
         <label>본문</label>
         <Editor
-          ref={editorRef}
+          ref={editorRef ? editorRef : null}
           previewStyle="vertical"
           height="300px"
           initialEditType="wysiwyg"
@@ -193,7 +193,7 @@ if (currentPage === "기타공지")
         />
       </div>
 
-      {typeof boardIdx !== 'undefined' && boardIdx !== null ? 
+      {typeof boardTitle !== 'undefined' && boardTitle !== '' ? 
         (<button type="button" onClick={handleEdit} style={{ marginTop: '20px', padding: '10px 20px' }}>
           수정하기
         </button>)
