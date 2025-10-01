@@ -74,7 +74,7 @@ export const createNotice = async (accessToken, noticeData) => {
 export const updateNotice = async (accessToken, boardIdx, updateData) => {
   try {
     const response = await fetch(`${BASE_URL}/update/${boardIdx}`, {
-      method: 'PUT',
+      method: 'POST',
       headers: getHeaders(accessToken),
       body: JSON.stringify(updateData)
     });
@@ -90,7 +90,7 @@ export const updateNotice = async (accessToken, boardIdx, updateData) => {
 export const deleteNotice = async (accessToken, boardIdx) => {
   try {
     const response = await fetch(`${BASE_URL}/delete/${boardIdx}`, {
-      method: 'DELETE',
+      method: 'POST',
       headers: getHeaders(accessToken)
     });
     if (!response.ok) throw new Error('게시글 삭제에 실패했습니다.');
