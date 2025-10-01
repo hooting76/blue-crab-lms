@@ -131,9 +131,9 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
       </div>
       <div className="noticeDetailContent">{notice.boardContent}</div>
       
-      <button className="noticeDeleteButton" onClick={handleDelete}>공지 비활성화</button>
+      <button className="noticeDeleteButton" onClick={handleDelete()}>공지 비활성화</button>
 
-      <button className="noticeEditButton" onClick={handleEdit}>공지 수정</button>
+      <button className="noticeEditButton" onClick={handleEdit()}>공지 수정</button>
     </div>
   );
 };
