@@ -19,6 +19,24 @@ function LoginForm() {
         window.location.reload();
     };
 
+
+    // app install start=========
+    let deferredPrompt;
+    window.addEventListener("beforeinstallprompt", event => {
+        event.preventDefault();
+        deferredPrompt = event;
+    });
+
+    const installApp = () => {
+        if (!deferredPrompt) {
+            alert("이미 앱이 설치되어 있거나 앱을 설치할 수 없는 환경입니다");
+            return;
+        };
+        deferredPrompt.prompt();
+    };
+    // app install end=========
+
+    
     function handleInputChange(evt) {
         // regexr
         const regEmail  = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
@@ -97,7 +115,7 @@ function LoginForm() {
                 <h2 className={LoginFrm.h2}>
                     로그인
                     {
-                        <span>
+                        <span onClick={installApp}>
                             <FaDownload />
                         </span>
                     }

@@ -5,13 +5,13 @@ import Aside from '../common/Aside';
 import UserDashCss from '../../css/modules/UserDashboard.module.css';
 
 // firebase  service-worker config
-import PushNotificationManager from '../../firebase/PushNotification';
+import pushNotificationManager from '../../firebase/PushNotification';
 
 function UserDashboard() {
 
   //firebase start========================
     useEffect(() => {
-        const pushManager = new PushNotificationManager();
+        const pushManager = pushNotificationManager;
         pushManager.initialize();
     }, []);
   //firebase end===========================  
