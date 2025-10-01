@@ -1,15 +1,45 @@
 import "../../../css/Communities/NoticeDetail.css"
 import React, { useEffect, useState } from 'react';
 import { getNoticeDetail, deleteNotice } from '../../api/noticeAPI';
+import { UseUser } from "../../../hook/UseUser";
+import { UseAdmin } from "../../../hook/UseAdmin";
 import AdminNoticeWritingPage from './AdminNoticeWritingPage';
-import getAccessToken from "../../auth/getAccessToken";
 
 const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
   const [notice, setNotice] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+   // 사용자 컨텍스트
+    const userContext = UseUser();
+    const { user, isAuthenticated: isUserAuth } = userContext || { user: null, isAuthenticated: false };
+
+    // 관리자 컨텍스트
+    const adminContext = UseAdmin() || { admin: null, isAuthenticated: false };
+    const { admin, isAuthenticated: isAdminAuth } = adminContext;
+
+    // Admin 또는 User의 accessToken 가져오기
+    const getAccessToken = () => {
+        // 로컬스토리지에서 먼저 확인 (가장 최신 토큰)
+        const storedToken = localStorage.getItem('accessToken');
+        if (storedToken) return storedToken;
+
+        // Admin 토큰 확인
+        if (isAdminAuth && admin?.data?.accessToken) {
+            return admin.data.accessToken;
+        }
+
+        // User 토큰 확인
+        if (isUserAuth && user?.data?.accessToken) {
+            return user.data.accessToken;
+        }
+
+        return null;
+    };
+
     const accessToken = getAccessToken();
+
+    console.log("NoticeDetail accessToken: ", accessToken);
 
 
   // boardCode에 따른 공지 종류 반환
@@ -50,7 +80,7 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
       fetchData();
     }
   }, [accessToken, boardIdx]);
-
+  
 
   if (loading) return <div>불러오는 중...</div>;
   if (error) return <div>오류: {error}</div>;
