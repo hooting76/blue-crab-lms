@@ -1,0 +1,16 @@
+# Firebase 서비스 계정 키 파일들
+*.json
+client_secret_*.json
+service-account*.json
+firebase-*.json
+
+# Firebase 환경 설정 파일
+firebase.env
+.firebaserc
+firebase-debug.log
+
+# 기타 보안 관련 파일들
+*.pem
+*.key
+*.p12
+*.jks

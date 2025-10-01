@@ -60,6 +60,107 @@ curl -X POST http://localhost:8080/api/auth/login \
 - **Maven** - 빌드 도구
 - **WAR** - 배포 패키징 방식
 
+### Firebase Admin SDK 설정
+Firebase 기반 기능(예: FCM, Realtime DB, Cloud Messaging 등)을 사용하려면 `firebase.enabled` 속성을 활성화하고 서비스 계정 키를 제공해야 합니다.
+
+## 🔑 **인증 방법 (3가지 옵션)**
+
+⚠️ **중요**: Firebase 서비스 계정 JSON 파일은 **절대로 백엔드 소스코드 폴더에 저장하지 마세요!**
+- Git 저장소에 노출될 위험
+- WAR 파일에 포함되어 배포시 공개됨
+- 보안 키가 소스코드와 함께 관리됨
+
+### **방법 1: JSON 문자열로 직접 제공 (가장 권장)**
+파일 저장 없이 환경 변수로 JSON 내용을 직접 전달하는 가장 안전한 방법입니다.
+
+```bash
+# Firebase Console에서 다운로드한 JSON 파일 내용을 환경 변수로 설정
+export FIREBASE_CREDENTIALS_JSON='{"type":"service_account","project_id":"your-project","private_key_id":"...","private_key":"-----BEGIN PRIVATE KEY-----\n...","client_email":"...","client_id":"...","auth_uri":"...","token_uri":"..."}'
+export FIREBASE_ENABLED=true
+export FIREBASE_DATABASE_URL="https://<your-project-id>.firebaseio.com"
+```
+
+### **방법 2: 백엔드 외부 경로에 파일 저장**
+JSON 파일을 **소스코드 외부 안전한 경로**에 저장하고 경로를 지정하는 방법입니다.
+
+1. **안전한 경로에 저장** (데비안 서버)
+   ```bash
+   # 시스템 전용 디렉토리 생성
+   sudo mkdir -p /opt/firebase
+   sudo chmod 700 /opt/firebase
+   
+   # JSON 파일 저장 (SCP 또는 직접 생성)
+   sudo nano /opt/firebase/service-account.json
+   # 또는: scp client_secret_xxx.json user@server:/tmp/ && sudo mv /tmp/client_secret_xxx.json /opt/firebase/service-account.json
+   
+   # 권한 설정 (애플리케이션 사용자만 읽기 가능)
+   sudo chmod 600 /opt/firebase/service-account.json
+   sudo chown bluecrab:bluecrab /opt/firebase/service-account.json
+   ```
+
+2. **환경 변수 설정**
+   ```bash
+   export GOOGLE_APPLICATION_CREDENTIALS="/opt/firebase/service-account.json"
+   export FIREBASE_ENABLED=true
+   export FIREBASE_DATABASE_URL="https://<your-project-id>.firebaseio.com"
+   ```
+
+### **방법 3: Application Default Credentials (ADC)**
+Google Cloud 환경에서 자동으로 인증하는 방법입니다.
+
+```bash
+# Google Cloud VM, Cloud Run, GKE 등에서 자동 인증
+export FIREBASE_ENABLED=true
+export FIREBASE_DATABASE_URL="https://<your-project-id>.firebaseio.com"
+# 추가 credentials 설정 불필요
+```
+
+## ⚙️ **설정 확인**
+
+`src/main/resources/application.properties`에서 다음 속성들이 올바르게 설정되어 있는지 확인하세요:
+
+```properties
+firebase.enabled=${FIREBASE_ENABLED:false}
+firebase.credentials.json=${FIREBASE_CREDENTIALS_JSON:}
+firebase.credentials.location=${GOOGLE_APPLICATION_CREDENTIALS:}
+firebase.database.url=${FIREBASE_DATABASE_URL:}
+```
+
+## 🚀 **데비안 서버 배포 시 주의사항**
+
+### systemd 서비스 환경 파일 사용
+`/etc/systemd/system/bluecrab.service`에서 환경 파일을 참조:
+
+```ini
+[Service]
+EnvironmentFile=/opt/bluecrab/firebase.env
+ExecStart=/usr/bin/java -jar /opt/bluecrab/BlueCrab.war
+```
+
+`/opt/bluecrab/firebase.env` 파일:
+```bash
+FIREBASE_ENABLED=true
+FIREBASE_CREDENTIALS_JSON={"type":"service_account",...}
+FIREBASE_DATABASE_URL=https://your-project.firebaseio.com
+```
+
+### 시스템 전체 적용
+```bash
+# 전역 환경 변수 (모든 사용자)
+sudo tee /etc/profile.d/firebase.sh << 'EOF'
+export FIREBASE_ENABLED=true
+export FIREBASE_CREDENTIALS_JSON='...'
+EOF
+
+sudo chmod +x /etc/profile.d/firebase.sh
+```
+
+## 🔍 **초기화 확인**
+애플리케이션 시작 후 로그에서 다음 메시지 중 하나를 확인하세요:
+- `FirebaseApp initialized using credentials from JSON string`
+- `FirebaseApp initialized using credentials from file: /path/to/file`  
+- `FirebaseApp initialized using Application Default Credentials`
+
 ## 📁 디렉토리 구조
 
 ```

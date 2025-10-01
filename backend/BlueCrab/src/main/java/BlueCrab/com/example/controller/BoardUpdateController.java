@@ -50,8 +50,8 @@ public class BoardUpdateController {
     // ========== 게시글 수정 및 삭제 기능 ==========
 
     // 게시글 수정
-    @PutMapping("/update/{boardIdx}")
-    // 특정 게시글 수정을 위한 엔드포인트 매핑 (명확한 기능 구분: /api/boards/update/{boardIdx})
+    @PostMapping("/update/{boardIdx}")
+    // 특정 게시글 수정을 위한 엔드포인트 매핑 (POST 방식: /api/boards/update/{boardIdx})
     public ResponseEntity<?> updateBoard(@PathVariable Integer boardIdx, 
                                 @Valid @RequestBody BoardTbl updatedBoard, 
                                 BindingResult bindingResult,
@@ -134,8 +134,8 @@ public class BoardUpdateController {
     }
 
     // 게시글 삭제 (비활성화)
-    @DeleteMapping("/delete/{boardIdx}")
-    // 특정 게시글 삭제를 위한 엔드포인트 매핑 (명확한 기능 구분: /api/boards/delete/{boardIdx})
+    @PostMapping("/delete/{boardIdx}")
+    // 특정 게시글 삭제를 위한 엔드포인트 매핑 (POST 방식: /api/boards/delete/{boardIdx})
     public ResponseEntity<?> deleteBoard(@PathVariable Integer boardIdx, HttpServletRequest request) {
         
         logger.info("BoardUpdateController.deleteBoard called - ID: {}", boardIdx);
