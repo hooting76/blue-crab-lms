@@ -192,6 +192,7 @@ if (currentPage === "기타공지")
           previewStyle="vertical"
           height="300px"
           initialEditType="wysiwyg"
+          initialValue={notice?.boardContent || ''}
           useCommandShortcut={true}
           language="ko-KR"
         />
