@@ -15,8 +15,11 @@ export default function NoticeList({
     onPageChange,
     onWrite,
     currentPage,
-    setCurrentPage
+    setCurrentPage,
+    setSelectedNotice
 }) {
+
+
     // 사용자 컨텍스트
     const userContext = UseUser();
     const { user, isAuthenticated: isUserAuth } = userContext || { user: null, isAuthenticated: false };
@@ -95,6 +98,7 @@ export default function NoticeList({
 
       fetchNotices();
 
+
       return () => {
         alive = false;
       };
@@ -114,6 +118,7 @@ export default function NoticeList({
         //작성하기버튼 핸들러
         const handleWrite =() => {
             if(!isAdmin) return;
+            setSelectedNotice(null); //새글 작성시 기존 선택 초기화
             if(onWrite) return onWrite();     // 외부핸들러있으면 호출
         };
 
@@ -129,7 +134,17 @@ export default function NoticeList({
             )}
 
             {/* 표는 NoticeTable이 rows로 렌더(번호/제목/작성자/조회수/작성일) */}
-            <NoticeTable rows={rows} total={state.total} page={page} size={size} currentPage={currentPage} setCurrentPage={setCurrentPage}/>
+            <NoticeTable
+              rows={rows}
+              total={state.total}
+              page={page}
+              size={size}
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              selectedNotice={null}
+              setSelectedNotice={setSelectedNotice}
+            />
+
 
             {/* 하단 페이지네이션: URL basepath 제거, 상태 콜백만 사용 */}
             <Pagination

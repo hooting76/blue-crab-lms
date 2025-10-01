@@ -107,7 +107,7 @@ export const AdminProvider = ({ children }) => {
 
             if (result.success && result.data){
                 localStorage.setItem('accessToken', result.data.accessToken);
-                localStorage.setItem('Admin', result.data);
+                localStorage.setItem('Admin', JSON.stringify(result.data));
                 dispatch({ type: LOGIN_SUCCESS, payload: result.data });
                 return result.data, {success: true};
             }else{
@@ -142,7 +142,9 @@ export const AdminProvider = ({ children }) => {
             sessionStorage.removeItem('Admin');
         }
         localStorage.removeItem('Admin');
-        sessionStorage.removeItem('Admin');
+        localStorage.removeItem('sessionToken');
+        localStorage.removeItem('accessToken');
+
         dispatch({ type: LOGOUT });
         location.reload();
     }// logout func end
@@ -168,4 +170,4 @@ export const AdminProvider = ({ children }) => {
             {children}
         </AdminContext.Provider>
     )
-}
+};

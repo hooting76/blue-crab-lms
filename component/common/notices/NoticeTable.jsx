@@ -4,12 +4,10 @@ import "../../../css/Communities/Notice-ui.css";
 import "../../../css/Communities/NoticeDetailModal.css";
 import { UseAdmin } from "../../../hook/UseAdmin";
 import NoticeDetail from "../Communities/NoticeDetail";
-import AdminNoticeWritingPage from '../Communities/AdminNoticeWritingPage';
 
-export default function NoticeTable({ rows = [], currentPage, setCurrentPage }) {
+export default function NoticeTable({ rows, currentPage, setCurrentPage, setSelectedNotice }) {
     const [selectedIdx, setSelectedIdx] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedNotice, setSelectedNotice] = useState(null);
 
     const openModal = (boardIdx) => {
     const notice = rows.find(row => row.boardIdx === boardIdx);
@@ -18,7 +16,6 @@ export default function NoticeTable({ rows = [], currentPage, setCurrentPage }) 
     setSelectedNotice(notice);
     setIsModalOpen(true);
     };
-
 
     const closeModal = () => {
         setSelectedIdx(null);
@@ -32,22 +29,31 @@ export default function NoticeTable({ rows = [], currentPage, setCurrentPage }) 
 const { isAuthenticated: isAdminAuth } = UseAdmin() || { admin: null, isAuthenticated: false };
 
         const handleEdit = () => {
+            const notice = rows.find(row => row.boardIdx === selectedIdx);
+            setSelectedNotice(notice);
             setIsModalOpen(false);
+
             setTimeout(() => {
                 setCurrentPage("Admin 공지 작성");
             }, 0);
         };
 
-  if (currentPage === "Admin 공지 작성") {
-    return selectedNotice ? (
-        <AdminNoticeWritingPage
-        notice={selectedNotice}
-        />
-    ) : (
-        <p>공지 정보를 불러오는 중입니다...</p>
-    );
-    }
+    const decodeBase64 = (str) => {
+  try {
+    const cleanStr = str.replace(/\s/g, '');
+    const binary = atob(cleanStr);
+    const decoded = decodeURIComponent(Array.prototype.map.call(binary, (ch) =>
+      '%' + ('00' + ch.charCodeAt(0).toString(16)).slice(-2)
+    ).join(''));
+    return decoded;
+  } catch (e) {
+    console.error("Base64 디코딩 오류:", e);
+    return "";
+  }
+};
 
+
+console.log("Base64 원본:", notice.boardContent);
 
     return(
         <>
@@ -69,7 +75,7 @@ const { isAuthenticated: isAdminAuth } = UseAdmin() || { admin: null, isAuthenti
                     style={{ cursor: "pointer" }}
                     >
                         <td>{r.boardIdx}</td>
-                        <td>{r.boardTitle}</td>  
+                        <td>{decodeBase64(r.boardTitle)}</td>  
                         <td>{r.boardWriter}</td>
                         <td>{r.boardView}</td>
                         <td>{formattedTime(r.boardReg)}</td>

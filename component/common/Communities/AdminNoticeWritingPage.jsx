@@ -9,8 +9,24 @@ import EtcNotice from './EtcNotice';
 
 
 function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, setCurrentPage }) {
+
+ const decodeBase64 = (str) => {
+  try {
+    const cleanStr = str.replace(/\s/g, '');
+    const binary = atob(cleanStr);
+    const decoded = decodeURIComponent(Array.prototype.map.call(binary, (ch) =>
+      '%' + ('00' + ch.charCodeAt(0).toString(16)).slice(-2)
+    ).join(''));
+    return decoded;
+  } catch (e) {
+    console.error("Base64 디코딩 오류:", e);
+    return "";
+  }
+};
+
+
   const editorRef = useRef();
-  const [boardTitle, setBoardTitle] = useState(notice ? notice.boardTitle : '');
+  const [boardTitle, setBoardTitle] = useState(notice ? decodeBase64(notice.boardTitle) : '');
   const [boardCode, setBoardCode] = useState(
   typeof notice?.boardCode === 'number' ? notice.boardCode : null
 );
@@ -30,10 +46,17 @@ function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, s
   console.log("notice:", notice);
 
 useEffect(() => {
-    if (notice && notice.boardContent && editorRef.current) {
-        editorRef.current.getInstance().setMarkdown(notice.boardContent);
-    }
+  if (notice && notice.boardContent && editorRef.current) {
+    const decodedContent = decodeBase64(notice.boardContent);
+
+    // setTimeout 사용하여 Editor 렌더링 완료 후 Markdown 세팅
+    setTimeout(() => {
+      editorRef.current.getInstance().setMarkdown(decodedContent);
+    }, 0);
+  }
 }, [notice]);
+
+
 
  if (!isAuthenticated) {
   return <p>관리자 인증 정보를 불러오는 중입니다...</p>;
@@ -157,6 +180,7 @@ if (currentPage === "행정공지")
 if (currentPage === "기타공지")
     return <EtcNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
 
+
   return (
     <form>
       <div>
@@ -192,6 +216,7 @@ if (currentPage === "기타공지")
           previewStyle="vertical"
           height="300px"
           initialEditType="wysiwyg"
+          initialValue={''}
           useCommandShortcut={true}
           language="ko-KR"
         />

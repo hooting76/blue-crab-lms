@@ -3,7 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { getNoticeDetail, deleteNotice } from '../../api/noticeAPI';
 import { UseUser } from "../../../hook/UseUser";
 import { UseAdmin } from "../../../hook/UseAdmin";
-import AdminNoticeWritingPage from './AdminNoticeWritingPage';
+import { Viewer } from '@toast-ui/react-editor';
+import '@toast-ui/editor/dist/toastui-editor-viewer.css';
+
 
 const NoticeDetail = ({ boardIdx }) => {
   const [notice, setNotice] = useState(null);
@@ -38,8 +40,6 @@ const NoticeDetail = ({ boardIdx }) => {
     };
 
     const accessToken = getAccessToken();
-
-    console.log("NoticeDetail accessToken: ", accessToken);
 
 
   // boardCode에 따른 공지 종류 반환
@@ -95,10 +95,30 @@ const NoticeDetail = ({ boardIdx }) => {
   }
 };
 
+console.log("boardContent:", notice.boardContent);
+
+const decodeBase64 = (str) => {
+  try {
+    const cleanStr = str.replace(/\s/g, '');
+    const binary = atob(cleanStr);
+    const decoded = decodeURIComponent(Array.prototype.map.call(binary, (ch) =>
+      '%' + ('00' + ch.charCodeAt(0).toString(16)).slice(-2)
+    ).join(''));
+    return decoded;
+  } catch (e) {
+    console.error("Base64 디코딩 오류:", e);
+    return "";
+  }
+};
+
+
+const markdown = `# ${decodeBase64(notice.boardContent)}`;
+
+
   return (
     <div className="noticeDetailContainer">
       <div className="noticeDetailTitleAndCode">
-        <span className="noticeDetailTitle">제목 : {notice.boardTitle}</span>
+        <span className="noticeDetailTitle">제목 : {decodeBase64(notice.boardTitle)}</span>
         <span className="noticeDetailCode">{getNoticeCode(notice.boardCode)}</span>
       </div>
       <div className="noticeDetailWriterAndView">
@@ -109,7 +129,7 @@ const NoticeDetail = ({ boardIdx }) => {
         <span className="noticeDetailReg">작성일 : {formattedReg(notice.boardReg)}</span>
         <span className="noticeDetailLast">최종 수정일 : {formattedLatest(notice.boardLast, notice.boardReg)}</span>
       </div>
-      <div className="noticeDetailContent">{notice.boardContent}</div>
+      <Viewer initialValue={markdown}/>
       
       <button className="noticeDeleteButton" onClick={() => handleDelete(accessToken, notice.boardIdx)}>공지 삭제</button>
     </div>
