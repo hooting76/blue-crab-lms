@@ -99,15 +99,6 @@ export default function NoticeList({
 
       fetchNotices();
 
-      if (currentPage === "Admin 공지 작성") {
-        return (
-          <AdminNoticeWritingPage
-            notice={selectedNotice} // ✅ 상태를 전달
-            setCurrentPage={setCurrentPage}
-          />
-        );
-      }
-
 
       return () => {
         alive = false;

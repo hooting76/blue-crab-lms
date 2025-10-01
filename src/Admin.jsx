@@ -67,7 +67,7 @@ const renderPage = () => {
         case '기타공지':
           return <EtcNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
         case 'Admin 공지 작성':
-          return <AdminNoticeWritingPage currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
+          return <AdminNoticeWritingPage currentPage={currentPage} setCurrentPage={setCurrentPage} notice={selectedNotice}/>;
         default:
           return <AdminDashboard />;
       }

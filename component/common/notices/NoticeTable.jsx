@@ -11,13 +11,12 @@ export default function NoticeTable({ rows, currentPage, setCurrentPage, selecte
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const openModal = (boardIdx) => {
-    const notice = rows.find(row => String(row.boardIdx) === String(selectedIdx));
+    const notice = rows.find(row => row.boardIdx === boardIdx);
     console.log("선택된 공지:", notice);
     setSelectedIdx(notice.boardIdx);
     setSelectedNotice(notice);
     setIsModalOpen(true);
     };
-
 
     const closeModal = () => {
         setSelectedIdx(null);
@@ -37,17 +36,8 @@ const { isAuthenticated: isAdminAuth } = UseAdmin() || { admin: null, isAuthenti
 
             setTimeout(() => {
                 setCurrentPage("Admin 공지 작성");
-            }, 50);
+            }, 0);
         };
-
-  if (currentPage === "Admin 공지 작성") {
-    return (
-        <AdminNoticeWritingPage
-        notice={selectedNotice}
-        setCurrentPage={setCurrentPage}
-        />
-    );
-    }
 
 
     return(
