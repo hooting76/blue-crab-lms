@@ -15,7 +15,8 @@ export default function NoticeList({
     onPageChange,
     onWrite,
     currentPage,
-    setCurrentPage
+    setCurrentPage,
+    setSelectedNotice
 }) {
 
 
@@ -139,7 +140,7 @@ export default function NoticeList({
               size={size}
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
-              selectedNotice={selectedNotice}
+              selectedNotice={null}
               setSelectedNotice={setSelectedNotice}
             />
 
