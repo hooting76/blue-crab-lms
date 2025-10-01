@@ -2,6 +2,7 @@
 import {useState} from "react";
 import "../../../css/Communities/Notice-ui.css";
 import "../../../css/Communities/NoticeDetailModal.css";
+import { UseAdmin } from "../../../hook/UseAdmin";
 import NoticeDetail from "../Communities/NoticeDetail";
 import AdminNoticeWritingPage from '../Communities/AdminNoticeWritingPage';
 
@@ -22,6 +23,8 @@ export default function NoticeTable({ rows = [], currentPage, setCurrentPage }) 
     const formattedTime = (boardReg) => {
     return boardReg.replace('T', '\n').slice(0, 16);
     };
+    
+const { isAuthenticated: isAdminAuth } = UseAdmin() || { admin: null, isAuthenticated: false };
 
         const handleEdit = () => {
         setIsModalOpen(false); // 모달 닫기
