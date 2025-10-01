@@ -91,7 +91,8 @@ export const deleteNotice = async (accessToken, boardIdx) => {
   try {
     const response = await fetch(`${BASE_URL}/delete/${boardIdx}`, {
       method: 'POST',
-      headers: getHeaders(accessToken)
+      headers: getHeaders(accessToken),
+      body: JSON.stringify(accessToken)
     });
     if (!response.ok) throw new Error('게시글 삭제에 실패했습니다.');
     return await response.json();

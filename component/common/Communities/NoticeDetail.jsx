@@ -39,19 +39,8 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
 
     const accessToken = getAccessToken();
 
-    useEffect(() => {
-  console.log("admin: ", admin);
-}, []);
+    console.log("NoticeDetail accessToken: ", accessToken);
 
-
-    const currentAdminId = () => {
-      if (isAdminAuth && admin?.adminId) {
-          return admin.adminId;
-      }
-      return null;
-  };
-
-  console.log("currentAdminId: ", currentAdminId());
 
   // boardCode에 따른 공지 종류 반환
   const getNoticeCode = (boardCode) => {
@@ -92,7 +81,6 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
     }
   }, [accessToken, boardIdx]);
   
-  console.log("boardWriterId: ", notice?.boardWriterId);
 
   if (loading) return <div>불러오는 중...</div>;
   if (error) return <div>오류: {error}</div>;
@@ -131,7 +119,7 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
       </div>
       <div className="noticeDetailContent">{notice.boardContent}</div>
       
-      <button className="noticeDeleteButton" onClick={() => handleDelete(accessToken, notice.boardIdx)}>공지 비활성화</button>
+      <button className="noticeDeleteButton" onClick={() => handleDelete(accessToken, notice.boardIdx)}>공지 삭제</button>
 
       <button className="noticeEditButton" onClick={handleEdit}>공지 수정</button>
     </div>

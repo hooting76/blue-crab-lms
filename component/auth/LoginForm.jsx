@@ -82,8 +82,6 @@ function LoginForm() {
             return;
         };
         
-        clearError();
-        await login(email, password);
     };
 
     //enter key evt trigger
