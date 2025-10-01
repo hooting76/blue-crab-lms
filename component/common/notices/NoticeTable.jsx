@@ -5,6 +5,7 @@ import "../../../css/Communities/NoticeDetailModal.css";
 import { UseUser } from "../../../hook/UseUser";
 import { UseAdmin } from "../../../hook/UseAdmin";
 import NoticeDetail from "../Communities/NoticeDetail";
+import AdminNoticeWritingPage from './AdminNoticeWritingPage';
 
 export default function NoticeTable({ rows = [], currentPage, setCurrentPage }) {
     const [selectedIdx, setSelectedIdx] = useState(null);
