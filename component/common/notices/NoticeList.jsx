@@ -118,6 +118,7 @@ export default function NoticeList({
         //작성하기버튼 핸들러
         const handleWrite =() => {
             if(!isAdmin) return;
+            setSelectedNotice(null); //새글 작성시 기존 선택 초기화
             if(onWrite) return onWrite();     // 외부핸들러있으면 호출
         };
 

@@ -41,8 +41,6 @@ const NoticeDetail = ({ boardIdx }) => {
 
     const accessToken = getAccessToken();
 
-    console.log("NoticeDetail accessToken: ", accessToken);
-
 
   // boardCode에 따른 공지 종류 반환
   const getNoticeCode = (boardCode) => {
@@ -111,7 +109,7 @@ const NoticeDetail = ({ boardIdx }) => {
         <span className="noticeDetailReg">작성일 : {formattedReg(notice.boardReg)}</span>
         <span className="noticeDetailLast">최종 수정일 : {formattedLatest(notice.boardLast, notice.boardReg)}</span>
       </div>
-      <Viewer value={notice.boardContent}/>
+      <Viewer initialValue={notice.boardContent}/>
       
       <button className="noticeDeleteButton" onClick={() => handleDelete(accessToken, notice.boardIdx)}>공지 삭제</button>
     </div>
