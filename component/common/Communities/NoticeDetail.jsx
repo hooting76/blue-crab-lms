@@ -99,12 +99,18 @@ console.log("boardContent:", notice.boardContent);
 
 const decodeBase64 = (str) => {
   try {
-    return decodeURIComponent(escape(window.atob(str)));
+    const cleanStr = str.replace(/\s/g, '');
+    const binary = atob(cleanStr);
+    const decoded = decodeURIComponent(Array.prototype.map.call(binary, (ch) =>
+      '%' + ('00' + ch.charCodeAt(0).toString(16)).slice(-2)
+    ).join(''));
+    return decoded;
   } catch (e) {
     console.error("Base64 디코딩 오류:", e);
     return "";
   }
 };
+
 
 const markdown = `# ${decodeBase64(notice.boardContent)}`;
 
