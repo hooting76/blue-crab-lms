@@ -4,7 +4,7 @@ import { getNoticeDetail, deleteNotice } from '../../api/noticeAPI';
 import { UseUser } from "../../../hook/UseUser";
 import { UseAdmin } from "../../../hook/UseAdmin";
 
-const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
+const NoticeDetail = ({ boardIdx }) => {
   const [notice, setNotice] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

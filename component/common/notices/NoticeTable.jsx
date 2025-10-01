@@ -57,8 +57,10 @@ export default function NoticeTable({ rows = [], currentPage, setCurrentPage }) 
         const accessToken = getAccessToken();
 
         const handleEdit = () => {
-    setCurrentPage("Admin 공지 작성")
-  }
+        setIsModalOpen(false); // 모달 닫기
+        setCurrentPage("Admin 공지 작성");
+        };
+
 
   if (currentPage === "Admin 공지 작성") {
     return <AdminNoticeWritingPage boardIdx={selectedIdx} notice={selectedNotice} accessToken={accessToken} setCurrentPage={setCurrentPage} />;
