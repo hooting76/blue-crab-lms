@@ -8,11 +8,6 @@ import getAccessToken from "../../auth/getAccessToken";
 export default function NoticeTable({ rows = [], currentPage, setCurrentPage }) {
     const [selectedIdx, setSelectedIdx] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isEditing, setIsEditing] = useState(false);
-
-    const handleEditNotice = () => {
-    setIsEditing(true); // 수정 모드로 전환
-    };
 
     const openModal = (boardIdx) => {
         setSelectedIdx(boardIdx);
@@ -68,21 +63,18 @@ export default function NoticeTable({ rows = [], currentPage, setCurrentPage }) 
                         <button className="modal-close" onClick={closeModal}>
                             ✖
                         </button>
-                        {isEditing ? (
-                            <AdminNoticeWritingPage
+                        {currentPage === "Admin 공지 작성" ? (
+                        <AdminNoticeWritingPage
                             boardIdx={selectedIdx}
                             accessToken={accessToken}
-                            setIsEditing={setIsEditing} // 수정 완료 후 다시 상세로 돌아올 수 있게
                             setCurrentPage={setCurrentPage}
-                            closeModal={closeModal}
-                            />
+                        />
                         ) : (
-                            <NoticeDetail
+                        <NoticeDetail
                             boardIdx={selectedIdx}
-                            onEditClick={handleEditNotice}
                             currentPage={currentPage}
                             setCurrentPage={setCurrentPage}
-                            />
+                        />
                         )}
 
                     </div>

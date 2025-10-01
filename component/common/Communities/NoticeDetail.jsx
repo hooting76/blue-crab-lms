@@ -4,7 +4,7 @@ import { getNoticeDetail, deleteNotice } from '../../api/noticeAPI';
 import AdminNoticeWritingPage from './AdminNoticeWritingPage';
 import getAccessToken from "../../auth/getAccessToken";
 
-const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage, onEditClick }) => {
+const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
   const [notice, setNotice] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -66,7 +66,7 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage, onEditClick }) =>
 };
 
   const handleEdit = () => {
-    if (onEditClick) onEditClick();
+    setCurrentPage("Admin 공지 작성")
   }
 
   if (currentPage === "Admin 공지 작성") {
