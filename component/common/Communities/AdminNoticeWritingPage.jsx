@@ -9,8 +9,18 @@ import EtcNotice from './EtcNotice';
 
 
 function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, setCurrentPage }) {
+
+  const decodeBase64 = (str) => {
+  try {
+    return decodeURIComponent(escape(window.atob(str)));
+  } catch (e) {
+    console.error("Base64 디코딩 오류:", e);
+    return "";
+  }
+};
+
   const editorRef = useRef();
-  const [boardTitle, setBoardTitle] = useState(notice ? notice.boardTitle : '');
+  const [boardTitle, setBoardTitle] = useState(notice ? decodeBase64(notice.boardTitle) : '');
   const [boardCode, setBoardCode] = useState(
   typeof notice?.boardCode === 'number' ? notice.boardCode : null
 );
@@ -156,6 +166,7 @@ if (currentPage === "행정공지")
     return <AdminNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
 if (currentPage === "기타공지")
     return <EtcNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
+
 
   return (
     <form>

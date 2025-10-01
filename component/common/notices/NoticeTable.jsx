@@ -38,6 +38,16 @@ const { isAuthenticated: isAdminAuth } = UseAdmin() || { admin: null, isAuthenti
             }, 0);
         };
 
+    const decodeBase64 = (str) => {
+    try {
+        return decodeURIComponent(escape(window.atob(str)));
+    } catch (e) {
+        console.error("Base64 디코딩 오류:", e);
+        return "";
+    }
+    };
+
+
 
     return(
         <>
@@ -59,7 +69,7 @@ const { isAuthenticated: isAdminAuth } = UseAdmin() || { admin: null, isAuthenti
                     style={{ cursor: "pointer" }}
                     >
                         <td>{r.boardIdx}</td>
-                        <td>{r.boardTitle}</td>  
+                        <td>{decodeBase64(r.boardTitle)}</td>  
                         <td>{r.boardWriter}</td>
                         <td>{r.boardView}</td>
                         <td>{formattedTime(r.boardReg)}</td>
