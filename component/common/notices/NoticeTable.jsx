@@ -12,11 +12,13 @@ export default function NoticeTable({ rows = [], currentPage, setCurrentPage }) 
     const [selectedNotice, setSelectedNotice] = useState(null);
 
     const openModal = (boardIdx) => {
-       const notice = rows.find(row => row.boardIdx === boardIdx);
-        setSelectedIdx(boardIdx);
-        setSelectedNotice(notice);  // ✅ notice 전체 정보 저장
-        setIsModalOpen(true);
+    const notice = rows.find(row => row.boardIdx === boardIdx);
+    console.log("선택된 공지:", notice);
+    setSelectedIdx(boardIdx);
+    setSelectedNotice(notice);
+    setIsModalOpen(true);
     };
+
 
     const closeModal = () => {
         setSelectedIdx(null);

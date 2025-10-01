@@ -33,6 +33,8 @@ useEffect(() => {
     }
 }, [notice]);
 
+console.log("boardIdx:", boardIdx);
+
  if (!isAuthenticated) {
   return <p>관리자 인증 정보를 불러오는 중입니다...</p>;
 }
@@ -184,7 +186,7 @@ if (currentPage === "기타공지")
       <div>
         <label>본문</label>
         <Editor
-          ref={editorRef ? editorRef : null}
+          ref={editorRef}
           previewStyle="vertical"
           height="300px"
           initialEditType="wysiwyg"
@@ -193,7 +195,7 @@ if (currentPage === "기타공지")
         />
       </div>
 
-      {typeof boardTitle !== 'undefined' && boardTitle !== '' ? 
+      {boardIdx ? 
         (<button type="button" onClick={handleEdit} style={{ marginTop: '20px', padding: '10px 20px' }}>
           수정하기
         </button>)
