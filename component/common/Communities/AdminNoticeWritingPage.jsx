@@ -97,6 +97,8 @@ const handleSubmit = async (e) => {
 const handleEdit = async (e) => {
   e.preventDefault();
 
+  const boardIdx = notice?.boardIdx;
+
   const boardContent = editorRef.current.getInstance().getMarkdown();
   if (!boardTitle || boardCode === null || !boardContent.trim()) {
     alert('모든 필드를 입력해주세요.');

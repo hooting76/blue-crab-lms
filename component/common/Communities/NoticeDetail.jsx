@@ -5,7 +5,7 @@ import { UseUser } from "../../../hook/UseUser";
 import { UseAdmin } from "../../../hook/UseAdmin";
 import AdminNoticeWritingPage from './AdminNoticeWritingPage';
 
-const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
+const NoticeDetail = ({ boardIdx }) => {
   const [notice, setNotice] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -94,10 +94,6 @@ const NoticeDetail = ({ boardIdx, currentPage, setCurrentPage }) => {
     alert("삭제 중 오류 발생: " + error.message);
   }
 };
-
-  if (currentPage === "Admin 공지 작성") {
-    return <AdminNoticeWritingPage notice={notice} accessToken={accessToken} setCurrentPage={setCurrentPage} />;
-  }
 
   return (
     <div className="noticeDetailContainer">
