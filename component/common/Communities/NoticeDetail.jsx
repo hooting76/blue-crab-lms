@@ -4,7 +4,8 @@ import { getNoticeDetail, deleteNotice } from '../../api/noticeAPI';
 import { UseUser } from "../../../hook/UseUser";
 import { UseAdmin } from "../../../hook/UseAdmin";
 import { Viewer } from '@toast-ui/react-editor';
-import '@toast-ui/editor/dist/toastui-editor-viewer.css';​
+import '@toast-ui/editor/dist/toastui-editor-viewer.css';
+
 
 const NoticeDetail = ({ boardIdx }) => {
   const [notice, setNotice] = useState(null);
