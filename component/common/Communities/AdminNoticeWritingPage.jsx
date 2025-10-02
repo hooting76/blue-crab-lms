@@ -10,7 +10,23 @@ import EtcNotice from './EtcNotice';
 
 function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, setCurrentPage }) {
 
+  console.log("디코딩 대상:", notice?.boardContent);
+
+  function isBase64(str) {
+  // Base64 정규 표현식 검사
+  try {
+    return btoa(atob(str)) === str;
+  } catch (err) {
+    return false;
+  }
+}
+
 function decodeBase64(str) {
+  if (!isBase64(str)) {
+    console.warn("Base64 아님:", str);
+    return str; // 원본 반환
+  }
+
   try {
     const binary = atob(str);
     const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
@@ -18,9 +34,10 @@ function decodeBase64(str) {
     return decoder.decode(bytes);
   } catch (e) {
     console.error("Base64 디코딩 오류:", e);
-    return "";
+    return str; // 디코딩 실패시 원본 반환
   }
 }
+
 
 
 
