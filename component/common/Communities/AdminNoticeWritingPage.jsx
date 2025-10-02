@@ -177,6 +177,8 @@ if (currentPage === "행정공지")
 if (currentPage === "기타공지")
     return <EtcNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
 
+console.log("boardContent:", notice ? decodeBase64(notice.boardContent) : '');
+
 
   return (
     <form>
@@ -205,6 +207,7 @@ if (currentPage === "기타공지")
           <option value={2}>기타공지</option>
         </select>
       </div>
+
 
       <div>
         <label>본문</label>
