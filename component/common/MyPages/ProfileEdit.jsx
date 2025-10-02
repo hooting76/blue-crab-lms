@@ -77,6 +77,18 @@ export default function ProfileEdit() {
     };
   }, [imageUrl]);
 
+    // 학생 전공 텍스트 (form이 로드된 뒤 계산)
+  const majorText = useMemo(() => {
+    if (!form) return '-';
+      return (
+        form.majorDeptCode?.trim() ||
+        form.majorCode?.trim() ||
+        form.userTypeText?.trim() ||
+        '-'
+  );
+}, [form]);
+  
+
   const fullAddress = useMemo(() => {
     if (!form) return '';
     return form.zipCode
