@@ -22,22 +22,18 @@ function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, s
 }
 
 function decodeBase64(str) {
-  if (!isBase64(str)) {
-    console.warn("Base64 아님:", str);
-    return str; // 원본 반환
+  if (typeof str !== 'string' || str.trim() === '') {
+    console.warn("Base64 디코딩 대상이 없음 또는 잘못된 입력:", str);
+    return '';
   }
 
   try {
-    const binary = atob(str);
-    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
-    const decoder = new TextDecoder('utf-8');
-    return decoder.decode(bytes);
+    return decodeURIComponent(escape(atob(str)));
   } catch (e) {
     console.error("Base64 디코딩 오류:", e);
-    return str; // 디코딩 실패시 원본 반환
+    return str;
   }
 }
-
 
 
 
@@ -62,13 +58,11 @@ function decodeBase64(str) {
   console.log("notice:", notice);
 
 useEffect(() => {
-  if (notice?.boardContent && editorRef.current) {
+  if (typeof notice?.boardContent === 'string' && editorRef.current) {
     const decodedContent = decodeBase64(notice.boardContent);
     editorRef.current.getInstance().setMarkdown(decodedContent);
   }
-}, [editorRef.current, notice]);
-
-
+}, [notice, editorRef]);
 
 
  if (!isAuthenticated) {
@@ -232,7 +226,11 @@ console.log("boardContent:", notice ? decodeBase64(notice.boardContent) : '');
           previewStyle="vertical"
           height="300px"
           initialEditType="wysiwyg"
-          initialValue={notice ? notice.boardContent : ''}
+          initialValue={
+            typeof notice?.boardContent === 'string'
+              ? decodeBase64(notice.boardContent)
+              : ''
+          }
           useCommandShortcut={true}
           language="ko-KR"
         />
