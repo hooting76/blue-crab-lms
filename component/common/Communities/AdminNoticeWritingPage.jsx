@@ -12,11 +12,6 @@ function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, s
 
   console.log("디코딩 대상:", notice?.boardContent);
 
-  if (notice && (notice.boardContent === undefined || notice.boardContent === null)) {
-  return <p>공지 데이터를 불러오는 중입니다...</p>;
-}
-
-
 function decodeBase64(str) {
   if (typeof str !== 'string' || str.trim() === '') {
     console.warn("Base64 디코딩 대상이 없음 또는 잘못된 입력:", str);
