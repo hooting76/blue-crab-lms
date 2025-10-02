@@ -6,22 +6,25 @@ package BlueCrab.com.example.entity;
 // ========== 임포트 구문 ==========
 
 // ========== Java 표준 라이브러리 ==========
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 // ========== JPA 어노테이션 ==========
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 // ========== Validation 어노테이션 ==========
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "BOARD_TBL")
@@ -227,6 +230,44 @@ public class BoardTbl {
                 ", boardWriterIdx=" + boardWriterIdx +
                 ", boardWriterType=" + boardWriterType +
                 '}';
+    }
+
+
+
+    // ========== 첨부파일 IDX 관리 유틸리티 메서드 추가 ==========
+
+    // 첨부파일 IDX 목록을 BOARD_FILE 컬럼에 쉼표 구분으로 저장
+    public void setAttachmentIdx(List<Integer> attachmentIdx) {
+        if (attachmentIdx != null && !attachmentIdx.isEmpty()) {
+            // 첨부파일 IDX가 null이거나 비어있지 않은 경우
+            this.boardFile = attachmentIdx.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
+                // List<Integer>를 String으로 변환하여 쉼표로 연결
+        } else {
+            // 첨부파일 목록이 null이거나 비어있을 경우
+            this.boardFile = null;
+            // boardFile 필드를 null로 설정
+        }
+    }
+
+    // BOARD_FILE 컬럼에서 첨부파일 IDX 목록을 파싱하여 반환
+    public List<Integer> getAttachmentIdx() {
+        if (boardFile == null || boardFile.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        return Arrays.stream(boardFile.split(","))
+            .filter(id -> !id.trim().isEmpty())
+            .map(String::trim)
+            .filter(id -> id.matches("\\d+"))  // 숫자만 허용
+            .map(Integer::parseInt)
+            .collect(Collectors.toList());
+    }
+
+    // 첨부파일이 있는지 확인
+    public boolean hasAttachments() {
+        return boardFile != null && !boardFile.trim().isEmpty();
     }
 
 } // BoardTbl 끝
