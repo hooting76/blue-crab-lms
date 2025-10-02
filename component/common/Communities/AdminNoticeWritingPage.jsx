@@ -35,9 +35,7 @@ function decodeBase64(str) {
 
   const editorRef = useRef();
   const [boardTitle, setBoardTitle] = useState('');
-  const [boardCode, setBoardCode] = useState(
-  typeof notice?.boardCode === 'number' ? notice.boardCode : null
-);
+  const [boardCode, setBoardCode] = useState(null);
   const { isAuthenticated } = UseAdmin();
 
   const getAccessToken = () => {
@@ -58,8 +56,7 @@ useEffect(() => {
     setBoardTitle(decodeBase64(notice.boardTitle));
   }
   if (typeof notice?.boardContent === 'string' && editorRef.current) {
-    const decodedContent = decodeBase64(notice.boardContent);
-    editorRef.current.getInstance().setMarkdown(decodedContent);
+    editorRef.current.getInstance().setMarkdown(decodeBase64(notice.boardContent));
   }
   if (typeof notice?.boardCode === 'number') {
     setBoardCode(notice.boardCode);
