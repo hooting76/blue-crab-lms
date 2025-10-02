@@ -10,9 +10,6 @@ import EtcNotice from './EtcNotice';
 
 function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, setCurrentPage }) {
 
-  console.log("notice:", notice);
-  console.log("디코딩 대상:", notice?.boardContent);
-
 function decodeBase64(str) {
   if (typeof str !== 'string' || str.trim() === '') {
     console.warn("Base64 디코딩 대상이 없음 또는 잘못된 입력:", str);
@@ -26,7 +23,6 @@ function decodeBase64(str) {
     return str;
   }
 }
-
 
 
   const editorRef = useRef();
@@ -45,7 +41,6 @@ function decodeBase64(str) {
 
   const accessToken = propToken || getAccessToken();  // ✅ props가 없으면 직접 가져오기
 
-  console.log("notice:", notice);
 
 useEffect(() => {
   if (notice?.boardTitle) {
@@ -99,7 +94,6 @@ const handleSubmit = async (e) => {
       body: JSON.stringify(NoticeByAdmin),
     });
 
-    console.log('accessToken:', accessToken); // 디버그용
 
     if (!response.ok) {
       throw new Error('서버 에러가 발생했습니다.');
@@ -182,8 +176,6 @@ if (currentPage === "행정공지")
     return <AdminNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
 if (currentPage === "기타공지")
     return <EtcNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
-
-console.log("boardContent:", notice ? decodeBase64(notice.boardContent) : '');
 
 
   return (

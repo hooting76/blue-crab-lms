@@ -97,7 +97,6 @@ const NoticeDetail = ({ boardIdx, onFetchComplete }) => {
   }
 };
 
-console.log("boardContent:", notice.boardContent);
 
 const decodeBase64 = (str) => {
   try {
