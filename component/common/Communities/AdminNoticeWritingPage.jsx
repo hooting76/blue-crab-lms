@@ -10,19 +10,18 @@ import EtcNotice from './EtcNotice';
 
 function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, setCurrentPage }) {
 
- const decodeBase64 = (str) => {
+function decodeBase64(str) {
   try {
-    const cleanStr = str.replace(/\s/g, '');
-    const binary = atob(cleanStr);
-    const decoded = decodeURIComponent(Array.prototype.map.call(binary, (ch) =>
-      '%' + ('00' + ch.charCodeAt(0).toString(16)).slice(-2)
-    ).join(''));
-    return decoded;
+    const binary = atob(str);
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    const decoder = new TextDecoder('utf-8');
+    return decoder.decode(bytes);
   } catch (e) {
     console.error("Base64 디코딩 오류:", e);
     return "";
   }
-};
+}
+
 
 
   const editorRef = useRef();
