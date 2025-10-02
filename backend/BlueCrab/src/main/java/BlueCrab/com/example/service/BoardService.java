@@ -96,6 +96,20 @@ public class BoardService {
         // Optional로 감싸서 반환 (존재하지 않을 수도 있으므로)
     }   // getBoardDetail 끝
 
+    // ========== 게시글 수정 관련 메서드 ==========
+
+    // 게시글 ID로 조회 (활성 게시글만, 조회수 증가 없음)
+    @Transactional(readOnly = true)
+    public Optional<BoardTbl> findById(Integer boardIdx) {
+        return boardRepository.findByBoardIdxAndBoardOn(boardIdx, BOARD_ACTIVE);
+    }   // findById 끝
+
+    // 게시글 업데이트 (첨부파일 연결 등)
+    @Transactional
+    public BoardTbl updateBoard(BoardTbl board) {
+        return boardRepository.save(board);
+    }   // updateBoard 끝
+
     // ========== 검색 관련 메서드 ==========
     
     // 향후 추가 예정:
