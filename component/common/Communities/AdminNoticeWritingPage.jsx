@@ -12,14 +12,10 @@ function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, s
 
   console.log("디코딩 대상:", notice?.boardContent);
 
-  function isBase64(str) {
-  // Base64 정규 표현식 검사
-  try {
-    return btoa(atob(str)) === str;
-  } catch (err) {
-    return false;
-  }
+  if (notice && (notice.boardContent === undefined || notice.boardContent === null)) {
+  return <p>공지 데이터를 불러오는 중입니다...</p>;
 }
+
 
 function decodeBase64(str) {
   if (typeof str !== 'string' || str.trim() === '') {
