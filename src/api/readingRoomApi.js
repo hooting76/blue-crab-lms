@@ -9,11 +9,13 @@ import { readAccessToken } from '../utils/readAccessToken';
 const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/reading-room';
 const REQ_TIMEOUT_MS = 10000; // 10s
 
+// 공통 헤더: 모든 엔드포인트가 JSON 바디 요구(명세 기준)
 const getHeaders = (token) => ({
   'Authorization': `Bearer ${token}`,
   'Content-Type': 'application/json',
 });
 
+// 타임아웃 래퍼
 const fetchWithTimeout = (url, opts = {}, ms = REQ_TIMEOUT_MS) =>
   Promise.race([
     fetch(url, opts),
@@ -48,17 +50,27 @@ async function postRetry401(path, bodyObj) {
 
 async function ensureOkJson(res, fallbackMsg) {
   const payload = await parseJsonSafe(res);
+
+  // [FIX] 4xx/5xx인 경우에도 payload를 에러 객체에 부착해서
+  //       catch에서 e?.payload?.errorCode 매핑이 가능하도록 한다.
   if (!res.ok) {
     const msg = typeof payload === 'object' ? (payload.message || fallbackMsg) : fallbackMsg;
-    throw new Error(msg);
+    const err = new Error(msg);
+    // [FIX] 항상 payload를 달아줌(문자열이면 raw로 래핑)
+    err.payload = (typeof payload === 'object') ? payload : { raw: payload };
+    err.status = res.status; // 상태코드도 함께
+    throw err;
   }
+
+  // [기존 유지] success=false 응답도 에러로 처리
   if (typeof payload === 'object' && payload.success === false) {
     const msg = payload.message || payload.errorCode || fallbackMsg;
     const err = new Error(msg);
-    err.payload = payload;
+    err.payload = payload;            // [확인] 이 경로도 payload 유지
+    err.status = res.status || 200;
     throw err;
   }
-  return payload; // { success, message, data, ... }
+  return payload; // { success, message, data, ... } 또는 텍스트
 }
 
 // 서버 → 프론트 표준 DTO 매핑 (명세서 기반)
@@ -113,6 +125,7 @@ export async function reserveSeat(seatId) {
       e?.payload?.errorCode === 'SEAT_ALREADY_OCCUPIED' ? 'occupied' :
       e?.payload?.errorCode === 'USER_ALREADY_RESERVED' ? 'already_reserved' :
       e?.payload?.errorCode === 'INVALID_SEAT_NUMBER'   ? 'invalid_seat' :
+      e?.payload?.errorCode === 'MISSING_REQUIRED_PARAMETER' ? 'missing_param' :
       'unknown';
     return { ok: false, code, message: e.message };
   }
@@ -150,7 +163,6 @@ export async function releaseSeat(seatId) {
 //  - 예약 없음: { ok:true, data:null }
 //  - 실패:     { ok:false, message }
 // ─────────────────────────────────────────────
-
 export async function getMyReservation() {
   try {
     await ensureAccessTokenOrRedirect();

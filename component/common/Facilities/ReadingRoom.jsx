@@ -20,7 +20,7 @@ export default function ReadingRoom() {
   const [isReserving, setIsReserving] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
 
-  const [mySeatNo, setMySeatNo] = useState(null); // ★ 내 좌석 seatNumber
+  const [mySeatNo, setMySeatNo] = useState(null); // 내 좌석 seatNumber
 
   const cardRef = useRef(null);
 
@@ -214,10 +214,10 @@ export default function ReadingRoom() {
       <div className="guide-title">이용 안내</div>
       <div className="guide-body">
         <p>클릭 시 자리 예약이 가능합니다.</p>
-        <p>내 좌석(파란색)을 클릭하면 <b>퇴실</b>할 수 있습니다.</p>
+        <p>내 좌석(<b style={{ color: '#3B82F6' }}>파란색</b>)을 클릭하면 <b>퇴실</b>할 수 있습니다.</p>
       <ul>
-        <li><b>초록</b>: 예약가능 좌석</li>
-        <li><b>핑크</b>: 사용중인 좌석</li>
+        <li><b style={{ color: '#20c933' }}>초록</b>: 예약가능 좌석</li>
+        <li><b style={{ color: '#ff4db8' }}>핑크</b>: 사용중인 좌석</li>
         <li><b style={{ color: '#3B82F6' }}>파란색</b>: 내 좌석</li>
       </ul>
       </div>
