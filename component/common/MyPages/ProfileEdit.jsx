@@ -1,6 +1,7 @@
 // src/component/common/MyPages/ProfileEdit.jsx
 import { useEffect, useMemo, useState } from 'react';
 import { getMyProfile, getMyProfileImage } from '../../../src/api/profileApi';
+import '../../../css/MyPages/ProfileEdit.css';
 
 // 전화번호 자동 하이픈
 const phoneMask = (v='') =>
@@ -132,72 +133,79 @@ export default function ProfileEdit() {
   return (
     <div id="bc-profile"> 
       <div className="profile-card">
-        <h2 className="profile-title">마이페이지</h2>
+        <h2 className="profile-title">개인정보 수정</h2>
 
         {/* 상단 프로필 헤더 */}
-      <div style={{ display:'flex', gap:16, alignItems:'center', marginBottom:12 }}>
+      <div style={{ display:'flex', gap:14, alignItems:'center', marginBottom:16 }}>
         <img
           src={imageUrl || '/assets/default-profile.png'}
           alt="프로필"
-          className="avatar"/>
-        <div>
-          <div style={{ fontWeight:700 }}>{form.userName}</div>
-          <div style={{ color:'#667' }}>{form.userEmail}</div>
+          className="avatar"
+          style={{ width:48, height:48 }}  
+          />
+      <div>
+        <div style={{ fontWeight:700, fontSize:16, lineHeight:1.15 }}>{form.userName}</div>
+        <div style={{ color:'#111', fontSize:13, fontWeight:600 }}>
+          전공&nbsp;|&nbsp;<span style={{ color:'#111', fontWeight:600 }}>{majorText}</span>
         </div>
       </div>
+    </div>
 
-      {/* 폼: 2열 그리드 */}
-      <div className="form-grid">
-        <label className="field"><span>이름</span>
-          <input value={form.userName} onChange={onChange('userName')} />
-        </label>
+        {/* 폼: 한 줄(라벨 | 인풋) 세로 정렬 */}
+        <div className="form-grid">
+          <label className="field">
+            <span>이름</span>
+            <input value={form.userName} onChange={onChange('userName')} />
+          </label>
 
-        <label className="field"><span>이메일</span>
-          <input value={form.userEmail} readOnly />
-        </label>
+          <label className="field">
+            <span>이메일</span>
+            <input value={form.userEmail} readOnly />
+          </label>
 
-        <label className="field"><span>전화번호</span>
-          <input value={phoneMask(form.userPhone)} onChange={onChange('userPhone')} inputMode="numeric" />
-        </label>
+          <label className="field">
+            <span>휴대폰</span>
+            <input value={phoneMask(form.userPhone)} onChange={onChange('userPhone')} inputMode="numeric" />
+          </label>
 
-        <label className="field"><span>생년월일(YYYYMMDD)</span>
-          <input value={form.birthDate} onChange={onChange('birthDate')} inputMode="numeric" />
-        </label>
+          <label className="field">
+            <span>주소</span>
+            <input value={form.mainAddress} onChange={onChange('mainAddress')} />
+          </label>
+          
+          <label className="field">
+            <span>생년월일</span>
+            <input value={form.birthDate} onChange={onChange('birthDate')} inputMode="numeric" />
+          </label>
 
-      <div className="addr-row" style={{ gridColumn: '1 / -1' }}>
-        <label className="field">
-          <span>우편번호</span>
-          <input value={form.zipCode} onChange={onChange('zipCode')} inputMode="numeric" />
-      </label>
+          <label className="field">
+            <span>우편번호</span>
+            <input value={form.zipCode} onChange={onChange('zipCode')} inputMode="numeric" />
+          </label>
 
-        <label className="field">
-          <span>주소</span>
-          <input value={form.mainAddress} onChange={onChange('mainAddress')} />
-      </label>
-        </div>
-
-
-        <label className="field" style={{ gridColumn: '1 / -1' }}>
-          <span>상세주소</span>
-          <input value={form.detailAddress} onChange={onChange('detailAddress')} />
-        </label>
+          <label className="field">
+            <span>상세주소</span>
+            <input value={form.detailAddress} onChange={onChange('detailAddress')} />
+          </label>
 
           <div className="addr-summary" style={{ gridColumn: '1 / -1' }}>
             전체 주소: {fullAddress}
           </div>
+          
         </div>
 
-        <div className="actions" style={{ marginTop:12 }}>
-          <button className="btn-primary" onClick={onSave} title="저장 API 준비 중">저장</button>
-          <button className="btn-ghost" onClick={onCancel}>취소</button>
+        {/* 하단 우측 버튼 */}
+        <div className="actions">
+          <button className="btn secondary" onClick={onCancel}>취소</button>
+          <button className="btn" onClick={onSave} title="저장 API 준비 중">저장</button>
         </div>
 
-          {msg && (
+        {msg && (
           <div style={{ marginTop:8, color: msg.startsWith('저장') ? '#0a7' : '#d00' }}>
             {msg}
           </div>
         )}
-        </div>
       </div>
+    </div>
   );
 }
