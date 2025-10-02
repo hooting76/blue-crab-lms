@@ -7,7 +7,7 @@ import { Viewer } from '@toast-ui/react-editor';
 import '@toast-ui/editor/dist/toastui-editor-viewer.css';
 
 
-const NoticeDetail = ({ boardIdx }) => {
+const NoticeDetail = ({ boardIdx, onFetchComplete }) => {
   const [notice, setNotice] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -65,21 +65,23 @@ const NoticeDetail = ({ boardIdx }) => {
   }
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getNoticeDetail(accessToken, boardIdx);
-        setNotice(data);
-      } catch (err) {
-        setError(err.message || '데이터를 불러오는데 실패했습니다.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (accessToken && boardIdx) {
-      fetchData();
+  const fetchData = async () => {
+    try {
+      const data = await getNoticeDetail(accessToken, boardIdx);
+      setNotice(data);
+      onFetchComplete?.(data); // ✅ 부모에 전달
+    } catch (err) {
+      setError(err.message || '데이터를 불러오는데 실패했습니다.');
+    } finally {
+      setLoading(false);
     }
-  }, [accessToken, boardIdx]);
+  };
+
+  if (accessToken && boardIdx) {
+    fetchData();
+  }
+}, [accessToken, boardIdx]);
+
   
 
   if (loading) return <div>불러오는 중...</div>;
@@ -95,7 +97,6 @@ const NoticeDetail = ({ boardIdx }) => {
   }
 };
 
-console.log("boardContent:", notice.boardContent);
 
 const decodeBase64 = (str) => {
   try {
@@ -112,7 +113,7 @@ const decodeBase64 = (str) => {
 };
 
 
-const markdown = `# ${decodeBase64(notice.boardContent)}`;
+const markdown = decodeBase64(notice.boardContent);
 
 
   return (

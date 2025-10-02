@@ -7,10 +7,10 @@ import Logo from "../../../public/favicon/android-icon-72x72.png"
 function AdNav({currentPage, setCurrentPage}){
     const navigate = useNavigate();
     const { admin } = UseAdmin();
-    // console.log(admin);
 
     const Reset = () => {
         
+
     };    
 
     return(
@@ -31,14 +31,13 @@ function AdNav({currentPage, setCurrentPage}){
 
             {/* 학사어드민 */}
             {/* 공지 게시판 : 학사공지/ 행정공지/ 기타공지*/}
-            {/* 통계: 열람실 이용내역 / 푸시알림 수신및 기타 통계자료 / 강의관련 통계 자료 / 시설물 신청 내역*/}
-            {/* 시설물: 신청목록 / 사용내역 */}
-            {/* 기타기능: 푸시알림 전송기능 */}
+            {/* 통계: 열람실 이용내역 / 푸시알림 / 강의 통계 자료 / 시설이용 비중 */}
+            {/* 시설 예약: 신청목록 / 사용내역 */}
+            {/* 학사일정 추가 */}
 
             {/* 시스템 어드민 */}
-            {/* 학적 등록: 신입생 등록 / 편입생 등록 / 교수등록 / 학사어드민 등록*/}
-            {/* 데이터 수정: 학적 수정 / 기타 정보 수정*/}
-            {/* 데이터 로깅 조회: 기기 환경별 사용자 분포 / ip 추적 관련 로깅*/}
+            {/* 학적 등록: 학생등록 / 교수등록 / 학사어드민 등록 기능*/}
+            {/* 학적 목록: 전체 리스트 출력 및 row별 클릭시 모달로 정보 수정기능 제공*/}
             <div 
                 onClick={() => {
                     console.log("학사공지 클릭됨");

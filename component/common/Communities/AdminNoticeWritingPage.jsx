@@ -10,13 +10,6 @@ import EtcNotice from './EtcNotice';
 
 function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, setCurrentPage }) {
 
-  console.log("디코딩 대상:", notice?.boardContent);
-
-  if (notice && (notice.boardContent === undefined || notice.boardContent === null)) {
-  return <p>공지 데이터를 불러오는 중입니다...</p>;
-}
-
-
 function decodeBase64(str) {
   if (typeof str !== 'string' || str.trim() === '') {
     console.warn("Base64 디코딩 대상이 없음 또는 잘못된 입력:", str);
@@ -32,12 +25,9 @@ function decodeBase64(str) {
 }
 
 
-
   const editorRef = useRef();
   const [boardTitle, setBoardTitle] = useState('');
-  const [boardCode, setBoardCode] = useState(
-  typeof notice?.boardCode === 'number' ? notice.boardCode : null
-);
+  const [boardCode, setBoardCode] = useState(null);
   const { isAuthenticated } = UseAdmin();
 
   const getAccessToken = () => {
@@ -51,15 +41,13 @@ function decodeBase64(str) {
 
   const accessToken = propToken || getAccessToken();  // ✅ props가 없으면 직접 가져오기
 
-  console.log("notice:", notice);
 
 useEffect(() => {
   if (notice?.boardTitle) {
     setBoardTitle(decodeBase64(notice.boardTitle));
   }
   if (typeof notice?.boardContent === 'string' && editorRef.current) {
-    const decodedContent = decodeBase64(notice.boardContent);
-    editorRef.current.getInstance().setMarkdown(decodedContent);
+    editorRef.current.getInstance().setMarkdown(decodeBase64(notice.boardContent));
   }
   if (typeof notice?.boardCode === 'number') {
     setBoardCode(notice.boardCode);
@@ -106,7 +94,6 @@ const handleSubmit = async (e) => {
       body: JSON.stringify(NoticeByAdmin),
     });
 
-    console.log('accessToken:', accessToken); // 디버그용
 
     if (!response.ok) {
       throw new Error('서버 에러가 발생했습니다.');
@@ -189,8 +176,6 @@ if (currentPage === "행정공지")
     return <AdminNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
 if (currentPage === "기타공지")
     return <EtcNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
-
-console.log("boardContent:", notice ? decodeBase64(notice.boardContent) : '');
 
 
   return (

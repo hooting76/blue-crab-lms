@@ -52,8 +52,8 @@ class PushNotificationService {
             });
 
             if (token) {
-                console.log('✅ FCM 토큰 발급 성공');
-                console.log('토큰:', token);
+                // console.log('✅ FCM 토큰 발급 성공');
+                // console.log('토큰:', token);
                 this.currentToken = token;
                 return token;
             } else {
@@ -68,17 +68,33 @@ class PushNotificationService {
 
     // 4. 백엔드에 토큰 저장
     async saveTokenToBackend(token, userId) {
+        // deviceInfo: navigator.userAgent
+        const agentSwitch = navigator.userAgent;
+        const authTk = localStorage.getItem('accessToken');
+
+        // user agent info filter start
+        let platform;
+        if(agentSwitch.includes('Windows')){
+            platform = "WEB";
+        }else if(agentSwitch.includes('Android')){
+            platform = "ANDROID";
+        }else if(agentSwitch.includes('iPhone')){
+            platform = "IOS";
+        }; // user agent info filter end
+
         try {
-            const response = await fetch(`${BACKEND_API_URL}/fcm/token`, {
+            const response = await fetch(`${BACKEND_API_URL}fcm/register`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authTk}`,
+                },
                 body: JSON.stringify({
-                    token: token,
-                    userId: userId, // 사용자 ID (로그인 정보)
-                    deviceType: 'web',
-                    deviceInfo: navigator.userAgent
+                    fcmToken: token,
+                    platform: platform
                 })
             });
+            console.log(response);
 
             if (response.ok) {
                 const data = await response.json();

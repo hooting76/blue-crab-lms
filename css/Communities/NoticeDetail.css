@@ -45,3 +45,9 @@
     cursor: pointer;
     margin-top: 20px;
 }
+
+@media (max-width: 720px) {
+.noticeDetailContainer {
+    font-size: var(--font-small);
+}
+}

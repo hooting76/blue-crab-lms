@@ -8,10 +8,11 @@ import NoticeDetail from "../Communities/NoticeDetail";
 export default function NoticeTable({ rows, currentPage, setCurrentPage, setSelectedNotice }) {
     const [selectedIdx, setSelectedIdx] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [fetchedNotice, setFetchedNotice] = useState(null); // fetch된 진짜 notice
+
 
     const openModal = (boardIdx) => {
     const notice = rows.find(row => row.boardIdx === boardIdx);
-    console.log("선택된 공지:", notice);
     setSelectedIdx(notice.boardIdx);
     setSelectedNotice(notice);
     setIsModalOpen(true);
@@ -28,15 +29,19 @@ export default function NoticeTable({ rows, currentPage, setCurrentPage, setSele
     
 const { isAuthenticated: isAdminAuth } = UseAdmin() || { admin: null, isAuthenticated: false };
 
-        const handleEdit = () => {
-            const notice = rows.find(row => row.boardIdx === selectedIdx);
-            setSelectedNotice(notice);
-            setIsModalOpen(false);
+const handleEdit = () => {
+  if (!fetchedNotice) {
+    alert("공지 데이터를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+    return;
+  }
 
-            setTimeout(() => {
-                setCurrentPage("Admin 공지 작성");
-            }, 0);
-        };
+  setSelectedNotice(fetchedNotice); // ✅ 이제 진짜 데이터
+  setIsModalOpen(false);
+  setCurrentPage("Admin 공지 작성");
+};
+
+
+
 
     const decodeBase64 = (str) => {
   try {
@@ -91,19 +96,20 @@ const { isAuthenticated: isAdminAuth } = UseAdmin() || { admin: null, isAuthenti
                             ✖
                         </button>
                         <NoticeDetail
-                            boardIdx={selectedIdx}
-                            currentPage={currentPage}
-                            setCurrentPage={setCurrentPage}
+                        boardIdx={selectedIdx}
+                        currentPage={currentPage}
+                        setCurrentPage={setCurrentPage}
+                        onFetchComplete={(notice) => setFetchedNotice(notice)} // ✅ fetch 완료 시 상태 저장
                         />
+
 
                         {/* ✅ modal-content 내부로 이동 */}
                         {isAdminAuth && (
                             <button
-                                className="noticeEditButton"
-                                onClick={handleEdit}
-                                style={{ marginTop: '20px' }}
+                            className="noticeEditButton"
+                            onClick={handleEdit}
                             >
-                                공지 수정
+                            공지 수정
                             </button>
                         )}
                     </div>
