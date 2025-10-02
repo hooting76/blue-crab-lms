@@ -8,6 +8,8 @@ import NoticeDetail from "../Communities/NoticeDetail";
 export default function NoticeTable({ rows, currentPage, setCurrentPage, setSelectedNotice }) {
     const [selectedIdx, setSelectedIdx] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [fetchedNotice, setFetchedNotice] = useState(null); // fetch된 진짜 notice
+
 
     const openModal = (boardIdx) => {
     const notice = rows.find(row => row.boardIdx === boardIdx);
@@ -28,25 +30,18 @@ export default function NoticeTable({ rows, currentPage, setCurrentPage, setSele
     
 const { isAuthenticated: isAdminAuth } = UseAdmin() || { admin: null, isAuthenticated: false };
 
-const handleEdit = async () => {
-  try {
-    const response = await fetch(`https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/boards/detail/${selectedIdx}`);
-    if (!response.ok) {
-      throw new Error('공지 상세 데이터를 불러오지 못했습니다.');
-    }
-
-    const data = await response.json(); // ✅ boardContent 포함된 공지 객체
-    setSelectedNotice(data); // ✅ 이제 진짜 전체 notice 객체를 넘김
-    setIsModalOpen(false);
-
-    setTimeout(() => {
-      setCurrentPage("Admin 공지 작성");
-    }, 0);
-  } catch (error) {
-    console.error("공지 상세 fetch 실패:", error);
-    alert("공지 상세 내용을 불러오지 못했습니다.");
+const handleEdit = () => {
+  if (!fetchedNotice) {
+    alert("공지 데이터를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+    return;
   }
+
+  setSelectedNotice(fetchedNotice); // ✅ 이제 진짜 데이터
+  setIsModalOpen(false);
+  setCurrentPage("Admin 공지 작성");
 };
+
+
 
 
     const decodeBase64 = (str) => {
@@ -102,20 +97,22 @@ const handleEdit = async () => {
                             ✖
                         </button>
                         <NoticeDetail
-                            boardIdx={selectedIdx}
-                            currentPage={currentPage}
-                            setCurrentPage={setCurrentPage}
+                        boardIdx={selectedIdx}
+                        currentPage={currentPage}
+                        setCurrentPage={setCurrentPage}
+                        onFetchComplete={(notice) => setFetchedNotice(notice)} // ✅ fetch 완료 시 상태 저장
                         />
+
 
                         {/* ✅ modal-content 내부로 이동 */}
                         {isAdminAuth && (
                             <button
-                                className="noticeEditButton"
-                                onClick={handleEdit}
-                                style={{ marginTop: '20px' }}
+                            className="noticeEditButton"
+                            onClick={handleEdit}
                             >
-                                공지 수정
+                            공지 수정
                             </button>
+
                         )}
                     </div>
                 </div>
