@@ -1,4 +1,3 @@
-// src/component/common/MyPages/ProfileEdit.jsx
 import { useEffect, useMemo, useState } from 'react';
 import { getMyProfile, getMyProfileImage } from '../../../src/api/profileApi';
 import '../../../css/MyPages/ProfileEdit.css';
@@ -13,8 +12,8 @@ export default function ProfileEdit() {
   const [err, setErr] = useState('');
   const [msg, setMsg] = useState('');
   const [imageUrl, setImageUrl] = useState('');
-  const [origin, setOrigin] = useState(null); // 원본 프로필
-  const [form, setForm] = useState(null);  // 편집 폼
+  const [origin, setOrigin] = useState(null);
+  const [form, setForm] = useState(null);
 
   // 프로필 + 이미지 조회
   useEffect(() => {
@@ -48,6 +47,8 @@ export default function ProfileEdit() {
           minorFacultyCode: p.minorFacultyCode || '',
           minorDeptCode: p.minorDeptCode || '',
           image: p.image || null,
+          studentId: p.studentId || '', // 있으면 사용
+          departmentName: p.departmentName || p.majorDeptName || p.majorName || '',
         });
 
         if (p?.image?.hasImage && p.image.imageKey) {
@@ -62,10 +63,7 @@ export default function ProfileEdit() {
         setLoading(false);
       }
     })();
-
-    return () => {
-      revoked = true;
-    };
+    return () => { revoked = true; };
   }, []);
 
   // objectURL 정리
@@ -77,17 +75,35 @@ export default function ProfileEdit() {
     };
   }, [imageUrl]);
 
-    // 학생 전공 텍스트 (form이 로드된 뒤 계산)
+  // 전공 표기(숫자코드 배제)
   const majorText = useMemo(() => {
     if (!form) return '-';
-      return (
-        form.majorDeptCode?.trim() ||
-        form.majorCode?.trim() ||
-        form.userTypeText?.trim() ||
-        '-'
-  );
-}, [form]);
-  
+    const isCode = (v) => /^\d{1,3}$/.test(String(v || '').trim());
+    const pick = (...vals) => {
+      for (const v of vals) {
+        const s = (v ?? '').toString().trim();
+        if (!s) continue;
+        if (isCode(s)) continue;
+        return s;
+      }
+      return '-';
+    };
+    return pick(
+      form.departmentName,
+      form.userTypeText,
+      form.majorCode,
+      form.majorDeptCode
+    );
+  }, [form]);
+
+  // 학번(없으면 이메일 아이디 사용)
+  const studentIdText = useMemo(() => {
+    if (!form) return '-';
+    const s = (form.studentId || '').toString().trim();
+    if (s) return s;
+    const mail = (form.userEmail || '').toString();
+    return mail.includes('@') ? mail.split('@')[0] : '-';
+  }, [form]);
 
   const fullAddress = useMemo(() => {
     if (!form) return '';
@@ -124,6 +140,8 @@ export default function ProfileEdit() {
       minorFacultyCode: origin.minorFacultyCode || '',
       minorDeptCode: origin.minorDeptCode || '',
       image: origin.image || null,
+      studentId: origin.studentId || '',
+      departmentName: origin.departmentName || origin.majorDeptName || origin.majorName || '',
     });
     setMsg('');
   };
@@ -133,8 +151,6 @@ export default function ProfileEdit() {
     if (!form?.userName?.trim()) return setMsg('이름을 입력하세요.');
     if (!/^\d{10,11}$/.test(form.userPhone)) return setMsg('전화번호는 숫자 10~11자리여야 합니다.');
     if (form.birthDate && !yyyymmddOk(form.birthDate)) return setMsg('생년월일은 YYYYMMDD 8자리 형식입니다.');
-
-    // 아직 저장 API 미구성: 안내만
     setMsg('현재 개발 중입니다. 저장 API가 아직 연결되지 않았습니다.');
   };
 
@@ -143,27 +159,30 @@ export default function ProfileEdit() {
   if (!form) return null;
 
   return (
-    <div id="bc-profile"> 
+    <div id="bc-profile">
       <div className="profile-card">
         <h2 className="profile-title">개인정보 수정</h2>
 
-        {/* 상단 프로필 헤더 */}
-      <div style={{ display:'flex', gap:14, alignItems:'center', marginBottom:16 }}>
-        <img
-          src={imageUrl || '/assets/default-profile.png'}
-          alt="프로필"
-          className="avatar"
-          style={{ width:48, height:48 }}  
-          />
-      <div>
-        <div style={{ fontWeight:700, fontSize:16, lineHeight:1.15 }}>{form.userName}</div>
-        <div style={{ color:'#111', fontSize:13, fontWeight:600 }}>
-          전공&nbsp;|&nbsp;<span style={{ color:'#111', fontWeight:600 }}>{majorText}</span>
+        {/*  헤더를 .field 형태로 만들어 '라벨|인풋' 기준선과 딱 맞춤 */}
+        <div className="field head-row">
+          <span /> {/* 라벨 폭만큼의 더미 → 아래 항목과 좌측 정렬선 일치 */}
+          <div className="who-inline">
+            <img
+              src={imageUrl || '/assets/default-profile.png'}
+              alt="프로필"
+              className="avatar avatar-lg" /* 56px */
+            />
+            <div className="who">
+              <div className="who-name">{form.userName}</div>
+              <div className="who-sub">
+                학번&nbsp;|&nbsp;<strong>{studentIdText}</strong>&nbsp;&nbsp;·&nbsp;&nbsp;
+                전공&nbsp;|&nbsp;<span>{majorText}</span>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
 
-        {/* 폼: 한 줄(라벨 | 인풋) 세로 정렬 */}
+        {/* 폼: 라벨 | 인풋 한 줄씩 */}
         <div className="form-grid">
           <label className="field">
             <span>이름</span>
@@ -184,36 +203,20 @@ export default function ProfileEdit() {
             <span>주소</span>
             <input value={form.mainAddress} onChange={onChange('mainAddress')} />
           </label>
-          
-          <label className="field">
-            <span>생년월일</span>
+
+          <label className="field"><span>생년월일</span>
             <input value={form.birthDate} onChange={onChange('birthDate')} inputMode="numeric" />
           </label>
-
-          <label className="field">
-            <span>우편번호</span>
-            <input value={form.zipCode} onChange={onChange('zipCode')} inputMode="numeric" />
-          </label>
-
-          <label className="field">
-            <span>상세주소</span>
-            <input value={form.detailAddress} onChange={onChange('detailAddress')} />
-          </label>
-
-          <div className="addr-summary" style={{ gridColumn: '1 / -1' }}>
-            전체 주소: {fullAddress}
-          </div>
           
         </div>
 
-        {/* 하단 우측 버튼 */}
         <div className="actions">
           <button className="btn secondary" onClick={onCancel}>취소</button>
-          <button className="btn" onClick={onSave} title="저장 API 준비 중">저장</button>
+          <button className="btn" onClick={onSave} title="저장 API 준비 중">저장하기</button>
         </div>
 
         {msg && (
-          <div style={{ marginTop:8, color: msg.startsWith('저장') ? '#0a7' : '#d00' }}>
+          <div className="form-msg" data-ok={String(msg.startsWith('저장'))}>
             {msg}
           </div>
         )}
