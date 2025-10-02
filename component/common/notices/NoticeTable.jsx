@@ -28,15 +28,26 @@ export default function NoticeTable({ rows, currentPage, setCurrentPage, setSele
     
 const { isAuthenticated: isAdminAuth } = UseAdmin() || { admin: null, isAuthenticated: false };
 
-        const handleEdit = () => {
-            const notice = rows.find(row => row.boardIdx === selectedIdx);
-            setSelectedNotice(notice);
-            setIsModalOpen(false);
+const handleEdit = async () => {
+  try {
+    const response = await fetch(`https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/boards/detail/${selectedIdx}`);
+    if (!response.ok) {
+      throw new Error('공지 상세 데이터를 불러오지 못했습니다.');
+    }
 
-            setTimeout(() => {
-                setCurrentPage("Admin 공지 작성");
-            }, 0);
-        };
+    const data = await response.json(); // ✅ boardContent 포함된 공지 객체
+    setSelectedNotice(data); // ✅ 이제 진짜 전체 notice 객체를 넘김
+    setIsModalOpen(false);
+
+    setTimeout(() => {
+      setCurrentPage("Admin 공지 작성");
+    }, 0);
+  } catch (error) {
+    console.error("공지 상세 fetch 실패:", error);
+    alert("공지 상세 내용을 불러오지 못했습니다.");
+  }
+};
+
 
     const decodeBase64 = (str) => {
   try {
