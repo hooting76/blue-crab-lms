@@ -10,23 +10,31 @@ import EtcNotice from './EtcNotice';
 
 function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, setCurrentPage }) {
 
- const decodeBase64 = (str) => {
+  console.log("디코딩 대상:", notice?.boardContent);
+
+  if (notice && (notice.boardContent === undefined || notice.boardContent === null)) {
+  return <p>공지 데이터를 불러오는 중입니다...</p>;
+}
+
+
+function decodeBase64(str) {
+  if (typeof str !== 'string' || str.trim() === '') {
+    console.warn("Base64 디코딩 대상이 없음 또는 잘못된 입력:", str);
+    return '';
+  }
+
   try {
-    const cleanStr = str.replace(/\s/g, '');
-    const binary = atob(cleanStr);
-    const decoded = decodeURIComponent(Array.prototype.map.call(binary, (ch) =>
-      '%' + ('00' + ch.charCodeAt(0).toString(16)).slice(-2)
-    ).join(''));
-    return decoded;
+    return decodeURIComponent(escape(atob(str)));
   } catch (e) {
     console.error("Base64 디코딩 오류:", e);
-    return "";
+    return str;
   }
-};
+}
+
 
 
   const editorRef = useRef();
-  const [boardTitle, setBoardTitle] = useState(notice ? decodeBase64(notice.boardTitle) : '');
+  const [boardTitle, setBoardTitle] = useState('');
   const [boardCode, setBoardCode] = useState(
   typeof notice?.boardCode === 'number' ? notice.boardCode : null
 );
@@ -46,13 +54,15 @@ function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, s
   console.log("notice:", notice);
 
 useEffect(() => {
-  if (notice && notice.boardContent && editorRef.current) {
+  if (notice?.boardTitle) {
+    setBoardTitle(decodeBase64(notice.boardTitle));
+  }
+  if (typeof notice?.boardContent === 'string' && editorRef.current) {
     const decodedContent = decodeBase64(notice.boardContent);
-
-    // setTimeout 사용하여 Editor 렌더링 완료 후 Markdown 세팅
-    setTimeout(() => {
-      editorRef.current.getInstance().setMarkdown(decodedContent);
-    }, 0);
+    editorRef.current.getInstance().setMarkdown(decodedContent);
+  }
+  if (typeof notice?.boardCode === 'number') {
+    setBoardCode(notice.boardCode);
   }
 }, [notice]);
 
@@ -180,6 +190,8 @@ if (currentPage === "행정공지")
 if (currentPage === "기타공지")
     return <EtcNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
 
+console.log("boardContent:", notice ? decodeBase64(notice.boardContent) : '');
+
 
   return (
     <form>
@@ -209,6 +221,7 @@ if (currentPage === "기타공지")
         </select>
       </div>
 
+
       <div>
         <label>본문</label>
         <Editor
@@ -216,7 +229,11 @@ if (currentPage === "기타공지")
           previewStyle="vertical"
           height="300px"
           initialEditType="wysiwyg"
-          initialValue={''}
+          initialValue={
+            typeof notice?.boardContent === 'string'
+              ? decodeBase64(notice.boardContent)
+              : ''
+          }
           useCommandShortcut={true}
           language="ko-KR"
         />
