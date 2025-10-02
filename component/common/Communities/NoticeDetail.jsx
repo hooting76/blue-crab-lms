@@ -113,7 +113,7 @@ const decodeBase64 = (str) => {
 };
 
 
-const markdown = `# ${decodeBase64(notice.boardContent)}`;
+const markdown = decodeBase64(notice.boardContent);
 
 
   return (
