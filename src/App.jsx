@@ -178,10 +178,15 @@ function AppContent() {
 } // AppContent end
 
 function App() {
+  // close window evt trg
+  window.onbeforeunload = function(){
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('user');
+    localStorage.removeItem('Admin');
+  };
   return (
     <>
-      {/* {initializeServiceWorker} */}
-      {/* <ClearState /> */}
       <InAppFilter />
       <UserProvider>
         <BrowserRouter>
