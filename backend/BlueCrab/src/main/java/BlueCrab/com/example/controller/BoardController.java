@@ -6,6 +6,7 @@ package BlueCrab.com.example.controller;
 // ========== 임포트 구문 ==========
 
 // ========== Java 표준 라이브러리 ==========
+import java.util.List;
 import java.util.Optional;
 
 // ========== Spring Framework ==========
@@ -26,7 +27,9 @@ import org.slf4j.LoggerFactory;
 
 // ========== 프로젝트 내부 클래스 ==========
 import BlueCrab.com.example.entity.BoardTbl;
+import BlueCrab.com.example.entity.BoardAttachmentTbl;
 import BlueCrab.com.example.service.BoardService;
+import BlueCrab.com.example.service.BoardAttachmentQueryService;
 import BlueCrab.com.example.dto.AttachmentLinkRequest;
 import BlueCrab.com.example.util.JwtUtil;
 
@@ -43,6 +46,10 @@ public class BoardController {
     @Autowired
     private BoardService boardService;
     // 중요 : 실제 게시글 관련 기능이 이루어지는 곳은 BoardService
+
+    @Autowired
+    private BoardAttachmentQueryService boardAttachmentService;
+    // 첨부파일 관련 서비스
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -88,11 +95,23 @@ public class BoardController {
     public ResponseEntity<?> getBoardDetail (@RequestBody java.util.Map<String, Integer> request) {
         Integer boardIdx = request.get("boardIdx");
         
-        Optional<BoardTbl> board = boardService.getBoardDetail(boardIdx);
+        logger.info("게시글 상세 조회 요청 - boardIdx: {}", boardIdx);
         
-        if (board.isPresent()) {
-            return ResponseEntity.ok(board.get());
+        Optional<BoardTbl> boardOptional = boardService.getBoardDetail(boardIdx);
+        
+        if (boardOptional.isPresent()) {
+            BoardTbl board = boardOptional.get();
+            
+            // 첨부파일 목록 조회하여 board 객체에 설정
+            List<BoardAttachmentTbl> attachments = boardAttachmentService.getActiveAttachmentsByBoardId(boardIdx);
+            board.setAttachmentDetails(attachments);
+            
+            logger.info("게시글 상세 조회 완료 - boardIdx: {}, 첨부파일 수: {}", 
+                       boardIdx, attachments.size());
+            
+            return ResponseEntity.ok(board);
         } else {
+            logger.warn("게시글을 찾을 수 없음 - boardIdx: {}", boardIdx);
             return ResponseEntity.notFound().build();
         }
     }   // getBoardDetail 끝

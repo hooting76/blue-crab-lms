@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 // ========== 프로젝트 내부 클래스 ==========
 import BlueCrab.com.example.util.JwtUtil;
-import BlueCrab.com.example.service.BoardAttachmentService;
+import BlueCrab.com.example.service.BoardAttachmentUploadService;
 import BlueCrab.com.example.entity.BoardAttachmentTbl;
 
 @RestController
@@ -40,7 +40,7 @@ public class BoardAttachmentUploadController {
     // ========== 의존성 주입 ==========
     
     @Autowired
-    private BoardAttachmentService attachmentService;
+    private BoardAttachmentUploadService uploadService;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -75,7 +75,7 @@ public class BoardAttachmentUploadController {
             }
 
             // 첨부파일 업로드 처리 (Service 구현 완료)
-            List<BoardAttachmentTbl> uploadedAttachments = attachmentService.uploadFiles(boardIdx, files);
+            List<BoardAttachmentTbl> uploadedAttachments = uploadService.uploadFiles(boardIdx, files);
 
             logger.info("첨부파일 업로드 완료 - 게시글 IDX: {}, 성공 파일 수: {}", 
                        boardIdx, uploadedAttachments.size());

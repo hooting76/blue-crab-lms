@@ -19,6 +19,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 // ========== Validation 어노테이션 ==========
 import javax.validation.constraints.Max;
@@ -268,6 +269,27 @@ public class BoardTbl {
     // 첨부파일이 있는지 확인
     public boolean hasAttachments() {
         return boardFile != null && !boardFile.trim().isEmpty();
+    }
+
+    // ========== 첨부파일 상세 정보 필드 (DB 저장 안함) ==========
+    
+    @Transient  // DB에 저장되지 않는 임시 필드
+    private List<BoardAttachmentTbl> attachmentDetails;
+    
+    /**
+     * 첨부파일 상세 정보 설정
+     * @param attachmentDetails 첨부파일 목록
+     */
+    public void setAttachmentDetails(List<BoardAttachmentTbl> attachmentDetails) {
+        this.attachmentDetails = attachmentDetails;
+    }
+    
+    /**
+     * 첨부파일 상세 정보 조회
+     * @return 첨부파일 목록
+     */
+    public List<BoardAttachmentTbl> getAttachmentDetails() {
+        return attachmentDetails;
     }
 
 } // BoardTbl 끝

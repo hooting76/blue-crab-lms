@@ -8,9 +8,11 @@ package BlueCrab.com.example.repository;
 
 // ========== Java 표준 라이브러리 ==========
 import java.util.List;
+import java.util.Optional;
 
 // ========== Spring Data JPA ==========
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -38,4 +40,32 @@ public interface BoardAttachmentRepository extends JpaRepository<BoardAttachment
      */
     @Query("SELECT COUNT(a) FROM BoardAttachmentTbl a WHERE a.boardIdx = :boardIdx AND a.isActive = 1")
     int countActiveAttachmentsByBoardIdx(@Param("boardIdx") Integer boardIdx);
+
+    // ========== 삭제 기능용 메서드 ==========
+
+    /**
+     * 첨부파일 IDX로 활성화된 첨부파일 조회 (삭제 권한 확인용)
+     * @param attachmentIdx 첨부파일 IDX
+     * @param isActive 활성화 상태 (1: 활성, 0: 비활성)
+     * @return 첨부파일 엔티티 (Optional)
+     */
+    @Query("SELECT a FROM BoardAttachmentTbl a WHERE a.attachmentIdx = :attachmentIdx AND a.isActive = :isActive")
+    Optional<BoardAttachmentTbl> findByAttachmentIdxAndIsActive(@Param("attachmentIdx") Integer attachmentIdx, @Param("isActive") Integer isActive);
+
+    /**
+     * 게시글별 활성화된 첨부파일 일괄 비활성화 (논리적 삭제)
+     * @param boardIdx 게시글 IDX
+     * @return 업데이트된 레코드 수
+     */
+    @Query("UPDATE BoardAttachmentTbl a SET a.isActive = 0 WHERE a.boardIdx = :boardIdx AND a.isActive = 1")
+    @Modifying
+    int deactivateAllAttachmentsByBoardIdx(@Param("boardIdx") Integer boardIdx);
+
+    /**
+     * 만료된 첨부파일 조회 (배치 삭제용)
+     * @param currentDate 현재 날짜 문자열 (yyyy-MM-dd HH:mm:ss 형식)
+     * @return 만료된 첨부파일 목록
+     */
+    @Query("SELECT a FROM BoardAttachmentTbl a WHERE a.expiryDate < :currentDate AND a.isActive = 1")
+    List<BoardAttachmentTbl> findExpiredAttachments(@Param("currentDate") String currentDate);
 }
