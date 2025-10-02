@@ -232,7 +232,7 @@ console.log("boardContent:", notice ? decodeBase64(notice.boardContent) : '');
           previewStyle="vertical"
           height="300px"
           initialEditType="wysiwyg"
-          initialValue={notice ? decodeBase64(notice.boardContent) : ''}
+          initialValue={notice ? notice.boardContent : ''}
           useCommandShortcut={true}
           language="ko-KR"
         />
