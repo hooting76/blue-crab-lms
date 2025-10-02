@@ -28,22 +28,15 @@ export default function NoticeTable({ rows, currentPage, setCurrentPage, setSele
     
 const { isAuthenticated: isAdminAuth } = UseAdmin() || { admin: null, isAuthenticated: false };
 
-const handleEdit = async () => {
-  try {
-    const response = await fetch(`https://your-api/boards/detail/${selectedIdx}`);
-    const data = await response.json();
+        const handleEdit = () => {
+            const notice = rows.find(row => row.boardIdx === selectedIdx);
+            setSelectedNotice(notice);
+            setIsModalOpen(false);
 
-    setSelectedNotice(data); // 🔁 boardContent 포함된 전체 데이터로 덮어쓰기
-    setIsModalOpen(false);
-    setTimeout(() => {
-      setCurrentPage("Admin 공지 작성");
-    }, 0);
-  } catch (error) {
-    console.error("공지 상세 데이터 불러오기 실패:", error);
-    alert("공지 상세 내용을 불러오지 못했습니다.");
-  }
-};
-
+            setTimeout(() => {
+                setCurrentPage("Admin 공지 작성");
+            }, 0);
+        };
 
     const decodeBase64 = (str) => {
   try {

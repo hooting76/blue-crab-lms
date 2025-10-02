@@ -10,6 +10,7 @@ import EtcNotice from './EtcNotice';
 
 function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, setCurrentPage }) {
 
+  console.log("notice:", notice);
   console.log("디코딩 대상:", notice?.boardContent);
 
 function decodeBase64(str) {
