@@ -130,20 +130,24 @@ export default function ProfileEdit() {
   if (!form) return null;
 
   return (
-    <div className="profile-card">
+    <div id="bc-profile"> 
+      <div className="profile-card">
+        <h2 className="profile-title">마이페이지</h2>
+
+        {/* 상단 프로필 헤더 */}
       <div style={{ display:'flex', gap:16, alignItems:'center', marginBottom:12 }}>
         <img
           src={imageUrl || '/assets/default-profile.png'}
           alt="프로필"
-          style={{ width:64, height:64, borderRadius:'50%', objectFit:'cover', background:'#eee' }}
-        />
+          className="avatar"/>
         <div>
           <div style={{ fontWeight:700 }}>{form.userName}</div>
           <div style={{ color:'#667' }}>{form.userEmail}</div>
         </div>
       </div>
 
-      <div className="form">
+      {/* 폼: 2열 그리드 */}
+      <div className="form-grid">
         <label className="field"><span>이름</span>
           <input value={form.userName} onChange={onChange('userName')} />
         </label>
@@ -160,27 +164,40 @@ export default function ProfileEdit() {
           <input value={form.birthDate} onChange={onChange('birthDate')} inputMode="numeric" />
         </label>
 
-        <label className="field"><span>우편번호</span>
+      <div className="addr-row" style={{ gridColumn: '1 / -1' }}>
+        <label className="field">
+          <span>우편번호</span>
           <input value={form.zipCode} onChange={onChange('zipCode')} inputMode="numeric" />
-        </label>
+      </label>
 
-        <label className="field"><span>주소</span>
+        <label className="field">
+          <span>주소</span>
           <input value={form.mainAddress} onChange={onChange('mainAddress')} />
-        </label>
+      </label>
+        </div>
 
-        <label className="field"><span>상세주소</span>
+
+        <label className="field" style={{ gridColumn: '1 / -1' }}>
+          <span>상세주소</span>
           <input value={form.detailAddress} onChange={onChange('detailAddress')} />
         </label>
 
-        <div style={{ marginTop:8, color:'#667' }}>전체 주소: {fullAddress}</div>
+          <div className="addr-summary" style={{ gridColumn: '1 / -1' }}>
+            전체 주소: {fullAddress}
+          </div>
+        </div>
 
         <div className="actions" style={{ marginTop:12 }}>
           <button className="btn-primary" onClick={onSave} title="저장 API 준비 중">저장</button>
           <button className="btn-ghost" onClick={onCancel}>취소</button>
         </div>
 
-        {msg && <div style={{ marginTop:8, color: msg.startsWith('저장') ? '#0a7' : '#d00' }}>{msg}</div>}
+          {msg && (
+          <div style={{ marginTop:8, color: msg.startsWith('저장') ? '#0a7' : '#d00' }}>
+            {msg}
+          </div>
+        )}
+        </div>
       </div>
-    </div>
   );
 }

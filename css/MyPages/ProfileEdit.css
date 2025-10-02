@@ -1,66 +1,173 @@
-/* 컨테이너 */
-.mypage { max-width: 1100px; margin: 0 auto; }
-.mypage-banner {
-  height: 120px; margin: 20px 0; background:#dfe7ef;
-  display:flex; align-items:center; justify-content:center; border-radius: 10px;
-}
-.mypage-banner h2 { font-size: 28px; color:#2b4a63; letter-spacing:1px; }
-
-.mypage-titlebar {
-  height: 48px; display:flex; align-items:center; font-weight: 800;
-  color:#10344f; background:#b9cddb; border-radius: 6px; padding: 0 16px;
-  margin-bottom: 16px;
-}
-
-.mypage-grid {
-  display:grid; grid-template-columns: 1fr 320px; gap: 20px;
+/* MyPage Profile – BlueCrab tidy CSS */
+#bc-profile {
+  --bc-primary: #0075D4;
+  --bc-primary-600: #0a66c2;
+  --bc-green: #10B981;
+  --bc-pink: #EC4899;
+  --bc-text: #1f2937;
+  --bc-muted: #6b7280;
+  --bc-bg: #f3f5f9;
+  --bc-line: #e5e7eb;
+  --radius: 12px;
+  --radius-sm: 10px;
+  --shadow: 0 6px 24px rgba(16,24,40,.06), 0 2px 6px rgba(16,24,40,.05);
 }
 
-/* 왼쪽 카드 */
-.profile-card {
-  background:#fff; border:1px solid #e6e6e6; border-radius: 12px; padding: 18px;
-  box-shadow: 0 1px 2px rgba(16,24,40,.04);
+/* 카드 영역 정돈 */
+#bc-profile .profile-card {
+  background: #fff;
+  border: 1px solid var(--bc-line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
 }
-.profile-card__header { display:flex; gap: 12px; align-items:center; margin-bottom: 12px; }
-.avatar { width:56px; height:56px; border-radius:50%; background:#e8edf2; }
-.user-name { font-weight: 700; font-size: 16px; }
-.user-major { font-size: 13px; color:#6b7b86; }
 
-/* 탭 */
-.tabs { display:flex; gap: 8px; padding: 8px 0 12px; border-bottom:1px solid #eef2f5; margin-bottom: 12px; }
-.tab { padding:8px 12px; border-radius: 8px; background:#f4f6f8; border:1px solid #e6e6e6; cursor:pointer; }
-.tab--active { background:#0d6efd; color:#fff; border-color:#0d6efd; }
-
-/* 폼 */
-.form .field { display:flex; flex-direction:column; gap:6px; margin-bottom: 10px; }
-.form .field span { font-size: 13px; color:#334; }
-.form input {
-  height: 38px; padding: 0 12px; border:1px solid #d9dfe5; border-radius: 8px; outline:none;
+/* 타이틀 */
+#bc-profile .profile-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--bc-text);
+  margin: 0 0 16px;
 }
-.form input:focus { border-color:#0d6efd; box-shadow: 0 0 0 3px rgba(13,110,253,.12); }
-.pw-group { display:flex; gap: 12px; }
-.pw-group .half { flex:1; }
 
-.actions { display:flex; gap: 8px; margin-top: 6px; }
-.btn-primary { background:#0d6efd; color:#fff; border:none; padding:10px 16px; border-radius: 8px; cursor:pointer; }
-.btn-ghost { background:#f6f7f9; color:#334; border:1px solid #e2e6ea; padding:10px 16px; border-radius: 8px; cursor:pointer; }
+/* 2열 그리드(모바일 1열) */
+#bc-profile .form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 20px;
+}
+@media (max-width: 900px) {
+  #bc-profile .form-grid { grid-template-columns: 1fr; }
+}
 
-/* 오른쪽 사이드 */
-.side-card {
-  background:#fff; border:1px solid #e6e6e6; border-radius: 12px; padding: 14px;
+/* 필드 묶음 */
+#bc-profile .field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
-.side-title {
-  font-weight: 800; font-size: 22px; background:#e6ecef; color:#222;
-  border-radius: 10px; padding: 16px; text-align: center; margin-bottom: 12px;
-}
-.side-item {
-  display:flex; align-items:center; justify-content:space-between;
-  border:1px solid #e6e6e6; border-radius: 8px; background:#f7f9fb;
-  padding: 10px 12px; margin-bottom: 8px;
-}
-.side-caret { border:none; background:transparent; font-size:16px; cursor:pointer; }
 
-/* 반응형 */
-@media (max-width: 980px) {
-  .mypage-grid { grid-template-columns: 1fr; }
+/* 라벨 */
+#bc-profile .field label {
+  font-size: 14px;
+  color: var(--bc-muted);
+  font-weight: 600;
+}
+
+/* 인풋 공통 */
+#bc-profile input[type="text"],
+#bc-profile input[type="email"],
+#bc-profile input[type="tel"],
+#bc-profile input[type="date"],
+#bc-profile input[type="number"],
+#bc-profile textarea,
+#bc-profile select {
+  width: 100%;
+  height: 42px;
+  padding: 10px 12px;
+  border: 1px solid var(--bc-line);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--bc-text);
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+
+#bc-profile textarea { min-height: 90px; resize: vertical; }
+
+/* 포커스 */
+#bc-profile input:focus,
+#bc-profile textarea:focus,
+#bc-profile select:focus {
+  border-color: var(--bc-primary);
+  box-shadow: 0 0 0 4px rgba(0,117,212,.12);
+}
+
+/* 읽기전용/비활성 */
+#bc-profile input[readonly],
+#bc-profile input:disabled,
+#bc-profile textarea[readonly],
+#bc-profile textarea:disabled {
+  background: #f8fafc;
+  color: #94a3b8;
+}
+
+/* 인풋에 채워진 값이 눈에 잘 들어오게 */
+#bc-profile input:not(:placeholder-shown) {
+  background: #fbfdff;
+}
+
+/* 우편번호/주소 줄 */
+#bc-profile .addr-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 10px;
+}
+@media (max-width: 560px) {
+  #bc-profile .addr-row { grid-template-columns: 1fr; }
+}
+
+/* 우편번호 + 버튼 */
+#bc-profile .zip-wrap {
+  display: grid;
+  grid-template-columns: 1fr 100px;
+  gap: 8px;
+}
+@media (max-width: 560px) {
+  #bc-profile .zip-wrap { grid-template-columns: 1fr; }
+}
+
+/* 버튼 */
+#bc-profile .btn {
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: var(--bc-primary);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .02s ease, background .15s ease, box-shadow .15s ease;
+}
+#bc-profile .btn:hover { background: var(--bc-primary-600); }
+#bc-profile .btn:active { transform: translateY(1px); }
+
+/* 보조 버튼 */
+#bc-profile .btn.secondary {
+  background: #fff;
+  color: var(--bc-primary);
+  border-color: var(--bc-primary);
+}
+#bc-profile .btn.secondary:hover {
+  background: rgba(0,117,212,.06);
+}
+
+/* 전체 주소(요약) */
+#bc-profile .addr-summary {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--bc-muted);
+}
+
+/* 버튼 영역 */
+#bc-profile .actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+/* 작은 캡션/가이드 */
+#bc-profile .caption {
+  font-size: 12px;
+  color: var(--bc-muted);
+}
+
+/* 프로필 이미지(왼쪽 작은 아바타 정렬 보정용) */
+#bc-profile .avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--bc-line);
+  box-shadow: var(--shadow);
 }
