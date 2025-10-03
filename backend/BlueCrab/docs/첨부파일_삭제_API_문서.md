@@ -19,7 +19,7 @@ Content-Type: application/json
 ```
 
 **경로 파라미터**:
-- `attachmentIdx`: 삭제할 첨부파일 IDX (Integer)
+- `attachmentIdx`: 삭제할 첨부파일 IDX (Integer)adf
 
 **응답 예시**:
 ```json
