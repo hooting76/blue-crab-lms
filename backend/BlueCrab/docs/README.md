@@ -20,6 +20,15 @@ BlueCrab는 Spring Boot 기반의 웹 애플리케이션으로, JWT 인증과 �
 - [`USER_API.md`](docs/api/USER_API.md) - 사용자 관리 API
 - [`API_REFERENCE.md`](docs/api/API_REFERENCE.md) - 전체 API 레퍼런스
 
+### 📝 **게시판 + 첨부파일 시스템** (`docs/게시판+첨부파일/`) ✅ 완료 (2025-10-03)
+- **[📂 게시판+첨부파일 폴더](게시판+첨부파일/)** - 모든 관련 문서 모음
+- [`프론트엔드_Quick_Start.md`](게시판+첨부파일/프론트엔드_Quick_Start.md) ⭐ **5분 빠른 시작**
+- [`프론트엔드_전달사항.md`](게시판+첨부파일/프론트엔드_전달사항.md) - 체크리스트 & 테스트
+- [`프론트엔드_최신_연동_가이드_v2.md`](게시판+첨부파일/프론트엔드_최신_연동_가이드_v2.md) - 완전 가이드
+- [`구현_완료_보고서.md`](게시판+첨부파일/구현_완료_보고서.md) - 전체 요약
+
+**API**: 11개 (게시글 5개 + 첨부파일 6개) | **상태**: ✅ 프로덕션 준비 완료
+
 ### 🚀 **운영 문서** (`docs/operations/`)
 - [`LOG_MANAGEMENT_GUIDE.md`](docs/operations/LOG_MANAGEMENT_GUIDE.md) - 로그 관리 가이드
 - [`DEPLOYMENT_GUIDE.md`](docs/operations/DEPLOYMENT_GUIDE.md) - 배포 가이드
@@ -46,11 +55,13 @@ mvn spring-boot:run -Dspring.profiles.active=dev
 - ✅ 역할 기반 접근 제어
 - ✅ 로그 모니터링
 - ✅ API 문서화
+- ✅ **게시판 & 첨부파일 시스템 (MinIO 기반)** 🆕
 
 ### 3. 기술 스택
 - **Backend**: Spring Boot 2.7.x, Spring Security, JPA/Hibernate
 - **Database**: Oracle Database
 - **Authentication**: JWT (JSON Web Token)
+- **File Storage**: MinIO (Object Storage) 🆕
 - **Logging**: Log4j2
 - **Build**: Maven
 - **Server**: Apache Tomcat
@@ -60,5 +71,5 @@ mvn spring-boot:run -Dspring.profiles.active=dev
 
 ---
 
-**마지막 업데이트**: 2025-08-27  
+**마지막 업데이트**: 2025-10-03  
 **버전**: 1.0.0

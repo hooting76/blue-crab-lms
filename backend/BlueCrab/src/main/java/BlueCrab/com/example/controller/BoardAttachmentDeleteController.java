@@ -1,6 +1,6 @@
 // 작성자 : 성태준
 // 게시글 첨부파일 삭제 전용 컨트롤러
-// 첨부파일 단일/다중 삭제 API 제공
+// 첨부파일 삭제 API 제공 (단일/다중 통합)
 
 package BlueCrab.com.example.controller;
 
@@ -46,65 +46,14 @@ public class BoardAttachmentDeleteController {
     // ========== 첨부파일 삭제 API ==========
 
     /**
-     * 단일 첨부파일 삭제 API
-     * POST /api/board-attachments/delete/{attachmentIdx}
-     * @param attachmentIdx 삭제할 첨부파일 IDX
+     * 첨부파일 삭제 API (단일/다중 통합)
+     * POST /api/board-attachments/delete
+     * @param requestBody 삭제할 첨부파일 IDX 목록 (배열)
      * @param request HTTP 요청 (토큰 검증용)
      * @return 삭제 결과
      */
-    @PostMapping("/delete/{attachmentIdx}")
-    public ResponseEntity<Map<String, Object>> deleteAttachment(
-            @PathVariable Integer attachmentIdx,
-            HttpServletRequest request) {
-
-        Map<String, Object> response = new HashMap<>();
-        
-        try {
-            logger.info("단일 첨부파일 삭제 요청 - 첨부파일 IDX: {}", attachmentIdx);
-
-            // JWT 토큰 검증
-            String token = extractTokenFromRequest(request);
-            if (token == null || !jwtUtil.validateToken(token)) {
-                logger.warn("토큰 검증 실패 - 첨부파일 삭제 거부");
-                response.put("success", false);
-                response.put("message", "인증이 필요합니다.");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-            }
-
-            // 첨부파일 삭제 처리
-            boolean deleteResult = deleteService.deleteAttachment(attachmentIdx);
-
-            if (deleteResult) {
-                logger.info("단일 첨부파일 삭제 완료 - 첨부파일 IDX: {}", attachmentIdx);
-                
-                response.put("success", true);
-                response.put("message", "첨부파일이 성공적으로 삭제되었습니다.");
-                response.put("attachmentIdx", attachmentIdx);
-
-                return ResponseEntity.ok(response);
-            } else {
-                response.put("success", false);
-                response.put("message", "첨부파일을 찾을 수 없거나 이미 삭제되었습니다.");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-            }
-
-        } catch (Exception e) {
-            logger.error("단일 첨부파일 삭제 실패 - 첨부파일 IDX: {}, 오류: {}", attachmentIdx, e.getMessage(), e);
-            
-            response.put("success", false);
-            response.put("message", "첨부파일 삭제 중 오류가 발생했습니다: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
-
-    /**
-     * 다중 첨부파일 삭제 API
-     * POST /api/board-attachments/delete-multiple
-     * @param request HTTP 요청 (토큰 검증용)
-     * @return 삭제 결과
-     */
-    @PostMapping("/delete-multiple")
-    public ResponseEntity<Map<String, Object>> deleteMultipleAttachments(
+    @PostMapping("/delete")
+    public ResponseEntity<Map<String, Object>> deleteAttachments(
             @RequestBody Map<String, Object> requestBody,
             HttpServletRequest request) {
 
@@ -121,34 +70,34 @@ public class BoardAttachmentDeleteController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
-            logger.info("다중 첨부파일 삭제 요청 - 삭제 대상: {}개", attachmentIds.size());
+            logger.info("첨부파일 삭제 요청 - 삭제 대상: {}개", attachmentIds.size());
 
             // JWT 토큰 검증
             String token = extractTokenFromRequest(request);
             if (token == null || !jwtUtil.validateToken(token)) {
-                logger.warn("토큰 검증 실패 - 다중 첨부파일 삭제 거부");
+                logger.warn("토큰 검증 실패 - 첨부파일 삭제 거부");
                 response.put("success", false);
                 response.put("message", "인증이 필요합니다.");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
 
-            // 다중 첨부파일 삭제 처리
+            // 첨부파일 삭제 처리
             Map<String, Object> deleteResults = deleteService.deleteMultipleAttachments(attachmentIds);
 
-            logger.info("다중 첨부파일 삭제 완료 - 성공: {}개, 실패: {}개", 
+            logger.info("첨부파일 삭제 완료 - 성공: {}개, 실패: {}개", 
                        deleteResults.get("successCount"), deleteResults.get("failureCount"));
 
             response.put("success", true);
-            response.put("message", "다중 첨부파일 삭제가 완료되었습니다.");
+            response.put("message", "첨부파일 삭제가 완료되었습니다.");
             response.putAll(deleteResults);  // 상세 결과 포함
 
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            logger.error("다중 첨부파일 삭제 실패 - 오류: {}", e.getMessage(), e);
+            logger.error("첨부파일 삭제 실패 - 오류: {}", e.getMessage(), e);
             
             response.put("success", false);
-            response.put("message", "다중 첨부파일 삭제 중 오류가 발생했습니다: " + e.getMessage());
+            response.put("message", "첨부파일 삭제 중 오류가 발생했습니다: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
