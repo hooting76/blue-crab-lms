@@ -37,13 +37,42 @@ public class FcmTokenService {
     private final FcmTokenRepository fcmTokenRepository;
     private final UserTblRepository userTblRepository;
     private final FirebaseMessaging firebaseMessaging;
+    private final FcmSessionService fcmSessionService;
+
+    private static final class DeliveryAttemptResult {
+        private final boolean success;
+        private final String failureReason;
+
+        private DeliveryAttemptResult(boolean success, String failureReason) {
+            this.success = success;
+            this.failureReason = failureReason;
+        }
+
+        public static DeliveryAttemptResult success() {
+            return new DeliveryAttemptResult(true, null);
+        }
+
+        public static DeliveryAttemptResult failure(String failureReason) {
+            return new DeliveryAttemptResult(false, failureReason);
+        }
+
+        public boolean isSuccess() {
+            return success;
+        }
+
+        public String getFailureReason() {
+            return failureReason;
+        }
+    }
 
     public FcmTokenService(FcmTokenRepository fcmTokenRepository,
                            UserTblRepository userTblRepository,
-                           FirebaseMessaging firebaseMessaging) {
+                           FirebaseMessaging firebaseMessaging,
+                           FcmSessionService fcmSessionService) {
         this.fcmTokenRepository = fcmTokenRepository;
         this.userTblRepository = userTblRepository;
         this.firebaseMessaging = firebaseMessaging;
+        this.fcmSessionService = fcmSessionService;
     }
 
     /**
@@ -129,6 +158,7 @@ public class FcmTokenService {
             FcmToken otherUserToken = existingTokenOwner.get();
             otherUserToken.setTokenByPlatform(platform, null);
             otherUserToken.setLastUsedByPlatform(platform, null);
+            otherUserToken.setKeepSignedInByPlatform(platform, null);
             fcmTokenRepository.save(otherUserToken);
             logger.warn("다른 사용자({})의 {} 토큰 제거됨 - 현재 사용자: {}",
                        otherUserToken.getUserCode(), platform, user.getUserCode());
@@ -145,22 +175,45 @@ public class FcmTokenService {
         String currentToken = fcmTokenEntity.getTokenByPlatform(platform);
 
         if (currentToken == null) {
-            // 최초 등록
+            // 최초 등록 - 사용자가 선택한 값 사용
+            Boolean keepSignedIn = request.getKeepSignedIn() != null ? request.getKeepSignedIn() : false;
             fcmTokenEntity.setTokenByPlatform(platform, fcmToken);
             fcmTokenEntity.setLastUsedByPlatform(platform, LocalDateTime.now());
+            fcmTokenEntity.setKeepSignedInByPlatform(platform, keepSignedIn);
             fcmTokenRepository.save(fcmTokenEntity);
-            logger.info("FCM 토큰 최초 등록 - 사용자: {}, 플랫폼: {}", user.getUserCode(), platform);
-            return FcmRegisterResponse.registered();
+            logger.info("FCM 토큰 최초 등록 - 사용자: {}, 플랫폼: {}, keepSignedIn: {}",
+                       user.getUserCode(), platform, keepSignedIn);
+            return FcmRegisterResponse.registered(keepSignedIn);
 
         } else if (currentToken.equals(fcmToken)) {
-            // 동일 토큰 재등록 (갱신)
+            // 동일 토큰 재등록 (같은 기기)
+            Boolean keepSignedIn = fcmTokenEntity.getKeepSignedInByPlatform(platform);
+
+            // 사용자가 명시적으로 변경 요청한 경우에만 업데이트
+            if (request.getKeepSignedIn() != null) {
+                keepSignedIn = request.getKeepSignedIn();
+                fcmTokenEntity.setKeepSignedInByPlatform(platform, keepSignedIn);
+            }
+
             fcmTokenEntity.setLastUsedByPlatform(platform, LocalDateTime.now());
             fcmTokenRepository.save(fcmTokenEntity);
-            logger.info("FCM 토큰 갱신 - 사용자: {}, 플랫폼: {}", user.getUserCode(), platform);
-            return FcmRegisterResponse.renewed();
+
+            logger.info("FCM 토큰 갱신 (동일 기기) - 사용자: {}, 플랫폼: {}, keepSignedIn: {}",
+                       user.getUserCode(), platform, keepSignedIn);
+            return FcmRegisterResponse.renewed(keepSignedIn);
 
         } else {
             // 다른 토큰 (충돌)
+
+            // temporaryOnly=true: DB 덮어쓰기 거부, Redis에만 임시 저장
+            if (request.getTemporaryOnly() != null && request.getTemporaryOnly()) {
+                fcmSessionService.addTemporaryToken(user.getUserIdx(), platform, fcmToken);
+                logger.info("FCM 토큰 임시 등록 - 사용자: {}, 플랫폼: {} (로그인 중에만 알림)",
+                           user.getUserCode(), platform);
+                return FcmRegisterResponse.temporary();
+            }
+
+            // temporaryOnly=false 또는 null: 충돌 알림
             LocalDateTime lastUsed = fcmTokenEntity.getLastUsedByPlatform(platform);
             logger.info("FCM 토큰 충돌 감지 - 사용자: {}, 플랫폼: {}, 마지막 사용: {}",
                        user.getUserCode(), platform, lastUsed);
@@ -169,7 +222,7 @@ public class FcmTokenService {
     }
 
     /**
-     * FCM 토큰 강제 변경
+     * FCM 토큰 강제 변경 (충돌 시 사용자 선택에 의한 기기 변경)
      */
     @Transactional
     public FcmRegisterResponse registerForce(Authentication authentication, FcmRegisterRequest request) {
@@ -185,20 +238,31 @@ public class FcmTokenService {
             FcmToken otherUserToken = existingTokenOwner.get();
             otherUserToken.setTokenByPlatform(platform, null);
             otherUserToken.setLastUsedByPlatform(platform, null);
+            otherUserToken.setKeepSignedInByPlatform(platform, null);
             fcmTokenRepository.save(otherUserToken);
         }
 
-        // 2. 현재 사용자의 FCM 토큰 정보 조회 또는 생성
-        FcmToken fcmTokenEntity = fcmTokenRepository.findByUserIdx(user.getUserIdx())
-                .orElseGet(() -> new FcmToken(user.getUserIdx(), user.getUserCode()));
+        // 2. Redis 임시 토큰이 있으면 제거 (DB로 영구 등록되므로)
+        if (fcmSessionService.hasTemporaryToken(user.getUserIdx(), platform)) {
+            fcmSessionService.removeTemporaryToken(user.getUserIdx(), platform);
+            logger.info("FCM 임시 토큰 제거 (DB 영구 등록으로 전환) - 사용자: {}, 플랫폼: {}",
+                       user.getUserCode(), platform);
+        }
 
-        // 3. 강제로 토큰 변경
+        // 3. 현재 사용자의 FCM 토큰 정보 조회 또는 생성
+    FcmToken fcmTokenEntity = fcmTokenRepository.findByUserIdx(user.getUserIdx())
+        .orElseGet(() -> fcmTokenRepository.save(new FcmToken(user.getUserIdx(), user.getUserCode())));
+
+        // 4. 강제로 토큰 변경
+        Boolean keepSignedIn = request.getKeepSignedIn() != null ? request.getKeepSignedIn() : false;
         fcmTokenEntity.setTokenByPlatform(platform, fcmToken);
         fcmTokenEntity.setLastUsedByPlatform(platform, LocalDateTime.now());
+        fcmTokenEntity.setKeepSignedInByPlatform(platform, keepSignedIn);
         fcmTokenRepository.save(fcmTokenEntity);
 
-        logger.info("FCM 토큰 강제 변경 완료 - 사용자: {}, 플랫폼: {}", user.getUserCode(), platform);
-        return FcmRegisterResponse.replaced();
+        logger.info("FCM 토큰 강제 변경 완료 - 사용자: {}, 플랫폼: {}, keepSignedIn: {}",
+                   user.getUserCode(), platform, keepSignedIn);
+        return FcmRegisterResponse.replaced(keepSignedIn);
     }
 
     /**
@@ -212,17 +276,42 @@ public class FcmTokenService {
 
         logger.info("FCM 토큰 삭제 요청 - 사용자: {}, 플랫폼: {}", user.getUserCode(), platform);
 
+        // 1. Redis 임시 토큰 삭제 (무조건 시도)
+        String tempToken = fcmSessionService.getTemporaryToken(user.getUserIdx(), platform);
+        if (tempToken != null && tempToken.equals(fcmToken)) {
+            fcmSessionService.removeTemporaryToken(user.getUserIdx(), platform);
+            logger.info("FCM 임시 토큰 삭제 완료 - 사용자: {}, 플랫폼: {}", user.getUserCode(), platform);
+            // early return 제거: DB도 확인해야 함
+        }
+
+        // 2. DB 토큰 삭제 (keepSignedIn 확인)
         Optional<FcmToken> fcmTokenOpt = fcmTokenRepository.findByUserIdx(user.getUserIdx());
         if (fcmTokenOpt.isPresent()) {
             FcmToken fcmTokenEntity = fcmTokenOpt.get();
             String currentToken = fcmTokenEntity.getTokenByPlatform(platform);
 
-            // 요청한 토큰과 DB의 토큰이 일치하는 경우만 삭제
+            // 요청한 토큰과 DB의 토큰이 일치하는 경우만 처리
             if (currentToken != null && currentToken.equals(fcmToken)) {
-                fcmTokenEntity.setTokenByPlatform(platform, null);
-                fcmTokenEntity.setLastUsedByPlatform(platform, null);
-                fcmTokenRepository.save(fcmTokenEntity);
-                logger.info("FCM 토큰 삭제 완료 - 사용자: {}, 플랫폼: {}", user.getUserCode(), platform);
+                Boolean keepSignedIn = fcmTokenEntity.getKeepSignedInByPlatform(platform);
+                Boolean forceDelete = request.getForceDelete();
+
+                // forceDelete가 true면 무조건 삭제, 아니면 keepSignedIn 확인
+                if (forceDelete != null && forceDelete) {
+                    fcmTokenEntity.setTokenByPlatform(platform, null);
+                    fcmTokenEntity.setLastUsedByPlatform(platform, null);
+                    fcmTokenEntity.setKeepSignedInByPlatform(platform, null);
+                    fcmTokenRepository.save(fcmTokenEntity);
+                    logger.info("FCM 토큰 강제 삭제 완료 - 사용자: {}, 플랫폼: {}", user.getUserCode(), platform);
+                } else if (keepSignedIn != null && keepSignedIn) {
+                    logger.info("FCM 토큰 유지 (로그인 상태 유지 설정) - 사용자: {}, 플랫폼: {}",
+                               user.getUserCode(), platform);
+                } else {
+                    fcmTokenEntity.setTokenByPlatform(platform, null);
+                    fcmTokenEntity.setLastUsedByPlatform(platform, null);
+                    fcmTokenEntity.setKeepSignedInByPlatform(platform, null);
+                    fcmTokenRepository.save(fcmTokenEntity);
+                    logger.info("FCM 토큰 삭제 완료 - 사용자: {}, 플랫폼: {}", user.getUserCode(), platform);
+                }
             } else {
                 logger.warn("FCM 토큰 불일치로 삭제 실패 - 사용자: {}, 플랫폼: {}", user.getUserCode(), platform);
             }
@@ -234,7 +323,6 @@ public class FcmTokenService {
     /**
      * 특정 사용자에게 알림 전송
      */
-    @Transactional
     public FcmSendResponse sendNotification(FcmSendRequest request) {
         String userCode = request.getUserCode();
 
@@ -243,7 +331,7 @@ public class FcmTokenService {
         Optional<FcmToken> fcmTokenOpt = fcmTokenRepository.findByUserCode(userCode);
         if (!fcmTokenOpt.isPresent()) {
             logger.warn("FCM 토큰 정보 없음 - 사용자: {}", userCode);
-            throw new RuntimeException("사용자의 FCM 토큰 정보를 찾을 수 없습니다");
+            throw new ResourceNotFoundException("사용자의 FCM 토큰 정보를 찾을 수 없습니다");
         }
 
         FcmToken fcmToken = fcmTokenOpt.get();
@@ -263,77 +351,124 @@ public class FcmTokenService {
     }
 
     /**
-     * 특정 플랫폼으로 알림 전송
+     * 특정 플랫폼으로 알림 전송 (DB + Redis 임시 토큰)
      */
     private void sendToPlatform(FcmToken fcmToken, String platform, FcmSendRequest request,
                                 Map<String, Boolean> sent, Map<String, String> failedReasons) {
         String platformKey = platform.toLowerCase(Locale.ROOT);
-        String token = fcmToken.getTokenByPlatform(platform);
 
-        if (token == null) {
+        List<DeliveryAttemptResult> attempts = new ArrayList<>();
+
+        String dbToken = fcmToken.getTokenByPlatform(platform);
+        String tempToken = fcmSessionService.getTemporaryToken(fcmToken.getUserIdx(), platform);
+
+        if (dbToken != null) {
+            attempts.add(sendToToken(dbToken, fcmToken, platform, request, false));
+        }
+
+        if (tempToken != null && !Objects.equals(tempToken, dbToken)) {
+            attempts.add(sendToToken(tempToken, fcmToken, platform, request, true));
+        }
+
+        if (attempts.isEmpty()) {
             sent.put(platformKey, false);
             failedReasons.put(platformKey, "토큰이 등록되지 않았습니다");
             return;
         }
 
+        boolean success = attempts.stream().anyMatch(DeliveryAttemptResult::isSuccess);
+        sent.put(platformKey, success);
+
+        if (success) {
+            failedReasons.remove(platformKey);
+        } else {
+            String reason = attempts.stream()
+                    .map(DeliveryAttemptResult::getFailureReason)
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .collect(Collectors.joining("; "));
+
+            if (reason.isEmpty()) {
+                reason = "전송 실패";
+            }
+
+            failedReasons.put(platformKey, reason);
+        }
+    }
+
+    /**
+     * 개별 FCM 토큰으로 알림 전송
+     */
+    private DeliveryAttemptResult sendToToken(String token, FcmToken fcmToken, String platform,
+                                              FcmSendRequest request, boolean isTemporary) {
+        return sendMessageToToken(token, request.getTitle(), request.getBody(), request.getData(),
+                fcmToken, platform, isTemporary);
+    }
+
+    private DeliveryAttemptResult sendMessageToToken(String token, String title, String body,
+                                                     Map<String, String> data, FcmToken fcmToken,
+                                                     String platform, boolean isTemporary) {
         try {
-            // FCM 메시지 생성
             Message.Builder messageBuilder = Message.builder()
                     .setToken(token)
                     .setNotification(Notification.builder()
-                            .setTitle(request.getTitle())
-                            .setBody(request.getBody())
+                            .setTitle(title)
+                            .setBody(body)
                             .build());
 
-            // 추가 데이터 있으면 포함
-            if (request.getData() != null && !request.getData().isEmpty()) {
-                messageBuilder.putAllData(request.getData());
+            if (data != null && !data.isEmpty()) {
+                messageBuilder.putAllData(data);
             }
 
             Message message = messageBuilder.build();
-
-            // 전송
             String response = firebaseMessaging.send(message);
 
-            // 전송 성공
-            sent.put(platformKey, true);
-            fcmToken.setLastUsedByPlatform(platform, LocalDateTime.now());
-            fcmTokenRepository.save(fcmToken);
+            if (!isTemporary) {
+                fcmToken.setLastUsedByPlatform(platform, LocalDateTime.now());
+                fcmTokenRepository.save(fcmToken);
+            }
 
-            logger.info("FCM 알림 전송 성공 - 사용자: {}, 플랫폼: {}, 응답: {}",
-                       fcmToken.getUserCode(), platform, response);
+            logger.info("FCM 알림 전송 성공 - 사용자: {}, 플랫폼: {}, 임시: {}, 응답: {}",
+                    fcmToken.getUserCode(), platform, isTemporary, response);
+            return DeliveryAttemptResult.success();
 
         } catch (FirebaseMessagingException e) {
-            sent.put(platformKey, false);
             String errorCode = e.getErrorCode() != null ? e.getErrorCode().name() : "UNKNOWN";
 
-            // 토큰 무효화 케이스 처리
             if (isInvalidTokenError(errorCode)) {
-
-                fcmToken.setTokenByPlatform(platform, null);
-                fcmToken.setLastUsedByPlatform(platform, null);
-                fcmTokenRepository.save(fcmToken);
-
-                failedReasons.put(platformKey, "토큰이 무효화되어 삭제되었습니다");
-                logger.warn("FCM 토큰 무효화 - 사용자: {}, 플랫폼: {}, 오류: {}",
-                           fcmToken.getUserCode(), platform, errorCode);
-            } else {
-                failedReasons.put(platformKey, "전송 실패: " + e.getMessage());
-                logger.error("FCM 알림 전송 실패 - 사용자: {}, 플랫폼: {}, 오류: {}",
-                            fcmToken.getUserCode(), platform, errorCode, e);
+                if (isTemporary) {
+                    fcmSessionService.removeTemporaryToken(fcmToken.getUserIdx(), platform);
+                    logger.warn("FCM 임시 토큰 무효화 - 사용자: {}, 플랫폼: {}, 오류: {}",
+                            fcmToken.getUserCode(), platform, errorCode);
+                } else {
+                    clearStoredToken(fcmToken, platform);
+                    logger.warn("FCM 토큰 무효화 - 사용자: {}, 플랫폼: {}, 오류: {}",
+                            fcmToken.getUserCode(), platform, errorCode);
+                }
+                return DeliveryAttemptResult.failure("토큰이 무효화되어 삭제되었습니다");
             }
+
+            logger.error("FCM 알림 전송 실패 - 사용자: {}, 플랫폼: {}, 임시: {}, 오류: {}",
+                    fcmToken.getUserCode(), platform, isTemporary, errorCode, e);
+            return DeliveryAttemptResult.failure("전송 실패: " + e.getMessage());
+
         } catch (Exception e) {
-            sent.put(platformKey, false);
-            failedReasons.put(platformKey, "시스템 오류: " + e.getMessage());
-            logger.error("FCM 알림 전송 중 예외 발생 - 사용자: {}, 플랫폼: {}",
-                        fcmToken.getUserCode(), platform, e);
+            logger.error("FCM 알림 전송 중 예외 발생 - 사용자: {}, 플랫폼: {}, 임시: {}",
+                    fcmToken.getUserCode(), platform, isTemporary, e);
+            return DeliveryAttemptResult.failure("시스템 오류: " + e.getMessage());
         }
+    }
+
+    private void clearStoredToken(FcmToken fcmToken, String platform) {
+        fcmToken.setTokenByPlatform(platform, null);
+        fcmToken.setLastUsedByPlatform(platform, null);
+        fcmToken.setKeepSignedInByPlatform(platform, null);
+        fcmTokenRepository.save(fcmToken);
     }
 
     /**
      * 여러 사용자에게 일괄 알림 전송
      */
-    @Transactional
     public FcmBatchSendResponse sendBatchNotification(FcmBatchSendRequest request) {
         logger.info("FCM 일괄 알림 전송 요청 - 대상 사용자 수: {}, 제목: {}",
                    request.getUserCodes().size(), request.getTitle());
@@ -368,23 +503,43 @@ public class FcmTokenService {
 
             // 요청된 플랫폼으로만 전송
             for (String platform : targetPlatforms) {
-                String token = fcmToken.getTokenByPlatform(platform);
                 String key = platform.toLowerCase(Locale.ROOT);
-                if (token == null) {
+                List<DeliveryAttemptResult> attempts = new ArrayList<>();
+
+                String dbToken = fcmToken.getTokenByPlatform(platform);
+                if (dbToken != null) {
+                    attempts.add(sendMessageToToken(dbToken, request.getTitle(), request.getBody(),
+                            request.getData(), fcmToken, platform, false));
+                }
+
+                String tempToken = fcmSessionService.getTemporaryToken(fcmToken.getUserIdx(), platform);
+                if (tempToken != null && !Objects.equals(tempToken, dbToken)) {
+                    attempts.add(sendMessageToToken(tempToken, request.getTitle(), request.getBody(),
+                            request.getData(), fcmToken, platform, true));
+                }
+
+                if (attempts.isEmpty()) {
                     sent.put(key, false);
                     failed.put(key, "토큰이 등록되지 않았습니다");
                     totalFailure++;
-                } else {
-                    boolean success = sendToSingleToken(token, request.getTitle(), request.getBody(),
-                                                       request.getData(), fcmToken, platform);
-                    sent.put(key, success);
+                    continue;
+                }
 
-                    if (success) {
-                        totalSuccess++;
-                    } else {
-                        failed.put(key, "전송 실패");
-                        totalFailure++;
-                    }
+                boolean success = attempts.stream().anyMatch(DeliveryAttemptResult::isSuccess);
+                sent.put(key, success);
+
+                if (success) {
+                    totalSuccess++;
+                    failed.remove(key);
+                } else {
+                    String reason = attempts.stream()
+                            .map(DeliveryAttemptResult::getFailureReason)
+                            .filter(Objects::nonNull)
+                            .distinct()
+                            .collect(Collectors.joining("; "));
+
+                    failed.put(key, reason.isEmpty() ? "전송 실패" : reason);
+                    totalFailure++;
                 }
             }
 
@@ -401,7 +556,6 @@ public class FcmTokenService {
     /**
      * 전체 사용자에게 브로드캐스트 알림 전송
      */
-    @Transactional
     public FcmBroadcastResponse sendBroadcast(FcmBroadcastRequest request) {
         logger.info("FCM 브로드캐스트 알림 전송 요청 - 제목: {}", request.getTitle());
 
@@ -426,6 +580,11 @@ public class FcmTokenService {
                 String token = fcmToken.getTokenByPlatform(platform);
                 if (token != null) {
                     allValidTokens.add(token);
+                }
+
+                String tempToken = fcmSessionService.getTemporaryToken(fcmToken.getUserIdx(), platform);
+                if (tempToken != null && !Objects.equals(tempToken, token)) {
+                    allValidTokens.add(tempToken);
                 }
             }
         }
@@ -568,48 +727,6 @@ public class FcmTokenService {
     }
 
     /**
-     * 단일 토큰으로 알림 전송 (내부 헬퍼 메서드)
-     */
-    private boolean sendToSingleToken(String token, String title, String body,
-                                     Map<String, String> data, FcmToken fcmToken, String platform) {
-        try {
-            Message.Builder messageBuilder = Message.builder()
-                    .setToken(token)
-                    .setNotification(Notification.builder()
-                            .setTitle(title)
-                            .setBody(body)
-                            .build());
-
-            if (data != null && !data.isEmpty()) {
-                messageBuilder.putAllData(data);
-            }
-
-            Message message = messageBuilder.build();
-            firebaseMessaging.send(message);
-
-            // 전송 성공 - 마지막 사용 시간 업데이트
-            fcmToken.setLastUsedByPlatform(platform, LocalDateTime.now());
-            fcmTokenRepository.save(fcmToken);
-
-            return true;
-
-        } catch (FirebaseMessagingException e) {
-            String errorCode = e.getErrorCode() != null ? e.getErrorCode().name() : "UNKNOWN";
-
-            // 토큰 무효화 케이스
-            if (isInvalidTokenError(errorCode)) {
-                fcmToken.setTokenByPlatform(platform, null);
-                fcmToken.setLastUsedByPlatform(platform, null);
-                fcmTokenRepository.save(fcmToken);
-            }
-
-            return false;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    /**
      * 사용자 유형별 토큰 필터링
      */
     private List<FcmToken> filterTokensByUserType(List<FcmToken> tokens, Integer userStudent) {
@@ -631,19 +748,33 @@ public class FcmTokenService {
         if (fcmTokenOpt.isPresent()) {
             FcmToken fcmToken = fcmTokenOpt.get();
 
+            boolean updated = false;
+
             if (token.equals(fcmToken.getFcmTokenAndroid())) {
                 fcmToken.setFcmTokenAndroid(null);
                 fcmToken.setFcmTokenAndroidLastUsed(null);
-            } else if (token.equals(fcmToken.getFcmTokenIos())) {
-                fcmToken.setFcmTokenIos(null);
-                fcmToken.setFcmTokenIosLastUsed(null);
-            } else if (token.equals(fcmToken.getFcmTokenWeb())) {
-                fcmToken.setFcmTokenWeb(null);
-                fcmToken.setFcmTokenWebLastUsed(null);
+                fcmToken.setFcmTokenAndroidKeepSignedIn(null);
+                updated = true;
             }
 
-            fcmTokenRepository.save(fcmToken);
-            logger.info("무효화된 토큰 제거 완료 - 사용자: {}", fcmToken.getUserCode());
+            if (token.equals(fcmToken.getFcmTokenIos())) {
+                fcmToken.setFcmTokenIos(null);
+                fcmToken.setFcmTokenIosLastUsed(null);
+                fcmToken.setFcmTokenIosKeepSignedIn(null);
+                updated = true;
+            }
+
+            if (token.equals(fcmToken.getFcmTokenWeb())) {
+                fcmToken.setFcmTokenWeb(null);
+                fcmToken.setFcmTokenWebLastUsed(null);
+                fcmToken.setFcmTokenWebKeepSignedIn(null);
+                updated = true;
+            }
+
+            if (updated) {
+                fcmTokenRepository.save(fcmToken);
+                logger.info("무효화된 토큰 제거 완료 - 사용자: {}", fcmToken.getUserCode());
+            }
         }
     }
 
@@ -667,6 +798,7 @@ public class FcmTokenService {
                 (token.getFcmTokenAndroidLastUsed() == null || token.getFcmTokenAndroidLastUsed().isBefore(cutoffDate))) {
                 token.setFcmTokenAndroid(null);
                 token.setFcmTokenAndroidLastUsed(null);
+                token.setFcmTokenAndroidKeepSignedIn(null);
                 updated = true;
             }
 
@@ -674,6 +806,7 @@ public class FcmTokenService {
                 (token.getFcmTokenIosLastUsed() == null || token.getFcmTokenIosLastUsed().isBefore(cutoffDate))) {
                 token.setFcmTokenIos(null);
                 token.setFcmTokenIosLastUsed(null);
+                token.setFcmTokenIosKeepSignedIn(null);
                 updated = true;
             }
 
@@ -681,6 +814,7 @@ public class FcmTokenService {
                 (token.getFcmTokenWebLastUsed() == null || token.getFcmTokenWebLastUsed().isBefore(cutoffDate))) {
                 token.setFcmTokenWeb(null);
                 token.setFcmTokenWebLastUsed(null);
+                token.setFcmTokenWebKeepSignedIn(null);
                 updated = true;
             }
 

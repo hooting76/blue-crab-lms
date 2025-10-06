@@ -7,10 +7,11 @@ import java.time.LocalDateTime;
  */
 public class FcmRegisterResponse {
 
-    private String status; // registered, renewed, conflict
+    private String status; // registered, renewed, conflict, replaced
     private String message;
     private String platform;
     private LocalDateTime lastUsed;
+    private Boolean keepSignedIn; // 현재 설정된 로그인 유지 여부
 
     public FcmRegisterResponse() {}
 
@@ -27,20 +28,32 @@ public class FcmRegisterResponse {
     }
 
     // Static factory methods
-    public static FcmRegisterResponse registered() {
-        return new FcmRegisterResponse("registered", "알림이 활성화되었습니다");
+    public static FcmRegisterResponse registered(Boolean keepSignedIn) {
+        FcmRegisterResponse response = new FcmRegisterResponse("registered", "알림이 활성화되었습니다");
+        response.keepSignedIn = keepSignedIn;
+        return response;
     }
 
-    public static FcmRegisterResponse renewed() {
-        return new FcmRegisterResponse("renewed", "토큰이 갱신되었습니다");
+    public static FcmRegisterResponse renewed(Boolean keepSignedIn) {
+        FcmRegisterResponse response = new FcmRegisterResponse("renewed", "토큰이 갱신되었습니다");
+        response.keepSignedIn = keepSignedIn;
+        return response;
     }
 
     public static FcmRegisterResponse conflict(String platform, LocalDateTime lastUsed) {
         return new FcmRegisterResponse("conflict", "이미 다른 기기에서 알림을 받고 있습니다", platform, lastUsed);
     }
 
-    public static FcmRegisterResponse replaced() {
-        return new FcmRegisterResponse("replaced", "기기가 변경되었습니다");
+    public static FcmRegisterResponse replaced(Boolean keepSignedIn) {
+        FcmRegisterResponse response = new FcmRegisterResponse("replaced", "기기가 변경되었습니다");
+        response.keepSignedIn = keepSignedIn;
+        return response;
+    }
+
+    public static FcmRegisterResponse temporary() {
+        FcmRegisterResponse response = new FcmRegisterResponse("temporary", "임시 알림이 활성화되었습니다 (로그인 중에만 알림 받음)");
+        response.keepSignedIn = false;
+        return response;
     }
 
     // Getters and Setters
@@ -74,5 +87,13 @@ public class FcmRegisterResponse {
 
     public void setLastUsed(LocalDateTime lastUsed) {
         this.lastUsed = lastUsed;
+    }
+
+    public Boolean getKeepSignedIn() {
+        return keepSignedIn;
+    }
+
+    public void setKeepSignedIn(Boolean keepSignedIn) {
+        this.keepSignedIn = keepSignedIn;
     }
 }

@@ -52,6 +52,15 @@ public class FcmToken {
     @Column(name = "FCM_TOKEN_WEB_LAST_USED")
     private LocalDateTime fcmTokenWebLastUsed;
 
+    @Column(name = "FCM_TOKEN_ANDROID_KEEP_SIGNED_IN")
+    private Boolean fcmTokenAndroidKeepSignedIn;
+
+    @Column(name = "FCM_TOKEN_IOS_KEEP_SIGNED_IN")
+    private Boolean fcmTokenIosKeepSignedIn;
+
+    @Column(name = "FCM_TOKEN_WEB_KEEP_SIGNED_IN")
+    private Boolean fcmTokenWebKeepSignedIn;
+
     @Column(name = "UPDATED_AT", nullable = false)
     private LocalDateTime updatedAt;
 
@@ -147,6 +156,30 @@ public class FcmToken {
         this.fcmTokenWebLastUsed = fcmTokenWebLastUsed;
     }
 
+    public Boolean getFcmTokenAndroidKeepSignedIn() {
+        return fcmTokenAndroidKeepSignedIn;
+    }
+
+    public void setFcmTokenAndroidKeepSignedIn(Boolean fcmTokenAndroidKeepSignedIn) {
+        this.fcmTokenAndroidKeepSignedIn = fcmTokenAndroidKeepSignedIn;
+    }
+
+    public Boolean getFcmTokenIosKeepSignedIn() {
+        return fcmTokenIosKeepSignedIn;
+    }
+
+    public void setFcmTokenIosKeepSignedIn(Boolean fcmTokenIosKeepSignedIn) {
+        this.fcmTokenIosKeepSignedIn = fcmTokenIosKeepSignedIn;
+    }
+
+    public Boolean getFcmTokenWebKeepSignedIn() {
+        return fcmTokenWebKeepSignedIn;
+    }
+
+    public void setFcmTokenWebKeepSignedIn(Boolean fcmTokenWebKeepSignedIn) {
+        this.fcmTokenWebKeepSignedIn = fcmTokenWebKeepSignedIn;
+    }
+
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
@@ -217,6 +250,39 @@ public class FcmToken {
                 break;
             case "WEB":
                 this.fcmTokenWebLastUsed = lastUsed;
+                break;
+        }
+    }
+
+    /**
+     * 플랫폼별 로그인 상태 유지 여부 조회
+     */
+    public Boolean getKeepSignedInByPlatform(String platform) {
+        switch (platform.toUpperCase()) {
+            case "ANDROID":
+                return fcmTokenAndroidKeepSignedIn;
+            case "IOS":
+                return fcmTokenIosKeepSignedIn;
+            case "WEB":
+                return fcmTokenWebKeepSignedIn;
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * 플랫폼별 로그인 상태 유지 여부 설정
+     */
+    public void setKeepSignedInByPlatform(String platform, Boolean keepSignedIn) {
+        switch (platform.toUpperCase()) {
+            case "ANDROID":
+                this.fcmTokenAndroidKeepSignedIn = keepSignedIn;
+                break;
+            case "IOS":
+                this.fcmTokenIosKeepSignedIn = keepSignedIn;
+                break;
+            case "WEB":
+                this.fcmTokenWebKeepSignedIn = keepSignedIn;
                 break;
         }
     }
