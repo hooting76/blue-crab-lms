@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import "../../../css/course/CourseApply.css";
+import "../../../css/Course/CourseApply.css";
 
 // === TODO: 실제 API 붙일 때 이 네 함수만 교체 ===
 async function apiFetchCatalog(params) {
