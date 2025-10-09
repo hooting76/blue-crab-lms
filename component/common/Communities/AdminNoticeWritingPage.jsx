@@ -221,6 +221,7 @@ if (currentPage === "기타공지")
           }
           useCommandShortcut={true}
           language="ko-KR"
+          text-align="start"
         />
       </div>
 
