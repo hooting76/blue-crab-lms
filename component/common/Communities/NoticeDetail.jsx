@@ -65,41 +65,24 @@ const NoticeDetail = ({ boardIdx, onFetchComplete }) => {
   }
 
   useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const data = await getNoticeDetail(accessToken, boardIdx);
-      setNotice(data);
-      onFetchComplete?.(data); // ✅ 부모에 전달
-    } catch (err) {
-      setError(err.message || '데이터를 불러오는데 실패했습니다.');
-    } finally {
-      setLoading(false);
+    const fetchData = async () => {
+      try {
+        const data = await getNoticeDetail(accessToken, boardIdx);
+        console.log("✅ 공지 fetch 완료:", data);
+        setNotice(data);
+        onFetchComplete?.(data);
+      } catch (err) {
+        setError(err.message || '데이터를 불러오는데 실패했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (accessToken && boardIdx) {
+      fetchData();
     }
-  };
+  }, [accessToken, boardIdx]);
 
-  if (accessToken && boardIdx) {
-    fetchData();
-  }
-}, [accessToken, boardIdx]);
-
-useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const data = await getNoticeDetail(accessToken, boardIdx);
-      console.log("✅ 게시글 상세 응답:", data); // 여기서 attachments 있는지 확인
-      setNotice(data);
-      onFetchComplete?.(data);
-    } catch (err) {
-      setError(err.message || '데이터를 불러오는데 실패했습니다.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (accessToken && boardIdx) {
-    fetchData();
-  }
-}, [accessToken, boardIdx]);
 
 
   
