@@ -117,7 +117,7 @@ Content-Type: application/json
     "userName": "새 사용자",
     "userPhone": "01012345678",
     "userBirth": "19950315",
-    "userStudent": 1,
+    "userStudent": 0,
     "userZip": 12345,
     "userFirstAdd": "서울시 강남구",
     "userLastAdd": "역삼동 123-45"
