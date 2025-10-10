@@ -115,6 +115,7 @@ const decodeBase64 = (str) => {
 
 const markdown = decodeBase64(notice.boardContent);
 
+console.log("첨부파일 목록:", notice.attachments);
 
  return (
   <div className="noticeDetailContainer">
