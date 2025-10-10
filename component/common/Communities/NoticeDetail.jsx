@@ -135,16 +135,13 @@ const decodeBase64 = (str) => {
 const handleDownload = async (attachmentIdx, fileName) => {
   try {
     const response = await fetch(
-      `https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/board-attachments/download/${attachmentIdx}`,
+      'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/board-attachments/download',
       {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ attachmentIdx })
       }
     );
-
-    console.log("attachmentIdx:", attachmentIdx);
 
     if (!response.ok) {
       throw new Error("파일 다운로드 실패");
