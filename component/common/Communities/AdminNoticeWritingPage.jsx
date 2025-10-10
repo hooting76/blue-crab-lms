@@ -82,7 +82,7 @@ const linkAttachmentsToBoard = async (boardIdx, attachmentIdxArray) => {
       "Authorization": `Bearer ${accessToken}`,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ attachmentIdxArray })
+    body: JSON.stringify(attachmentIdxArray)
   });
 
   const result = await response.json();
@@ -300,7 +300,6 @@ if (currentPage === "기타공지")
           }
           useCommandShortcut={true}
           language="ko-KR"
-          style={{textAlign: 'start'}}
         />
       </div>
 
