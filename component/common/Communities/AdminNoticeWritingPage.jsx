@@ -93,8 +93,6 @@ function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, s
   };
 
 console.log('업로드할 파일 목록:', selectedFiles);
-console.log('게시글 번호(boardIdx):', boardIdx);
-
 
 
   // 공지 작성
