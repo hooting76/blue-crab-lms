@@ -82,7 +82,7 @@ const linkAttachmentsToBoard = async (boardIdx, attachmentIdxArray) => {
       "Authorization": `Bearer ${accessToken}`,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify(attachmentIdxArray)
+    body: JSON.stringify({ attachmentIdx: attachmentIdxArray })
   });
 
   const result = await response.json();
@@ -131,6 +131,8 @@ const handleSubmit = async (e) => {
   const boardReg = date.replace(" ", "T");
 
   const NoticeByAdmin = {
+    boardWriterIdx,
+    boardWriterType,
     boardTitle,
     boardCode: Number(boardCode),
     boardContent,
