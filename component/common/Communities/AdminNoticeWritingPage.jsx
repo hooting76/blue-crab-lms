@@ -76,7 +76,7 @@ const linkAttachmentsToBoard = async (boardIdx, attachmentIdxArray) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
+      "Authorization": `Bearer ${accessToken}`,
     },
     body: JSON.stringify({ attachmentIdx: attachmentIdxArray }),
   });
@@ -96,7 +96,7 @@ const uploadFiles = async (boardIdx, files) => {
   const response = await fetch(`/api/board-attachments/upload/${boardIdx}`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${accessToken}`,
+      "Authorization": `Bearer ${accessToken}`,
     },
     body: formData,
   });
