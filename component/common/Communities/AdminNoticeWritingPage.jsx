@@ -25,7 +25,7 @@ function AdminNoticeWritingPage() {
     return null;
   };
 
-  const accessToken = propToken || getAccessToken();
+  const accessToken = getAccessToken();
 
   // notice 변경 시 기존 첨부파일 초기화
   useEffect(() => {
