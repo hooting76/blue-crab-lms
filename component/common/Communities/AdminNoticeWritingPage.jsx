@@ -94,6 +94,8 @@ const linkAttachmentsToBoard = async (boardIdx, attachmentIdxArray) => {
 const boardWriterIdx = admin?.data?.adminIdx;
 const boardWriterType = "admin";
 
+
+
 // 공지 작성
 const handleSubmit = async (e) => {
   e.preventDefault();
@@ -200,6 +202,9 @@ const uploadFiles = async (boardIdx, files) => {
   }
 };
 
+console.log('fetch 시작 - 수정 요청');
+console.log('URL:', `/api/boards/update/${boardIdx}`);
+console.log('Body:', JSON.stringify(updatedNotice));
 
 
 // 공지 수정
