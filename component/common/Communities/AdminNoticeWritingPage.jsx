@@ -39,7 +39,7 @@ function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, s
   const accessToken = propToken || getAccessToken();
 
   // 🔧 boardIdx가 바뀔 때 첨부파일 불러오기
-  useEffect(() => {
+useEffect(() => {
   const fetchAttachments = async () => {
     if (!boardIdx) {
       setExistingAttachments([]);
@@ -53,24 +53,28 @@ function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, s
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ boardIdx })  // 🔥 올바르게 boardIdx를 JSON으로 보냄
+        body: JSON.stringify({ boardIdx })
       });
 
+      const attList = await attListRes.json();
+      console.log("📦 board detail 응답:", attList);
+
       if (attListRes.ok) {
-        const attList = await attListRes.json();
+        // 확인: attachments가 어디에 있는지 로그로 체크
         setExistingAttachments(attList.attachments || []);
       } else {
-        console.error("첨부파일 요청 실패:", attListRes.status);
+        console.error("❌ 첨부파일 요청 실패:", attListRes.status);
         setExistingAttachments([]);
       }
     } catch (e) {
-      console.error("첨부파일 요청 중 예외 발생:", e);
+      console.error("🚨 첨부파일 요청 중 예외 발생:", e);
       setExistingAttachments([]);
     }
   };
 
   fetchAttachments();
 }, [boardIdx, accessToken]);
+
 
 
   useEffect(() => {
