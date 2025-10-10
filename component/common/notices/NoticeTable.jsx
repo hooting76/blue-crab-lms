@@ -41,8 +41,6 @@ const handleEdit = () => {
 };
 
 
-
-
     const decodeBase64 = (str) => {
   try {
     const cleanStr = str.replace(/\s/g, '');
@@ -70,19 +68,26 @@ const handleEdit = () => {
                 </tr>
             </thead>
             <tbody> 
-                {rows.map(r =>(
+                {rows.map(r => {
+                    const isSelected = r.boardIdx === selectedIdx;
+                    const boardView = isSelected && fetchedNotice
+                    ? fetchedNotice.boardView
+                    : r.boardView;
+
+                    return (
                     <tr
-                    key={r.boardIdx}
-                    onClick={() => openModal(r.boardIdx)}
-                    style={{ cursor: "pointer" }}
+                        key={r.boardIdx}
+                        onClick={() => openModal(r.boardIdx)}
+                        style={{ cursor: "pointer" }}
                     >
                         <td>{r.boardIdx}</td>
                         <td>{decodeBase64(r.boardTitle)}</td>  
                         <td>{r.boardWriter}</td>
-                        <td>{r.boardView}</td>
+                        <td>{boardView}</td> {/* ✅ 실시간 조회수 반영 */}
                         <td>{formattedTime(r.boardReg)}</td>
                     </tr>
-                ))}
+                    );
+                })}
             </tbody>
         </table>
 
