@@ -1,0 +1,68 @@
+/* src/css/Certificates.css */
+#cert-page { padding: 16px; }
+
+/* 화면용 상단 액션바 */
+.cert-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.cert-actions .spacer { flex: 1 1 auto; }
+.cert-actions .tab {
+  height: 36px; padding: 0 12px; border-radius: 8px;
+  border: 1px solid #CBD5E1; background: #fff; cursor: pointer;
+}
+.cert-actions .tab.active { border-color: #3B82F6; color: #3B82F6; font-weight: 700; }
+.cert-actions .btn.primary {
+  height: 36px; padding: 0 14px; border-radius: 8px;
+  border: 1px solid #3B82F6; background: #3B82F6; color: #fff; font-weight: 700;
+}
+
+/* A4 비율 느낌의 용지 박스 */
+.cert-paper {
+  width: 800px; max-width: 100%;
+  margin: 0 auto; padding: 32px;
+  background: #fff; color: #111;
+  border: 1px solid #E5E7EB; border-radius: 12px;
+}
+
+.cert-header {
+  display: grid; grid-template-columns: 72px 1fr;
+  align-items: center; gap: 12px; margin-bottom: 16px;
+}
+.cert-header .logo-area img { width: 72px; height: 72px; }
+.cert-header .title {
+  font-size: 28px; font-weight: 800; text-align: center;
+}
+
+/* 본문 */
+.cert-body .row {
+  display: grid; grid-template-columns: 120px 1fr 120px;
+  align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid #F1F5F9;
+}
+.cert-body .row .label { font-weight: 700; color: #334155; }
+.cert-body .row .value { padding-right: 8px; }
+.cert-body .row .photo { grid-row: span 3; text-align: right; }
+.cert-body .row .photo img {
+  width: 96px; height: 120px; object-fit: cover;
+  border: 1px solid #CBD5E1;
+}
+
+.cert-body .desc { margin: 24px 0 12px; font-size: 15px; }
+.cert-body .sig {
+  margin-top: 24px; display: flex; justify-content: space-between; align-items: center;
+  font-weight: 700;
+}
+
+/* 프린트 최적화 */
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; }
+  #cert-page { padding: 0; }
+  .cert-paper {
+    width: auto; border: none; border-radius: 0; padding: 16mm; /* 프린트 여백 */
+  }
+  .cert-header .title { font-size: 30px; }
+  .cert-body .row { border-bottom: 1px solid #e5e7eb; }
+}
