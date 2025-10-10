@@ -91,16 +91,32 @@ const linkAttachmentsToBoard = async (boardIdx, attachmentIdxArray) => {
   }
 };
 
-const boardWriterIdx = admin?.data?.adminIdx;
-const boardWriterType = "admin";
+const uploadFiles = async (boardIdx, files) => {
+  const formData = new FormData();
+  files.forEach((file) => {
+    formData.append("files", file);
+  });
 
+  const response = await fetch(`/api/board-attachments/upload/${boardIdx}`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${accessToken}`,
+    },
+    body: formData
+  });
+
+  const result = await response.json();
+  if (result.success) {
+    return result.data.map(file => file.attachmentIdx);
+  } else {
+    throw new Error("파일 업로드 실패");
+  }
+};
 
 
 // 공지 작성
 const handleSubmit = async (e) => {
   e.preventDefault();
-
-  console.log('accessToken:', accessToken); // 토큰 확인
 
   const boardContent = editorRef.current.getInstance().getMarkdown();
   if (!boardTitle || boardCode === null || !boardContent.trim()) {
@@ -125,6 +141,7 @@ const handleSubmit = async (e) => {
   };
 
   try {
+    // 게시글 생성
     const response = await fetch('/api/boards/create', {
       method: 'POST',
       headers: {
@@ -135,19 +152,13 @@ const handleSubmit = async (e) => {
     });
 
     if (!response.ok) {
-      const text = await response.text(); // JSON이 아닐 때 내용 확인용
-      console.error('서버 에러 응답:', text);
       throw new Error('서버 에러가 발생했습니다.');
     }
 
     const result = await response.json();
-    console.log('게시글 생성 결과:', result);
+    const boardIdx = result?.data?.boardIdx;
 
-    const boardIdx = result?.boardIdx || result?.data?.boardIdx;
-    if (!boardIdx) {
-      throw new Error('게시글 생성 실패: boardIdx가 없습니다.');
-    }
-
+    // ✅ 파일이 있으면 업로드 후 첨부 연결
     if (selectedFiles.length > 0 && boardIdx) {
       const attachmentIdxArray = await uploadFiles(boardIdx, selectedFiles);
       await linkAttachmentsToBoard(boardIdx, attachmentIdxArray);
@@ -170,48 +181,10 @@ const handleSubmit = async (e) => {
 };
 
 
-const uploadFiles = async (boardIdx, files) => {
-  console.log('uploadFiles 호출:', boardIdx, files);
-
-  const formData = new FormData();
-  files.forEach((file) => {
-    formData.append("files", file);
-  });
-
-  const response = await fetch(`/api/board-attachments/upload/${boardIdx}`, {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${accessToken}`,
-    },
-    body: formData
-  });
-
-  if (!response.ok) {
-    const text = await response.text();
-    console.error('파일 업로드 서버 에러:', text);
-    throw new Error('파일 업로드 실패');
-  }
-
-  const result = await response.json();
-  console.log('파일 업로드 결과:', result);
-
-  if (result.success) {
-    return result.attachments.map(file => file.attachmentIdx);  // 'attachments' 맞는지 꼭 확인!
-  } else {
-    throw new Error('파일 업로드 실패');
-  }
-};
-
-console.log('fetch 시작 - 수정 요청');
-console.log('URL:', `/api/boards/update/${boardIdx}`);
-console.log('Body:', JSON.stringify(updatedNotice));
-
 
 // 공지 수정
 const handleEdit = async (e) => {
   e.preventDefault();
-
-  console.log('handleEdit accessToken:', accessToken); // 토큰 확인
 
   const boardIdx = notice?.boardIdx;
   const boardContent = editorRef.current.getInstance().getMarkdown();
@@ -245,14 +218,10 @@ const handleEdit = async (e) => {
     });
 
     if (!response.ok) {
-      const text = await response.text();
-      console.error('서버 에러 응답(handleEdit):', text);
       throw new Error('서버 에러가 발생했습니다.');
     }
 
-    const result = await response.json();
-    console.log('공지 수정 결과:', result);
-
+    // ✅ 수정 중 파일 업로드 + 연결
     if (selectedFiles.length > 0 && boardIdx) {
       const attachmentIdxArray = await uploadFiles(boardIdx, selectedFiles);
       await linkAttachmentsToBoard(boardIdx, attachmentIdxArray);
@@ -273,7 +242,6 @@ const handleEdit = async (e) => {
     alert(error.message);
   }
 };
-
 
 
 // 작성 또는 수정 후 목록으로 돌아가기
