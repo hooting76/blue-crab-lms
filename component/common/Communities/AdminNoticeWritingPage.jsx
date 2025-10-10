@@ -39,33 +39,43 @@ function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, s
   const accessToken = propToken || getAccessToken();
 
   // 🔧 boardIdx가 바뀔 때 첨부파일 불러오기
-  useEffect(() => {
-    const fetchAttachments = async () => {
-      if (!boardIdx) {
-        setExistingAttachments([]);
-        return;
-      }
+useEffect(() => {
+  const fetchAttachments = async () => {
+    if (!boardIdx) {
+      setExistingAttachments([]);
+      return;
+    }
 
-      try {
-        const attListRes = await fetch(`https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/board-attachments/download/${attachmentIdx}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${accessToken}`
-          }
-        });
-        if (attListRes.ok) {
-          const attList = await attListRes.json();
-          setExistingAttachments(attList.attachments || []);
-        } else {
-          setExistingAttachments([]);
-        }
-      } catch (e) {
+    try {
+      const attListRes = await fetch(`https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/boards/detail`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ boardIdx })
+      });
+
+      const attList = await attListRes.json();
+      console.log("📦 board detail 응답:", attList);
+
+      if (attListRes.ok) {
+        // 확인: attachments가 어디에 있는지 로그로 체크
+        setExistingAttachments(attList.attachments || []);
+      } else {
+        console.error("❌ 첨부파일 요청 실패:", attListRes.status);
         setExistingAttachments([]);
       }
-    };
+    } catch (e) {
+      console.error("🚨 첨부파일 요청 중 예외 발생:", e);
+      setExistingAttachments([]);
+    }
+  };
 
-    fetchAttachments();
-  }, [boardIdx, accessToken]); // 🔧 notice 대신 boardIdx를 의존성에 추가
+  fetchAttachments();
+}, [boardIdx, accessToken]);
+
+
 
   useEffect(() => {
     if (notice?.boardTitle) {

@@ -135,12 +135,14 @@ const decodeBase64 = (str) => {
 const handleDownload = async (attachmentIdx, fileName) => {
   try {
     const response = await fetch(
-      `https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/board-attachments/download/${attachmentIdx}`,
+      'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/board-attachments/download',
       {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
         },
+        body: JSON.stringify({ attachmentIdx })
       }
     );
 
