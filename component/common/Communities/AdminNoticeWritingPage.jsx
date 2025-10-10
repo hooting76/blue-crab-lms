@@ -195,6 +195,7 @@ console.log('업로드할 파일 목록:', selectedFiles);
     e.preventDefault();
 
     const boardIdx = notice?.boardIdx;
+    console.log('수정할 공지사항 IDX:', boardIdx);
 
     const boardContent = editorRef.current.getInstance().getMarkdown();
     if (!boardTitle || boardCode === null || !boardContent.trim()) {
