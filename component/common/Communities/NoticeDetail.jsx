@@ -132,6 +132,38 @@ const decodeBase64 = (str) => {
   }
 };
 
+const handleDownload = async (attachmentIdx, fileName) => {
+  try {
+    const response = await fetch(
+      `https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/board-attachments/download/${attachmentIdx}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("파일 다운로드 실패");
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", fileName);
+    document.body.appendChild(link);
+    link.click();
+
+    link.parentNode.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    alert("다운로드 중 오류 발생: " + err.message);
+  }
+};
+
 
 const markdown = decodeBase64(notice.boardContent);
 
@@ -157,14 +189,12 @@ const markdown = decodeBase64(notice.boardContent);
       {notice.attachmentDetails && notice.attachmentDetails.length > 0 ? (
         notice.attachmentDetails.map((att, index) => (
           <div key={index}>
-            <a
-              href={`https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/board-attachments/download/${att.attachmentIdx}`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
               className="attachmentLink"
+              onClick={() => handleDownload(att.attachmentIdx, att.originalFileName)}
             >
               📎 {att.originalFileName}
-            </a>
+            </button>
           </div>
         ))
       ) : (
