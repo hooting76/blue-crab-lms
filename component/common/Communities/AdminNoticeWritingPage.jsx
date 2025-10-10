@@ -177,8 +177,6 @@ console.log('업로드할 파일 목록:', selectedFiles);
     setBoardCode(null);
     setSelectedFiles([]);
     editorRef.current.getInstance().setMarkdown('');
-    // 기존 첨부파일 목록도 초기화
-    setExistingAttachments([]);
     setCurrentPage(
       boardCode === 0 ? '학사공지' :
       boardCode === 1 ? '행정공지' :
@@ -284,8 +282,6 @@ console.log('업로드할 파일 목록:', selectedFiles);
     setExistingAttachments([]);
     setDeletedAttachments([]);
     editorRef.current.getInstance().setMarkdown('');
-    // 기존 첨부파일 목록도 초기화
-    setExistingAttachments([]);
     setCurrentPage(
       boardCode === 0 ? '학사공지' :
       boardCode === 1 ? '행정공지' :
