@@ -1,0 +1,62 @@
+package BlueCrab.com.example.repository;
+
+import BlueCrab.com.example.repository.projection.DashboardStatsProjection;
+import BlueCrab.com.example.entity.FacilityReservationTbl;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+/**
+ * 시설 예약 정보 데이터베이스 접근을 위한 JPA 리포지토리 인터페이스
+ */
+@Repository
+public interface FacilityReservationRepository extends JpaRepository<FacilityReservationTbl, Integer> {
+
+    List<FacilityReservationTbl> findByUserCodeOrderByCreatedAtDesc(String userCode);
+
+    List<FacilityReservationTbl> findByUserCodeAndStatusOrderByCreatedAtDesc(String userCode, String status);
+
+    @Query("SELECT r FROM FacilityReservationTbl r WHERE r.facilityIdx = :facilityIdx " +
+           "AND r.status IN :statuses " +
+           "AND (:excludeReservationIdx IS NULL OR r.reservationIdx <> :excludeReservationIdx) " +
+           "AND ((r.startTime < :endTime AND r.endTime > :startTime))")
+    List<FacilityReservationTbl> findConflictingReservations(
+        @Param("facilityIdx") Integer facilityIdx,
+        @Param("startTime") LocalDateTime startTime,
+        @Param("endTime") LocalDateTime endTime,
+        @Param("statuses") List<String> statuses,
+        @Param("excludeReservationIdx") Integer excludeReservationIdx
+    );
+
+    @Query("SELECT r FROM FacilityReservationTbl r " +
+           "LEFT JOIN FacilityTbl f ON r.facilityIdx = f.facilityIdx " +
+           "LEFT JOIN UserTbl u ON r.userCode = u.userCode " +
+           "WHERE r.status = :status " +
+           "ORDER BY r.createdAt DESC")
+    List<FacilityReservationTbl> findByStatusOrderByCreatedAtDesc(@Param("status") String status);
+
+    @Query("SELECT r FROM FacilityReservationTbl r WHERE r.status = 'APPROVED' " +
+           "AND r.endTime < :now ORDER BY r.endTime ASC")
+    List<FacilityReservationTbl> findExpiredApprovedReservations(@Param("now") LocalDateTime now);
+
+    @Query("SELECT COUNT(r) FROM FacilityReservationTbl r WHERE r.status = 'PENDING'")
+    long countPendingReservations();
+
+    @Query(value = "SELECT " +
+           "COUNT(r.RESERVATION_IDX) as totalReservations, " +
+           "SUM(CASE WHEN r.STATUS = 'PENDING' THEN 1 ELSE 0 END) as pendingCount, " +
+           "SUM(CASE WHEN r.STATUS = 'APPROVED' THEN 1 ELSE 0 END) as approvedCount, " +
+           "SUM(CASE WHEN r.STATUS = 'REJECTED' THEN 1 ELSE 0 END) as rejectedCount, " +
+           "SUM(CASE WHEN r.STATUS = 'CANCELLED' THEN 1 ELSE 0 END) as cancelledCount, " +
+           "SUM(CASE WHEN r.STATUS = 'COMPLETED' THEN 1 ELSE 0 END) as completedCount " +
+           "FROM FACILITY_RESERVATION_TBL r " +
+           "WHERE r.CREATED_AT BETWEEN :startDate AND :endDate", nativeQuery = true)
+    DashboardStatsProjection getReservationStats(
+        @Param("startDate") LocalDateTime startDate,
+        @Param("endDate") LocalDateTime endDate
+    );
+}

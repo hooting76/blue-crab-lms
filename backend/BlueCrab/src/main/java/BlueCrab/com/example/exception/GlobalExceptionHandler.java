@@ -12,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.persistence.PessimisticLockException;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
@@ -260,6 +261,27 @@ public class GlobalExceptionHandler {
     }
     
     /**
+     * 인증되지 않은 접근 예외 처리
+     * UnauthorizedException을 처리하여 401 응답 반환
+     *
+     * 처리 대상:
+     * - 관리자 권한 없음
+     * - 유효하지 않은 토큰
+     *
+     * HTTP 응답: 401 Unauthorized
+     * 로그 레벨: WARN (보안 모니터링)
+     */
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiResponse<Object>> handleUnauthorizedException(
+            UnauthorizedException ex, HttpServletRequest request) {
+
+        logger.warn("Unauthorized access: {} at {}", ex.getMessage(), request.getRequestURI());
+
+        ApiResponse<Object> response = ApiResponse.failure(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    /**
      * 리소스를 찾을 수 없는 경우 예외 처리
      * ResourceNotFoundException을 처리하여 404 응답 반환
      *
@@ -277,9 +299,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleResourceNotFoundException(
             ResourceNotFoundException ex, HttpServletRequest request) {
-        
+
         logger.warn("Resource not found: {} at {}", ex.getMessage(), request.getRequestURI());
-        
+
         ApiResponse<Object> response = ApiResponse.failure(ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
@@ -302,10 +324,37 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ApiResponse<Object>> handleDuplicateResourceException(
             DuplicateResourceException ex, HttpServletRequest request) {
-        
+
         logger.warn("Duplicate resource: {} at {}", ex.getMessage(), request.getRequestURI());
-        
+
         ApiResponse<Object> response = ApiResponse.failure(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    /**
+     * 비관적 락 타임아웃 예외 처리
+     * 동시성 제어 중 락 획득 타임아웃 발생 시 처리
+     *
+     * 처리 대상:
+     * - 시설 예약 생성/승인 시 락 대기 타임아웃
+     * - 다른 트랜잭션이 락을 보유하여 대기 시간 초과
+     *
+     * HTTP 응답: 409 Conflict
+     * 로그 레벨: WARN (동시 접근으로 인한 충돌)
+     *
+     * 사용 예시:
+     * 여러 사용자가 동시에 같은 시설 예약 시도
+     * → 클라이언트에 409 응답과 재시도 안내 메시지 반환
+     */
+    @ExceptionHandler(PessimisticLockException.class)
+    public ResponseEntity<ApiResponse<Object>> handlePessimisticLockException(
+            PessimisticLockException ex, HttpServletRequest request) {
+
+        logger.warn("Pessimistic lock timeout: {} at {}", ex.getMessage(), request.getRequestURI());
+
+        ApiResponse<Object> response = ApiResponse.failure(
+            "요청이 집중되어 처리할 수 없습니다. 잠시 후 다시 시도해주세요."
+        );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
     
