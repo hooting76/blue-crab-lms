@@ -213,7 +213,6 @@ function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, s
     };
 
     try {
-      // 1. 게시글 수정 API 호출
       const response = await fetch(`https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/boards/update/${boardIdx}`, {
         method: 'POST',
         headers: {
@@ -227,9 +226,6 @@ function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, s
         throw new Error('서버 에러가 발생했습니다.');
       }
 
-      // 2. (선택사항) 삭제 API 호출 - 없다면 무시
-
-      // 3. 새로 선택한 파일 있으면 업로드 + 첨부 연결
       if (selectedFiles.length > 0) {
         const formData = new FormData();
         selectedFiles.forEach(file => formData.append('files', file));
