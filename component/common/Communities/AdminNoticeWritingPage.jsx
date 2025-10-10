@@ -64,12 +64,16 @@ const [selectedFiles, setSelectedFiles] = useState([]);
 
 const handleFileChange = (e) => {
   const files = Array.from(e.target.files);
-  if (files.length > 5) {
+  const totalFiles = selectedFiles.length + files.length;
+
+  if (totalFiles > 5) {
     alert("파일은 최대 5개까지 업로드할 수 있습니다.");
     return;
   }
-  setSelectedFiles(files);
+
+  setSelectedFiles(prev => [...prev, ...files]);
 };
+
 
 const linkAttachmentsToBoard = async (boardIdx, attachmentIdxArray) => {
   const response = await fetch(`/api/boards/link-attachments/${boardIdx}`, {
@@ -78,7 +82,7 @@ const linkAttachmentsToBoard = async (boardIdx, attachmentIdxArray) => {
       "Authorization": `Bearer ${accessToken}`,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify(attachmentIdxArray) // ← FormData가 아닌 JSON
+    body: JSON.stringify({ attachmentIdxArray })
   });
 
   const result = await response.json();
@@ -296,6 +300,7 @@ if (currentPage === "기타공지")
           }
           useCommandShortcut={true}
           language="ko-KR"
+          style={{textAlign: 'start'}}
         />
       </div>
 
