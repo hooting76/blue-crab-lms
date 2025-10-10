@@ -1,8 +1,8 @@
 // src/component/common/MyPages/ProfileEdit.jsx
 import { useEffect, useMemo, useState } from 'react';
 import { getMyProfile, getMyProfileImage } from '../../../src/api/profileApi';
+import '../../../css/MyPages/ProfileEdit.css';
 
-// 전화번호 자동 하이픈
 const phoneMask = (v='') =>
   v.replace(/[^\d]/g,'').replace(/(\d{3})(\d{3,4})(\d{4})/, '$1-$2-$3');
 const yyyymmddOk = (s) => /^\d{8}$/.test(s);
@@ -12,19 +12,15 @@ export default function ProfileEdit() {
   const [err, setErr] = useState('');
   const [msg, setMsg] = useState('');
   const [imageUrl, setImageUrl] = useState('');
-  const [origin, setOrigin] = useState(null); // 원본 프로필
-  const [form, setForm] = useState(null);  // 편집 폼
+  const [origin, setOrigin] = useState(null);
+  const [form, setForm] = useState(null);
 
-  // 프로필 + 이미지 조회
   useEffect(() => {
     let revoked = false;
     (async () => {
       try {
-        setLoading(true);
-        setErr('');
-        setMsg('');
-
-        const wrapper = await getMyProfile(); // { success, message, data }
+        setLoading(true); setErr(''); setMsg('');
+        const wrapper = await getMyProfile();
         const p = wrapper?.data;
         if (!p) throw new Error('프로필 데이터가 없습니다.');
 
@@ -61,13 +57,9 @@ export default function ProfileEdit() {
         setLoading(false);
       }
     })();
-
-    return () => {
-      revoked = true;
-    };
+    return () => { revoked = true; };
   }, []);
 
-  // objectURL 정리
   useEffect(() => {
     return () => {
       if (imageUrl && imageUrl.startsWith('blob:')) {
@@ -76,11 +68,20 @@ export default function ProfileEdit() {
     };
   }, [imageUrl]);
 
-  const fullAddress = useMemo(() => {
-    if (!form) return '';
-    return form.zipCode
-      ? `(${form.zipCode}) ${form.mainAddress} ${form.detailAddress}`.trim()
-      : `${form.mainAddress} ${form.detailAddress}`.trim();
+  // 학번/교번 → majorCode, 없으면 이메일 아이디
+  const idText = useMemo(() => {
+    if (!form) return '-';
+    const code = (form.majorCode || '').toString().trim();
+    if (code) return code;
+    const mail = (form.userEmail || '').toString();
+    return mail.includes('@') ? mail.split('@')[0] : '-';
+  }, [form]);
+
+  // 역할 텍스트: userTypeText, 없으면 '학생'
+  const roleText = useMemo(() => {
+    if (!form) return '학생';
+    const s = (form.userTypeText || '').toString().trim();
+    return s || '학생';
   }, [form]);
 
   const onChange = (k) => (e) => {
@@ -93,25 +94,7 @@ export default function ProfileEdit() {
 
   const onCancel = () => {
     if (!origin) return;
-    setForm({
-      userEmail: origin.userEmail || '',
-      userName: origin.userName || '',
-      userPhone: origin.userPhone || '',
-      userType: origin.userType ?? 0,
-      userTypeText: origin.userTypeText || '',
-      majorCode: origin.majorCode || '',
-      zipCode: origin.zipCode || '',
-      mainAddress: origin.mainAddress || '',
-      detailAddress: origin.detailAddress || '',
-      birthDate: origin.birthDate || '',
-      academicStatus: origin.academicStatus || '',
-      admissionRoute: origin.admissionRoute || '',
-      majorFacultyCode: origin.majorFacultyCode || '',
-      majorDeptCode: origin.majorDeptCode || '',
-      minorFacultyCode: origin.minorFacultyCode || '',
-      minorDeptCode: origin.minorDeptCode || '',
-      image: origin.image || null,
-    });
+    setForm({ ...origin });
     setMsg('');
   };
 
@@ -120,8 +103,6 @@ export default function ProfileEdit() {
     if (!form?.userName?.trim()) return setMsg('이름을 입력하세요.');
     if (!/^\d{10,11}$/.test(form.userPhone)) return setMsg('전화번호는 숫자 10~11자리여야 합니다.');
     if (form.birthDate && !yyyymmddOk(form.birthDate)) return setMsg('생년월일은 YYYYMMDD 8자리 형식입니다.');
-
-    // 아직 저장 API 미구성: 안내만
     setMsg('현재 개발 중입니다. 저장 API가 아직 연결되지 않았습니다.');
   };
 
@@ -130,56 +111,67 @@ export default function ProfileEdit() {
   if (!form) return null;
 
   return (
-    <div className="profile-card">
-      <div style={{ display:'flex', gap:16, alignItems:'center', marginBottom:12 }}>
-        <img
-          src={imageUrl || '/assets/default-profile.png'}
-          alt="프로필"
-          style={{ width:64, height:64, borderRadius:'50%', objectFit:'cover', background:'#eee' }}
-        />
-        <div>
-          <div style={{ fontWeight:700 }}>{form.userName}</div>
-          <div style={{ color:'#667' }}>{form.userEmail}</div>
-        </div>
-      </div>
+    <div id="bc-profile">
+      <div className="profile-card">
+        {/* 상단 중앙 제목 (원하면 이 줄을 지워도 됨) */}
+        <h2 className="profile-main-title">개인정보 수정</h2>
 
-      <div className="form">
-        <label className="field"><span>이름</span>
-          <input value={form.userName} onChange={onChange('userName')} />
-        </label>
-
-        <label className="field"><span>이메일</span>
-          <input value={form.userEmail} readOnly />
-        </label>
-
-        <label className="field"><span>전화번호</span>
-          <input value={phoneMask(form.userPhone)} onChange={onChange('userPhone')} inputMode="numeric" />
-        </label>
-
-        <label className="field"><span>생년월일(YYYYMMDD)</span>
-          <input value={form.birthDate} onChange={onChange('birthDate')} inputMode="numeric" />
-        </label>
-
-        <label className="field"><span>우편번호</span>
-          <input value={form.zipCode} onChange={onChange('zipCode')} inputMode="numeric" />
-        </label>
-
-        <label className="field"><span>주소</span>
-          <input value={form.mainAddress} onChange={onChange('mainAddress')} />
-        </label>
-
-        <label className="field"><span>상세주소</span>
-          <input value={form.detailAddress} onChange={onChange('detailAddress')} />
-        </label>
-
-        <div style={{ marginTop:8, color:'#667' }}>전체 주소: {fullAddress}</div>
-
-        <div className="actions" style={{ marginTop:12 }}>
-          <button className="btn-primary" onClick={onSave} title="저장 API 준비 중">저장</button>
-          <button className="btn-ghost" onClick={onCancel}>취소</button>
+        {/* 헤더: 아바타 | (이름 / 학번 · 역할) - 이름 아래 줄로 학번 표시 */}
+        <div className="head-row">
+          <div className="avatar-col">
+            <img
+              src={imageUrl || '/assets/default-profile.png'}
+              alt="프로필"
+              className="avatar avatar-lg"
+            />
+          </div>
+          <div className="who who-vertical">
+            <div className="who-name">{form.userName}</div>
+            <div className="who-meta">
+              학번 <strong>{idText}</strong> · {roleText}
+            </div>
+          </div>
         </div>
 
-        {msg && <div style={{ marginTop:8, color: msg.startsWith('저장') ? '#0a7' : '#d00' }}>{msg}</div>}
+        {/* 폼: 모든 필드를 동일 간격으로 */}
+        <div className="form-grid">
+          <label className="field">
+            <span>이름</span>
+            <input value={form.userName} onChange={onChange('userName')} />
+          </label>
+
+          <label className="field">
+            <span>생년월일</span>
+            <input value={form.birthDate} onChange={onChange('birthDate')} inputMode="numeric" />
+          </label>
+
+          <label className="field">
+            <span>휴대폰</span>
+            <input value={phoneMask(form.userPhone)} onChange={onChange('userPhone')} inputMode="numeric" />
+          </label>
+
+          <label className="field">
+            <span>이메일</span>
+            <input value={form.userEmail} readOnly />
+          </label>
+
+          <label className="field">
+            <span>주소</span>
+            <textarea
+              rows={2}
+              value={form.mainAddress}
+              onChange={onChange('mainAddress')}
+              placeholder="도로명 주소"
+            />
+          </label>
+        </div>
+
+        <div className="actions">
+          <button className="btn secondary" onClick={onCancel}>취소</button>
+          <button className="btn" onClick={onSave} title="저장 API 준비 중">저장</button>
+        </div>
+
+        {msg && <div className="form-msg" data-ok={String(msg.startsWith('저장'))}>{msg}</div>}
       </div>
     </div>
   );

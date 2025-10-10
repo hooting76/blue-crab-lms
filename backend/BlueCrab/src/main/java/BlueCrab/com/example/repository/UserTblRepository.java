@@ -78,12 +78,12 @@ public interface UserTblRepository extends JpaRepository<UserTbl, Integer> {
      * 학생/교수 구분에 따라 사용자 목록 조회
      * 학사 관리 시스템에서 학생 또는 교수 목록을 분리하여 조회할 때 사용
      *
-     * @param userStudent 구분 값 (1: 학생, 0: 교수)
+     * @param userStudent 구분 값 (0: 학생, 1: 교수)
      * @return List<UserTbl> - 해당 구분에 속하는 사용자 목록
      *
      * 사용 예시:
-     * List<UserTbl> students = userRepository.findByUserStudent(1);
-     * List<UserTbl> professors = userRepository.findByUserStudent(0);
+     * List<UserTbl> students = userRepository.findByUserStudent(0);
+     * List<UserTbl> professors = userRepository.findByUserStudent(1);
      */
     List<UserTbl> findByUserStudent(Integer userStudent);
     
@@ -104,24 +104,24 @@ public interface UserTblRepository extends JpaRepository<UserTbl, Integer> {
      * 학생 수 조회
      * 학사 통계 및 대시보드에 사용
      *
-     * @return long - 등록된 학생 수 (userStudent = 1)
+     * @return long - 등록된 학생 수 (userStudent = 0)
      *
      * 사용 예시:
      * long studentCount = userRepository.countStudents();
      */
-    @Query("SELECT COUNT(u) FROM UserTbl u WHERE u.userStudent = 1")
+    @Query("SELECT COUNT(u) FROM UserTbl u WHERE u.userStudent = 0")
     long countStudents();
     
     /**
      * 교수 수 조회
      * 학사 통계 및 대시보드에 사용
      *
-     * @return long - 등록된 교수 수 (userStudent = 0)
+     * @return long - 등록된 교수 수 (userStudent = 1)
      *
      * 사용 예시:
      * long professorCount = userRepository.countProfessors();
      */
-    @Query("SELECT COUNT(u) FROM UserTbl u WHERE u.userStudent = 0")
+    @Query("SELECT COUNT(u) FROM UserTbl u WHERE u.userStudent = 1")
     long countProfessors();
     
     /**

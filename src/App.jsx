@@ -38,6 +38,9 @@ import ReadingRoom from '../component/common/Facilities/ReadingRoom';
 // 마이페이지 페이지들
 import MyPage from '../component/common/MyPage';
 
+// 수강신청 페이지
+import CourseApply from '../component/common/Course/CourseApply';
+
 // 관리자 페이지
 import Admin from './Admin';
 
@@ -146,7 +149,11 @@ function AppContent() {
       case '열람실 신청':
         return <ReadingRoom currentPage={currentPage} setCurrentPage={setCurrentPage} />;
     
-  // 기본값: 대시보드
+        // ===== 수강신청 =====
+        case "수강신청":
+        return <CourseApply currentPage={currentPage} setCurrentPage={setCurrentPage} />;
+  
+        // 기본값: 대시보드
       default:
         return <UserDashboard/>;
     };

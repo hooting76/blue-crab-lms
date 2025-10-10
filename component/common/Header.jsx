@@ -1,3 +1,4 @@
+// src/component/common/Header.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeaderCss from '../../css/modules/Header.module.css';
@@ -8,7 +9,7 @@ function FuncAniBtn(){
   let lines = document.querySelectorAll('header > div > span');
   let mobMenu = document.querySelector('header').nextSibling;
 
-  if(lines[0].style.background == 'transparent'){
+  if(lines[0].style.background === 'transparent'){
     // css ani
     lines[0].style.background = '#333';
     lines[1].style.transform = 'rotate(0deg)';
@@ -31,12 +32,6 @@ function Header({ currentPage, setCurrentPage }) {
   const navigate = useNavigate();
 
   const { user, isAuthenticated, logout } = UseUser();
-
-  // ====== 여기서부터 테스트 하드코딩(로그인 강제) ======
-  //const isAuthenticated = true;
-  //const user = { data: { user: { id: 1, name: '테스트유저', student: 0, role: 'user' } } };
-  //const logout = () => alert('로그아웃(테스트)');
-  // ===============================================
 
   const Reset = () => {
     navigate('/');           // SPA 네비게이션
@@ -85,8 +80,11 @@ function Header({ currentPage, setCurrentPage }) {
               <ul>
                 <li onMouseOver={() => { showSubMenu1(); hideSubMenu2(); hideSubMenu3(); }}>학교소개</li>
                 <li onMouseOver={() => {hideSubMenu1(); showSubMenu2(); hideSubMenu3();}}
-                onClick={() => setCurrentPage('학사공지')}>커뮤니티</li>
+                    onClick={() => setCurrentPage('학사공지')}>커뮤니티</li>
                 <li onMouseOver={() => { hideSubMenu1(); hideSubMenu2(); showSubMenu3(); }}>마이페이지</li>
+                  {/* 수강신청: 드롭다운 없이 한 번에 진입 */}
+                <li onMouseOver={() => { hideSubMenu1(); hideSubMenu2(); hideSubMenu3(); }}
+                    onClick={() => { setCurrentPage('수강신청'); closeAllSubMenus(); }}>수강신청</li>
               </ul>
 
               {/* 학교소개 */}
@@ -112,14 +110,14 @@ function Header({ currentPage, setCurrentPage }) {
                 style={{ visibility: subMenu2Visibility }}
               >
                 <tbody>
-              {/* FIX: 공지사항 → 기본 학사공지로 진입 */}
+                  {/* FIX: 공지사항 → 기본 학사공지로 진입 */}
                   <tr><td onClick={() => setCurrentPage("학사공지")}>공지사항</td></tr>
-              {/* 단일 */}
+                  {/* 단일 */}
                   <tr><td onClick={() => setCurrentPage("FAQ")}>FAQ</td></tr>
-              {/* 시설 & 문의 → 기본 ‘신청폼(시설신청)’로 진입 */}
+                  {/* 시설 & 문의 → 기본 ‘신청폼(시설신청)’로 진입 */}
                   <td onClick={() => {
-                  navigate('/Community', { state: { page: '시설신청' }, replace: true });
-                  setCurrentPage?.('시설신청');}}>시설 & 문의</td>
+                    navigate('/Community', { state: { page: '시설신청' }, replace: true });
+                    setCurrentPage?.('시설신청');}}>시설 & 문의</td>
                 </tbody>
               </table>
 
@@ -130,14 +128,16 @@ function Header({ currentPage, setCurrentPage }) {
                 onMouseOut={hideSubMenu3}
                 style={{ visibility: subMenu3Visibility }}>
                 
-                <tbody><tr><td onClick={() => { Reset(); setCurrentPage("개인정보"); closeAllSubMenus(); }}>개인정보</td></tr>
-                {/* 두 항목(수강중인/공지사항)을 하나로 통합 → '나의강의실' 클릭 시 수강중인 과목으로 진입 */}
-                <tr><td onClick={() => { Reset(); setCurrentPage("수강중인 과목"); closeAllSubMenus(); }}>나의강의실</td></tr>
-                <tr><td onClick={() => { Reset(); setCurrentPage("실시간 상담"); closeAllSubMenus(); }}>실시간 상담</td></tr>
+                {/* URL 변경 없이 상태 전환만 (통일 로직) */}
+                <tbody>
+                  <tr><td onClick={() => { setCurrentPage("개인정보"); closeAllSubMenus(); }}>개인정보</td></tr>
+                  {/* 두 항목(수강중인/공지사항)을 하나로 통합 → '나의강의실' 클릭 시 수강중인 과목으로 진입 */}
+                  <tr><td onClick={() => { Reset(); setCurrentPage("수강중인 과목"); closeAllSubMenus(); }}>나의강의실</td></tr>
+                  <tr><td onClick={() => { Reset(); setCurrentPage("실시간 상담"); closeAllSubMenus(); }}>실시간 상담</td></tr>
                 </tbody>
               </table>
-              </div>
-        )}
+            </div>
+          )}
         </h1>
 
         {/* 세션타이머(15분). 로그인 중에만 활성화. 만료시 로그아웃됨. */}
@@ -170,8 +170,9 @@ function Header({ currentPage, setCurrentPage }) {
             </div>
 
             <div className="btnCol">
+              {/* 우측 '개인정보' 버튼도 동일한 상태 전환 로직 적용 (URL 변경 없음) */}
               <button
-                onClick={() => alert('개인정보 수정 페이지는 현재 준비 중입니다.')}
+                onClick={() => { setCurrentPage('개인정보'); closeAllSubMenus(); }}
                 title="개인정보"
                 className={HeaderCss.userInfoBtn}
               >
@@ -196,12 +197,13 @@ function Header({ currentPage, setCurrentPage }) {
       {/* 모바일 메뉴: 로그인시에만 노출 */}
       {isAuthenticated && (
         <div className={HeaderCss.mobMenu}>
-      <ul>
-      <li onClick={() => { setCurrentPage("총장 인사"); closeAllSubMenus(); }}>학교소개</li>
-      <li onClick={() => { setCurrentPage("학사공지"); closeAllSubMenus(); }}>커뮤니티</li>
-      {/* 마이페이지 → 수강중인 과목으로 진입 */}
-      <li onClick={() => { setCurrentPage("수강중인 과목"); closeAllSubMenus(); }}>마이페이지</li>
-      </ul>
+          <ul>
+            <li onClick={() => { setCurrentPage("총장 인사"); closeAllSubMenus(); }}>학교소개</li>
+            <li onClick={() => { setCurrentPage("학사공지"); closeAllSubMenus(); }}>커뮤니티</li>
+            {/* 마이페이지 → 수강중인 과목으로 진입 */}
+            <li onClick={() => { setCurrentPage("수강중인 과목"); closeAllSubMenus(); }}>마이페이지</li>
+            <li onClick={() => { setCurrentPage("수강신청"); closeAllSubMenus(); }}>수강신청</li>
+          </ul>
         </div>
       )}
     </>

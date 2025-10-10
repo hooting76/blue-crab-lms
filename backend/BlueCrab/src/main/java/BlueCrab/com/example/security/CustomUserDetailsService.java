@@ -31,8 +31,8 @@ import java.util.List;
  *
  * 권한 체계:
  * - ROLE_USER: 모든 로그인 사용자에게 부여되는 기본 권한
- * - ROLE_STUDENT: 학생 사용자 (userStudent = 1)
- * - ROLE_PROFESSOR: 교수 사용자 (userStudent = 0)
+ * - ROLE_STUDENT: 학생 사용자 (userStudent = 0)
+ * - ROLE_PROFESSOR: 교수 사용자 (userStudent = 1)
  * - ROLE_ADMIN: 관리자 권한 (이메일이 "prof01"로 시작하는 경우)
  *
  * 작동 방식:
@@ -165,8 +165,8 @@ public class CustomUserDetailsService implements UserDetailsService {
      *
      * 현재 권한 체계:
      * - ROLE_USER: 기본 사용자 권한 (모든 로그인 사용자)
-     * - ROLE_STUDENT: 학생 전용 권한 (userStudent = 1)
-     * - ROLE_PROFESSOR: 교수 전용 권한 (userStudent = 0)
+     * - ROLE_STUDENT: 학생 전용 권한 (userStudent = 0)
+     * - ROLE_PROFESSOR: 교수 전용 권한 (userStudent = 1)
      * - ROLE_ADMIN: 관리자 권한 (이메일이 "prof01"로 시작)
      *
      * ⚠️ 추후 변경 가능성:
