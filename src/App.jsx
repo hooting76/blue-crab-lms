@@ -42,7 +42,7 @@ import MyPage from '../component/common/MyPage';
 import CourseApply from '../component/common/Course/CourseApply';
 
 // 증명서 페이지
-//import CertEnrollOrGrad from '../component/common/Certificates/CertEnrollOrGrad';
+import CertEnrollOrGrad from '../component/common/Certificates/CertEnrollOrGrad';
 
 // 관리자 페이지
 import Admin from './Admin';
@@ -157,7 +157,7 @@ function AppContent() {
         return <CourseApply currentPage={currentPage} setCurrentPage={setCurrentPage} />;
   
       // ===== 증명서 =====
-        case '증명서 발급':
+        case '증명서':
         return <CertEnrollOrGrad />;
         
         // 기본값: 대시보드

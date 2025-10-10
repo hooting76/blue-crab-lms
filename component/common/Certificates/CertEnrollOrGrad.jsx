@@ -6,7 +6,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getMyProfile, getMyProfileImage } from '../../../src/api/profileApi';
 import { getMyRegistry } from '../../../src/api/registryApi';
-import '../../../css/Certificates.css';
+import '../../../css/Certificates/Certificates.css';
 
 export default function CertEnrollOrGrad() {
     const [loading, setLoading] = useState(true);
