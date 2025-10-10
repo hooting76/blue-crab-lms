@@ -163,7 +163,7 @@ const markdown = decodeBase64(notice.boardContent);
               rel="noopener noreferrer"
               className="attachmentLink"
             >
-              📎 {att.attachmentOriginalName}
+              📎 {att.originalFileName}
             </a>
           </div>
         ))
