@@ -85,6 +85,8 @@ function Header({ currentPage, setCurrentPage }) {
                   {/* 수강신청: 드롭다운 없이 한 번에 진입 */}
                 <li onMouseOver={() => { hideSubMenu1(); hideSubMenu2(); hideSubMenu3(); }}
                     onClick={() => { setCurrentPage('수강신청'); closeAllSubMenus(); }}>수강신청</li>
+                <li onMouseOver={() => { hideSubMenu1(); hideSubMenu2(); hideSubMenu3(); }}
+                    onClick={() => { setCurrentPage('증명서'); closeAllSubMenus(); }}>증명서</li>
               </ul>
 
               {/* 학교소개 */}
