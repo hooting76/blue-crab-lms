@@ -39,9 +39,6 @@ public class FacilityTbl {
     @Column(name = "IS_ACTIVE", nullable = false)
     private Boolean isActive = true;
 
-    @Column(name = "REQUIRES_APPROVAL", nullable = false)
-    private Boolean requiresApproval = true;
-
     @Column(name = "CREATED_AT", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -131,14 +128,6 @@ public class FacilityTbl {
 
     public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
-    }
-
-    public Boolean getRequiresApproval() {
-        return requiresApproval;
-    }
-
-    public void setRequiresApproval(Boolean requiresApproval) {
-        this.requiresApproval = requiresApproval;
     }
 
     public LocalDateTime getCreatedAt() {

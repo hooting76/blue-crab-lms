@@ -47,6 +47,10 @@ claudedocs/
 ├── api-endpoints/                 # API 문서
 │   └── api-documentation.md
 │
+├── database/                      # 데이터베이스 스키마
+│   ├── database-schema.md         # 스키마 상세 문서 (Markdown)
+│   └── blue_crab_schema.sql       # 스키마 생성 SQL
+│
 └── backend-analysis/             # 백엔드 분석 문서
     ├── 00-Phase1-통합분석보고서.md
     ├── 01-전체구조-분석.md
@@ -180,7 +184,31 @@ claudedocs/
 
 ---
 
-### 5️⃣ 백엔드 분석 (`backend-analysis/`)
+### 5️⃣ 데이터베이스 (`database/`)
+
+**데이터베이스 스키마 및 구조 문서**
+
+- ✅ **database-schema.md**: 전체 데이터베이스 스키마 상세 문서
+  - 18개 테이블 구조
+  - ERD 다이어그램
+  - 인덱스 및 외래키
+  - VIEW 및 Trigger
+  
+- ✅ **blue_crab_schema.sql**: 데이터베이스 생성 SQL 스크립트
+  - CREATE TABLE 문
+  - 제약조건 및 인덱스
+  - 즉시 실행 가능한 SQL
+
+**데이터베이스 정보**:
+- 호스트: 121.165.24.26:55511
+- 데이터베이스: blue_crab
+- 18개 테이블 (USER_TBL, ADMIN_TBL, BOARD_TBL, FACILITY_TBL 등)
+
+**대상**: 백엔드 개발자, DBA, 프론트엔드 개발자
+
+---
+
+### 6️⃣ 백엔드 분석 (`backend-analysis/`)
 
 **백엔드 코드 상세 분석**
 
@@ -207,22 +235,25 @@ claudedocs/
 ### 신규 프론트엔드 개발자
 
 1. **기술 스택 파악**: `tech-stack/기술스택_및_버전정보.md`
-2. **백엔드 이해**: `backend-guide/프론트엔드_개발자를위한_백엔드_가이드_인덱스.md`
-3. **API 확인**: `api-endpoints/api-documentation.md`
-4. **기능 구현**: `feature-docs/` 해당 기능 문서 참조
+2. **데이터베이스 이해**: `database/database-schema.md`
+3. **백엔드 이해**: `backend-guide/프론트엔드_개발자를위한_백엔드_가이드_인덱스.md`
+4. **API 확인**: `api-endpoints/api-documentation.md`
+5. **기능 구현**: `feature-docs/` 해당 기능 문서 참조
 
 ### 신규 백엔드 개발자
 
 1. **기술 스택 파악**: `tech-stack/기술스택_및_버전정보.md`
-2. **폴더 구조**: `backend-guide/백엔드_폴더구조_빠른참조.md`
-3. **코드 분석**: `backend-analysis/` 레이어별 분석 문서
-4. **기능 구현**: `feature-docs/` 해당 기능 문서 참조
+2. **데이터베이스 스키마**: `database/database-schema.md`
+3. **폴더 구조**: `backend-guide/백엔드_폴더구조_빠른참조.md`
+4. **코드 분석**: `backend-analysis/` 레이어별 분석 문서
+5. **기능 구현**: `feature-docs/` 해당 기능 문서 참조
 
 ### DevOps / 인프라 담당자
 
 1. **운영 환경**: `tech-stack/기술스택_및_버전정보.md`
-2. **배포 정보**: WAR 파일 배포 방법, 환경 변수 설정
-3. **서버 구성**: Tomcat, Redis, MinIO 설정
+2. **데이터베이스**: `database/blue_crab_schema.sql`
+3. **배포 정보**: WAR 파일 배포 방법, 환경 변수 설정
+4. **서버 구성**: Tomcat, Redis, MinIO 설정
 
 ---
 

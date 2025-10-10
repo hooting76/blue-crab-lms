@@ -2,10 +2,12 @@ package BlueCrab.com.example.service;
 
 import BlueCrab.com.example.dto.FacilityDto;
 import BlueCrab.com.example.entity.FacilityBlockTbl;
+import BlueCrab.com.example.entity.FacilityPolicyTbl;
 import BlueCrab.com.example.entity.FacilityTbl;
 import BlueCrab.com.example.enums.FacilityType;
 import BlueCrab.com.example.exception.ResourceNotFoundException;
 import BlueCrab.com.example.repository.FacilityBlockRepository;
+import BlueCrab.com.example.repository.FacilityPolicyRepository;
 import BlueCrab.com.example.repository.FacilityRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,11 +24,14 @@ import java.util.stream.Collectors;
 public class FacilityService {
 
     private final FacilityRepository facilityRepository;
+    private final FacilityPolicyRepository policyRepository;
     private final FacilityBlockRepository blockRepository;
 
     public FacilityService(FacilityRepository facilityRepository,
+                           FacilityPolicyRepository policyRepository,
                            FacilityBlockRepository blockRepository) {
         this.facilityRepository = facilityRepository;
+        this.policyRepository = policyRepository;
         this.blockRepository = blockRepository;
     }
 
@@ -69,8 +74,16 @@ public class FacilityService {
             facility.getIsActive()
         );
 
-        // 승인 정책 설정
-        dto.setRequiresApproval(facility.getRequiresApproval());
+        // 승인 정책 조회 및 설정
+        FacilityPolicyTbl policy = policyRepository.findByFacilityIdx(facility.getFacilityIdx())
+            .orElse(null);
+
+        if (policy != null) {
+            dto.setRequiresApproval(policy.getRequiresApproval());
+        } else {
+            // 정책이 없는 경우 기본값 (관리자 승인 필요)
+            dto.setRequiresApproval(true);
+        }
 
         // 현재 시점 기준 활성 차단 정보 조회 및 설정
         List<FacilityBlockTbl> activeBlocks = blockRepository.findActiveFacilityBlocks(

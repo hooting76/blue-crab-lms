@@ -3,6 +3,7 @@ package BlueCrab.com.example.service;
 import BlueCrab.com.example.config.ReservationPolicyProperties;
 import BlueCrab.com.example.dto.*;
 import BlueCrab.com.example.entity.FacilityBlockTbl;
+import BlueCrab.com.example.entity.FacilityPolicyTbl;
 import BlueCrab.com.example.entity.FacilityReservationLog;
 import BlueCrab.com.example.entity.FacilityReservationTbl;
 import BlueCrab.com.example.entity.FacilityTbl;
@@ -10,6 +11,7 @@ import BlueCrab.com.example.entity.UserTbl;
 import BlueCrab.com.example.enums.ReservationStatus;
 import BlueCrab.com.example.exception.ResourceNotFoundException;
 import BlueCrab.com.example.repository.FacilityBlockRepository;
+import BlueCrab.com.example.repository.FacilityPolicyRepository;
 import BlueCrab.com.example.repository.FacilityReservationLogRepository;
 import BlueCrab.com.example.repository.FacilityReservationRepository;
 import BlueCrab.com.example.repository.FacilityRepository;
@@ -38,6 +40,7 @@ public class FacilityReservationService {
 
     private final FacilityReservationRepository reservationRepository;
     private final FacilityRepository facilityRepository;
+    private final FacilityPolicyRepository policyRepository;
     private final FacilityBlockRepository blockRepository;
     private final UserTblRepository userRepository;
     private final FacilityReservationLogRepository logRepository;
@@ -46,6 +49,7 @@ public class FacilityReservationService {
 
     public FacilityReservationService(FacilityReservationRepository reservationRepository,
                                        FacilityRepository facilityRepository,
+                                       FacilityPolicyRepository policyRepository,
                                        FacilityBlockRepository blockRepository,
                                        UserTblRepository userRepository,
                                        FacilityReservationLogRepository logRepository,
@@ -53,6 +57,7 @@ public class FacilityReservationService {
                                        ObjectMapper objectMapper) {
         this.reservationRepository = reservationRepository;
         this.facilityRepository = facilityRepository;
+        this.policyRepository = policyRepository;
         this.blockRepository = blockRepository;
         this.userRepository = userRepository;
         this.logRepository = logRepository;
@@ -61,56 +66,71 @@ public class FacilityReservationService {
     }
 
     public ReservationDto createReservation(String userCode, ReservationCreateRequestDto request) {
+        // ① 기본 검증 (가벼운 작업 우선)
         validateReservationRequest(request);
 
-        // 비관적 락을 사용하여 시설 조회 - 동시성 제어
-        // 다른 트랜잭션이 이 시설에 대한 예약을 생성하려면 현재 트랜잭션이 완료될 때까지 대기
-        FacilityTbl facility = facilityRepository.findByIdWithLock(request.getFacilityIdx())
-            .orElseThrow(() -> ResourceNotFoundException.forId("시설", request.getFacilityIdx()));
+        // ② 정책 먼저 조회 (락 획득 전에 확인하여 불필요한 락 방지)
+        FacilityPolicyTbl policy = policyRepository.findByFacilityIdx(request.getFacilityIdx())
+            .orElseThrow(() -> new RuntimeException("시설 정책을 찾을 수 없습니다."));
 
-        if (!facility.getIsActive()) {
-            throw new RuntimeException("사용 중지된 시설입니다.");
-        }
+        boolean requiresApproval = Boolean.TRUE.equals(policy.getRequiresApproval());
+        FacilityTbl facility;
 
-        // 락을 획득한 상태에서 가용성 체크 - race condition 방지
-        FacilityAvailabilityDto availability = checkAvailability(request.getFacilityIdx(), request.getStartTime(), request.getEndTime());
+        // ③ 승인 정책에 따라 락 전략 차별화
+        if (requiresApproval) {
+            // ③-A: 승인 필요 시설 → 락 없이 빠르게 처리
+            // PENDING 상태로 저장되므로 동시 요청 허용 (관리자 승인 시 충돌 체크)
+            facility = facilityRepository.findById(request.getFacilityIdx())
+                .orElseThrow(() -> ResourceNotFoundException.forId("시설", request.getFacilityIdx()));
 
-
-
-        if (!Boolean.TRUE.equals(availability.getIsAvailable())) {
-
-            List<FacilityAvailabilityDto.TimeSlot> conflicts = availability.getConflictingReservations();
-
-            if (conflicts != null && !conflicts.isEmpty()) {
-
-                FacilityAvailabilityDto.TimeSlot conflict = conflicts.get(0);
-
-                throw new RuntimeException(String.format("해당 시간에는 이미 다른 예약이 존재합니다. 충돌 시간: %s ~ %s",
-                    conflict.getStartTime(), conflict.getEndTime()));
-
+            if (!facility.getIsActive()) {
+                throw new RuntimeException("사용 중지된 시설입니다.");
             }
 
-            throw new RuntimeException("해당 시간에는 이미 다른 예약이 존재합니다.");
+            // 차단 기간만 체크 (예약 충돌은 승인 시점에 검증)
+            validateNotBlocked(request.getFacilityIdx(), request.getStartTime(), request.getEndTime());
 
+            logger.debug("Creating reservation for approval-required facility: {}", facility.getFacilityName());
+
+        } else {
+            // ③-B: 즉시 승인 시설 → 비관적 락으로 동시성 제어
+            // 다른 트랜잭션이 이 시설에 대한 예약을 생성하려면 현재 트랜잭션이 완료될 때까지 대기
+            facility = facilityRepository.findByIdWithLock(request.getFacilityIdx())
+                .orElseThrow(() -> ResourceNotFoundException.forId("시설", request.getFacilityIdx()));
+
+            if (!facility.getIsActive()) {
+                throw new RuntimeException("사용 중지된 시설입니다.");
+            }
+
+            // 락을 획득한 상태에서 가용성 체크 - race condition 방지
+            FacilityAvailabilityDto availability = checkAvailabilityWithFacility(
+                facility, request.getStartTime(), request.getEndTime());
+
+            if (!Boolean.TRUE.equals(availability.getIsAvailable())) {
+                List<FacilityAvailabilityDto.TimeSlot> conflicts = availability.getConflictingReservations();
+                if (conflicts != null && !conflicts.isEmpty()) {
+                    FacilityAvailabilityDto.TimeSlot conflict = conflicts.get(0);
+                    throw new RuntimeException(String.format("해당 시간에는 이미 다른 예약이 존재합니다. 충돌 시간: %s ~ %s",
+                        conflict.getStartTime(), conflict.getEndTime()));
+                }
+                throw new RuntimeException("해당 시간에는 이미 다른 예약이 존재합니다.");
+            }
+
+            logger.debug("Creating auto-approved reservation for facility: {}", facility.getFacilityName());
         }
 
-
-
-        // 시설별 승인 정책에 따라 초기 상태 결정
+        // ④ 시설별 승인 정책에 따라 초기 상태 결정
         ReservationStatus initialStatus;
         String logEventType;
-        String responseMessage;
 
-        if (Boolean.TRUE.equals(facility.getRequiresApproval())) {
+        if (requiresApproval) {
             // 관리자 승인 필요
             initialStatus = ReservationStatus.PENDING;
             logEventType = "CREATED";
-            responseMessage = "예약이 생성되었습니다. 관리자 승인 대기 중입니다.";
         } else {
             // 즉시 예약 (자동 승인)
             initialStatus = ReservationStatus.APPROVED;
             logEventType = "AUTO_APPROVED";
-            responseMessage = "예약이 자동으로 승인되었습니다.";
         }
 
         FacilityReservationTbl reservation = new FacilityReservationTbl();
@@ -135,38 +155,52 @@ public class FacilityReservationService {
 
         logger.info("Reservation created: ID={}, User={}, Facility={}, Status={}, RequiresApproval={}",
             saved.getReservationIdx(), userCode, request.getFacilityIdx(),
-            initialStatus, facility.getRequiresApproval());
+            initialStatus, policy.getRequiresApproval());
 
         return convertToDto(saved);
     }
 
     public FacilityAvailabilityDto checkAvailability(Integer facilityIdx, LocalDateTime startTime, LocalDateTime endTime) {
-
-        return checkAvailabilityInternal(facilityIdx, startTime, endTime, null);
-
+        FacilityTbl facility = facilityRepository.findById(facilityIdx)
+            .orElseThrow(() -> ResourceNotFoundException.forId("시설", facilityIdx));
+        return checkAvailabilityInternal(facility, startTime, endTime, null);
     }
 
-
+    /**
+     * 이미 조회된 시설 정보로 가용성 체크 (중복 조회 방지)
+     */
+    private FacilityAvailabilityDto checkAvailabilityWithFacility(FacilityTbl facility, LocalDateTime startTime, LocalDateTime endTime) {
+        return checkAvailabilityInternal(facility, startTime, endTime, null);
+    }
 
     FacilityAvailabilityDto checkAvailabilityWithExclusion(Integer facilityIdx, LocalDateTime startTime, LocalDateTime endTime, Integer excludeReservationIdx) {
-
-        return checkAvailabilityInternal(facilityIdx, startTime, endTime, excludeReservationIdx);
-
+        FacilityTbl facility = facilityRepository.findById(facilityIdx)
+            .orElseThrow(() -> ResourceNotFoundException.forId("시설", facilityIdx));
+        return checkAvailabilityInternal(facility, startTime, endTime, excludeReservationIdx);
     }
 
+    /**
+     * 시설 차단 여부 검증
+     * 관리자가 설정한 차단 기간에 해당하는지 확인
+     */
+    private void validateNotBlocked(Integer facilityIdx, LocalDateTime startTime, LocalDateTime endTime) {
+        List<FacilityBlockTbl> blocks = blockRepository.findConflictingBlocks(facilityIdx, startTime, endTime);
+        if (!blocks.isEmpty()) {
+            FacilityBlockTbl block = blocks.get(0);
+            throw new RuntimeException(
+                String.format("해당 시설은 %s부터 %s까지 예약이 불가합니다. 사유: %s",
+                    block.getBlockStart(), block.getBlockEnd(), block.getBlockReason()));
+        }
+    }
 
-
-    private FacilityAvailabilityDto checkAvailabilityInternal(Integer facilityIdx, LocalDateTime startTime, LocalDateTime endTime, Integer excludeReservationIdx) {
-
-        FacilityTbl facility = facilityRepository.findById(facilityIdx)
-
-            .orElseThrow(() -> ResourceNotFoundException.forId("시설", facilityIdx));
-
-
-
+    /**
+     * 가용성 체크 내부 로직 (중복 조회 제거 버전)
+     * @param facility 이미 조회된 시설 정보
+     */
+    private FacilityAvailabilityDto checkAvailabilityInternal(FacilityTbl facility, LocalDateTime startTime, LocalDateTime endTime, Integer excludeReservationIdx) {
+        // 시설 차단 여부 확인
         List<FacilityBlockTbl> blocks = blockRepository.findConflictingBlocks(
-
-            facilityIdx, startTime, endTime);
+            facility.getFacilityIdx(), startTime, endTime);
 
 
 
@@ -184,16 +218,13 @@ public class FacilityReservationService {
 
 
         List<String> activeStatuses = java.util.Arrays.asList(
-
             ReservationStatus.PENDING.toDbValue(),
             ReservationStatus.APPROVED.toDbValue()
         );
 
-
-
+        // 예약 충돌 체크
         List<FacilityReservationTbl> conflicts = reservationRepository.findConflictingReservations(
-
-            facilityIdx, startTime, endTime, activeStatuses, excludeReservationIdx);
+            facility.getFacilityIdx(), startTime, endTime, activeStatuses, excludeReservationIdx);
 
 
 
@@ -283,6 +314,11 @@ public class FacilityReservationService {
             throw new RuntimeException("종료 시간은 시작 시간 이후여야 합니다.");
         }
 
+        // 연속된 시간대 검증: 같은 날짜 내에서만 예약 가능
+        if (!request.getStartTime().toLocalDate().equals(request.getEndTime().toLocalDate())) {
+            throw new RuntimeException("예약은 같은 날짜 내에서만 가능합니다. 여러 날에 걸친 예약이 필요한 경우 각 날짜별로 따로 신청해주세요.");
+        }
+
         if (request.getStartTime().isAfter(maxDate)) {
             throw new RuntimeException(policyProperties.getMaxDaysInAdvance() + "일 이내의 예약만 가능합니다.");
         }
@@ -310,17 +346,44 @@ public class FacilityReservationService {
         }
     }
 
+    /**
+     * 예약 목록을 DTO로 변환 (N+1 문제 방지를 위한 배치 페치)
+     */
     private List<ReservationDto> convertToDtoList(List<FacilityReservationTbl> reservations) {
+        if (reservations.isEmpty()) {
+            return java.util.Collections.emptyList();
+        }
 
-        Map<Integer, String> facilityNameCache = new HashMap<>();
+        // ① 모든 고유한 시설 ID 수집
+        java.util.Set<Integer> facilityIds = reservations.stream()
+            .map(FacilityReservationTbl::getFacilityIdx)
+            .collect(Collectors.toSet());
 
-        Map<String, String> userNameCache = new HashMap<>();
+        // ② 모든 고유한 사용자 코드 수집
+        java.util.Set<String> userCodes = reservations.stream()
+            .map(FacilityReservationTbl::getUserCode)
+            .collect(Collectors.toSet());
+
+        // ③ 한 번의 쿼리로 모든 시설 정보 조회
+        Map<Integer, String> facilityNameCache = facilityRepository.findAllById(facilityIds)
+            .stream()
+            .collect(Collectors.toMap(
+                FacilityTbl::getFacilityIdx,
+                FacilityTbl::getFacilityName
+            ));
+
+        // ④ 한 번의 쿼리로 모든 사용자 정보 조회
+        Map<String, String> userNameCache = userRepository.findAllByUserCodeIn(new java.util.ArrayList<>(userCodes))
+            .stream()
+            .collect(Collectors.toMap(
+                UserTbl::getUserCode,
+                UserTbl::getUserName
+            ));
+
+        // ⑤ 캐시를 사용하여 DTO 변환
         return reservations.stream()
-
             .map(reservation -> convertToDto(reservation, facilityNameCache, userNameCache))
-
             .collect(Collectors.toList());
-
     }
 
 
