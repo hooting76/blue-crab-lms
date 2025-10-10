@@ -341,7 +341,7 @@ useEffect(() => {
         <ul>
           {existingAttachments.map(att => (
             <li key={att.attachmentIdx}>
-              {att.origianlFileName} ({(att.fileSize / 1024).toFixed(1)} KB)
+              {att.attachmentDetails.origianlFileName} ({(att.fileSize / 1024).toFixed(1)} KB)
               <button type="button" onClick={() => handleDeleteExistingAttachment(att.attachmentIdx)}>삭제</button>
             </li>
           ))}
