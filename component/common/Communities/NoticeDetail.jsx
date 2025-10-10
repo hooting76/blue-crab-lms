@@ -154,8 +154,8 @@ const markdown = decodeBase64(notice.boardContent);
 
     <div className="noticeDetailAttachment">
       <span>첨부파일:</span>
-      {notice.attachments && notice.attachments.length > 0 ? (
-        notice.attachments.map((att, index) => (
+      {notice.attachmentDetails && notice.attachmentDetails.length > 0 ? (
+        notice.attachmentDetails.map((att, index) => (
           <div key={index}>
             <a
               href={`https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/board-attachments/download/${att.attachmentIdx}`}
