@@ -68,8 +68,10 @@ public class AdminFacilityReservationService {
     }
 
     public ReservationDto approveReservation(String adminId, AdminApproveRequestDto request) {
+        // ① 관리자 권한 검증
         validateAdmin(adminId);
 
+        // ② 예약 조회 및 상태 확인
         FacilityReservationTbl reservation = reservationRepository.findById(request.getReservationIdx())
             .orElseThrow(() -> ResourceNotFoundException.forId("예약", request.getReservationIdx()));
 
@@ -77,22 +79,21 @@ public class AdminFacilityReservationService {
             throw new RuntimeException("대기 중인 예약만 승인할 수 있습니다.");
         }
 
-        // 비관적 락을 사용하여 시설 조회 - 동시 승인 시 동시성 제어
+        // ③ 비관적 락으로 시설 조회 - 동시 승인 시 동시성 제어
         // 두 관리자가 동시에 겹치는 시간대의 예약을 승인하는 것을 방지
         FacilityTbl facility = facilityRepository.findByIdWithLock(reservation.getFacilityIdx())
             .orElseThrow(() -> ResourceNotFoundException.forId("시설", reservation.getFacilityIdx()));
 
-
-
         if (!facility.getIsActive()) {
             throw new RuntimeException("비활성화된 시설 예약은 승인할 수 없습니다.");
-
         }
 
-        // 락을 획득한 상태에서 가용성 체크
+        // ④ 락을 획득한 상태에서 가용성 체크 (현재 예약 제외)
         FacilityAvailabilityDto availability = facilityReservationService.checkAvailabilityWithExclusion(
-            reservation.getFacilityIdx(), reservation.getStartTime(), reservation.getEndTime(), reservation.getReservationIdx());
-
+            reservation.getFacilityIdx(), 
+            reservation.getStartTime(), 
+            reservation.getEndTime(), 
+            reservation.getReservationIdx());
 
         if (!Boolean.TRUE.equals(availability.getIsAvailable())) {
             List<FacilityAvailabilityDto.TimeSlot> conflicts = availability.getConflictingReservations();
@@ -102,8 +103,10 @@ public class AdminFacilityReservationService {
                     conflict.getStartTime(), conflict.getEndTime()));
             }
             throw new RuntimeException("이미 승인된 다른 예약과 시간이 겹칩니다.");
-
         }
+
+        logger.debug("Approving reservation: ID={}, Facility={}, Admin={}", 
+            reservation.getReservationIdx(), facility.getFacilityName(), adminId);
 
 
 
@@ -158,6 +161,57 @@ public class AdminFacilityReservationService {
         return reservationRepository.countPendingReservations();
     }
 
+    /**
+     * 관리자용 전체 예약 목록 조회 (필터링 지원)
+     * @param adminId 관리자 ID
+     * @param status 예약 상태 필터 (optional)
+     * @param facilityIdx 시설 ID 필터 (optional)
+     * @param startDate 시작 날짜 필터 (optional)
+     * @param endDate 종료 날짜 필터 (optional)
+     * @return 필터링된 예약 목록
+     */
+    public List<ReservationDto> getAllReservations(String adminId, String status, Integer facilityIdx,
+                                                    LocalDateTime startDate, LocalDateTime endDate) {
+        validateAdmin(adminId);
+
+        List<FacilityReservationTbl> reservations;
+
+        // 필터링 조건에 따라 쿼리 선택
+        if (status != null && facilityIdx != null) {
+            // 상태 + 시설 필터
+            reservations = reservationRepository.findByStatusAndFacilityIdxOrderByCreatedAtDesc(status, facilityIdx);
+        } else if (status != null) {
+            // 상태 필터만
+            reservations = reservationRepository.findByStatusOrderByCreatedAtDesc(status);
+        } else if (facilityIdx != null) {
+            // 시설 필터만
+            reservations = reservationRepository.findByFacilityIdxOrderByCreatedAtDesc(facilityIdx);
+        } else {
+            // 필터 없음: 전체 조회
+            reservations = reservationRepository.findAllOrderByCreatedAtDesc();
+        }
+
+        // 날짜 범위 필터링 (애플리케이션 레벨)
+        if (startDate != null && endDate != null) {
+            reservations = reservations.stream()
+                .filter(r -> !r.getStartTime().isBefore(startDate) && !r.getEndTime().isAfter(endDate))
+                .collect(Collectors.toList());
+        } else if (startDate != null) {
+            reservations = reservations.stream()
+                .filter(r -> !r.getStartTime().isBefore(startDate))
+                .collect(Collectors.toList());
+        } else if (endDate != null) {
+            reservations = reservations.stream()
+                .filter(r -> !r.getEndTime().isAfter(endDate))
+                .collect(Collectors.toList());
+        }
+
+        logger.info("Admin {} retrieved {} reservations with filters: status={}, facilityIdx={}, startDate={}, endDate={}",
+            adminId, reservations.size(), status, facilityIdx, startDate, endDate);
+
+        return convertToDtoList(reservations);
+    }
+
     private void validateAdmin(String adminId) {
         AdminTbl admin = adminRepository.findByAdminId(adminId)
             .orElseThrow(() -> UnauthorizedException.forAdmin());
@@ -175,17 +229,44 @@ public class AdminFacilityReservationService {
         }
     }
 
+    /**
+     * 예약 목록을 DTO로 변환 (N+1 문제 방지를 위한 배치 페치)
+     */
     private List<ReservationDto> convertToDtoList(List<FacilityReservationTbl> reservations) {
+        if (reservations.isEmpty()) {
+            return java.util.Collections.emptyList();
+        }
 
-        Map<Integer, String> facilityNameCache = new HashMap<>();
+        // ① 모든 고유한 시설 ID 수집
+        java.util.Set<Integer> facilityIds = reservations.stream()
+            .map(FacilityReservationTbl::getFacilityIdx)
+            .collect(Collectors.toSet());
 
-        Map<String, String> userNameCache = new HashMap<>();
+        // ② 모든 고유한 사용자 코드 수집
+        java.util.Set<String> userCodes = reservations.stream()
+            .map(FacilityReservationTbl::getUserCode)
+            .collect(Collectors.toSet());
 
+        // ③ 한 번의 쿼리로 모든 시설 정보 조회
+        Map<Integer, String> facilityNameCache = facilityRepository.findAllById(facilityIds)
+            .stream()
+            .collect(Collectors.toMap(
+                FacilityTbl::getFacilityIdx,
+                FacilityTbl::getFacilityName
+            ));
 
+        // ④ 한 번의 쿼리로 모든 사용자 정보 조회
+        Map<String, String> userNameCache = userRepository.findAllByUserCodeIn(new java.util.ArrayList<>(userCodes))
+            .stream()
+            .collect(Collectors.toMap(
+                UserTbl::getUserCode,
+                UserTbl::getUserName
+            ));
+
+        // ⑤ 캐시를 사용하여 DTO 변환
         return reservations.stream()
             .map(reservation -> convertToDto(reservation, facilityNameCache, userNameCache))
             .collect(Collectors.toList());
-
     }
 
 

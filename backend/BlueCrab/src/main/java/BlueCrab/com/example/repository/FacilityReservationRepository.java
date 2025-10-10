@@ -59,4 +59,21 @@ public interface FacilityReservationRepository extends JpaRepository<FacilityRes
         @Param("startDate") LocalDateTime startDate,
         @Param("endDate") LocalDateTime endDate
     );
+
+    // 관리자용: 전체 예약 조회
+    @Query("SELECT r FROM FacilityReservationTbl r ORDER BY r.createdAt DESC")
+    List<FacilityReservationTbl> findAllOrderByCreatedAtDesc();
+
+    // 관리자용: 시설별 예약 조회
+    @Query("SELECT r FROM FacilityReservationTbl r WHERE r.facilityIdx = :facilityIdx " +
+           "ORDER BY r.createdAt DESC")
+    List<FacilityReservationTbl> findByFacilityIdxOrderByCreatedAtDesc(@Param("facilityIdx") Integer facilityIdx);
+
+    // 관리자용: 상태 + 시설 필터
+    @Query("SELECT r FROM FacilityReservationTbl r WHERE r.status = :status " +
+           "AND r.facilityIdx = :facilityIdx ORDER BY r.createdAt DESC")
+    List<FacilityReservationTbl> findByStatusAndFacilityIdxOrderByCreatedAtDesc(
+        @Param("status") String status,
+        @Param("facilityIdx") Integer facilityIdx
+    );
 }

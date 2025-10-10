@@ -73,6 +73,19 @@ public class AdminFacilityReservationController {
         return ResponseEntity.ok(ApiResponse.success("통계 정보를 조회했습니다.", stats));
     }
 
+    @PostMapping("/all")
+    public ResponseEntity<ApiResponse<List<ReservationDto>>> getAllReservations(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Integer facilityIdx,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            HttpServletRequest request) {
+        String adminId = getAdminIdFromToken(request);
+        List<ReservationDto> reservations = adminReservationService.getAllReservations(
+            adminId, status, facilityIdx, startDate, endDate);
+        return ResponseEntity.ok(ApiResponse.success("전체 예약 목록을 조회했습니다.", reservations));
+    }
+
     private String getAdminIdFromToken(HttpServletRequest request) {
         String token = jwtUtil.resolveToken(request);
         return jwtUtil.getAdminId(token);

@@ -59,6 +59,15 @@ public interface UserTblRepository extends JpaRepository<UserTbl, Integer> {
     Optional<UserTbl> findByUserCode(String userCode);
 
     /**
+     * 여러 사용자 코드로 사용자 목록을 배치 조회
+     * N+1 문제 방지를 위한 배치 페치 메서드
+     *
+     * @param userCodes 조회할 사용자 코드 목록
+     * @return List<UserTbl> - 해당하는 사용자 목록
+     */
+    List<UserTbl> findAllByUserCodeIn(List<String> userCodes);
+
+    /**
      * 사용자 이름에 특정 문자열이 포함된 사용자 목록 조회
      * 사용자 검색 기능에서 활용
      *
