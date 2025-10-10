@@ -82,6 +82,26 @@ const NoticeDetail = ({ boardIdx, onFetchComplete }) => {
   }
 }, [accessToken, boardIdx]);
 
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const data = await getNoticeDetail(accessToken, boardIdx);
+      console.log("✅ 게시글 상세 응답:", data); // 여기서 attachments 있는지 확인
+      setNotice(data);
+      onFetchComplete?.(data);
+    } catch (err) {
+      setError(err.message || '데이터를 불러오는데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (accessToken && boardIdx) {
+    fetchData();
+  }
+}, [accessToken, boardIdx]);
+
+
   
 
   if (loading) return <div>불러오는 중...</div>;
@@ -112,10 +132,40 @@ const decodeBase64 = (str) => {
   }
 };
 
+const handleDownload = async (attachmentIdx, fileName) => {
+  try {
+    const response = await fetch(
+      `https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/board-attachments/download/${attachmentIdx}`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("파일 다운로드 실패");
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", fileName);
+    document.body.appendChild(link);
+    link.click();
+
+    link.parentNode.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    alert("다운로드 중 오류 발생: " + err.message);
+  }
+};
+
 
 const markdown = decodeBase64(notice.boardContent);
-
-console.log("첨부파일 목록:", notice.attachments);
 
  return (
   <div className="noticeDetailContainer">
@@ -136,17 +186,15 @@ console.log("첨부파일 목록:", notice.attachments);
 
     <div className="noticeDetailAttachment">
       <span>첨부파일:</span>
-      {notice.attachments && notice.attachments.length > 0 ? (
-        notice.attachments.map((att, index) => (
+      {notice.attachmentDetails && notice.attachmentDetails.length > 0 ? (
+        notice.attachmentDetails.map((att, index) => (
           <div key={index}>
-            <a
-              href={`https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/board-attachments/download/${att.attachmentIdx}`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
               className="attachmentLink"
+              onClick={() => handleDownload(att.attachmentIdx, att.originalFileName)}
             >
-              📎 {att.attachmentOriginalName}
-            </a>
+              📎 {att.originalFileName}
+            </button>
           </div>
         ))
       ) : (
