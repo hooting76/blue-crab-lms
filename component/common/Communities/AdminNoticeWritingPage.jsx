@@ -180,6 +180,9 @@ const handleSubmit = async (e) => {
   }
 };
 
+console.log('fetch 시작 - 수정 요청');
+console.log('URL:', `/api/boards/update/${boardIdx}`);
+console.log('Body:', JSON.stringify(updatedNotice));
 
 
 // 공지 수정
