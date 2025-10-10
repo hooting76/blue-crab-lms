@@ -43,11 +43,15 @@ function AdNav({currentPage, setCurrentPage}){
             <ul>
                 <li>공지게시판</li>
                 <ul>
-                    <li onClick={setCurrentPage("학사공지")}>
+                    <li onClick={() => setCurrentPage("학사공지")}>
                         학사공지
                     </li>
-                    <li>행정공지</li>
-                    <li>기타공지</li>
+                    <li onClick={() => setCurrentPage("행정공지")}>
+                        행정공지
+                    </li>
+                    <li onClick={() => setCurrentPage("기타공지")}>
+                        기타공지
+                    </li>
                 </ul>
             </ul>
             <ul>
