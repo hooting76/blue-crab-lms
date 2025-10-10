@@ -221,7 +221,7 @@ public class JwtUtil {
     /**
      * 토큰 유효성 검증 (단순한 형태)
      * ReadingRoomController 호환성을 위한 메서드
-     * 
+     *
      * @param token 검증할 JWT 토큰
      * @return 토큰 유효성 여부
      */
@@ -229,5 +229,61 @@ public class JwtUtil {
         return isTokenValid(token);
     }
 
+    /**
+     * HTTP 요청 헤더에서 JWT 토큰 추출
+     * Authorization: Bearer {token} 형식에서 토큰 부분만 추출
+     *
+     * @param request HTTP 요청 객체
+     * @return JWT 토큰 문자열 또는 null
+     */
+    public String resolveToken(javax.servlet.http.HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+
+    /**
+     * JWT 토큰에서 사용자 코드(학번/교번) 추출
+     *
+     * @param token JWT 토큰
+     * @return 사용자 코드
+     */
+    public String getUserCode(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+            Object userCode = claims.get("userCode");
+            if (userCode != null) {
+                return userCode.toString();
+            }
+            // fallback: username을 userCode로 사용
+            return extractUsername(token);
+        } catch (Exception e) {
+            logger.error("Failed to extract userCode from token", e);
+            return null;
+        }
+    }
+
+    /**
+     * JWT 토큰에서 관리자 ID 추출
+     *
+     * @param token JWT 토큰
+     * @return 관리자 ID
+     */
+    public String getAdminId(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+            Object adminId = claims.get("adminId");
+            if (adminId != null) {
+                return adminId.toString();
+            }
+            // fallback: username을 adminId로 사용
+            return extractUsername(token);
+        } catch (Exception e) {
+            logger.error("Failed to extract adminId from token", e);
+            return null;
+        }
+    }
 
 }

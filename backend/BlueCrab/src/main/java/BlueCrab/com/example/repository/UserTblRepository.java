@@ -55,7 +55,9 @@ public interface UserTblRepository extends JpaRepository<UserTbl, Integer> {
      * }
      */
     Optional<UserTbl> findByUserEmail(String userEmail);
-    
+
+    Optional<UserTbl> findByUserCode(String userCode);
+
     /**
      * 사용자 이름에 특정 문자열이 포함된 사용자 목록 조회
      * 사용자 검색 기능에서 활용
