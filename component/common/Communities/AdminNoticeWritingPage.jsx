@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { Editor } from '@toast-ui/react-editor';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor/dist/i18n/ko-kr';
@@ -7,22 +7,7 @@ import AcademyNotice from './AcademyNotice';
 import AdminNotice from './AdminNotice';
 import EtcNotice from './EtcNotice';
 
-function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, setCurrentPage }) {
-
-  function decodeBase64(str) {
-    if (typeof str !== 'string' || str.trim() === '') {
-      console.warn("Base64 디코딩 대상이 없음 또는 잘못된 입력:", str);
-      return '';
-    }
-
-    try {
-      return decodeURIComponent(escape(atob(str)));
-    } catch (e) {
-      console.error("Base64 디코딩 오류:", e);
-      return str;
-    }
-  }
-
+function AdminNoticeWritingPage() {
   const editorRef = useRef();
   const [boardTitle, setBoardTitle] = useState('');
   const [boardCode, setBoardCode] = useState(null);
@@ -173,18 +158,32 @@ console.log('업로드할 파일 목록:', selectedFiles);
         }
 
         await linkResponse.json();
+
+        // 4단계: 첨부파일 목록을 다시 조회하여 기존 첨부파일 목록에 반영
+        const attListRes = await fetch(`https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/board-attachments/${boardIdx}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          }
+        });
+        if (attListRes.ok) {
+          const attList = await attListRes.json();
+          setExistingAttachments(attList.attachments || []);
+        }
       }
 
-      alert('공지사항이 성공적으로 등록되었습니다!');
-      setBoardTitle('');
-      setBoardCode(null);
-      setSelectedFiles([]);
-      editorRef.current.getInstance().setMarkdown('');
-      setCurrentPage(
-          boardCode === 0 ? '학사공지' :
-          boardCode === 1 ? '행정공지' :
-          boardCode === 2 ? '기타공지' : ''
-      );
+    alert('공지사항이 성공적으로 등록되었습니다!');
+    setBoardTitle('');
+    setBoardCode(null);
+    setSelectedFiles([]);
+    editorRef.current.getInstance().setMarkdown('');
+    // 기존 첨부파일 목록도 초기화
+    setExistingAttachments([]);
+    setCurrentPage(
+      boardCode === 0 ? '학사공지' :
+      boardCode === 1 ? '행정공지' :
+      boardCode === 2 ? '기타공지' : ''
+    );
     } catch (error) {
       alert(error.message);
     }
@@ -264,20 +263,34 @@ console.log('업로드할 파일 목록:', selectedFiles);
         }
 
         await linkResponse.json();
+
+        // 첨부파일 목록을 다시 조회하여 기존 첨부파일 목록에 반영
+        const attListRes = await fetch(`https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/board-attachments/${boardIdx}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          }
+        });
+        if (attListRes.ok) {
+          const attList = await attListRes.json();
+          setExistingAttachments(attList.attachments || []);
+        }
       }
 
-      alert('공지사항이 성공적으로 수정되었습니다!');
-      setBoardTitle('');
-      setBoardCode(null);
-      setSelectedFiles([]);
-      setExistingAttachments([]);
-      setDeletedAttachments([]);
-      editorRef.current.getInstance().setMarkdown('');
-      setCurrentPage(
-          boardCode === 0 ? '학사공지' :
-          boardCode === 1 ? '행정공지' :
-          boardCode === 2 ? '기타공지' : ''
-      );
+    alert('공지사항이 성공적으로 수정되었습니다!');
+    setBoardTitle('');
+    setBoardCode(null);
+    setSelectedFiles([]);
+    setExistingAttachments([]);
+    setDeletedAttachments([]);
+    editorRef.current.getInstance().setMarkdown('');
+    // 기존 첨부파일 목록도 초기화
+    setExistingAttachments([]);
+    setCurrentPage(
+      boardCode === 0 ? '학사공지' :
+      boardCode === 1 ? '행정공지' :
+      boardCode === 2 ? '기타공지' : ''
+    );
     } catch (error) {
       alert(error.message);
     }
