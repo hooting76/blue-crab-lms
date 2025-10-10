@@ -116,25 +116,53 @@ const decodeBase64 = (str) => {
 const markdown = decodeBase64(notice.boardContent);
 
 
-  return (
-    <div className="noticeDetailContainer">
-      <div className="noticeDetailTitleAndCode">
-        <span className="noticeDetailTitle">제목 : {decodeBase64(notice.boardTitle)}</span>
-        <span className="noticeDetailCode">{getNoticeCode(notice.boardCode)}</span>
-      </div>
-      <div className="noticeDetailWriterAndView">
-        <span className="noticeDetailWriter">작성자 : {notice.boardWriter}</span>
-        <span className="noticeDetailView">조회수 : {notice.boardView}</span>
-      </div>
-      <div className="noticeDetailRegAndLast">
-        <span className="noticeDetailReg">작성일 : {formattedReg(notice.boardReg)}</span>
-        <span className="noticeDetailLast">최종 수정일 : {formattedLatest(notice.boardLast, notice.boardReg)}</span>
-      </div>
-      <Viewer initialValue={markdown}/>
-      
-      <button className="noticeDeleteButton" onClick={() => handleDelete(accessToken, notice.boardIdx)}>공지 삭제</button>
+ return (
+  <div className="noticeDetailContainer">
+    <div className="noticeDetailTitleAndCode">
+      <span className="noticeDetailTitle">제목 : {decodeBase64(notice.boardTitle)}</span>
+      <span className="noticeDetailCode">{getNoticeCode(notice.boardCode)}</span>
     </div>
-  );
+
+    <div className="noticeDetailWriterAndView">
+      <span className="noticeDetailWriter">작성자 : {notice.boardWriter}</span>
+      <span className="noticeDetailView">조회수 : {notice.boardView}</span>
+    </div>
+
+    <div className="noticeDetailRegAndLast">
+      <span className="noticeDetailReg">작성일 : {formattedReg(notice.boardReg)}</span>
+      <span className="noticeDetailLast">최종 수정일 : {formattedLatest(notice.boardLast, notice.boardReg)}</span>
+    </div>
+
+    <div className="noticeDetailAttachment">
+      <span>첨부파일:</span>
+      {notice.attachments && notice.attachments.length > 0 ? (
+        notice.attachments.map((att, index) => (
+          <div key={index}>
+            <a
+              href={`https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/board-attachments/download/${att.attachmentIdx}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="attachmentLink"
+            >
+              📎 {att.attachmentOriginalName}
+            </a>
+          </div>
+        ))
+      ) : (
+        <p>첨부파일 없음</p>
+      )}
+    </div>
+
+    <div className="noticeDetailContent">
+      <Viewer initialValue={markdown} />
+    </div>
+
+    <button className="noticeDeleteButton" onClick={() => handleDelete(accessToken, notice.boardIdx)}>
+      공지 삭제
+    </button>
+  </div>
+);
+
 };
 
 export default NoticeDetail;
