@@ -144,6 +144,8 @@ const handleDownload = async (attachmentIdx, fileName) => {
       }
     );
 
+    console.log("attachmentIdx:", attachmentIdx);
+
     if (!response.ok) {
       throw new Error("파일 다운로드 실패");
     }
