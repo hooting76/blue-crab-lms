@@ -47,7 +47,7 @@ function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, s
       }
 
       try {
-        const attListRes = await fetch(`https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/board-attachments/download/${attachmentIdx}`, {
+        const attListRes = await fetch(`https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/boards/detail/${boardIdx}`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${accessToken}`
