@@ -61,7 +61,8 @@ useEffect(() => {
 
       if (attListRes.ok) {
         // 확인: attachments가 어디에 있는지 로그로 체크
-        setExistingAttachments(attList.attachments || []);
+        setExistingAttachments(attList.attachmentDetails || []);
+
       } else {
         console.error("❌ 첨부파일 요청 실패:", attListRes.status);
         setExistingAttachments([]);
