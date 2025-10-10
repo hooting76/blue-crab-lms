@@ -1,102 +1,103 @@
-<mxfile host="app.diagrams.net" modified="2025-10-10T00:00:00.000Z" agent="5.0" etag="abc123" version="21.6.5" type="device">
-  <diagram id="ERD-Diagram" name="LMS ERD">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0" version="24.7.17">
+  <diagram id="ERD-Diagram" name="LMS ERD v2.1">
     <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         
-        <!-- USER_TBL -->
-        <mxCell id="user-table" value="&lt;b&gt;USER_TBL&lt;/b&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
-          <mxGeometry x="50" y="80" width="220" height="180" as="geometry" />
+        <mxCell id="user-table" value="&lt;b&gt;USER_TBL (사용자 정보)&lt;/b&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="50" y="80" width="250" height="180" as="geometry" />
         </mxCell>
-        <mxCell id="user-1" value="🔑 userIdx (PK)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontStyle=1" parent="user-table" vertex="1">
-          <mxGeometry y="30" width="220" height="30" as="geometry" />
+        <mxCell id="user-1" value="🔑 USER_IDX (PK)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontStyle=1" parent="user-table" vertex="1">
+          <mxGeometry y="30" width="250" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="user-2" value="&amp;nbsp;&amp;nbsp;userEmail" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="user-table" vertex="1">
-          <mxGeometry y="60" width="220" height="30" as="geometry" />
+        <mxCell id="user-2" value="&amp;nbsp;&amp;nbsp;USER_EMAIL" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="user-table" vertex="1">
+          <mxGeometry y="60" width="250" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="user-3" value="&amp;nbsp;&amp;nbsp;userName" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="user-table" vertex="1">
-          <mxGeometry y="90" width="220" height="30" as="geometry" />
+        <mxCell id="user-3" value="&amp;nbsp;&amp;nbsp;USER_NAME" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="user-table" vertex="1">
+          <mxGeometry y="90" width="250" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="user-4" value="&amp;nbsp;&amp;nbsp;userStudent (0:학생, 1:교수)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="user-table" vertex="1">
-          <mxGeometry y="120" width="220" height="30" as="geometry" />
+        <mxCell id="user-4" value="&amp;nbsp;&amp;nbsp;USER_STUDENT (0:학생, 1:교수)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="user-table" vertex="1">
+          <mxGeometry y="120" width="250" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="user-5" value="&amp;nbsp;&amp;nbsp;lectureEvaluations (JSON)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="user-table" vertex="1">
-          <mxGeometry y="150" width="220" height="30" as="geometry" />
+        <mxCell id="user-5" value="&amp;nbsp;&amp;nbsp;LECTURE_EVALUATIONS (LONGTEXT)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="user-table" vertex="1">
+          <mxGeometry y="150" width="250" height="30" as="geometry" />
         </mxCell>
         
-        <!-- LEC_TBL -->
-        <mxCell id="lec-table" value="&lt;b&gt;LEC_TBL&lt;/b&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
-          <mxGeometry x="370" y="80" width="220" height="240" as="geometry" />
+        <mxCell id="lec-table" value="&lt;b&gt;LEC_TBL (강의 데이터)&lt;/b&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="370" y="80" width="250" height="270" as="geometry" />
         </mxCell>
         <mxCell id="lec-1" value="🔑 LEC_IDX (PK)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontStyle=1" parent="lec-table" vertex="1">
-          <mxGeometry y="30" width="220" height="30" as="geometry" />
+          <mxGeometry y="30" width="250" height="30" as="geometry" />
         </mxCell>
         <mxCell id="lec-2" value="&amp;nbsp;&amp;nbsp;LEC_SERIAL (강의코드)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="lec-table" vertex="1">
-          <mxGeometry y="60" width="220" height="30" as="geometry" />
+          <mxGeometry y="60" width="250" height="30" as="geometry" />
         </mxCell>
         <mxCell id="lec-3" value="&amp;nbsp;&amp;nbsp;LEC_TIT (강의명)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="lec-table" vertex="1">
-          <mxGeometry y="90" width="220" height="30" as="geometry" />
+          <mxGeometry y="90" width="250" height="30" as="geometry" />
         </mxCell>
         <mxCell id="lec-4" value="&amp;nbsp;&amp;nbsp;LEC_PROF (담당교수명)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="lec-table" vertex="1">
-          <mxGeometry y="120" width="220" height="30" as="geometry" />
+          <mxGeometry y="120" width="250" height="30" as="geometry" />
         </mxCell>
         <mxCell id="lec-5" value="&amp;nbsp;&amp;nbsp;LEC_CURRENT (현재인원)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="lec-table" vertex="1">
-          <mxGeometry y="150" width="220" height="30" as="geometry" />
+          <mxGeometry y="150" width="250" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="lec-6" value="&amp;nbsp;&amp;nbsp;LEC_YEAR (학년도)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="lec-table" vertex="1">
-          <mxGeometry y="180" width="220" height="30" as="geometry" />
+        <mxCell id="lec-6" value="&amp;nbsp;&amp;nbsp;LEC_MAX_STUDENTS (최대인원)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="lec-table" vertex="1">
+          <mxGeometry y="180" width="250" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="lec-7" value="&amp;nbsp;&amp;nbsp;LEC_SEMESTER (학기)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="lec-table" vertex="1">
-          <mxGeometry y="210" width="220" height="30" as="geometry" />
+        <mxCell id="lec-7" value="&amp;nbsp;&amp;nbsp;LEC_YEAR (학년도)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="lec-table" vertex="1">
+          <mxGeometry y="210" width="250" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lec-8" value="&amp;nbsp;&amp;nbsp;LEC_SEMESTER (학기)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="lec-table" vertex="1">
+          <mxGeometry y="240" width="250" height="30" as="geometry" />
         </mxCell>
         
         <!-- ENROLLMENT_EXTENDED_TBL -->
-        <mxCell id="enroll-table" value="&lt;b&gt;ENROLLMENT_EXTENDED_TBL&lt;/b&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
-          <mxGeometry x="700" y="80" width="280" height="150" as="geometry" />
+        <mxCell id="enroll-table" value="&lt;b&gt;ENROLLMENT_EXTENDED_TBL&lt;/b&gt;&lt;br&gt;&lt;i&gt;(수강/출결/성적 통합)&lt;/i&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="700" y="80" width="300" height="160" as="geometry" />
         </mxCell>
-        <mxCell id="enroll-1" value="🔑 enrollmentIdx (PK)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontStyle=1" parent="enroll-table" vertex="1">
-          <mxGeometry y="30" width="280" height="30" as="geometry" />
+        <mxCell id="enroll-1" value="🔑 ENROLLMENT_IDX (PK)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontStyle=1" parent="enroll-table" vertex="1">
+          <mxGeometry y="40" width="300" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="enroll-2" value="🔗 lecIdx (FK → LEC_TBL)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#d79b00;" parent="enroll-table" vertex="1">
-          <mxGeometry y="60" width="280" height="30" as="geometry" />
+        <mxCell id="enroll-2" value="🔗 LEC_IDX (FK → LEC_TBL)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#d79b00;" parent="enroll-table" vertex="1">
+          <mxGeometry y="70" width="300" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="enroll-3" value="🔗 studentIdx (FK → USER_TBL)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#0066cc;" parent="enroll-table" vertex="1">
-          <mxGeometry y="90" width="280" height="30" as="geometry" />
+        <mxCell id="enroll-3" value="🔗 STUDENT_IDX (FK → USER_TBL)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#0066cc;" parent="enroll-table" vertex="1">
+          <mxGeometry y="100" width="300" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="enroll-4" value="&amp;nbsp;&amp;nbsp;enrollmentData (JSON: 수강/출결/성적)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="enroll-table" vertex="1">
-          <mxGeometry y="120" width="280" height="30" as="geometry" />
+        <mxCell id="enroll-4" value="&amp;nbsp;&amp;nbsp;ENROLLMENT_DATA (LONGTEXT)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="enroll-table" vertex="1">
+          <mxGeometry y="130" width="300" height="30" as="geometry" />
         </mxCell>
         
         <!-- ASSIGNMENT_EXTENDED_TBL -->
-        <mxCell id="assign-table" value="&lt;b&gt;ASSIGNMENT_EXTENDED_TBL&lt;/b&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
-          <mxGeometry x="370" y="400" width="280" height="120" as="geometry" />
+        <mxCell id="assign-table" value="&lt;b&gt;ASSIGNMENT_EXTENDED_TBL&lt;/b&gt;&lt;br&gt;&lt;i&gt;(과제/제출 통합)&lt;/i&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="370" y="430" width="300" height="130" as="geometry" />
         </mxCell>
-        <mxCell id="assign-1" value="🔑 assignmentIdx (PK)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontStyle=1" parent="assign-table" vertex="1">
-          <mxGeometry y="30" width="280" height="30" as="geometry" />
+        <mxCell id="assign-1" value="🔑 ASSIGNMENT_IDX (PK)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontStyle=1" parent="assign-table" vertex="1">
+          <mxGeometry y="40" width="300" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="assign-2" value="🔗 lecIdx (FK → LEC_TBL)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#d79b00;" parent="assign-table" vertex="1">
-          <mxGeometry y="60" width="280" height="30" as="geometry" />
+        <mxCell id="assign-2" value="🔗 LEC_IDX (FK → LEC_TBL)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#d79b00;" parent="assign-table" vertex="1">
+          <mxGeometry y="70" width="300" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="assign-3" value="&amp;nbsp;&amp;nbsp;assignmentData (JSON: 과제/제출정보)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="assign-table" vertex="1">
-          <mxGeometry y="90" width="280" height="30" as="geometry" />
+        <mxCell id="assign-3" value="&amp;nbsp;&amp;nbsp;ASSIGNMENT_DATA (LONGTEXT)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="assign-table" vertex="1">
+          <mxGeometry y="100" width="300" height="30" as="geometry" />
         </mxCell>
         
         <!-- BOARD_TBL -->
-        <mxCell id="board-table" value="&lt;b&gt;BOARD_TBL&lt;/b&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
-          <mxGeometry x="50" y="400" width="220" height="150" as="geometry" />
+        <mxCell id="board-table" value="&lt;b&gt;BOARD_TBL (게시판)&lt;/b&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="50" y="430" width="250" height="150" as="geometry" />
         </mxCell>
         <mxCell id="board-1" value="🔑 BOARD_IDX (PK)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontStyle=1" parent="board-table" vertex="1">
-          <mxGeometry y="30" width="220" height="30" as="geometry" />
+          <mxGeometry y="30" width="250" height="30" as="geometry" />
         </mxCell>
         <mxCell id="board-2" value="&amp;nbsp;&amp;nbsp;BOARD_CODE (1000+:강의별)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="board-table" vertex="1">
-          <mxGeometry y="60" width="220" height="30" as="geometry" />
+          <mxGeometry y="60" width="250" height="30" as="geometry" />
         </mxCell>
         <mxCell id="board-3" value="&amp;nbsp;&amp;nbsp;BOARD_TIT (제목)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="board-table" vertex="1">
-          <mxGeometry y="90" width="220" height="30" as="geometry" />
+          <mxGeometry y="90" width="250" height="30" as="geometry" />
         </mxCell>
         <mxCell id="board-4" value="&amp;nbsp;&amp;nbsp;BOARD_TXT (내용)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="board-table" vertex="1">
-          <mxGeometry y="120" width="220" height="30" as="geometry" />
+          <mxGeometry y="120" width="250" height="30" as="geometry" />
         </mxCell>
         
         <!-- 관계 화살표: USER → LEC (1:N 담당) -->
