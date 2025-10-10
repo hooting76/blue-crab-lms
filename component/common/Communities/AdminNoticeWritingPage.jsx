@@ -212,6 +212,32 @@ console.log('업로드할 파일 목록:', selectedFiles);
         setExistingAttachments([]);
       }
 
+      // 게시글 작성 성공 후
+      const fetchAndEditNotice = async (boardIdx) => {
+        try {
+          const res = await fetch(`https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/boards/${boardIdx}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`
+            }
+          });
+          if (res.ok) {
+            const noticeData = await res.json();
+            // noticeData.attachments가 포함되어야 함
+            setBoardTitle(decodeBase64(noticeData.boardTitle));
+            setBoardCode(noticeData.boardCode);
+            editorRef.current.getInstance().setMarkdown(decodeBase64(noticeData.boardContent));
+            setExistingAttachments(noticeData.attachments || []);
+            // 수정 화면으로 이동
+            setCurrentPage('수정');
+          }
+        } catch (e) {
+          alert('게시글 상세정보를 불러오지 못했습니다.');
+        }
+      }
+
+      await fetchAndEditNotice(boardIdx);
+
       alert('공지사항이 성공적으로 등록되었습니다!');
       setBoardTitle('');
       setBoardCode(null);
@@ -227,6 +253,8 @@ console.log('업로드할 파일 목록:', selectedFiles);
     }
   };
 
+
+  
   // 공지 수정
   const handleEdit = async (e) => {
     e.preventDefault();
@@ -318,6 +346,32 @@ console.log('업로드할 파일 목록:', selectedFiles);
       } catch (e) {
         setExistingAttachments([]);
       }
+
+      // 게시글 수정 성공 후 최신 notice로 갱신 가능
+      const fetchAndEditNotice = async (boardIdx) => {
+        try {
+          const res = await fetch(`https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/boards/${boardIdx}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`
+            }
+          });
+          if (res.ok) {
+            const noticeData = await res.json();
+            // noticeData.attachments가 포함되어야 함
+            setBoardTitle(decodeBase64(noticeData.boardTitle));
+            setBoardCode(noticeData.boardCode);
+            editorRef.current.getInstance().setMarkdown(decodeBase64(noticeData.boardContent));
+            setExistingAttachments(noticeData.attachments || []);
+            // 수정 화면으로 이동
+            setCurrentPage('수정');
+          }
+        } catch (e) {
+          alert('게시글 상세정보를 불러오지 못했습니다.');
+        }
+      }
+
+      await fetchAndEditNotice(boardIdx);
 
       alert('공지사항이 성공적으로 수정되었습니다!');
       setBoardTitle('');
