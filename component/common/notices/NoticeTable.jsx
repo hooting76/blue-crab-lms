@@ -29,11 +29,10 @@ useEffect(() => {
 
 
     const openModal = (boardIdx) => {
-    const notice = noticeList.find(row => row.boardIdx === boardIdx);
-    setSelectedIdx(notice.boardIdx);
-    setSelectedNotice(notice);
+    setSelectedIdx(boardIdx);
     setIsModalOpen(true);
     };
+
 
     const closeModal = () => {
         setSelectedIdx(null);
@@ -122,7 +121,10 @@ const handleEdit = () => {
                         boardIdx={selectedIdx}
                         currentPage={currentPage}
                         setCurrentPage={setCurrentPage}
-                        onFetchComplete={(notice) => setFetchedNotice(notice)} // ✅ fetch 완료 시 상태 저장
+                        onFetchComplete={(notice) => {
+                            setFetchedNotice(notice);        // 업데이트된 공지
+                            setSelectedNotice(notice);
+                        }}
                         />
 
 
