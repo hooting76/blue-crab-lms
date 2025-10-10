@@ -28,7 +28,7 @@ public class DataLoader implements CommandLineRunner {
             admin.setUserPw(passwordEncoder.encode("admin123!"));
             admin.setUserPhone("01012345678");
             admin.setUserBirth("19900101");
-            admin.setUserStudent(0); // 교수
+            admin.setUserStudent(1); // 교수
             admin.setUserReg("20250825");
             admin.setUserRegIp("127.0.0.1");
             userTblRepository.save(admin);
@@ -44,7 +44,7 @@ public class DataLoader implements CommandLineRunner {
             testUser.setUserPw(passwordEncoder.encode("test123!"));
             testUser.setUserPhone("01087654321");
             testUser.setUserBirth("19950315");
-            testUser.setUserStudent(1); // 학생
+            testUser.setUserStudent(0); // 학생
             testUser.setUserReg("20250825");
             testUser.setUserRegIp("127.0.0.1");
             userTblRepository.save(testUser);

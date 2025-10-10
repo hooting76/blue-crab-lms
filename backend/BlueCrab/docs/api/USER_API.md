@@ -51,7 +51,7 @@ GET /api/users
       "userName": "홍길동",
       "userPhone": "01012345678",
       "userBirth": "19900101",
-      "userStudent": 1,
+      "userStudent": 0,
       "userLatest": "컴퓨터공학과 4학년",
       "userZip": 12345,
       "userFirstAdd": "서울시 강남구",
@@ -73,7 +73,7 @@ GET /api/users/students
 ```
 
 #### 필터링 조건
-- `userStudent = 1` (학생)
+- `userStudent = 0` (학생)
 
 ### 3. 교수 사용자 조회
 
@@ -84,7 +84,7 @@ GET /api/users/professors
 ```
 
 #### 필터링 조건
-- `userStudent = 0` (교수)
+- `userStudent = 1` (교수)
 
 ### 4. 특정 사용자 조회
 
@@ -135,7 +135,7 @@ POST /api/users
 - `userName`: 사용자 실명
 - `userPhone`: 휴대폰번호 (11자리)
 - `userBirth`: 생년월일 (YYYYMMDD)
-- `userStudent`: 사용자 유형 (0: 교수, 1: 학생)
+- `userStudent`: 사용자 유형 (0: 학생, 1: 교수)
 
 #### 응답
 - **201 CREATED**: 사용자 생성 성공
@@ -201,8 +201,8 @@ PATCH /api/users/{id}/toggle-role
 | id | Integer | 역할을 변경할 사용자 ID |
 
 #### 동작 방식
-- `userStudent = 1` → `userStudent = 0` (학생 → 교수)
-- `userStudent = 0` → `userStudent = 1` (교수 → 학생)
+- `userStudent = 0` → `userStudent = 1` (학생 → 교수)
+- `userStudent = 1` → `userStudent = 0` (교수 → 학생)
 
 #### 응답 예시
 ```json
@@ -213,7 +213,7 @@ PATCH /api/users/{id}/toggle-role
     "userIdx": 1,
     "userEmail": "user@bluecrab.com",
     "userName": "홍길동",
-    "userStudent": 0
+    "userStudent": 1
   },
   "timestamp": "2025-08-27T12:00:00Z"
 }

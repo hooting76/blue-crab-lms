@@ -35,7 +35,7 @@ spring.datasource.hikari.connection-timeout=20000
 | USER_NAME | VARCHAR(50) | NOT NULL | 사용자 실명 |
 | USER_PHONE | CHAR(11) | NOT NULL | 휴대폰번호 (하이픈 제외) |
 | USER_BIRTH | VARCHAR(100) | NOT NULL | 생년월일 |
-| USER_STUDENT | INTEGER | NOT NULL | 사용자 유형 (0: 교수, 1: 학생) |
+| USER_STUDENT | INTEGER | NOT NULL | 사용자 유형 (0: 학생, 1: 교수) |
 | USER_LATEST | VARCHAR(100) | NULL | 최근 학력/경력 |
 | USER_ZIP | INTEGER | NULL | 우편번호 |
 | USER_FIRST_ADD | VARCHAR(200) | NULL | 기본 주소 |
