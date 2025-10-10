@@ -115,27 +115,6 @@ const decodeBase64 = (str) => {
 
 const markdown = decodeBase64(notice.boardContent);
 
-
-useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const data = await getNoticeDetail(accessToken, boardIdx);
-      console.log("📥 공지 상세 응답:", data); // ← 여기서 attachments 확인
-      setNotice(data);
-      onFetchComplete?.(data);
-    } catch (err) {
-      setError(err.message || '데이터를 불러오는데 실패했습니다.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (accessToken && boardIdx) {
-    fetchData();
-  }
-}, [accessToken, boardIdx]);
-
-
  return (
   <div className="noticeDetailContainer">
     <div className="noticeDetailTitleAndCode">
