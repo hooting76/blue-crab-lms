@@ -29,7 +29,7 @@ useEffect(() => {
 
 
     const openModal = (boardIdx) => {
-    const notice = rows.find(row => row.boardIdx === boardIdx);
+    const notice = noticeList.find(row => row.boardIdx === boardIdx);
     setSelectedIdx(notice.boardIdx);
     setSelectedNotice(notice);
     setIsModalOpen(true);
