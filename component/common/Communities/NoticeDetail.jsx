@@ -138,7 +138,10 @@ const handleDownload = async (attachmentIdx, fileName) => {
       'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/board-attachments/download',
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
         body: JSON.stringify({ attachmentIdx })
       }
     );
