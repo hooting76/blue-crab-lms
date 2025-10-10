@@ -341,7 +341,7 @@ useEffect(() => {
         <ul>
           {existingAttachments.map(att => (
             <li key={att.attachmentIdx}>
-              {att.origianlFileName} ({(att.fileSize / 1024).toFixed(1)} KB)
+              {att.originalFileName} ({(att.fileSize / 1024).toFixed(1)} KB)
               <button type="button" onClick={() => handleDeleteExistingAttachment(att.attachmentIdx)}>삭제</button>
             </li>
           ))}
@@ -353,7 +353,7 @@ useEffect(() => {
         <ul>
           {selectedFiles.map(file => (
             <li key={file.name}>
-              {file.origianlFileName} ({(file.size / 1024).toFixed(1)} KB)
+              {file.originalFileName} ({(file.size / 1024).toFixed(1)} KB)
               <button type="button" onClick={() => handleDeleteSelectedFile(file.name)}>삭제</button>
             </li>
           ))}
