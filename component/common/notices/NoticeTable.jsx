@@ -1,5 +1,5 @@
 // 공지테이블
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import "../../../css/Communities/Notice-ui.css";
 import "../../../css/Communities/NoticeDetailModal.css";
 import { UseAdmin } from "../../../hook/UseAdmin";
@@ -9,10 +9,27 @@ export default function NoticeTable({ rows, currentPage, setCurrentPage, setSele
     const [selectedIdx, setSelectedIdx] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [fetchedNotice, setFetchedNotice] = useState(null); // fetch된 진짜 notice
+    const [noticeList, setNoticeList] = useState(rows);
+
+useEffect(() => {
+  setNoticeList(rows); // props가 바뀌면 내부 상태도 업데이트
+}, [rows]);
+
+
+useEffect(() => {
+  if (fetchedNotice) {
+    setNoticeList(prev =>
+      prev.map(item =>
+        item.boardIdx === fetchedNotice.boardIdx ? { ...item, boardView: fetchedNotice.boardView } : item
+      )
+    );
+  }
+}, [fetchedNotice]);
+
 
 
     const openModal = (boardIdx) => {
-    const notice = rows.find(row => row.boardIdx === boardIdx);
+    const notice = noticeList.find(row => row.boardIdx === boardIdx);
     setSelectedIdx(notice.boardIdx);
     setSelectedNotice(notice);
     setIsModalOpen(true);
@@ -21,6 +38,7 @@ export default function NoticeTable({ rows, currentPage, setCurrentPage, setSele
     const closeModal = () => {
         setSelectedIdx(null);
         setIsModalOpen(false);
+        setFetchedNotice(null); // ✅ 초기화
     };
 
     const formattedTime = (boardReg) => {
@@ -68,7 +86,7 @@ const handleEdit = () => {
                 </tr>
             </thead>
             <tbody> 
-                {rows.map(r => {
+                {noticeList.map(r => {
                     const isSelected = r.boardIdx === selectedIdx;
                     const boardView = isSelected && fetchedNotice
                     ? fetchedNotice.boardView
