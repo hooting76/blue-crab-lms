@@ -28,7 +28,7 @@ function decodeBase64(str) {
   const editorRef = useRef();
   const [boardTitle, setBoardTitle] = useState('');
   const [boardCode, setBoardCode] = useState(null);
-  const { isAuthenticated } = UseAdmin();
+  const { isAuthenticated, admin, isAdminAuth } = UseAdmin();
 
   const getAccessToken = () => {
     const storedToken = localStorage.getItem('accessToken');
@@ -75,10 +75,10 @@ const linkAttachmentsToBoard = async (boardIdx, attachmentIdxArray) => {
   const response = await fetch(`/api/boards/link-attachments/${boardIdx}`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
       "Authorization": `Bearer ${accessToken}`,
+      "Content-Type": "application/json"
     },
-    body: JSON.stringify({ attachmentIdx: attachmentIdxArray }),
+    body: JSON.stringify(attachmentIdxArray) // ← FormData가 아닌 JSON
   });
 
   const result = await response.json();
@@ -98,7 +98,7 @@ const uploadFiles = async (boardIdx, files) => {
     headers: {
       "Authorization": `Bearer ${accessToken}`,
     },
-    body: formData,
+    body: formData
   });
 
   const result = await response.json();
