@@ -47,7 +47,7 @@ function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, s
       }
 
       try {
-        const attListRes = await fetch(`https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/board-attachments/${boardIdx}`, {
+        const attListRes = await fetch(`https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/board-attachments/upload/${boardIdx}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${accessToken}`
@@ -104,6 +104,9 @@ function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, s
     setSelectedFiles(prev => prev.filter(file => file.name !== fileName));
   };
 
+
+
+// 공지 작성
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -184,6 +187,8 @@ function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, s
     }
   };
 
+
+// 공지 수정
   const handleEdit = async (e) => {
     e.preventDefault();
 
