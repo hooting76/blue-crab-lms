@@ -139,7 +139,7 @@ const handleDownload = async (attachmentIdx, fileName) => {
       {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          'Authorization': `Bearer ${accessToken}`,
         },
       }
     );
