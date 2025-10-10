@@ -41,8 +41,29 @@ useEffect(() => {
     };
 
     const formattedTime = (boardReg) => {
-    return boardReg.replace('T', '\n').slice(0, 16);
+    const date = new Date(boardReg);
+    const now = new Date();
+
+    // 오늘 날짜 비교 (년, 월, 일)
+    const isToday =
+        date.getFullYear() === now.getFullYear() &&
+        date.getMonth() === now.getMonth() &&
+        date.getDate() === now.getDate();
+
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+
+    if (isToday) {
+        // 오늘이면 시간:분만 표시
+        return `${hours}:${minutes}`;
+    } else {
+        // 오늘이 아니면 월/일 + 시간:분 표시 (MM/DD HH:mm)
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        return `${month}/${day} ${hours}:${minutes}`;
+    }
     };
+
     
 const { isAuthenticated: isAdminAuth } = UseAdmin() || { admin: null, isAuthenticated: false };
 
