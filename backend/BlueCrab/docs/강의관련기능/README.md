@@ -1,8 +1,12 @@
 # 강의 관리 시스템 문서
 
-> **작성일**: 2025-10-10
-> **버전**: 2.1 (명명 규칙 통일 버전)
-> **변경사항**: 모든 테이블/컬럼명을 대문자 + 언더스코어 규칙으로 통일
+> **작성일**: 2025-10-10  
+> **업데이트**: 2025-10-11  
+> **버전**: 3.0 (Entity & DTO 레이어 완료)  
+> **변경사항**: 
+> - Phase 1-2: 데이터베이스 구축 완료 ✅
+> - Phase 3: Entity 3개, DTO 11개 생성 완료 ✅
+> - 폴더 구조화 완료 (entity/Lecture/, dto/Lecture/) ✅
 
 ---
 
@@ -17,6 +21,55 @@
 - ✅ **JSON 데이터 통합**: 복잡한 데이터를 유연하게 저장
 - ✅ **단계적 구현**: Phase별로 체계적인 개발 진행
 - ✅ **확장성 보장**: 필요시 기능별 테이블 분리 가능
+- ✅ **폴더 구조화**: 기능별 하위 폴더로 체계적 관리
+
+---
+
+## 📊 **구현 현황**
+
+### ✅ Phase 1-2: 데이터베이스 구축 (완료)
+- [x] USER_TBL 확장 (LECTURE_EVALUATIONS 추가)
+- [x] LEC_TBL 확장 (LEC_CURRENT, LEC_YEAR, LEC_SEMESTER 추가)
+- [x] ENROLLMENT_EXTENDED_TBL 생성
+- [x] ASSIGNMENT_EXTENDED_TBL 생성
+- [x] 외래키 및 인덱스 설정
+
+### ✅ Phase 3: Entity & DTO 레이어 (완료)
+
+#### Entity 클래스 (3개)
+- [x] **LecTbl.java** (`entity/Lecture/LecTbl.java`)
+  - 18개 필드 매핑
+  - 비즈니스 메서드 포함
+  
+- [x] **EnrollmentExtendedTbl.java** (`entity/Lecture/EnrollmentExtendedTbl.java`)
+  - @ManyToOne 관계 (LecTbl, UserTbl)
+  - JSON 데이터 구조 문서화
+  
+- [x] **AssignmentExtendedTbl.java** (`entity/Lecture/AssignmentExtendedTbl.java`)
+  - @ManyToOne 관계 (LecTbl)
+  - JSON 데이터 구조 문서화
+
+#### DTO 클래스 (11개)
+- [x] LectureDto, LectureDetailDto
+- [x] LectureCreateRequest, LectureUpdateRequest
+- [x] EnrollmentDto, EnrollmentCreateRequest
+- [x] AttendanceDto, GradeDto
+- [x] AssignmentDto, AssignmentSubmissionDto, AssignmentStatisticsDto
+
+### 🚧 Phase 4: Repository 레이어 (다음 단계)
+- [ ] LecTblRepository.java
+- [ ] EnrollmentExtendedTblRepository.java
+- [ ] AssignmentExtendedTblRepository.java
+
+### 📅 Phase 5: Service 레이어 (예정)
+- [ ] LectureService.java
+- [ ] EnrollmentService.java
+- [ ] AssignmentService.java
+
+### 📅 Phase 6: Controller 레이어 (예정)
+- [ ] LectureController.java
+- [ ] EnrollmentController.java
+- [ ] AssignmentController.java
 
 ---
 
