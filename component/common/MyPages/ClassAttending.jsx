@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import '../../../css/MyPages/ClassAttending.css';
 import classAttendingDummy from '../../../src/mock/classAttendingDummy.js'; //더미데이터
+import UseUser from '../../../hook/UseUser';
+import ApproveAttendanceModal from './ApproveAttendanceModal.jsx';
 
 function ClassAttending() {
+    const { user } = UseUser(); // 유저 정보
     // const [openRow, setOpenRow] = useState(null);
     
     // const totalCredits = classAttendingDummy.reduce(
@@ -63,7 +66,14 @@ const semesterOptions = generateSemesters(8);
 const currentSemesterValue = `${currentYear}_${currentSemester}`; // 현재 학기 value
 const [selectedSemester, setSelectedSemester] = useState(currentSemesterValue); // 학기 선택 상태
 
+const attendanceRequestSubmit = (e) => {
+    e.preventDefault();
+    alert("출석인정 신청이 완료되었습니다.");
+}
 
+const [isModalOpen, setIsModalOpen] = useState(false);
+    const openModal = () => setIsModalOpen(true);
+    const closeModal = () => setIsModalOpen(false);
 
     return (
         <div className="classAttending_list_container">
@@ -106,8 +116,14 @@ const [selectedSemester, setSelectedSemester] = useState(currentSemesterValue); 
                         (결석일수)회
                     </div>
                     <div className="attendanceCall">
-
+                        {user.USER_DEPT === 0 ? (
+                            <button onClick={attendanceRequestSubmit}>출석인정 신청</button>
+                        ) : (
+                            <button onClick={openModal}>출석인정 승인</button>
+                        )}
                     </div>
+                    {/* 모달 렌더링 */}
+                    {isModalOpen && <ApproveAttendanceModal onClose={closeModal} />}
                 </span>
 
                 <span className="testAssignment">
