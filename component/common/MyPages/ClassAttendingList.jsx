@@ -76,7 +76,7 @@ const [selectedSemester, setSelectedSemester] = useState(currentSemesterValue); 
                 ))}
             </select>
 
-            <select value={selectedLecture} className="lectureName">
+            <select className="lectureName">
                 {classAttendingDummy.map((cls) => (
                     <option key={cls.LEC_IDX} value={cls.LEC_IDX}>
                         {cls.LEC_NAME}
