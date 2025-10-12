@@ -97,11 +97,13 @@ const [selectedSemester, setSelectedSemester] = useState(currentSemesterValue); 
                     출결
                     <div className="attendance">
                         출석일수<br/>
-                        전체 (강의일수) 중 (출석일수)회
+                        전체 (강의일수) 중<br/>
+                        (출석일수)회
                     </div>
                     <div className="absence">
                         결석일수<br/>
-                        전체 (강의일수) 중 (결석일수)회
+                        전체 (강의일수) 중<br/>
+                        (결석일수)회
                     </div>
                     <div className="attendanceCall">
 
