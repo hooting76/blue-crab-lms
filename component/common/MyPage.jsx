@@ -1,5 +1,5 @@
 import "../../css/MyPages/MyPage.css";
-import ClassAttendingList from "./MyPages/ClassAttendingList";
+import ClassAttending from "./MyPages/ClassAttending";
 import ClassAttendingNotice from "./MyPages/ClassAttendingNotice";
 import Consult from "./MyPages/Consult";
 import UserDashboard from "../auth/UserDashboard";
@@ -24,7 +24,7 @@ function MyPage({ currentPage, setCurrentPage }) {
         case "수강중인 과목":
             return (
         <>
-            <ClassAttendingList onSelectCourse={handleSelectCourse} />
+            <ClassAttending onSelectCourse={handleSelectCourse} />
             {selectedCourseId && (
             <div style={{ marginTop: 16 }}>
                 <ClassAttendingProgress courseId={selectedCourseId} />

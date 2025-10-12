@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import '../../../css/MyPages/ClassAttendingList.css';
+import '../../../css/MyPages/ClassAttending.css';
 import classAttendingDummy from '../../../src/mock/classAttendingDummy.js'; //더미데이터
 
-function ClassAttendingList() {
+function ClassAttending() {
     // const [openRow, setOpenRow] = useState(null);
     
     // const totalCredits = classAttendingDummy.reduce(
@@ -179,4 +179,4 @@ const [selectedSemester, setSelectedSemester] = useState(currentSemesterValue); 
     );
 }
 
-export default ClassAttendingList;
+export default ClassAttending;
