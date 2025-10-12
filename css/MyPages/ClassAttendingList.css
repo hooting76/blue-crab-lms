@@ -97,6 +97,7 @@
 }
 
 .classAttendingContent {
+  width: 1000px;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -133,4 +134,19 @@
   background-color: azure;
   border-radius: 10px;
   margin-left: 25px;
+}
+
+.attendance {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.absence {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.attendanceCall {
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
