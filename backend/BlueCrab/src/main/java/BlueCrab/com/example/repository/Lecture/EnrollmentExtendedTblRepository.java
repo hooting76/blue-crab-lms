@@ -79,8 +79,10 @@ public interface EnrollmentExtendedTblRepository extends JpaRepository<Enrollmen
     List<EnrollmentExtendedTbl> findEnrolledLecturesByStudent(@Param("studentIdx") Integer studentIdx);
 
     /* 학생의 수강 이력 조회 (학생 정보 포함)
+     * countQuery를 별도로 지정하여 JOIN FETCH와 COUNT 쿼리 충돌 방지
      */
-    @Query("SELECT e FROM EnrollmentExtendedTbl e JOIN FETCH e.student WHERE e.studentIdx = :studentIdx")
+    @Query(value = "SELECT e FROM EnrollmentExtendedTbl e JOIN FETCH e.student WHERE e.studentIdx = :studentIdx",
+           countQuery = "SELECT COUNT(e) FROM EnrollmentExtendedTbl e WHERE e.studentIdx = :studentIdx")
     Page<EnrollmentExtendedTbl> findEnrollmentHistoryByStudent(@Param("studentIdx") Integer studentIdx, Pageable pageable);
 
     // ========== 강의별 수강 정보 조회 메서드 ==========
@@ -93,8 +95,10 @@ public interface EnrollmentExtendedTblRepository extends JpaRepository<Enrollmen
     List<EnrollmentExtendedTbl> findStudentsByLecture(@Param("lecIdx") Integer lecIdx);
 
     /* 강의의 수강생 목록 조회 (페이징, 학생 정보 포함)
+     * countQuery를 별도로 지정하여 JOIN FETCH와 COUNT 쿼리 충돌 방지
      */
-    @Query("SELECT e FROM EnrollmentExtendedTbl e JOIN FETCH e.student WHERE e.lecIdx = :lecIdx")
+    @Query(value = "SELECT e FROM EnrollmentExtendedTbl e JOIN FETCH e.student WHERE e.lecIdx = :lecIdx",
+           countQuery = "SELECT COUNT(e) FROM EnrollmentExtendedTbl e WHERE e.lecIdx = :lecIdx")
     Page<EnrollmentExtendedTbl> findStudentsByLecture(@Param("lecIdx") Integer lecIdx, Pageable pageable);
 
     // ========== 통계 관련 메서드 ==========

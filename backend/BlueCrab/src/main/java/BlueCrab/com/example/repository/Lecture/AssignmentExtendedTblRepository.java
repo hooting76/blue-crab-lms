@@ -63,8 +63,10 @@ public interface AssignmentExtendedTblRepository extends JpaRepository<Assignmen
     List<AssignmentExtendedTbl> findAssignmentsWithLecture(@Param("lecIdx") Integer lecIdx);
 
     /* 강의의 과제 목록 조회 (페이징, 강의 정보 포함)
+     * countQuery를 별도로 지정하여 JOIN FETCH와 COUNT 쿼리 충돌 방지
      */
-    @Query("SELECT a FROM AssignmentExtendedTbl a JOIN FETCH a.lecture WHERE a.lecIdx = :lecIdx")
+    @Query(value = "SELECT a FROM AssignmentExtendedTbl a JOIN FETCH a.lecture WHERE a.lecIdx = :lecIdx",
+           countQuery = "SELECT COUNT(a) FROM AssignmentExtendedTbl a WHERE a.lecIdx = :lecIdx")
     Page<AssignmentExtendedTbl> findAssignmentsWithLecture(@Param("lecIdx") Integer lecIdx, Pageable pageable);
 
     // ========== 복합 조회 메서드 ==========
