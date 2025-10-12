@@ -1,5 +1,5 @@
 .classAttending_list_container {
-    width: 100%;      /* 고정폭은 제거 / 카드폭에 맞춤 */
+    width: 1000px;      /* 고정폭은 제거 / 카드폭에 맞춤 */
     max-width: 1000px;  
     margin-left: auto;
     margin-right: auto;
@@ -97,7 +97,7 @@
 }
 
 .noticeChat {
-  width: 345px;
+  width: 375px;
   height: 1000px;
   background-color: white;
   border-radius: 10px;
@@ -105,7 +105,7 @@
 }
 
 .lectureNotice {
-  width: 330px;
+  width: 350px;
   height: 600px;
   background-color: lightyellow;
   border-radius: 10px;
@@ -113,14 +113,14 @@
 }
 
 .attendanceStatus {
-  width: 150px;
+  width: 200px;
   height: 1000px;
   background-color: aliceblue;
   border-radius: 10px;
 }
 
 .testAssignment {
-  width: 345px;
+  width: 375px;
   height: 1000px;
   background-color: azure;
   border-radius: 10px;
