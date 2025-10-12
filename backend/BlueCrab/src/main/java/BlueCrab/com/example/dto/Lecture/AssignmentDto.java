@@ -2,8 +2,7 @@ package BlueCrab.com.example.dto.Lecture;
 
 import java.util.List;
 
-/**
- * 과제 정보 전송을 위한 DTO 클래스
+/* 과제 정보 전송을 위한 DTO 클래스
  * 과제 목록 조회, 과제 상세 조회 시 사용
  */
 public class AssignmentDto {

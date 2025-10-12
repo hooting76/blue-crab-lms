@@ -1,12 +1,13 @@
 # 강의 관리 시스템 문서
 
 > **작성일**: 2025-10-10  
-> **업데이트**: 2025-10-11  
-> **버전**: 3.0 (Entity & DTO 레이어 완료)  
+> **업데이트**: 2025-10-12  
+> **버전**: 4.0 (Repository 레이어 완료)  
 > **변경사항**: 
 > - Phase 1-2: 데이터베이스 구축 완료 ✅
 > - Phase 3: Entity 3개, DTO 11개 생성 완료 ✅
-> - 폴더 구조화 완료 (entity/Lecture/, dto/Lecture/) ✅
+> - Phase 4: Repository 3개 생성 완료 ✅
+> - 폴더 구조화 완료 (entity/Lecture/, dto/Lecture/, repository/Lecture/) ✅
 
 ---
 
@@ -56,12 +57,43 @@
 - [x] AttendanceDto, GradeDto
 - [x] AssignmentDto, AssignmentSubmissionDto, AssignmentStatisticsDto
 
-### 🚧 Phase 4: Repository 레이어 (다음 단계)
-- [ ] LecTblRepository.java
-- [ ] EnrollmentExtendedTblRepository.java
-- [ ] AssignmentExtendedTblRepository.java
+### ✅ Phase 4: Repository 레이어 (완료)
 
-### 📅 Phase 5: Service 레이어 (예정)
+#### Repository 인터페이스 (3개)
+- [x] **LecTblRepository.java** (`repository/Lecture/LecTblRepository.java`)
+  - 강의 조회: 강의코드, 교수명, 학년/학기별 조회
+  - 수강신청 관련: 상태별, 정원 확인 조회
+  - 복합 검색: 학년/학기/전공/상태 복합 필터링
+  - 수강 인원 관리: 증가/감소 메서드
+  - 통계: 전체/상태별/교수별/전공별 통계
+  - 총 **30개 메서드** 제공
+  
+- [x] **EnrollmentExtendedTblRepository.java** (`repository/Lecture/EnrollmentExtendedTblRepository.java`)
+  - 수강신청 조회: 학생별, 강의별 조회
+  - JOIN FETCH: N+1 문제 방지를 위한 최적화 쿼리
+  - 배치 조회: 여러 강의/학생의 수강신청 일괄 조회
+  - 통계: 수강생 수, 수강신청 건수 조회
+  - 삭제: 수강 취소 관련 메서드
+  - 총 **20개 메서드** 제공
+  
+- [x] **AssignmentExtendedTblRepository.java** (`repository/Lecture/AssignmentExtendedTblRepository.java`)
+  - 과제 조회: 강의별 과제 목록 조회
+  - JOIN FETCH: 강의 정보 포함 최적화 조회
+  - 배치 조회: 여러 강의의 과제 일괄 조회
+  - 정렬: 최신순/오래된순 조회
+  - 통계: 과제 수 조회
+  - JSON 기반 확장 가능 설계
+  - 총 **15개 메서드** 제공
+
+#### Repository 주요 특징
+- ✅ **Spring Data JPA 활용**: 메서드 네이밍 규칙으로 쿼리 자동 생성
+- ✅ **JPQL 최적화**: @Query로 복잡한 조회 쿼리 작성
+- ✅ **N+1 문제 방지**: JOIN FETCH 활용
+- ✅ **배치 처리**: IN 절을 활용한 일괄 조회
+- ✅ **상세한 주석**: 각 메서드의 용도와 사용 예시 포함
+- ✅ **확장 가능 설계**: JSON 데이터 활용을 위한 가이드 포함
+
+### 📅 Phase 5: Service 레이어 (다음 단계)
 - [ ] LectureService.java
 - [ ] EnrollmentService.java
 - [ ] AssignmentService.java
