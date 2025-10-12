@@ -68,7 +68,7 @@ const [selectedSemester, setSelectedSemester] = useState(currentSemesterValue); 
 
     return (
         <div className="classAttending_list_container">
-            <select value={selectedSemester} onChange={handleSemesterChange} className='selectSemester'>
+            <select value={selectedSemester} className='selectSemester'>
                 {semesterOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                         {option.label}
