@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import '../../../css/MyPages/ClassAttending.css';
 import classAttendingDummy from '../../../src/mock/classAttendingDummy.js'; //더미데이터
-import UseUser from '../../../hook/UseUser';
+import { UseUser } from '../../../hook/UseUser';
 import ApproveAttendanceModal from './ApproveAttendanceModal.jsx';
 
 function ClassAttending() {
