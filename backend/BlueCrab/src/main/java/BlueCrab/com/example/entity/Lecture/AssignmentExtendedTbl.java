@@ -1,3 +1,5 @@
+// 작성자: 성태준
+
 package BlueCrab.com.example.entity.Lecture;
 
 import javax.persistence.*;
@@ -46,7 +48,6 @@ import javax.persistence.*;
  * - 학생이 과제 제출 시 JSON 데이터 업데이트
  * - 교수가 과제 채점 시 JSON 데이터 업데이트
  *
- * @author BlueCrab Development Team
  * @version 1.0.0
  * @since 2025-10-11
  */

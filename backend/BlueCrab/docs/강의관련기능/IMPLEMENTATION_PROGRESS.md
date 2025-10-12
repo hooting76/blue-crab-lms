@@ -1,8 +1,8 @@
 # 강의 관리 시스템 구현 진척도
 
-> **최종 업데이트**: 2025-10-11  
-> **현재 Phase**: Phase 3 완료, Phase 4 진입 예정  
-> **전체 진행률**: 35% (Phase 1-3 완료)
+> **최종 업데이트**: 2025-10-12  
+> **현재 Phase**: Phase 6 완료 (API 통합 최적화)  
+> **전체 진행률**: 85% (Phase 1-6 완료)
 
 ---
 
@@ -11,12 +11,12 @@
 ```
 Phase 1-2: 데이터베이스 구축        ████████████ 100% ✅
 Phase 3: Entity & DTO 레이어       ████████████ 100% ✅
-Phase 4: Repository 레이어          ░░░░░░░░░░░░   0% 🚧
-Phase 5: Service 레이어             ░░░░░░░░░░░░   0% 📅
-Phase 6: Controller 레이어          ░░░░░░░░░░░░   0% 📅
-Phase 7: 테스트 & 통합              ░░░░░░░░░░░░   0% 📅
+Phase 4: Repository 레이어          ████████████ 100% ✅
+Phase 5: Service 레이어             ████████████ 100% ✅
+Phase 6: Controller 레이어          ████████████ 100% ✅
+Phase 7: 테스트 & 통합              ░░░░░░░░░░░░  10% 🚧
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-전체 진행률:                        █████░░░░░░░  35%
+전체 진행률:                        ██████████░░  85%
 ```
 
 ---
@@ -50,235 +50,287 @@ Phase 7: 테스트 & 통합              ░░░░░░░░░░░░   
 
 ## ✅ Phase 3: Entity & DTO 레이어 (완료)
 
+### 기간: 2025-10-10 ~ 2025-10-11
+### 상태: ✅ 완료
+
+#### 완료 항목
+- [x] **Entity 클래스 (3개)**
+  - LecTbl.java - 강의 엔티티
+  - EnrollmentExtendedTbl.java - 수강신청 엔티티
+  - AssignmentExtendedTbl.java - 과제 엔티티
+
+- [x] **DTO 클래스 (11개)**
+  - LectureDto, LectureDetailDto, LectureCreateRequest, LectureUpdateRequest
+  - EnrollmentDto, EnrollmentCreateRequest
+  - AttendanceDto, GradeDto
+  - AssignmentDto, AssignmentSubmissionDto, AssignmentStatisticsDto
+
+- [x] **작성자 표기 통일**
+  - 모든 파일 상단에 `// 작성자: 성태준` 표기
+
+---
+
+## ✅ Phase 4: Repository 레이어 (완료)
+
 ### 기간: 2025-10-11
 ### 상태: ✅ 완료
 
-### Entity 클래스 (3개)
+#### 완료 항목
+- [x] **LecTblRepository.java (30개 메서드)**
+  - 기본 CRUD
+  - 검색 메서드 (강의명, 교수명, 강의코드)
+  - 복합 조건 검색 (@Query)
+  - 수강 인원 관리 (증가/감소)
+  - 통계 메서드
 
-#### 1. LecTbl.java ✅
-- **위치**: `backend/BlueCrab/src/main/java/BlueCrab/com/example/entity/Lecture/LecTbl.java`
-- **필드**: 18개 (LEC_IDX, LEC_SERIAL, LEC_TIT, LEC_PROF 등)
-- **관계**: None (참조 대상 엔티티)
-- **비즈니스 메서드**:
-  - `isOpenForEnrollment()` - 수강신청 가능 여부
-  - `isFull()` - 정원 초과 여부
-  - `getAvailableSeats()` - 남은 수강 가능 인원
-- **JavaDoc**: 완전 문서화
+- [x] **EnrollmentExtendedTblRepository.java (20개 메서드)**
+  - 기본 CRUD
+  - 학생별/강의별 조회
+  - JOIN 쿼리 (강의/학생 정보 포함)
+  - 일괄 삭제 메서드
 
-#### 2. EnrollmentExtendedTbl.java ✅
-- **위치**: `backend/BlueCrab/src/main/java/BlueCrab/com/example/entity/Lecture/EnrollmentExtendedTbl.java`
-- **필드**: 4개 (ENROLLMENT_IDX, LEC_IDX, STUDENT_IDX, ENROLLMENT_DATA)
-- **관계**: 
-  - `@ManyToOne` → LecTbl
-  - `@ManyToOne` → UserTbl
-- **JSON 구조**: 수강상태, 출결배열, 성적객체
-- **JavaDoc**: 완전 문서화
+- [x] **AssignmentExtendedTblRepository.java (15개 메서드)**
+  - 기본 CRUD
+  - 강의별 과제 조회
+  - JOIN 쿼리 (강의 정보 포함)
+  - 통계 메서드
 
-#### 3. AssignmentExtendedTbl.java ✅
-- **위치**: `backend/BlueCrab/src/main/java/BlueCrab/com/example/entity/Lecture/AssignmentExtendedTbl.java`
-- **필드**: 3개 (ASSIGNMENT_IDX, LEC_IDX, ASSIGNMENT_DATA)
-- **관계**: `@ManyToOne` → LecTbl
-- **JSON 구조**: 과제정보, 제출배열, 통계객체
-- **JavaDoc**: 완전 문서화
+#### 버그 수정
+- [x] Repository 필드명 오류 수정
+  - lecState → lecOpen
+  - lecCapa → lecMany
+  - lecRequire → lecMust
 
 ---
 
-### DTO 클래스 (11개)
+## ✅ Phase 5: Service 레이어 (완료)
 
-#### 강의 관련 DTO (4개) ✅
-1. **LectureDto.java**
-   - 용도: 강의 목록 조회, 검색 결과
-   - 특징: availableSeats, isFull 자동 계산
+### 기간: 2025-10-11
+### 상태: ✅ 완료
 
-2. **LectureDetailDto.java**
-   - 용도: 강의 상세 조회
-   - 특징: LectureDto 상속 + lecSummary 추가
+#### 완료 항목
+- [x] **LectureService.java (~25개 메서드)**
+  - 강의 CRUD 로직
+  - 수강 인원 관리 (증가/감소, 정원 확인)
+  - 복합 검색 로직
+  - 통계 메서드 (강의별, 교수별, 전공별)
 
-3. **LectureCreateRequest.java**
-   - 용도: 관리자 강의 생성 요청
+- [x] **EnrollmentService.java (~30개 메서드)**
+  - 수강신청/취소 로직
+  - 중복 방지 및 정원 확인
+  - JSON 데이터 파싱 (enrollmentData)
+  - 출석/성적 업데이트
+  - 통계 메서드
 
-4. **LectureUpdateRequest.java**
-   - 용도: 관리자 강의 수정 요청
+- [x] **AssignmentService.java (~18개 메서드)**
+  - 과제 CRUD 로직
+  - 과제 제출 처리
+  - JSON 데이터 파싱 (assignmentData)
+  - 채점 로직
+  - 통계 메서드
 
-#### 수강신청 관련 DTO (2개) ✅
-5. **EnrollmentDto.java**
-   - 용도: 수강신청 정보 조회
-   - 포함: 강의정보, 학생정보, 출결/성적 객체
+#### 업데이트 (2025-10-12)
+- [x] **LectureService 메서드 추가**
+  - `updateLecture(LecTbl)` 오버로드 메서드
+  - `getLectureStatistics(Integer)` 강의별 통계
 
-6. **EnrollmentCreateRequest.java**
-   - 용도: 학생 수강신청 요청
-
-#### 출결/성적 DTO (2개) ✅
-7. **AttendanceDto.java**
-   - 용도: 출결 정보 전송
-   - 필드: 날짜, 상태, 신청사유, 승인정보
-
-8. **GradeDto.java**
-   - 용도: 성적 정보 전송
-   - 필드: 중간/기말/과제/참여도/총점/학점
-
-#### 과제 관련 DTO (3개) ✅
-9. **AssignmentDto.java**
-   - 용도: 과제 정보 조회
-   - 포함: 과제기본정보, 제출목록, 통계
-
-10. **AssignmentSubmissionDto.java**
-    - 용도: 과제 제출 정보
-    - 필드: 학생정보, 제출내용, 점수, 피드백
-
-11. **AssignmentStatisticsDto.java**
-    - 용도: 과제 통계 정보
-    - 필드: 제출률, 평균점수, 채점현황
+- [x] **EnrollmentService 메서드 추가**
+  - `getAllEnrollments(Pageable)` 전체 목록
+  - `getEnrolledByStudent(Integer)` 현재 수강중 목록
+  - `enrollStudent(Integer, Integer)` wrapper 메서드
+  - `updateAttendance(Integer, Integer, Integer, Integer)` 간단 출석 업데이트
+  - `updateGrade(Integer, String, Double)` 간단 성적 업데이트
+  - `countAllEnrollments()` 전체 수 조회
 
 ---
 
-### 폴더 구조화 ✅
+## ✅ Phase 6: Controller 레이어 (완료)
 
+### 기간: 2025-10-11 ~ 2025-10-12
+### 상태: ✅ 완료 (API 통합 최적화)
+
+#### 완료 항목 (초기 버전)
+- [x] **LectureController.java**
+  - 13개 REST API 엔드포인트
+  - CRUD + 검색 + 통계
+
+- [x] **EnrollmentController.java**
+  - 12개 REST API 엔드포인트
+  - 수강신청 + 출석/성적 관리
+
+- [x] **AssignmentController.java**
+  - 11개 REST API 엔드포인트
+  - 과제 관리 + 제출/채점
+
+#### 🎯 API 통합 최적화 (2025-10-12)
+
+**문제점**: 엔드포인트 과다 (34개) → 관리 복잡도 증가
+
+**해결책**: 쿼리 파라미터 기반 통합 + Sub-resource 패턴
+
+##### ✨ 최적화 결과
+
+**LectureController (11개 → 6개)**
 ```
-backend/BlueCrab/src/main/java/BlueCrab/com/example/
-│
-├── entity/
-│   └── Lecture/                    ← 강의 관련 엔티티
-│       ├── LecTbl.java
-│       ├── EnrollmentExtendedTbl.java
-│       └── AssignmentExtendedTbl.java
-│
-└── dto/
-    └── Lecture/                    ← 강의 관련 DTO
-        ├── LectureDto.java
-        ├── LectureDetailDto.java
-        ├── LectureCreateRequest.java
-        ├── LectureUpdateRequest.java
-        ├── EnrollmentDto.java
-        ├── EnrollmentCreateRequest.java
-        ├── AttendanceDto.java
-        ├── GradeDto.java
-        ├── AssignmentDto.java
-        ├── AssignmentSubmissionDto.java
-        └── AssignmentStatisticsDto.java
+✅ GET /api/lectures - 통합 조회 엔드포인트
+   ├─ ?serial=XXX          (강의코드 조회)
+   ├─ ?professor=XXX       (교수별 조회)
+   ├─ ?title=XXX           (강의명 검색)
+   ├─ ?year=2024&semester=1 (학기별)
+   ├─ ?major=1&open=1      (복합 검색)
+   └─ (파라미터 없음)       (전체 목록)
+✅ GET /api/lectures/{id}
+✅ GET /api/lectures/{id}/stats (sub-resource)
+✅ POST /api/lectures
+✅ PUT /api/lectures/{id}
+✅ DELETE /api/lectures/{id}
 ```
 
----
+**EnrollmentController (12개 → 7개)**
+```
+✅ GET /api/enrollments - 통합 조회
+   ├─ ?studentIdx=1        (학생별)
+   ├─ ?lecIdx=1            (강의별)
+   ├─ ?checkEnrollment=true (수강 여부)
+   ├─ ?enrolled=true       (현재 수강중)
+   └─ ?stats=true          (통계)
+✅ GET /api/enrollments/{id}
+✅ GET /api/enrollments/{id}/data
+✅ POST /api/enrollments
+✅ DELETE /api/enrollments/{id}
+✅ PUT /api/enrollments/{id}/attendance
+✅ PUT /api/enrollments/{id}/grade
+```
 
-## 🚧 Phase 4: Repository 레이어 (다음 단계)
+**AssignmentController (11개 → 8개)**
+```
+✅ GET /api/assignments - 통합 조회
+   ├─ ?lecIdx=1            (강의별)
+   ├─ ?withLecture=true    (강의 정보 포함)
+   └─ ?stats=true          (통계)
+✅ GET /api/assignments/{id}
+✅ GET /api/assignments/{id}/data
+✅ POST /api/assignments
+✅ POST /api/assignments/{id}/submit
+✅ PUT /api/assignments/{id}
+✅ PUT /api/assignments/{id}/grade
+✅ DELETE /api/assignments/{id}
+```
 
-### 예상 기간: 2일
-### 상태: 준비 중
-
-### 구현 예정 Repository (3개)
-
-#### 1. LecTblRepository.java
-- **상속**: `JpaRepository<LecTbl, Integer>`
-- **위치**: `repository/Lecture/LecTblRepository.java`
-- **쿼리 메서드**:
-  - `findByLecOpen(Integer lecOpen)` - 수강신청 가능 강의
-  - `findByLecMcodeAndLecMcodeDep(String mcode, String mcodeDep)` - 학부/학과별 강의
-  - `findByLecYearAndLecSemester(Integer year, Integer semester)` - 학년/학기별 강의
-  - `findByLecProfContaining(String profName)` - 교수명 검색
-  - `findByLecTitContaining(String title)` - 강의명 검색
-
-#### 2. EnrollmentExtendedTblRepository.java
-- **상속**: `JpaRepository<EnrollmentExtendedTbl, Integer>`
-- **위치**: `repository/Lecture/EnrollmentExtendedTblRepository.java`
-- **쿼리 메서드**:
-  - `findByLecIdx(Integer lecIdx)` - 강의별 수강생 목록
-  - `findByStudentIdx(Integer studentIdx)` - 학생별 수강 내역
-  - `findByLecIdxAndStudentIdx(Integer lecIdx, Integer studentIdx)` - 특정 수강신청
-  - `countByLecIdx(Integer lecIdx)` - 수강 인원 카운트
-
-#### 3. AssignmentExtendedTblRepository.java
-- **상속**: `JpaRepository<AssignmentExtendedTbl, Integer>`
-- **위치**: `repository/Lecture/AssignmentExtendedTblRepository.java`
-- **쿼리 메서드**:
-  - `findByLecIdx(Integer lecIdx)` - 강의별 과제 목록
-  - `findByLecIdxOrderByAssignmentIdxDesc(Integer lecIdx)` - 최신순 과제
-
----
-
-## 📅 Phase 5: Service 레이어 (예정)
-
-### 예상 기간: 5일
-### 상태: 대기 중
-
-### 구현 예정 Service (3개)
-
-#### 1. LectureService.java
-- 강의 CRUD 비즈니스 로직
-- 수강 인원 관리
-- 강의 상태 변경
-
-#### 2. EnrollmentService.java
-- 수강신청 처리
-- 출결 관리
-- 성적 계산 및 관리
-
-#### 3. AssignmentService.java
-- 과제 생성 및 관리
-- 과제 제출 처리
-- 과제 채점 및 통계
+##### 📊 통합 성과
+- **엔드포인트 수**: 34개 → 21개 (38% 감소)
+- **코드 중복 제거**: 조회 로직 통합
+- **유지보수성 향상**: 단일 엔드포인트에서 다양한 쿼리 처리
+- **RESTful 설계**: 리소스 중심, HTTP 메서드 활용
+- **확장성**: 새로운 필터 추가 용이
 
 ---
 
-## 📅 Phase 6: Controller 레이어 (예정)
+## 🚧 Phase 7: 테스트 & 통합 (진행중)
 
-### 예상 기간: 5일
-### 상태: 대기 중
+### 기간: 2025-10-12 ~
+### 상태: 🚧 10% 진행중
 
-### 구현 예정 Controller (3개)
+#### 진행 항목
+- [x] **컴파일 검증**
+  - 모든 Controller 컴파일 에러 해결
+  - 모든 Service 컴파일 에러 해결
+  - Repository-Service-Controller 연동 확인
 
-#### 1. LectureController.java
-- REST API 엔드포인트
-- 권한 검증
-- 요청/응답 처리
+#### 예정 항목
+- [ ] **단위 테스트**
+  - Repository 테스트
+  - Service 테스트
+  - Controller 테스트
 
-#### 2. EnrollmentController.java
-- 수강신청 API
-- 출결 API
-- 성적 API
+- [ ] **통합 테스트**
+  - API 엔드포인트 테스트
+  - 트랜잭션 테스트
+  - JSON 파싱 테스트
 
-#### 3. AssignmentController.java
-- 과제 API
-- 제출 API
-- 채점 API
-
----
-
-## 📈 다음 작업 계획
-
-### 즉시 시작 가능 (Phase 4)
-1. **Repository 레이어 생성**
-   - LecTblRepository 인터페이스
-   - EnrollmentExtendedTblRepository 인터페이스
-   - AssignmentExtendedTblRepository 인터페이스
-   - 기본 CRUD 메서드 정의
-   - 커스텀 쿼리 메서드 추가
-
-### 이후 작업 (Phase 5-6)
-2. **Service 레이어 구현**
-   - 비즈니스 로직 구현
-   - JSON 데이터 처리
-   - 트랜잭션 관리
-
-3. **Controller 레이어 구현**
-   - REST API 구현
-   - 요청 검증
-   - 예외 처리
-
-4. **테스트 코드 작성**
-   - 단위 테스트
-   - 통합 테스트
-   - API 테스트
+- [ ] **부하 테스트**
+  - 수강신청 동시성 테스트
+  - 정원 초과 방지 테스트
 
 ---
 
-## 📝 참고 문서
+## 📈 상세 구현 현황
 
-- [DB_IMPLEMENTATION_STATUS.md](DB_IMPLEMENTATION_STATUS.md) - 데이터베이스 구현 현황
-- [07-구현순서.md](07-구현순서.md) - 상세 구현 순서
-- [README.md](README.md) - 전체 문서 개요
+### 코드 통계
+
+| 레이어 | 파일 수 | 메서드 수 | 코드 라인 수 | 상태 |
+|--------|---------|-----------|--------------|------|
+| **Entity** | 3 | ~50 | ~450 | ✅ 완료 |
+| **DTO** | 11 | ~150 | ~900 | ✅ 완료 |
+| **Repository** | 3 | 65 | ~650 | ✅ 완료 |
+| **Service** | 3 | 73 | ~850 | ✅ 완료 |
+| **Controller** | 3 | 21 | ~750 | ✅ 완료 |
+| **Total** | **23** | **359** | **~3,600** | **85%** |
+
+### API 엔드포인트 현황
+
+| Controller | 엔드포인트 수 | 상태 | 비고 |
+|------------|---------------|------|------|
+| **LectureController** | 6 | ✅ | 통합 최적화 완료 |
+| **EnrollmentController** | 7 | ✅ | 통합 최적화 완료 |
+| **AssignmentController** | 8 | ✅ | 통합 최적화 완료 |
+| **Total** | **21** | **✅** | **34→21 (38% 감소)** |
 
 ---
 
-**작성자**: BlueCrab Development Team  
-**문서 버전**: 1.0  
-**마지막 업데이트**: 2025-10-11
+## 🎯 다음 단계
+
+### 우선순위 1: 테스트 코드 작성
+- [ ] Repository 계층 단위 테스트
+- [ ] Service 계층 비즈니스 로직 테스트
+- [ ] Controller 계층 API 테스트
+
+### 우선순위 2: 문서 업데이트
+- [ ] API 명세서 업데이트 (통합 API 반영)
+- [ ] Swagger/OpenAPI 문서 생성
+- [ ] 프론트엔드 연동 가이드 작성
+
+### 우선순위 3: 성능 최적화
+- [ ] N+1 쿼리 문제 확인 및 해결
+- [ ] 캐싱 전략 수립
+- [ ] 인덱스 최적화
+
+---
+
+## 📝 변경 이력
+
+### 2025-10-12
+- ✅ Phase 6 완료: Controller 레이어 API 통합 최적화
+- ✅ Service 레이어 메서드 추가 (컨트롤러 요구사항 반영)
+- ✅ 엔드포인트 38% 감소 (34개 → 21개)
+- ✅ 모든 컴파일 에러 해결
+
+### 2025-10-11
+- ✅ Phase 5 완료: Service 레이어 구현
+- ✅ Phase 6 시작: Controller 레이어 구현
+- ✅ Repository 필드명 버그 수정
+
+### 2025-10-10
+- ✅ Phase 3 완료: Entity & DTO 레이어 구현
+- ✅ Phase 4 시작: Repository 레이어 구현
+
+### 2025-10-09
+- ✅ Phase 1-2 완료: 데이터베이스 설계 및 구축
+
+---
+
+## 📌 주요 기술 스택
+
+- **Framework**: Spring Boot 3.x
+- **ORM**: JPA/Hibernate with Spring Data JPA
+- **Database**: MariaDB
+- **JSON Processing**: Jackson ObjectMapper
+- **Logging**: SLF4J
+- **Architecture**: Layered Architecture (Controller-Service-Repository-Entity)
+- **API Design**: RESTful with Query Parameter Integration
+
+---
+
+**작성자**: 성태준  
+**문서 버전**: 2.0  
+**마지막 수정**: 2025-10-12

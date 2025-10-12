@@ -1,3 +1,5 @@
+// 작성자: 성태준
+
 package BlueCrab.com.example.entity.Lecture;
 
 import javax.persistence.*;
@@ -27,7 +29,6 @@ import javax.persistence.*;
  * - 학생이 수강신청 가능 강의 목록 조회
  * - 교수가 담당 강의 목록 조회
  *
- * @author BlueCrab Development Team
  * @version 1.0.0
  * @since 2025-10-11
  */

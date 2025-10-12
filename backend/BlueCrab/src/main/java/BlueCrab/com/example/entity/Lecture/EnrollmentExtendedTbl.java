@@ -1,3 +1,5 @@
+// 작성자: 성태준
+
 package BlueCrab.com.example.entity.Lecture;
 
 import BlueCrab.com.example.entity.UserTbl;
@@ -52,7 +54,6 @@ import javax.persistence.*;
  * - 교수가 출결 체크 시 JSON 데이터 업데이트
  * - 교수가 성적 입력 시 JSON 데이터 업데이트
  *
- * @author BlueCrab Development Team
  * @version 1.0.0
  * @since 2025-10-11
  */

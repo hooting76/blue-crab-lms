@@ -1,3 +1,5 @@
+// 작성자: 성태준
+
 package BlueCrab.com.example.dto.Lecture;
 
 import java.util.List;
