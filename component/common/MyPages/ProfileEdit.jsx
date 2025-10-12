@@ -142,7 +142,7 @@ export default function ProfileEdit() {
 
           <label className="field">
             <span>생년월일</span>
-            <input value={form.birthDate} onChange={onChange('birthDate')} inputMode="numeric" />
+            <input value={form.birthDate} readOnly />
           </label>
 
           <label className="field">
@@ -152,7 +152,7 @@ export default function ProfileEdit() {
 
           <label className="field">
             <span>이메일</span>
-            <input value={form.userEmail} readOnly />
+            <input value={form.userEmail} disabled />
           </label>
 
           <label className="field">

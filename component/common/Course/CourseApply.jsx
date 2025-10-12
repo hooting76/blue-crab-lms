@@ -1,216 +1,290 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "../../../css/Course/CourseApply.css";
 
-// === TODO: 실제 API 붙일 때 이 네 함수만 교체 ===
-async function apiFetchCatalog(params) {
-//params: { year, term, college, dept, q }
-    return [
-        { id: 1, no: 1, type: "전공", major: "국어국문학과", code: "KOR201", name: "현대시론", credit: 3, prof: "김보미", time: "월수 09:00-10:15", seats: "40명" },
-        { id: 2, no: 2, type: "전공", major: "철학과", code: "PHI310", name: "현대철학의 법", credit: 2, prof: "한지훈", time: "목 15:00-16:45", seats: "55명" },
-        { id: 3, no: 3, type: "교양", major: "심리학과", code: "PSY105", name: "심리학의 이해", credit: 2, prof: "최유리", time: "금 13:00-14:15", seats: "70명" },
-    ];
-}
-async function apiFetchMyEnrolls() {
-    return [
-        { id: 9001, code: "HIS110", name: "세계사 개론", credit: 2, prof: "박교수", time: "화 10:30-11:45" },
-    ];
-}
-async function apiEnroll(courseId) { return { ok: true }; }
-async function apiDrop(courseId) { return { ok: true }; }
-// ====================================================
-
+/**
+ * 수강신청 페이지 (UI 더미 데이터 기반)
+ * - 행/버튼 클릭으로 신청
+ * - 수업계획서 아이콘(📄)은 계획서만 표시(신청 아님)
+ * - "신청과목 확인" 우측 드로어 열릴 때 헤더 숨김 (html.drawer-open)
+ */
 export default function CourseApply() {
-    // 필터들(초기값은 드롭다운 기본값처럼)
-    const [year, setYear] = useState("2025");
-    const [term, setTerm] = useState("2");
-    const [college, setCollege] = useState("전체");
-    const [dept, setDept] = useState("전체");
-    const [q, setQ] = useState("");
+  // ===== 더미 데이터 =====
+  const [year, setYear] = useState("2025");
+  const [semester, setSemester] = useState("2학기");
+  const [dept, setDept] = useState("전체");
+  const [qKeyword, setQKeyword] = useState("");
+  const [qCourse, setQCourse] = useState("");
 
-    const [catalog, setCatalog] = useState([]);
-    const [mine, setMine] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [busy, setBusy] = useState(false);
-    const [msg, setMsg] = useState("");
+  const allCourses = useMemo(
+    () => [
+      {
+        id: "KOR201",
+        type: "전공",
+        major: "국어국문학과",
+        name: "현대시론",
+        credit: 3,
+        prof: "김보미",
+        time: "월·수 09:00-10:15",
+        seats: 40,
+        weekday: "월수",
+        plan: "현대시의 핵심 이론과 작품 분석…",
+      },
+      {
+        id: "PHI310",
+        type: "전공",
+        major: "철학과",
+        name: "선형대수학",
+        credit: 2,
+        prof: "한지훈",
+        time: "목 13:00-14:50",
+        seats: 55,
+        weekday: "목",
+        plan: "벡터공간/행렬/고유값 개념의 철학적 응용…",
+      },
+      {
+        id: "PSY105",
+        type: "교양",
+        major: "심리학과",
+        name: "심리학의 이해",
+        credit: 2,
+        prof: "최유리",
+        time: "금 10:30-12:10",
+        seats: 70,
+        weekday: "금",
+        plan: "심리학 전반의 개론(지각/기억/학습/동기)…",
+      },
+    ],
+    []
+  );
 
-    // 우측 슬라이드 패널 열림 여부
-    const [openPanel, setOpenPanel] = useState(false);
+  // ===== 신청 상태 =====
+  const [applied, setApplied] = useState([]);
+  const isApplied = (id) => applied.some((c) => c.id === id);
 
-    const loadCatalog = async () => {
-        setLoading(true);
-    const rows = await apiFetchCatalog({ year, term, college, dept, q });
-        setCatalog(rows);
-        setLoading(false);
-    };
-    const loadMine = async () => {
-    const rows = await apiFetchMyEnrolls();
-        setMine(rows);
-    };
+  const handleApply = (course) => {
+    if (isApplied(course.id)) return; // 중복 방지
+    setApplied((prev) => [...prev, course]);
+  };
+  const handleCancel = (id) => {
+    setApplied((prev) => prev.filter((c) => c.id !== id));
+  };
 
-    useEffect(() => { loadCatalog(); loadMine(); }, []);
-    // 통합검색 즉시 반영(선호에 따라 버튼으로만 검색하게 바꿔도 됨)
-    useEffect(() => { loadCatalog(); /* eslint-disable-next-line */ }, [q]);
+  // ===== 수업계획서 모달 =====
+  const [syllabus, setSyllabus] = useState(null);
+  const openPlan = (course, e) => {
+    e.stopPropagation(); // 행 클릭과 버블링 분리
+    setSyllabus(course);
+  };
+  const closePlan = () => setSyllabus(null);
 
-    const onSearchClick = () => loadCatalog();
+  // ===== 신청내역 드로어(열 때 헤더 숨김) =====
+  const [showApplied, setShowApplied] = useState(false);
+  const openApplied = () => {
+    setShowApplied(true);
+    document.documentElement.classList.add("drawer-open");
+  };
+  const closeApplied = () => {
+    setShowApplied(false);
+    document.documentElement.classList.remove("drawer-open");
+  };
+  useEffect(() => {
+    return () => document.documentElement.classList.remove("drawer-open");
+  }, []);
 
-    const onEnroll = async (row) => {
-        if (busy) return;
-            setBusy(true); setMsg("");
-    const r = await apiEnroll(row.id);
-        if (r.ok) { setMsg("수강신청이 완료되었습니다."); await loadMine(); }
-        else setMsg("수강신청에 실패했습니다.");
-            setBusy(false);
-    };
+  // ===== 필터링 =====
+  const filtered = useMemo(() => {
+    return allCourses.filter((c) => {
+      const okDept = dept === "전체" ? true : c.type === dept || c.major.includes(dept);
+      const okKeyword =
+        !qKeyword ||
+        c.type.includes(qKeyword) ||
+        c.major.includes(qKeyword) ||
+        c.name.includes(qKeyword) ||
+        c.id.includes(qKeyword);
+      const okName = !qCourse || c.name.includes(qCourse) || c.id.includes(qCourse);
+      return okDept && okKeyword && okName;
+    });
+  }, [allCourses, dept, qKeyword, qCourse]);
 
-    const onDrop = async (row) => {
-        if (busy) return;
-            setBusy(true); setMsg("");
-    const r = await apiDrop(row.id);
-        if (r.ok) { setMsg("수강취소가 완료되었습니다."); await loadMine(); }
-        else setMsg("수강취소에 실패했습니다.");
-            setBusy(false);
-    };
-
-return (
-    <div className="course-apply">
-        {/* 상단 제목 + 우측 패널 토글 */}
-        <div className="title-bar">
-            <h2>수강신청</h2>
-                <button className="btn ghost" onClick={() => setOpenPanel(true)}>신청과목 확인</button>
+  return (
+    <div id="course-apply">
+      {/* 상단 안내 */}
+      <section className="notice">
+        <div className="title">안내문</div>
+        <div className="box">
+          자세한 신청 관련 공지는 <button className="link" onClick={() => window.open("/Community", "_self")}>학사 공지사항</button>을 확인해 주세요.
         </div>
 
-        {/* 안내 영역 (피그마의 공지 박스 자리) */}
-        <div className="notice">
-        <div className="notice-title">안내문</div>
-        <div className="notice-body">
-            자세한 사항은 우측 상단의 첨부파일 및 홈페이지 공지사항을 참고하세요.
-        </div>
-    </div>
+        <button className="applied-check" onClick={openApplied}>
+          신청과목 확인
+        </button>
+      </section>
 
-    {/* 필터 바 */}
-    <div className="filters">
+      {/* 검색/필터 */}
+      <section className="filters">
         <div className="row">
-        <div className="group">
-            <label>학년도</label>
-            <select value={year} onChange={(e)=>setYear(e.target.value)}>
-                <option value="2025">2025</option>
-                <option value="2024">2024</option>
+          <label>
+            학년도
+            <select value={year} onChange={(e) => setYear(e.target.value)}>
+              <option>2025</option>
+              <option>2024</option>
             </select>
-        </div>
-        <div className="group">
-            <label>학기</label>
-            <select value={term} onChange={(e)=>setTerm(e.target.value)}>
-                <option value="1">1학기</option>
-                <option value="2">2학기</option>
+          </label>
+          <label>
+            학기
+            <select value={semester} onChange={(e) => setSemester(e.target.value)}>
+              <option>1학기</option>
+              <option>2학기</option>
             </select>
-        </div>
-        <div className="group">
-            <label>개설학과</label>
-            <select value={dept} onChange={(e)=>setDept(e.target.value)}>
-                <option>전체</option>
-                <option>국어국문학과</option>
-                <option>철학과</option>
-                <option>심리학과</option>
+          </label>
+          <label>
+            개설전공
+            <select value={dept} onChange={(e) => setDept(e.target.value)}>
+              <option>전체</option>
+              <option>전공</option>
+              <option>교양</option>
+              <option>국어국문학과</option>
+              <option>철학과</option>
+              <option>심리학과</option>
             </select>
-        </div>
-            <button className="btn" onClick={onSearchClick}>조회</button>
+          </label>
+          <button className="btn">조회</button>
         </div>
 
         <div className="row">
-            <div className="group">
-            <label>통합검색</label>
+          <label className="grow">
+            통합검색
             <input
-                placeholder="학점/과목명/코드 검색"
-                value={q}
-                onChange={(e)=>setQ(e.target.value)}
+              type="text"
+              placeholder="학점/과목명/코드 검색"
+              value={qKeyword}
+              onChange={(e) => setQKeyword(e.target.value)}
             />
-        </div>
-            <div className="group">
-            <label>교과목명</label>
+          </label>
+          <label className="grow">
+            교과목명
             <input
-                placeholder="교과목명 입력"
-                value={q}
-                onChange={(e)=>setQ(e.target.value)}
+              type="text"
+              placeholder="교과목명 입력"
+              value={qCourse}
+              onChange={(e) => setQCourse(e.target.value)}
             />
+          </label>
+          <button className="btn">조회</button>
         </div>
-            <button className="btn" onClick={onSearchClick}>조회</button>
-        </div>
-    </div>
+      </section>
 
-        {/* 결과 테이블 */}
-        <div className="table-card">
-        <div className="table-title">개설 교과목 목록</div>
-            {msg && <div className="msg">{msg}</div>}
+      {/* 목록 */}
+      <section className="list">
+        <div className="list-title">개설 교과목 목록</div>
 
-        <div className="table-wrap">
-            <table>
-                <thead>
-                <tr>
-                <th>순번</th>
-                <th>종별</th>
-                <th>개설전공</th>
-                <th>교과목명</th>
-                <th>학점</th>
-                <th>담당교수</th>
-                <th>강의시간</th>
-                <th>수업계획서</th>
-                <th>수강인원</th>
-                <th>신청</th>
-                </tr>
-            </thead>
-            <tbody>
-                {loading && (
-                <tr><td colSpan={10} style={{textAlign:'center'}}>불러오는 중…</td></tr>
-                )}
-            {!loading && catalog.map(row => (
-                <tr key={row.id}>
-                <td>{row.no}</td>
-                <td>{row.type}</td>
-                <td>{row.major}</td>
-                <td><div className="sub">{row.code}</div>{row.name}</td>
-                <td>{row.credit}</td>
-                <td>{row.prof}</td>
-                <td>{row.time}</td>
-                <td>
-                
-                {/* 유니코드 이모지(📄)라서 리액트에서도 그대로 렌더 */}
-                <button className="icon" title="수업계획서">📄</button></td>
-                <td>{row.seats}</td>
-                <td>
-                    <button className="btn tiny" disabled={busy} onClick={()=>onEnroll(row)}>신청</button>
-                </td>
-                </tr>
-                ))}
-            {!loading && catalog.length === 0 && (
-            <tr><td colSpan={10} style={{textAlign:'center',color:'#64748b'}}>검색 결과가 없습니다.</td></tr>
-            )}
-            </tbody>
-        </table>
-        </div>
-    </div>
+        <div className="table">
+          {/* 헤더 라인 */}
+          <div className="thead">
+            <div className="th col-type">종별</div>
+            <div className="th col-major">개설전공</div>
+            <div className="th col-name">교과목명</div>
+            <div className="th col-code">교과코드</div>
+            <div className="th col-credit">학점</div>
+            <div className="th col-prof">담당교수</div>
+            <div className="th col-time">강의시간</div>
+            <div className="th col-plan">수업계획서</div>
+            <div className="th col-seats">수강인원</div>
+            <div className="th col-apply">신청</div>
+          </div>
 
-        {/* === 우측 슬라이드 패널: 신청과목 확인 === */}
-    <aside className={`side-panel ${openPanel ? 'open' : ''}`} aria-hidden={!openPanel}>
-        <div className="panel-head">
-            <div className="panel-title">신청한 과목</div>
-            <button className="icon" onClick={()=>setOpenPanel(false)} aria-label="닫기">✕</button>
+          {/* 바디 라인 */}
+          <div className="tbody">
+            {filtered.map((c) => (
+              <div
+                key={c.id}
+                className={`tr ${isApplied(c.id) ? "applied" : ""}`}
+                role="button"
+                tabIndex={0}
+                onClick={() => handleApply(c)}       // 행 클릭도 신청
+                onKeyDown={(e) => (e.key === "Enter" ? handleApply(c) : null)}
+              >
+                <div className="td col-type">{c.type}</div>
+                <div className="td col-major">{c.major}</div>
+
+                {/* 교과목명: 줄바꿈/말줄임 없이 한 줄 유지 */}
+                <div className="td col-name no-wrap">{c.name}</div>
+
+                <div className="td col-code">{c.id}</div>
+                <div className="td col-credit">{c.credit}</div>
+                <div className="td col-prof">{c.prof}</div>
+                <div className="td col-time">{c.time}</div>
+
+                {/* 계획서 아이콘: 클릭해도 신청 안 됨 */}
+                <div className="td col-plan" onClick={(e) => e.stopPropagation()}>
+                  <button className="icon" title="수업계획서" onClick={(e) => openPlan(c, e)}>
+                    📄
+                  </button>
+                </div>
+
+                <div className="td col-seats">{c.seats}명</div>
+                <div className="td col-apply" onClick={(e) => e.stopPropagation()}>
+                  {isApplied(c.id) ? (
+                    <button className="btn small ghost" disabled>
+                      신청됨
+                    </button>
+                  ) : (
+                    <button className="btn small" onClick={() => handleApply(c)}>
+                      신청
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="panel-body">
-            {mine.length === 0 && <div className="empty">신청한 과목이 없습니다.</div>}
-            {mine.map((c)=>(
-            <div key={c.id} className="mine-row">
-                <div className="meta">
-                    <div className="name">{c.name}</div>
-                    <div className="sub">{c.code} · {c.prof} · {c.credit}학점 · {c.time}</div>
+      </section>
+
+      {/* 수업계획서 모달 */}
+      {syllabus && (
+        <div className="modal" onClick={closePlan}>
+          <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-hd">
+              <b>{syllabus.name}</b>
+              <button className="close" onClick={closePlan}>닫기</button>
             </div>
-                <button className="btn danger tiny" disabled={busy} onClick={()=>onDrop(c)}>취소</button>
+            <div className="modal-bd">
+              <p><b>교과코드</b> {syllabus.id}</p>
+              <p><b>담당</b> {syllabus.prof}</p>
+              <p><b>시간</b> {syllabus.time}</p>
+              <hr />
+              <p>{syllabus.plan}</p>
             </div>
-        ))}
+          </div>
         </div>
-    </aside>
+      )}
 
-        {/* 패널 오버레이 */}
-    {openPanel && <div className="overlay" onClick={()=>setOpenPanel(false)} />}
+      {/* 신청과목 확인 드로어 — 열리면 헤더 숨김 */}
+      {showApplied && (
+        <>
+          <div className="drawer-mask" onClick={closeApplied} />
+          <aside className="drawer">
+            <div className="drawer-hd">
+              <b>신청한 과목</b>
+              <button className="close" onClick={closeApplied}>취소</button>
+            </div>
+            <div className="drawer-bd">
+              {applied.length === 0 && <div className="empty">아직 신청한 과목이 없습니다.</div>}
+              {applied.map((c) => (
+                <div key={c.id} className="applied-item">
+                  <div className="ttl">{c.name}</div>
+                  <div className="meta">
+                    {c.id} · {c.prof} · {c.time}
+                  </div>
+                  <button className="btn small ghost" onClick={() => handleCancel(c.id)}>
+                    취소
+                  </button>
+                </div>
+              ))}
+            </div>
+          </aside>
+        </>
+      )}
     </div>
-    );
+  );
 }
