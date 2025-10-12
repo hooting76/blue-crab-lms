@@ -95,3 +95,21 @@
       font-size: var(--font-small);
     }
 }
+
+.noticeChat {
+  width: 400px;
+  background-color: white;
+  border-radius: 10px;;
+}
+
+.attendance {
+  width: 100px;
+  background-color: aliceblue;
+  border-radius: 10px;
+}
+
+.testAssignment {
+  width: 400px;
+  background-color: azure;
+  border-radius: 10px;
+}

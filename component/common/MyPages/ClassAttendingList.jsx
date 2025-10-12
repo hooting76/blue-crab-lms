@@ -3,22 +3,22 @@ import '../../../css/MyPages/ClassAttendingList.css';
 import classAttendingDummy from '../../../src/mock/classAttendingDummy.js'; //더미데이터
 
 function ClassAttendingList() {
-    const [openRow, setOpenRow] = useState(null);
+    // const [openRow, setOpenRow] = useState(null);
     
-    const totalCredits = classAttendingDummy.reduce(
-        (sum, cls) => sum + (Number(cls.LEC_POINT) || 0),
-        0
-    ); // 해당 학기 총 이수 학점
+    // const totalCredits = classAttendingDummy.reduce(
+    //     (sum, cls) => sum + (Number(cls.LEC_POINT) || 0),
+    //     0
+    // ); // 해당 학기 총 이수 학점
 
-    const handleRowClick = (index) => {
-        setOpenRow(openRow === index ? null : index);
-    };
+    // const handleRowClick = (index) => {
+    //     setOpenRow(openRow === index ? null : index);
+    // };
 
-    // select 변경 핸들러
-    const handleSemesterChange = (e) => {
-        setSelectedSemester(e.target.value);
-        setOpenRow(null); // 학기 바뀌면 열려있는 행 닫기
-    };
+    // // select 변경 핸들러
+    // const handleSemesterChange = (e) => {
+    //     setSelectedSemester(e.target.value);
+    //     setOpenRow(null); // 학기 바뀌면 열려있는 행 닫기
+    // };
 
 const today = new Date();
 let currentYear = today.getFullYear();
@@ -76,9 +76,29 @@ const [selectedSemester, setSelectedSemester] = useState(currentSemesterValue); 
                 ))}
             </select>
 
-            <div className='classAttending_text'>
-                수강과목 클릭 시 해당과목 진행사항 표시
-            </div>
+            <select value={selectedLecture} className="lectureName">
+                {classAttendingDummy.map((cls) => (
+                    <option key={cls.LEC_IDX} value={cls.LEC_IDX}>
+                        {cls.LEC_NAME}
+                    </option>
+                ))}
+            </select>
+
+            <span className="noticeChat">
+
+            </span>
+
+            <span className="attendance">
+
+            </span>
+
+            <span className="testAssignment">
+
+            </span>
+
+        {/* <div className='classAttending_text'>
+            수강과목 클릭 시 해당과목 진행사항 표시
+        </div>
 
         <div className="table-wrap">
             <table>
@@ -121,7 +141,7 @@ const [selectedSemester, setSelectedSemester] = useState(currentSemesterValue); 
                                             과제 2 점수 : <br/>
                                             {selectedSemester !== currentSemesterValue && (<><br/>총합 점수 및 등급 :</>)}
                                             {/* 지나간 학기에 들었던 강의는 총점 및 등급 표시 */}
-                                        </div>
+                                        {/* </div>
                                     </td>
                                 </tr>
                             )}
@@ -134,9 +154,9 @@ const [selectedSemester, setSelectedSemester] = useState(currentSemesterValue); 
 
             <div className='totalpoints'>
                 이수학점: {totalCredits}점
-                {selectedSemester !== currentSemesterValue && "학기 평점: "}
+                {selectedSemester !== currentSemesterValue && "학기 평점: "} */}
                 {/* 지나간 학기는 총 평점 표시 */}
-            </div>
+            {/* </div> */}
         </div>
     );
 }
