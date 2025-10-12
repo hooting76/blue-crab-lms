@@ -99,11 +99,20 @@
 .noticeChat {
   width: 400px;
   background-color: white;
-  border-radius: 10px;;
+  border-radius: 10px;
+  margin-right: 25px;
 }
 
-.attendance {
-  width: 100px;
+.lectureNotice {
+  width: 380px;
+  height: 500px;
+  background-color: lightyellow;
+  border-radius: 10px;
+  margin: 10px;
+}
+
+.attendanceStatus {
+  width: 150px;
   background-color: aliceblue;
   border-radius: 10px;
 }
@@ -112,4 +121,5 @@
   width: 400px;
   background-color: azure;
   border-radius: 10px;
+  margin-left: 25px;
 }

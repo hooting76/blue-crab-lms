@@ -14,11 +14,10 @@ function ClassAttendingList() {
     //     setOpenRow(openRow === index ? null : index);
     // };
 
-    // // select 변경 핸들러
-    // const handleSemesterChange = (e) => {
-    //     setSelectedSemester(e.target.value);
-    //     setOpenRow(null); // 학기 바뀌면 열려있는 행 닫기
-    // };
+    // select 변경 핸들러
+    const handleSemesterChange = (e) => {
+        setSelectedSemester(e.target.value);
+    };
 
 const today = new Date();
 let currentYear = today.getFullYear();
@@ -68,7 +67,7 @@ const [selectedSemester, setSelectedSemester] = useState(currentSemesterValue); 
 
     return (
         <div className="classAttending_list_container">
-            <select value={selectedSemester} className='selectSemester'>
+            <select value={selectedSemester} onChange={handleSemesterChange} className='selectSemester'>
                 {semesterOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                         {option.label}
@@ -85,11 +84,26 @@ const [selectedSemester, setSelectedSemester] = useState(currentSemesterValue); 
             </select>
 
             <span className="noticeChat">
+                공지사항
+                <div className="lectureNotice">
+                    
+                </div>
+                <div className="lectureChat">
 
+                </div>
             </span>
 
-            <span className="attendance">
+            <span className="attendanceStatus">
+                출결
+                <div className="attendance">
 
+                </div>
+                <div className="absence">
+
+                </div>
+                <div className="attendanceCall">
+
+                </div>
             </span>
 
             <span className="testAssignment">
