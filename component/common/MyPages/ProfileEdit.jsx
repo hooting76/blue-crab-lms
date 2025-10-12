@@ -1,9 +1,7 @@
-// src/component/common/MyPages/ProfileEdit.jsx
 import { useEffect, useMemo, useState } from 'react';
 import { getMyProfile, getMyProfileImage } from '../../../src/api/profileApi';
 import '../../../css/MyPages/ProfileEdit.css';
 
-// 전화번호 자동 하이픈
 const phoneMask = (v = '') =>
   v.replace(/[^\d]/g, '').replace(/(\d{3})(\d{3,4})(\d{4})/, '$1-$2-$3');
 const yyyymmddOk = (s) => /^\d{8}$/.test(s);
@@ -16,7 +14,6 @@ export default function ProfileEdit() {
   const [origin, setOrigin] = useState(null);
   const [form, setForm] = useState(null);
 
-  // 프로필 + 이미지 조회
   useEffect(() => {
     let revoked = false;
     (async () => {
@@ -24,6 +21,7 @@ export default function ProfileEdit() {
         setLoading(true);
         setErr('');
         setMsg('');
+
         const wrapper = await getMyProfile();
         const p = wrapper?.data;
         if (!p) throw new Error('프로필 데이터가 없습니다.');
@@ -66,13 +64,12 @@ export default function ProfileEdit() {
     };
   }, []);
 
-  // objectURL 정리
   useEffect(() => {
     return () => {
       if (imageUrl && imageUrl.startsWith('blob:')) {
         try {
           URL.revokeObjectURL(imageUrl);
-        } catch (_) {}
+        } catch {}
       }
     };
   }, [imageUrl]);
@@ -86,11 +83,11 @@ export default function ProfileEdit() {
     return mail.includes('@') ? mail.split('@')[0] : '-';
   }, [form]);
 
-  // 역할 텍스트: userTypeText, 없으면 '학생'
+  // 역할 텍스트
   const roleText = useMemo(() => {
     if (!form) return '학생';
-    const s = (form.userTypeText || '').toString().trim();
-    return s || '학생';
+    const t = (form.userTypeText || '').toString().trim();
+    return t || '학생';
   }, [form]);
 
   const onChange = (k) => (e) => {
@@ -124,10 +121,8 @@ export default function ProfileEdit() {
   return (
     <div id="bc-profile">
       <div className="profile-card">
-        {/* 상단 중앙 제목(기존 유지) */}
-        <h2 className="profile-main-title">개인정보 수정</h2>
-
-        {/* 헤더: 아바타 | (이름 | 역할) + 학번 아래줄 */}
+        {/* (작은 서브타이틀 제거) 카드 내부만 구성 */}
+        {/* 헤더: 아바타 | (이름 | 역할) + 학번 */}
         <div className="head-row">
           <div className="avatar-col">
             <img
@@ -136,15 +131,14 @@ export default function ProfileEdit() {
               className="avatar avatar-lg"
             />
           </div>
-
           <div className="who">
-            <div className="who-line">
+            <div className="who-name-row">
               <span className="who-name">{form.userName}</span>
               <span className="who-sep">|</span>
               <span className="who-role">{roleText}</span>
             </div>
             <div className="who-sub">
-              학번&nbsp;|&nbsp;<strong>{idText}</strong>
+              학번 <strong>{idText}</strong>
             </div>
           </div>
         </div>
@@ -158,7 +152,6 @@ export default function ProfileEdit() {
 
           <label className="field">
             <span>생년월일</span>
-            {/* 읽기 전용 */}
             <input value={form.birthDate} readOnly />
           </label>
 
@@ -173,33 +166,31 @@ export default function ProfileEdit() {
 
           <label className="field">
             <span>이메일</span>
-            {/* 비활성 */}
             <input value={form.userEmail} disabled />
           </label>
 
-          {/* 주소: 우편번호/기본주소/상세주소 3분할 */}
+          {/* 주소: 라벨 오른쪽 한 줄에 3분할 (네가 준 CSS의 .addr-group 구조) */}
           <label className="field">
             <span>주소</span>
-            <div className="addr-row">
+            <div className="addr-group">
               <input
                 className="zip"
-                placeholder="우편번호"
                 value={form.zipCode}
                 onChange={onChange('zipCode')}
+                placeholder="우편번호"
                 inputMode="numeric"
-                maxLength={5}
               />
               <input
-                className="addr1"
-                placeholder="기본주소"
+                className="addr-main"
                 value={form.mainAddress}
                 onChange={onChange('mainAddress')}
+                placeholder="기본 주소"
               />
               <input
-                className="addr2"
-                placeholder="상세주소"
+                className="addr-detail"
                 value={form.detailAddress}
                 onChange={onChange('detailAddress')}
+                placeholder="상세 주소"
               />
             </div>
           </label>

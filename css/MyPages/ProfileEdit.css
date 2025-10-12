@@ -98,6 +98,7 @@
   text-align: left;
   font-weight: 600;
   color: #374151;
+  line-height: 1.25;
 }
 
 /* 인풋 공통 */
@@ -115,6 +116,8 @@
   outline: none;
   box-sizing: border-box;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  white-space: normal;         /* 텍스트 잘림 방지 */
+  overflow: visible;
 }
 
 #bc-profile input:focus {
@@ -135,22 +138,19 @@
   box-shadow: none;
 }
 
-/* 주소 3분할 */
+/* 주소 3분할 — 항상 세로 스택 */
 #bc-profile .addr-group {
   flex: 1 1 auto;
   display: flex;
+  flex-direction: column;   /* ← 가로 대신 세로로 고정 */
   gap: 8px;
-  align-items: center;
+  align-items: stretch;
 }
-#bc-profile .addr-group .zip {
-  width: 120px;
-  min-width: 120px;
-}
-#bc-profile .addr-group .addr-main {
-  flex: 1 1 45%;
-}
+#bc-profile .addr-group .zip,
+#bc-profile .addr-group .addr-main,
 #bc-profile .addr-group .addr-detail {
-  flex: 1 1 35%;
+  width: 100%;
+  min-width: 0;
 }
 
 /* 버튼 영역 */
@@ -193,14 +193,4 @@
 @media (max-width: 480px) {
   :root { --label-w: 84px; }
   #bc-profile .profile-card { padding: 16px; }
-
-  /* 주소 필드가 너무 좁아질 때는 세로 스택 */
-  #bc-profile .addr-group {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  #bc-profile .addr-group .zip {
-    width: 100%;
-    min-width: 0;
-  }
 }

@@ -221,6 +221,159 @@
   padding: 20px;
   overflow: auto;
 }
+/* ===== 페이지 컨테이너 ===== */
+.course-page {
+  position: relative;
+  padding: 16px 0 32px;
+}
+
+/* 안내문/검색/테이블 카드가 중앙에 오도록 */
+.notice-card,
+.filter-card,
+.table-card,
+.list-head {
+  max-width: 1024px;
+  margin: 0 auto;
+}
+
+/* ===== 검색 바 래퍼: 줄바꿈 허용 + 간격 일정 ===== */
+.course-search-wrap {
+  display: flex;
+  flex-wrap: wrap;            /* 핵심 */
+  align-items: center;
+  justify-content: center;    /* 중앙 정렬 */
+  gap: 10px;
+}
+
+.course-search-wrap .filter-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.course-search-wrap .filter-field .label {
+  white-space: nowrap;
+  font-weight: 600;
+  color: #374151;
+}
+
+.course-search-wrap select,
+.course-search-wrap input {
+  height: 38px;
+  padding: 6px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+}
+
+.course-search-wrap .name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 조회 버튼 높이 맞춤 */
+.course-search-wrap .btn.btn-primary,
+.course-search-wrap .btn {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 8px;
+}
+
+/* ===== 목록 헤더 좌우 ===== */
+.list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 18px auto 8px;
+  max-width: 1024px;
+}
+
+/* ===== 테이블 카드: 배경 분리/가운데 배치 ===== */
+.table-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, .06);
+  padding: 8px;
+}
+
+.table-card .table-scroll {
+  overflow-x: auto;           /* 과목명 한 줄 유지 + 가로 스크롤 허용 */
+}
+
+.table-card .trow {
+  display: grid;
+  grid-template-columns:
+    120px  /* code */
+    1fr    /* name */
+    80px   /* credit */
+    140px  /* prof */
+    220px  /* time */
+    120px  /* plan */
+    110px  /* cap */
+    110px; /* action */
+  align-items: center;
+  column-gap: 12px;
+  min-height: 54px;
+  padding: 6px 8px;
+}
+
+.table-card .thead {
+  font-weight: 700;
+  color: #111827;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table-card .tbody {
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+}
+.table-card .tbody:hover {
+  background: #f8fafc;
+}
+
+/* 셀 공통 */
+.table-card .tcell {
+  white-space: nowrap;     /* 줄바꿈 금지 */
+  overflow: hidden;
+  text-overflow: clip;     /* 말줄임 없음 (가로 스크롤로 해결) */
+}
+
+/* 코드 pill */
+.table-card .pill {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  font-weight: 700;
+  background: #fff;
+}
+
+/* 아이콘 버튼 */
+.table-card .icon-btn {
+  width: 34px; height: 34px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 8px; border: 1px solid #e5e7eb; background: #fff;
+}
+.table-card .icon-btn:hover { background: #f1f5f9; }
+
+/* 작은 신청 버튼 */
+.table-card .btn.sm { height: 32px; padding: 0 12px; }
+
+/* ===== 반응형 ===== */
+@media (max-width: 1024px) {
+  .table-card .trow {
+    grid-template-columns: 100px 1fr 70px 120px 200px 100px 90px 90px;
+  }
+}
+@media (max-width: 640px) {
+  .course-search-wrap { justify-content: flex-start; }
+  .list-head h3 { font-size: 16px; }
+}
+
 
 /* ─────────────────────────────────────────────── */
 /* 반응형 (가로 768px 이하)                        */
