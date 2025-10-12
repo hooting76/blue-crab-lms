@@ -1,0 +1,40 @@
+/* === 인쇄 전용 스타일 === */
+@page {
+  size: A4;
+  margin: 12mm;
+}
+
+/* 인쇄 시엔 화면의 거의 모든 요소를 숨기고, #print-root 만 보이게 */
+@media print {
+  html, body {
+    background: #fff !important;
+  }
+  body * {
+    visibility: hidden !important;
+  }
+
+  /* 헤더/푸터/내비게이션 등 확실히 숨김 */
+  header, footer, .site-footer, .site-header,
+  #wrap > header, #wrap > footer,
+  .no-print {
+    display: none !important;
+  }
+
+  /* 프린트 타겟만 표시 */
+  #print-root, #print-root * {
+    visibility: visible !important;
+  }
+  #print-root {
+    position: absolute;
+    inset: 0;
+    width: 210mm;              /* A4 폭 */
+    min-height: 297mm;         /* A4 높이 */
+    margin: 0 auto;
+    background: #fff !important;
+  }
+
+  /* 페이지 나눔이 필요하면 사용 */
+  .page-break {
+    page-break-after: always;
+  }
+}
