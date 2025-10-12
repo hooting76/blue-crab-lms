@@ -85,22 +85,23 @@ const [selectedSemester, setSelectedSemester] = useState(currentSemesterValue); 
 
             <div className="classAttendingContent">
                 <span className="noticeChat">
-                    공지사항
                     <div className="lectureNotice">
-                        
+                        과목별 공지사항
                     </div>
                     <div className="lectureChat">
-
+                        실시간 채팅
                     </div>
                 </span>
 
                 <span className="attendanceStatus">
                     출결
                     <div className="attendance">
-
+                        출석일수<br/>
+                        전체 (강의일수) 중 (출석일수)회
                     </div>
                     <div className="absence">
-
+                        결석일수<br/>
+                        전체 (강의일수) 중 (결석일수)회
                     </div>
                     <div className="attendanceCall">
 
