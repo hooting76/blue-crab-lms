@@ -83,33 +83,34 @@ const [selectedSemester, setSelectedSemester] = useState(currentSemesterValue); 
                 ))}
             </select>
 
-            <span className="noticeChat">
-                공지사항
-                <div className="lectureNotice">
-                    
-                </div>
-                <div className="lectureChat">
+            <div className="classAttendingContent">
+                <span className="noticeChat">
+                    공지사항
+                    <div className="lectureNotice">
+                        
+                    </div>
+                    <div className="lectureChat">
 
-                </div>
-            </span>
+                    </div>
+                </span>
 
-            <span className="attendanceStatus">
-                출결
-                <div className="attendance">
+                <span className="attendanceStatus">
+                    출결
+                    <div className="attendance">
 
-                </div>
-                <div className="absence">
+                    </div>
+                    <div className="absence">
 
-                </div>
-                <div className="attendanceCall">
+                    </div>
+                    <div className="attendanceCall">
 
-                </div>
-            </span>
+                    </div>
+                </span>
 
-            <span className="testAssignment">
+                <span className="testAssignment">
 
-            </span>
-
+                </span>
+            </div>
         {/* <div className='classAttending_text'>
             수강과목 클릭 시 해당과목 진행사항 표시
         </div>

@@ -97,15 +97,16 @@
 }
 
 .noticeChat {
-  width: 400px;
+  width: 345px;
+  height: 1000px;
   background-color: white;
   border-radius: 10px;
   margin-right: 25px;
 }
 
 .lectureNotice {
-  width: 380px;
-  height: 500px;
+  width: 330px;
+  height: 600px;
   background-color: lightyellow;
   border-radius: 10px;
   margin: 10px;
@@ -113,12 +114,14 @@
 
 .attendanceStatus {
   width: 150px;
+  height: 1000px;
   background-color: aliceblue;
   border-radius: 10px;
 }
 
 .testAssignment {
-  width: 400px;
+  width: 345px;
+  height: 1000px;
   background-color: azure;
   border-radius: 10px;
   margin-left: 25px;
