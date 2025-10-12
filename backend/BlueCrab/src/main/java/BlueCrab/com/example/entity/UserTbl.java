@@ -250,6 +250,47 @@ public class UserTbl {
     private String userRegIp;
     
     /**
+     * 프로필 이미지 MinIO 키
+     * MinIO 객체 스토리지에 저장된 프로필 이미지의 키 값
+     * 프로필 이미지 조회 시 사용
+     *
+     * 유효성:
+     * - 선택 입력 (nullable 허용)
+     * - 최대 길이: 255자
+     *
+     * 사용 예시: "profiles/user_123/profile.jpg"
+     */
+    @Column(name = "PROFILE_IMAGE_KEY", length = 255)
+    private String profileImageKey;
+    
+    /* 강의 평가 데이터 (JSON 배열)
+     * 사용자가 작성한 강의 평가 정보를 JSON 형식으로 저장
+     * LONGTEXT 타입으로 대용량 JSON 데이터 저장 가능
+     *
+     * 유효성:
+     * - 선택 입력 (nullable 허용)
+     * - LONGTEXT 타입
+     *
+     * JSON 구조 예시:
+     * [
+     *   {
+     *     "lectureIdx": 1,
+     *     "evaluationDate": "2025-06-15",
+     *     "ratings": {
+     *       "content": 4,
+     *       "material": 5,
+     *       "pace": 3,
+     *       "attitude": 4,
+     *       "overall": 4
+     *     },
+     *     "comments": "좋은 강의였습니다."
+     *   }
+     * ]
+     */
+    @Column(name = "LECTURE_EVALUATIONS", columnDefinition = "LONGTEXT")
+    private String lectureEvaluations;
+    
+    /**
      * 기본 생성자
      * JPA 엔티티 생성을 위해 필수
      * JSON 역직렬화 시에도 사용
@@ -389,6 +430,22 @@ public class UserTbl {
     
     public void setUserRegIp(String userRegIp) {
         this.userRegIp = userRegIp;
+    }
+    
+    public String getProfileImageKey() {
+        return profileImageKey;
+    }
+    
+    public void setProfileImageKey(String profileImageKey) {
+        this.profileImageKey = profileImageKey;
+    }
+    
+    public String getLectureEvaluations() {
+        return lectureEvaluations;
+    }
+    
+    public void setLectureEvaluations(String lectureEvaluations) {
+        this.lectureEvaluations = lectureEvaluations;
     }
     
     /**
