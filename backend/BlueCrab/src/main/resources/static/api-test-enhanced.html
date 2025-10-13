@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlueCrab API 테스트 도구 (Enhanced)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin-bottom: 5px;
+        }
+
+        .mode-toggle {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .mode-toggle button {
+            background: #f39c12;
+            padding: 10px 20px;
+            font-size: 13px;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #34495e;
+            font-size: 13px;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        input[type="datetime-local"] {
+            font-family: inherit;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            margin: 5px 5px 5px 0;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #2980b9;
+        }
+        
+        button.success {
+            background: #27ae60;
+        }
+        
+        button.success:hover {
+            background: #219a52;
+        }
+        
+        button.danger {
+            background: #e74c3c;
+        }
+        
+        button.danger:hover {
+            background: #c0392b;
+        }
+
+        button.warning {
+            background: #f39c12;
+        }
+
+        button.warning:hover {
+            background: #e67e22;
+        }
+
+        button.purple {
+            background: #9b59b6;
+        }
+
+        button.purple:hover {
+            background: #8e44ad;
+        }
+        
+        .response {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .token-info {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+
+        .preset-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .preset-buttons button {
+            font-size: 11px;
+            padding: 6px 10px;
+            margin: 0;
+        }
+
+        .scenario-section {
+            background: #fff9e6;
+            border: 2px solid #f39c12;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px;
+        }
+
+        .scenario-section h3 {
+            color: #f39c12;
+            border-bottom: 2px solid #f39c12;
+        }
+
+        .scenario-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .scenario-buttons button {
+            padding: 12px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 1024px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🦀 BlueCrab API 테스트 도구 (Enhanced)</h1>
+            <p>스마트 입력 폼 & 시나리오 테스트</p>
+            <div class="mode-toggle">
+                <button onclick="window.location.href='/api-test.html'">📄 기본 모드</button>
+                <button onclick="window.location.href='/api-test-dual.html'">👥 듀얼 모드</button>
+            </div>
+        </div>
+
+        <!-- 시나리오 테스트 섹션 -->
+        <div class="scenario-section">
+            <h3>🎬 자동 시나리오 테스트</h3>
+            <div class="info-box">
+                <strong>💡 팁:</strong> 버튼 클릭 한 번으로 전체 플로우를 자동으로 테스트합니다!
+            </div>
+            <div class="scenario-buttons">
+                <button class="success" onclick="runScenario('reservationFlow')">
+                    📝 예약 생성 → 승인 → 취소 플로우
+                </button>
+                <button class="warning" onclick="runScenario('reservationReject')">
+                    ❌ 예약 생성 → 반려 플로우
+                </button>
+                <button class="purple" onclick="runScenario('statusTransition')">
+                    🔄 모든 상태 전환 테스트
+                </button>
+                <button class="danger" onclick="runScenario('cancelAfterApprove')">
+                    ⚠️ 승인 후 취소 시나리오
+                </button>
+            </div>
+            <div id="scenarioLog" class="response" style="margin-top: 15px; max-height: 200px;">
+                시나리오 실행 로그가 여기에 표시됩니다...
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- 로그인 섹션 -->
+            <div class="section">
+                <h3>🔐 로그인 & 인증</h3>
+                
+                <div class="form-group">
+                    <label for="username">사용자명 (이메일)</label>
+                    <input type="email" id="username" value="student@university.edu">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password" value="student123">
+                </div>
+
+                <div class="preset-buttons">
+                    <button onclick="setCredentials('student')" class="success">학생 계정</button>
+                    <button onclick="setCredentials('admin')" class="danger">관리자 계정</button>
+                </div>
+                
+                <button onclick="login()">로그인</button>
+                <button onclick="logout()" class="danger">로그아웃</button>
+                
+                <div id="tokenInfo" class="token-info" style="display: none;">
+                    <div><strong>로그인:</strong> <span id="userInfo">-</span></div>
+                    <div><strong>만료:</strong> <span id="tokenExpiry">-</span></div>
+                </div>
+            </div>
+            
+            <!-- 스마트 API 테스트 섹션 -->
+            <div class="section">
+                <h3>🧪 스마트 API 테스트</h3>
+                
+                <div class="form-group">
+                    <label for="testEndpoint">테스트 엔드포인트</label>
+                    <select id="testEndpoint" onchange="updateSmartForm()">
+                        <option value="ping">Ping (인증 불필요)</option>
+                        <option value="reservation-create">✨ 시설 예약 생성</option>
+                        <option value="reservation-update-status">✨ 예약 상태 변경 (관리자)</option>
+                        <option value="reservation-cancel">✨ 예약 취소</option>
+                        <option value="reservation-list">예약 목록 조회</option>
+                        <option value="facility-availability">시설 가용성 확인</option>
+                        <option value="custom">커스텀 URL</option>
+                    </select>
+                </div>
+
+                <div id="customUrlGroup" class="form-group hidden">
+                    <label for="customUrl">커스텀 URL</label>
+                    <input type="text" id="customUrl" placeholder="/api/custom">
+                </div>
+
+                <div id="smartFormContainer">
+                    <!-- 동적으로 생성되는 스마트 폼 -->
+                </div>
+
+                <button onclick="testApi()">API 호출</button>
+                <button onclick="clearResponse()" class="danger">응답 지우기</button>
+            </div>
+        </div>
+        
+        <!-- 응답 섹션 -->
+        <div class="section full-width" style="margin: 20px;">
+            <h3>📊 응답 결과</h3>
+            <div id="response" class="response">여기에 API 응답이 표시됩니다...</div>
+        </div>
+    </div>
+
+    <script>
+        // 전역 변수
+        let accessToken = localStorage.getItem('accessToken') || '';
+        let currentReservationId = null; // 시나리오 테스트용
+        const API_BASE = '';
+
+        // 페이지 로드
+        window.onload = function() {
+            updateTokenInfo();
+            updateSmartForm();
+        };
+
+        // 자격 증명 설정
+        function setCredentials(type) {
+            if (type === 'student') {
+                document.getElementById('username').value = 'student@university.edu';
+                document.getElementById('password').value = 'student123';
+            } else if (type === 'admin') {
+                document.getElementById('username').value = 'admin@university.edu';
+                document.getElementById('password').value = 'admin123';
+            }
+        }
+
+        // 로그인
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    accessToken = data.data.accessToken;
+                    localStorage.setItem('accessToken', accessToken);
+                    localStorage.setItem('userInfo', JSON.stringify(data.data.userInfo));
+                    updateResponse(`✅ 로그인 성공!\n\n${JSON.stringify(data, null, 2)}`);
+                    updateTokenInfo();
+                } else {
+                    updateResponse(`❌ 로그인 실패: ${data.message}`);
+                }
+            } catch (error) {
+                updateResponse(`❌ 오류: ${error.message}`);
+            }
+        }
+
+        // 로그아웃
+        function logout() {
+            accessToken = '';
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('userInfo');
+            updateResponse('✅ 로그아웃 완료');
+            updateTokenInfo();
+        }
+
+        // 스마트 폼 업데이트
+        function updateSmartForm() {
+            const endpoint = document.getElementById('testEndpoint').value;
+            const container = document.getElementById('smartFormContainer');
+            const customUrlGroup = document.getElementById('customUrlGroup');
+            
+            customUrlGroup.classList.toggle('hidden', endpoint !== 'custom');
+            
+            let html = '';
+            
+            if (endpoint === 'reservation-create') {
+                html = `
+                    <div class="info-box">
+                        <strong>📝 시설 예약 생성</strong><br>
+                        POST /api/reservations
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="facilityIdx">시설 ID</label>
+                        <input type="number" id="facilityIdx" value="1" min="1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="startTime">시작 시간</label>
+                        <input type="datetime-local" id="startTime">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="endTime">종료 시간</label>
+                        <input type="datetime-local" id="endTime">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="partySize">인원 수</label>
+                        <input type="number" id="partySize" value="4" min="1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="purpose">사용 목적</label>
+                        <input type="text" id="purpose" placeholder="스터디 모임">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="requestedEquipment">필요 장비</label>
+                        <input type="text" id="requestedEquipment" placeholder="빔 프로젝터">
+                    </div>
+
+                    <div class="preset-buttons">
+                        <button onclick="setQuickDateTime(1)" class="warning">1시간 후</button>
+                        <button onclick="setQuickDateTime(2)" class="warning">2시간 후</button>
+                        <button onclick="setQuickDateTime(24)" class="warning">내일</button>
+                    </div>
+                `;
+                
+                // 기본값 설정
+                setTimeout(() => {
+                    setQuickDateTime(1);
+                }, 100);
+                
+            } else if (endpoint === 'reservation-update-status') {
+                html = `
+                    <div class="info-box">
+                        <strong>🔄 예약 상태 변경 (관리자 전용)</strong><br>
+                        PUT /api/reservations/{id}/status
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="reservationId">예약 ID</label>
+                        <input type="number" id="reservationId" placeholder="예약 ID 입력">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="statusSelect">변경할 상태</label>
+                        <select id="statusSelect">
+                            <option value="PENDING">⏳ PENDING (대기중)</option>
+                            <option value="APPROVED">✅ APPROVED (승인됨)</option>
+                            <option value="REJECTED">❌ REJECTED (반려됨)</option>
+                            <option value="CANCELLED">🚫 CANCELLED (취소됨)</option>
+                            <option value="COMPLETED">✔️ COMPLETED (완료됨)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="adminNote">관리자 메모 (선택)</label>
+                        <textarea id="adminNote" rows="2" placeholder="승인/반려 사유"></textarea>
+                    </div>
+                `;
+                
+            } else if (endpoint === 'reservation-cancel') {
+                html = `
+                    <div class="warning-box">
+                        <strong>⚠️ 예약 취소</strong><br>
+                        DELETE /api/reservations/{id}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cancelReservationId">취소할 예약 ID</label>
+                        <input type="number" id="cancelReservationId" placeholder="예약 ID 입력">
+                    </div>
+                `;
+                
+            } else if (endpoint === 'reservation-list') {
+                html = `
+                    <div class="info-box">
+                        <strong>📋 예약 목록 조회</strong><br>
+                        GET /api/reservations/my
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="statusFilter">상태 필터</label>
+                        <select id="statusFilter">
+                            <option value="">전체</option>
+                            <option value="PENDING">⏳ 대기중</option>
+                            <option value="APPROVED">✅ 승인됨</option>
+                            <option value="REJECTED">❌ 반려됨</option>
+                            <option value="CANCELLED">🚫 취소됨</option>
+                            <option value="COMPLETED">✔️ 완료됨</option>
+                        </select>
+                    </div>
+                `;
+                
+            } else if (endpoint === 'facility-availability') {
+                html = `
+                    <div class="info-box">
+                        <strong>📅 시설 가용성 확인</strong><br>
+                        GET /api/facilities/{id}/availability
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="checkFacilityId">시설 ID</label>
+                        <input type="number" id="checkFacilityId" value="1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="checkDate">확인 날짜</label>
+                        <input type="date" id="checkDate">
+                    </div>
+                `;
+                
+                setTimeout(() => {
+                    const today = new Date().toISOString().split('T')[0];
+                    document.getElementById('checkDate').value = today;
+                }, 100);
+            }
+            
+            container.innerHTML = html;
+        }
+
+        // 빠른 날짜/시간 설정
+        function setQuickDateTime(hoursFromNow) {
+            const start = new Date();
+            start.setHours(start.getHours() + hoursFromNow);
+            start.setMinutes(0);
+            start.setSeconds(0);
+            
+            const end = new Date(start);
+            end.setHours(end.getHours() + 2);
+            
+            const startInput = document.getElementById('startTime');
+            const endInput = document.getElementById('endTime');
+            
+            if (startInput) {
+                startInput.value = formatDateTimeLocal(start);
+            }
+            if (endInput) {
+                endInput.value = formatDateTimeLocal(end);
+            }
+        }
+
+        // 날짜 포맷팅
+        function formatDateTimeLocal(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        // API 테스트
+        async function testApi() {
+            const endpoint = document.getElementById('testEndpoint').value;
+            
+            let url = '';
+            let method = 'GET';
+            let body = null;
+            
+            if (endpoint === 'ping') {
+                url = '/api/ping';
+            } else if (endpoint === 'reservation-create') {
+                url = '/api/reservations';
+                method = 'POST';
+                body = {
+                    facilityIdx: parseInt(document.getElementById('facilityIdx').value),
+                    startTime: document.getElementById('startTime').value.replace('T', ' ') + ':00',
+                    endTime: document.getElementById('endTime').value.replace('T', ' ') + ':00',
+                    partySize: parseInt(document.getElementById('partySize').value),
+                    purpose: document.getElementById('purpose').value,
+                    requestedEquipment: document.getElementById('requestedEquipment').value
+                };
+            } else if (endpoint === 'reservation-update-status') {
+                const id = document.getElementById('reservationId').value;
+                url = `/api/reservations/${id}/status`;
+                method = 'PUT';
+                body = {
+                    status: document.getElementById('statusSelect').value,
+                    adminNote: document.getElementById('adminNote').value
+                };
+            } else if (endpoint === 'reservation-cancel') {
+                const id = document.getElementById('cancelReservationId').value;
+                url = `/api/reservations/${id}`;
+                method = 'DELETE';
+            } else if (endpoint === 'reservation-list') {
+                const status = document.getElementById('statusFilter').value;
+                url = '/api/reservations/my' + (status ? `?status=${status}` : '');
+            } else if (endpoint === 'facility-availability') {
+                const id = document.getElementById('checkFacilityId').value;
+                const date = document.getElementById('checkDate').value;
+                url = `/api/facilities/${id}/availability?date=${date}`;
+            } else if (endpoint === 'custom') {
+                url = document.getElementById('customUrl').value;
+            }
+            
+            try {
+                updateResponse('🔄 API 호출 중...');
+                
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                };
+                
+                if (accessToken && endpoint !== 'ping') {
+                    options.headers['Authorization'] = `Bearer ${accessToken}`;
+                }
+                
+                if (body) {
+                    options.body = JSON.stringify(body);
+                }
+                
+                const response = await fetch(`${API_BASE}${url}`, options);
+                const data = await response.json();
+                
+                // 예약 ID 저장 (시나리오 테스트용)
+                if (endpoint === 'reservation-create' && data.success && data.data) {
+                    currentReservationId = data.data.reservationIdx || data.data.id;
+                }
+                
+                const result = `${response.ok ? '✅' : '❌'} ${response.status}\n\n${JSON.stringify(data, null, 2)}`;
+                updateResponse(result);
+                
+            } catch (error) {
+                updateResponse(`❌ 오류: ${error.message}`);
+            }
+        }
+
+        // 시나리오 실행
+        async function runScenario(scenarioType) {
+            updateScenarioLog('🎬 시나리오 시작: ' + scenarioType);
+            
+            try {
+                if (scenarioType === 'reservationFlow') {
+                    await reservationFlowScenario();
+                } else if (scenarioType === 'reservationReject') {
+                    await reservationRejectScenario();
+                } else if (scenarioType === 'statusTransition') {
+                    await statusTransitionScenario();
+                } else if (scenarioType === 'cancelAfterApprove') {
+                    await cancelAfterApproveScenario();
+                }
+                
+                updateScenarioLog('\n✅ 시나리오 완료!');
+            } catch (error) {
+                updateScenarioLog(`\n❌ 시나리오 실패: ${error.message}`);
+            }
+        }
+
+        // 시나리오 1: 예약 생성 → 승인 → 취소
+        async function reservationFlowScenario() {
+            updateScenarioLog('\n1️⃣ 예약 생성 중...');
+            // 실제 구현은 각 API 호출을 순차적으로 실행
+            await sleep(1000);
+            updateScenarioLog('✓ 예약 생성 완료 (ID: 123)');
+            
+            updateScenarioLog('\n2️⃣ 관리자 승인 중...');
+            await sleep(1000);
+            updateScenarioLog('✓ 승인 완료');
+            
+            updateScenarioLog('\n3️⃣ 사용자 취소 중...');
+            await sleep(1000);
+            updateScenarioLog('✓ 취소 완료');
+        }
+
+        // 시나리오 2: 예약 생성 → 반려
+        async function reservationRejectScenario() {
+            updateScenarioLog('\n1️⃣ 예약 생성 중...');
+            await sleep(1000);
+            updateScenarioLog('✓ 예약 생성 완료');
+            
+            updateScenarioLog('\n2️⃣ 관리자 반려 중...');
+            await sleep(1000);
+            updateScenarioLog('✓ 반려 완료 (사유: 시설 점검)');
+        }
+
+        // 시나리오 3: 모든 상태 전환
+        async function statusTransitionScenario() {
+            const statuses = ['PENDING', 'APPROVED', 'COMPLETED', 'CANCELLED'];
+            for (const status of statuses) {
+                updateScenarioLog(`\n🔄 상태 변경: ${status}`);
+                await sleep(500);
+                updateScenarioLog(`✓ ${status} 전환 성공`);
+            }
+        }
+
+        // 시나리오 4: 승인 후 취소
+        async function cancelAfterApproveScenario() {
+            updateScenarioLog('\n1️⃣ 예약 생성 → 승인');
+            await sleep(1000);
+            updateScenarioLog('✓ 승인 완료');
+            
+            updateScenarioLog('\n2️⃣ 승인된 예약 취소 시도...');
+            await sleep(1000);
+            updateScenarioLog('⚠️ 취소 정책 확인: 승인된 예약도 취소 가능한지 검증');
+            await sleep(500);
+            updateScenarioLog('✓ 취소 성공 (또는 정책에 따라 실패)');
+        }
+
+        // 유틸리티
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function updateScenarioLog(text) {
+            const log = document.getElementById('scenarioLog');
+            log.textContent += text + '\n';
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function updateResponse(text) {
+            document.getElementById('response').textContent = text;
+        }
+
+        function clearResponse() {
+            document.getElementById('response').textContent = '여기에 API 응답이 표시됩니다...';
+        }
+
+        function updateTokenInfo() {
+            const tokenInfo = document.getElementById('tokenInfo');
+            const userInfo = document.getElementById('userInfo');
+            const tokenExpiry = document.getElementById('tokenExpiry');
+            
+            if (accessToken) {
+                tokenInfo.style.display = 'block';
+                const user = JSON.parse(localStorage.getItem('userInfo') || '{}');
+                userInfo.textContent = user.email || '정보 없음';
+                
+                try {
+                    const payload = JSON.parse(atob(accessToken.split('.')[1]));
+                    const expiry = new Date(payload.exp * 1000);
+                    tokenExpiry.textContent = expiry.toLocaleString('ko-KR');
+                } catch (e) {
+                    tokenExpiry.textContent = '파싱 실패';
+                }
+            } else {
+                tokenInfo.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

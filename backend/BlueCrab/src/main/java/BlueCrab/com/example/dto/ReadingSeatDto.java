@@ -33,7 +33,7 @@ public class ReadingSeatDto {
      * 예정 종료 시간
      * 사용 중인 좌석만 값이 있음
      */
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endTime;
     
     /**

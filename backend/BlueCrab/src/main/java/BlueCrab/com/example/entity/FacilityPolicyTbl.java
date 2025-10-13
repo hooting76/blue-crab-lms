@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
  * NULL 값은 글로벌 기본값 사용을 의미함:
  * - MIN_DURATION_MINUTES: NULL → 30분 기본값
  * - MAX_DURATION_MINUTES: NULL → 480분 기본값
+ * - MIN_DAYS_IN_ADVANCE: NULL → 0일 (즉시 예약 가능)
  * - MAX_DAYS_IN_ADVANCE: NULL → 30일 기본값
  * - CANCELLATION_DEADLINE_HOURS: NULL → 24시간 기본값
  * - MAX_RESERVATIONS_PER_USER: NULL → 제한없음
@@ -35,6 +36,9 @@ public class FacilityPolicyTbl {
 
     @Column(name = "MAX_DURATION_MINUTES")
     private Integer maxDurationMinutes;
+
+    @Column(name = "MIN_DAYS_IN_ADVANCE")
+    private Integer minDaysInAdvance;
 
     @Column(name = "MAX_DAYS_IN_ADVANCE")
     private Integer maxDaysInAdvance;
@@ -109,6 +113,14 @@ public class FacilityPolicyTbl {
         this.maxDurationMinutes = maxDurationMinutes;
     }
 
+    public Integer getMinDaysInAdvance() {
+        return minDaysInAdvance;
+    }
+
+    public void setMinDaysInAdvance(Integer minDaysInAdvance) {
+        this.minDaysInAdvance = minDaysInAdvance;
+    }
+
     public Integer getMaxDaysInAdvance() {
         return maxDaysInAdvance;
     }
@@ -169,6 +181,14 @@ public class FacilityPolicyTbl {
      */
     public int getEffectiveMaxDurationMinutes() {
         return maxDurationMinutes != null ? maxDurationMinutes : 480;
+    }
+
+    /**
+     * 최소 사전 예약 일수 - NULL이면 즉시 예약 가능 (0일)
+     * 예: 3이면 최소 3일 전까지만 예약 가능 (당일/1일전/2일전 불가)
+     */
+    public int getEffectiveMinDaysInAdvance() {
+        return minDaysInAdvance != null ? minDaysInAdvance : 0;
     }
 
     /**

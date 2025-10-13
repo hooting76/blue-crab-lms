@@ -4,249 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BlueCrab API 테스트 도구</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            overflow: hidden;
-        }
-
-        .header {
-            background: #2c3e50;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .server-info {
-            background: #34495e;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-around;
-            font-size: 13px;
-            border-bottom: 2px solid #2c3e50;
-        }
-
-        .server-info-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .server-info-item .label {
-            opacity: 0.8;
-        }
-
-        .server-info-item .value {
-            font-weight: bold;
-        }
-
-        .status-indicator {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: #4CAF50;
-            border-radius: 50%;
-            margin-right: 5px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            padding: 20px;
-        }
-
-        .section {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
-            border: 1px solid #e9ecef;
-        }
-
-        .section h3 {
-            margin-bottom: 15px;
-            color: #2c3e50;
-            display: flex;
-            align-items: center;
-        }
-
-        .section h3::before {
-            content: "🔒";
-            margin-right: 8px;
-        }
-
-        .section:nth-child(2) h3::before {
-            content: "👔";
-        }
-
-        .section:nth-child(3) h3::before {
-            content: "⚡";
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0 15px 0;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-
-        button {
-            background: #3498db;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            margin: 5px 5px 5px 0;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background: #2980b9;
-        }
-
-        button.success {
-            background: #27ae60;
-        }
-
-        button.success:hover {
-            background: #219a52;
-        }
-
-        button.danger {
-            background: #e74c3c;
-        }
-
-        button.danger:hover {
-            background: #c0392b;
-        }
-
-        .response {
-            background: #2c3e50;
-            color: #ecf0f1;
-            padding: 15px;
-            border-radius: 5px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            max-height: 400px;
-            overflow-y: auto;
-            margin-top: 15px;
-        }
-
-        .token-info {
-            background: #e8f5e8;
-            border: 1px solid #4caf50;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            font-size: 12px;
-        }
-
-        .token-info.error {
-            background: #ffebee;
-            border-color: #f44336;
-        }
-
-        .token-decoded {
-            background: #f0f8ff;
-            border: 1px solid #007bff;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
-            font-size: 11px;
-            font-family: 'Courier New', monospace;
-            white-space: pre-wrap;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        .status-indicator-inline {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-right: 5px;
-        }
-
-        .status-success {
-            background: #4caf50;
-        }
-
-        .status-error {
-            background: #f44336;
-        }
-
-        .status-warning {
-            background: #ff9800;
-        }
-
-        label {
-            font-weight: bold;
-            color: #2c3e50;
-            display: block;
-            margin-top: 10px;
-        }
-
-        .full-width {
-            grid-column: 1 / -1;
-        }
-
-        .response-section {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
-            border: 1px solid #e9ecef;
-            margin-top: 20px;
-        }
-
-        .endpoint-info {
-            background: #e3f2fd;
-            border-left: 4px solid #2196f3;
-            padding: 10px;
-            margin-bottom: 15px;
-            font-size: 12px;
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/api-tester.css}" href="/css/api-tester.css">
 </head>
 <body>
     <div class="container">
+        <!-- 헤더 -->
         <div class="header">
-            <h1>🦀 BlueCrab API 테스트 도구</h1>
-            <p>JWT 기반 인증 API 테스트 및 디버깅</p>
+            <div class="header-content">
+                <div class="header-title">
+                    <h1>🦀 BlueCrab API 테스트 도구</h1>
+                    <p>JWT 기반 인증 API 테스트 및 디버깅</p>
+                </div>
+                <button class="help-button" onclick="showHelpModal()">
+                    ❓ 사용 설명
+                </button>
+            </div>
         </div>
 
         <!-- 서버 정보 바 -->
@@ -254,11 +26,11 @@
             <div class="server-info-item">
                 <span class="status-indicator"></span>
                 <span class="label">상태:</span>
-                <span class="value" th:text="${status ?: '정상 작동중'}">정상 작동중</span>
+                <span class="value" th:text="${status ?: '백엔드 서버 정상 작동중'}">백엔드 서버 정상 작동중</span>
             </div>
             <div class="server-info-item">
                 <span class="label">서버 시간:</span>
-                <span class="value" th:text="${#temporals.format(serverTime, 'yyyy-MM-dd HH:mm:ss')}">2025-10-10 17:18:47</span>
+                <span class="value" th:text="${#temporals.format(serverTime, 'yyyy-MM-dd HH:mm:ss')}">2025-10-11 19:25:45</span>
             </div>
             <div class="server-info-item">
                 <span class="label">버전:</span>
@@ -266,26 +38,72 @@
             </div>
         </div>
 
-        <div class="content">
-            <!-- 로그인 & 인증 섹션 -->
-            <div class="section">
-                <h3>로그인 & 인증</h3>
+        <!-- [1단] 인증 & 토큰 관리 -->
+        <div class="content-row">
+            <!-- 왼쪽: 인증 섹션 -->
+            <div class="section auth-section">
+                <h3>🔐 인증 & 토큰</h3>
 
                 <div class="endpoint-info">
                     <strong>서버 URL:</strong> <span id="serverUrl">현재 서버와 동일</span><br>
                     <strong>상태:</strong> <span class="status-indicator-inline status-success"></span>Same-Origin (CORS 문제 없음)
                 </div>
 
-                <label for="username">사용자명 (이메일):</label>
-                <input type="email" id="username" placeholder="student@university.edu" value="">
+                <!-- 인증 탭 네비게이션 -->
+                <div class="auth-tabs">
+                    <button class="auth-tab active" onclick="switchAuthTab('general')">
+                        <span class="tab-icon">👤</span>
+                        <span class="tab-label">일반 사용자</span>
+                    </button>
+                    <button class="auth-tab" onclick="switchAuthTab('admin')">
+                        <span class="tab-icon">👔</span>
+                        <span class="tab-label">관리자 2단계</span>
+                    </button>
+                </div>
 
-                <label for="password">비밀번호:</label>
-                <input type="password" id="password" placeholder="••••••••" value="">
+                <!-- 일반 로그인 탭 콘텐츠 -->
+                <div id="general-auth-tab" class="auth-tab-content active">
+                    <div class="auth-subsection">
+                        <label for="username">사용자명 (이메일):</label>
+                        <input type="email" id="username" placeholder="student@university.edu" value="">
 
-                <button onclick="login()">로그인</button>
-                <button onclick="refreshAccessToken()" class="success">토큰 갱신</button>
-                <button onclick="logout()" class="danger">로그아웃</button>
+                        <label for="password">비밀번호:</label>
+                        <input type="password" id="password" placeholder="••••••••" value="">
 
+                        <div class="button-group">
+                            <button onclick="login()">로그인</button>
+                            <button onclick="refreshAccessToken()" class="success">토큰 갱신</button>
+                            <button onclick="logout()" class="danger">로그아웃</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 관리자 2단계 인증 탭 콘텐츠 -->
+                <div id="admin-auth-tab" class="auth-tab-content">
+                    <div class="auth-subsection">
+                        <div class="endpoint-info">
+                            <strong>⚠️ 절차:</strong> 임시토큰 입력 → 인증코드 이메일로 발송 → 검증
+                        </div>
+
+                        <label for="adminTempToken">임시 토큰:</label>
+                        <input type="text" id="adminTempToken" placeholder="임시 세션 토큰을 입력하세요">
+
+                        <button onclick="adminRequestAuthCode()" style="background: #9b59b6;">Step 1: 인증코드 요청</button>
+
+                        <div id="adminStep2Section" style="margin-top: 15px; padding-top: 15px; border-top: 2px dashed #ddd; display: none;">
+                            <label for="adminAuthCode">인증 코드 (6자리):</label>
+                            <input type="text" id="adminAuthCode" placeholder="ABC123" maxlength="6" style="text-transform: uppercase;">
+
+                            <button onclick="adminVerifyAuthCode()" style="background: #8e44ad;">Step 2: 인증코드 검증</button>
+                        </div>
+
+                        <div id="adminAuthStatus" style="margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 5px; font-size: 12px; display: none;">
+                            <strong>상태:</strong> <span id="adminAuthStatusText"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 토큰 정보 표시 -->
                 <div id="tokenInfo" class="token-info" style="display: none;">
                     <div><strong>Access Token:</strong> <span id="accessTokenDisplay"></span></div>
                     <div><strong>Refresh Token:</strong> <span id="refreshTokenDisplay"></span></div>
@@ -298,43 +116,43 @@
                 </div>
             </div>
 
-            <!-- 관리자 인증 섹션 -->
-            <div class="section">
-                <h3>관리자 인증</h3>
+            <!-- 오른쪽: 토큰 세트 관리 -->
+            <div class="section token-management-section">
+                <h3>💾 토큰 세트 관리</h3>
 
-                <div class="endpoint-info">
-                    <strong>⚠️ 2단계 인증:</strong> 임시토큰 → 인증코드 이메일 → 검증
+                <div class="token-save-form">
+                    <label for="tokenSetName">세트 이름:</label>
+                    <input type="text" id="tokenSetName" placeholder="토큰 세트 이름 (예: stu01)">
+                    <button onclick="saveTokenSet()" class="success full-width">현재 토큰 저장</button>
                 </div>
 
-                <label for="adminTempToken">임시 토큰:</label>
-                <input type="text" id="adminTempToken" placeholder="임시 세션 토큰을 입력하세요">
-
-                <button onclick="adminRequestAuthCode()" style="background: #9b59b6;">Step 1: 인증코드 요청</button>
-
-                <div id="adminStep2Section" style="margin-top: 15px; padding-top: 15px; border-top: 2px dashed #ddd; display: none;">
-                    <label for="adminAuthCode">인증 코드 (6자리):</label>
-                    <input type="text" id="adminAuthCode" placeholder="ABC123" maxlength="6" style="text-transform: uppercase;">
-
-                    <button onclick="adminVerifyAuthCode()" style="background: #8e44ad;">Step 2: 인증코드 검증</button>
-                </div>
-
-                <div id="adminAuthStatus" style="margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 5px; font-size: 12px; display: none;">
-                    <strong>상태:</strong> <span id="adminAuthStatusText"></span>
-                </div>
+                <h4 class="storage-subtitle">저장된 토큰 세트</h4>
+                <div id="tokenSetsList"></div>
             </div>
+        </div>
 
-            <!-- API 테스트 섹션 -->
-            <div class="section">
-                <h3>API 테스트</h3>
+        <!-- [2단] API 테스트 & 히스토리 -->
+        <div class="content-row">
+            <!-- 왼쪽: API 테스트 -->
+            <div class="section api-test-section">
+                <h3>⚡ API 테스트</h3>
+
+                <!-- 인증 상태 배너 -->
+                <div class="auth-status-banner" id="authStatusBanner">
+                    <div class="auth-status-indicator">
+                        <span class="status-icon" id="authStatusIcon">🔓</span>
+                        <span class="status-text" id="authStatusText">로그인 필요 (토큰 없음)</span>
+                    </div>
+                    <div class="auth-status-info">
+                        선택한 API가 인증을 요구하면 자동으로 Authorization 헤더에 토큰이 추가됩니다.
+                    </div>
+                </div>
 
                 <label for="testEndpoint">테스트할 엔드포인트:</label>
                 <select id="testEndpoint" onchange="updateEndpointInfo()">
-                    <option value="ping">Ping (인증 불필요)</option>
-                    <option value="health">Health Check</option>
-                    <option value="profile">사용자 프로필 조회</option>
-                    <option value="users">사용자 목록 조회 (관리자 전용)</option>
-                    <option value="custom">커스텀 URL</option>
+                    <option value="">-- 엔드포인트 로딩중 --</option>
                 </select>
+                <div id="endpointSummary" class="endpoint-summary"></div>
 
                 <label for="httpMethod">HTTP 메소드:</label>
                 <select id="httpMethod">
@@ -347,504 +165,140 @@
                 <label for="customUrl" id="customUrlLabel" style="display: none;">커스텀 URL:</label>
                 <input type="text" id="customUrl" placeholder="/api/custom-endpoint" style="display: none;">
 
-                <label for="requestBody">요청 본문 (JSON):</label>
-                <textarea id="requestBody" rows="4" placeholder='{"key": "value"}'></textarea>
+                <!-- 동적 파라미터 필드 -->
+                <div class="dynamic-section-label">요청 파라미터</div>
+                <div id="dynamicParams"></div>
 
-                <button onclick="sendRequest()">API 호출</button>
-                <button onclick="clearResponse()" class="danger">응답 지우기</button>
+                <div class="dynamic-section-label" id="dynamicHeadersLabel" style="display: none;">커스텀 헤더</div>
+                <div id="dynamicHeaders" class="dynamic-headers" style="display: none;"></div>
+
+                <!-- 요청 본문 템플릿 (접을 수 있는 섹션) -->
+                <div class="collapsible-section">
+                    <div class="section-header" onclick="toggleSection('bodyTemplates')">
+                        <span class="toggle-icon" id="bodyTemplatesIcon">▶</span>
+                        <span class="section-header-title">📄 요청 본문 템플릿 관리</span>
+                        <span class="badge" id="bodyTemplatesBadge">0개 저장됨</span>
+                    </div>
+                    <div id="bodyTemplates" class="section-content collapsed">
+                        <div class="body-template-controls">
+                            <input type="text" id="bodyTemplateName" placeholder="템플릿 이름 (예: 학생등록)">
+                            <button type="button" onclick="saveBodyTemplate()">저장</button>
+                            <select id="savedBodyTemplates" onchange="loadBodyTemplate()">
+                                <option value="">-- 저장된 템플릿 선택 --</option>
+                            </select>
+                            <button type="button" class="danger" onclick="deleteBodyTemplate()">삭제</button>
+                        </div>
+                    </div>
+                </div>
+
+                <label for="requestBody">요청 본문 (JSON):</label>
+                <textarea id="requestBody" rows="6" placeholder='{"key": "value"}'></textarea>
+
+                <div class="button-group">
+                    <button onclick="sendRequest()" class="primary">API 호출</button>
+                    <button onclick="clearResponse()" class="danger">응답 지우기</button>
+                </div>
+            </div>
+
+            <!-- 오른쪽: 히스토리 -->
+            <div class="section history-section">
+                <h3>📜 요청 히스토리</h3>
+                <button onclick="clearHistory()" class="danger full-width">히스토리 전체 삭제</button>
+                <div id="historyList"></div>
             </div>
         </div>
 
         <!-- 응답 결과 섹션 -->
-        <div class="response-section full-width">
+        <div class="response-section">
             <h3>📋 응답 결과</h3>
             <div id="response" class="response">여기에 API 응답이 표시됩니다...</div>
         </div>
     </div>
 
+    <!-- 도움말 모달 -->
+    <div id="helpModal" class="modal" onclick="closeHelpModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>🦀 API 테스터 사용 가이드</h2>
+                <button class="modal-close" onclick="closeHelpModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="help-section">
+                    <h3>📚 기본 사용법</h3>
+
+                    <div class="help-step">
+                        <div class="step-number">1️⃣</div>
+                        <div class="step-content">
+                            <h4>로그인</h4>
+                            <p>이메일/비밀번호 입력 후 로그인 버튼 클릭</p>
+                            <p>→ Access Token & Refresh Token 자동 발급 및 저장</p>
+                        </div>
+                    </div>
+
+                    <div class="help-step">
+                        <div class="step-number">2️⃣</div>
+                        <div class="step-content">
+                            <h4>API 테스트</h4>
+                            <p>엔드포인트 선택 시 자동으로:</p>
+                            <ul>
+                                <li>HTTP 메소드 설정</li>
+                                <li>파라미터 입력 필드 생성</li>
+                                <li>요청 본문 템플릿 자동 입력</li>
+                            </ul>
+                            <p>파라미터/본문 수정 후 API 호출 버튼 클릭</p>
+                        </div>
+                    </div>
+
+                    <div class="help-step">
+                        <div class="step-number">3️⃣</div>
+                        <div class="step-content">
+                            <h4>토큰 관리</h4>
+                            <p>여러 계정의 토큰을 세트로 저장 가능</p>
+                            <p>→ 빠른 계정 전환 지원 (클릭 한 번으로 토큰 변경)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>💡 팁</h3>
+                    <ul>
+                        <li><strong>인증 자동 추가:</strong> 로그인 상태에서 인증 필요 API 호출 시 자동으로 토큰이 추가됩니다</li>
+                        <li><strong>요청 본문 템플릿:</strong> 자주 사용하는 JSON을 템플릿으로 저장하여 재사용 가능</li>
+                        <li><strong>히스토리 재실행:</strong> 이전 요청을 한 번의 클릭으로 재실행</li>
+                        <li><strong>본문 미리보기:</strong> 히스토리에서 요청 본문의 주요 내용을 즉시 확인 가능</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h3>🔒 보안 안내</h3>
+                    <ul>
+                        <li>토큰은 브라우저의 LocalStorage에 저장됩니다</li>
+                        <li>만료된 토큰은 자동으로 제거됩니다</li>
+                        <li>브라우저를 닫으면 토큰이 유지되지만, 시크릿 모드에서는 삭제됩니다</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="primary" onclick="closeHelpModal()">시작하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thymeleaf inline script for server info -->
     <script th:inline="javascript">
-        // Thymeleaf 변수를 JavaScript로 전달
         const serverInfo = {
             status: /*[[${status}]]*/ '정상 작동중',
             version: /*[[${version}]]*/ '1.0.0',
-            serverTime: /*[[${#temporals.format(serverTime, 'yyyy-MM-dd HH:mm:ss')}]]*/ '2025-10-10 17:18:47'
+            serverTime: /*[[${#temporals.format(serverTime, 'yyyy-MM-dd HH:mm:ss')}]]*/ '2025-10-11 19:25:45'
         };
-
-        // 현재 서버의 베이스 URL을 자동으로 설정
-        const baseURL = window.location.origin + window.location.pathname.replace(/\/$/, '');
-        let accessToken = '';
-        let refreshToken = '';
-
-        // 페이지 로드 시 서버 URL 표시 및 저장된 토큰 로드
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('serverUrl').textContent = baseURL;
-            console.log('Base URL:', baseURL);
-            console.log('Server Info:', serverInfo);
-
-            // 로컬스토리지에서 토큰 로드
-            loadTokensFromStorage();
-        });
-
-        // 엔드포인트 정보 업데이트
-        function updateEndpointInfo() {
-            const endpoint = document.getElementById('testEndpoint').value;
-            const customUrlLabel = document.getElementById('customUrlLabel');
-            const customUrl = document.getElementById('customUrl');
-            const requestBody = document.getElementById('requestBody');
-
-            if (endpoint === 'custom') {
-                customUrlLabel.style.display = 'block';
-                customUrl.style.display = 'block';
-            } else {
-                customUrlLabel.style.display = 'none';
-                customUrl.style.display = 'none';
-            }
-
-            // 엔드포인트별 예시 설정
-            switch(endpoint) {
-                case 'profile':
-                    requestBody.value = '';
-                    document.getElementById('httpMethod').value = 'GET';
-                    break;
-                case 'users':
-                    requestBody.value = '';
-                    document.getElementById('httpMethod').value = 'GET';
-                    break;
-                default:
-                    requestBody.value = '';
-            }
-        }
-
-        // 로그인 함수
-        async function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            if (!username || !password) {
-                showResponse('사용자명과 비밀번호를 입력해주세요.', 'error');
-                return;
-            }
-
-            try {
-                const response = await fetch(`${baseURL}/api/auth/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        username: username,
-                        password: password
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.success) {
-                    const loginData = data.data;
-                    accessToken = loginData.accessToken;
-                    refreshToken = loginData.refreshToken;
-
-                    console.log('로그인 응답 데이터:', data);
-                    console.log('Access Token:', accessToken);
-                    console.log('Refresh Token:', refreshToken);
-
-                    saveTokensToStorage();
-                    updateTokenDisplay();
-                    showResponse(`로그인 성공!\n\n${JSON.stringify(data, null, 2)}`, 'success');
-                } else {
-                    showResponse(`로그인 실패:\n${JSON.stringify(data, null, 2)}`, 'error');
-                }
-            } catch (error) {
-                showResponse(`네트워크 오류: ${error.message}`, 'error');
-            }
-        }
-
-        // 토큰 갱신 함수
-        async function refreshAccessToken() {
-            if (!refreshToken) {
-                showResponse('Refresh token이 없습니다. 먼저 로그인해주세요.', 'error');
-                return;
-            }
-
-            try {
-                const response = await fetch(`${baseURL}/api/auth/refresh`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        refreshToken: refreshToken
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.success) {
-                    const tokenData = data.data;
-                    accessToken = tokenData.accessToken;
-                    if (tokenData.refreshToken) {
-                        refreshToken = tokenData.refreshToken;
-                    }
-
-                    saveTokensToStorage();
-                    updateTokenDisplay();
-                    showResponse(`토큰 갱신 성공!\n\n${JSON.stringify(data, null, 2)}`, 'success');
-                } else {
-                    showResponse(`토큰 갱신 실패:\n${JSON.stringify(data, null, 2)}`, 'error');
-                }
-            } catch (error) {
-                showResponse(`네트워크 오류: ${error.message}`, 'error');
-            }
-        }
-
-        // 로그아웃 함수
-        function logout() {
-            accessToken = '';
-            refreshToken = '';
-
-            clearTokensFromStorage();
-            updateTokenDisplay();
-            showResponse('로그아웃되었습니다.', 'success');
-        }
-
-        // API 요청 함수
-        async function sendRequest() {
-            const endpoint = document.getElementById('testEndpoint').value;
-            const method = document.getElementById('httpMethod').value;
-            const requestBody = document.getElementById('requestBody').value;
-
-            let url;
-            if (endpoint === 'custom') {
-                const customUrl = document.getElementById('customUrl').value;
-                if (!customUrl) {
-                    showResponse('커스텀 URL을 입력해주세요.', 'error');
-                    return;
-                }
-                url = `${baseURL}${customUrl}`;
-            } else {
-                const endpoints = {
-                    'ping': '/api/ping',
-                    'health': '/api/health',
-                    'profile': '/api/user/profile',
-                    'users': '/api/user/list'
-                };
-                url = `${baseURL}${endpoints[endpoint]}`;
-            }
-
-            const headers = {
-                'Content-Type': 'application/json',
-            };
-
-            // 인증이 필요한 엔드포인트에 토큰 추가
-            if (endpoint !== 'ping' && endpoint !== 'health' && accessToken) {
-                headers['Authorization'] = `Bearer ${accessToken}`;
-            }
-
-            const requestOptions = {
-                method: method,
-                headers: headers,
-            };
-
-            if (method !== 'GET' && requestBody.trim()) {
-                try {
-                    JSON.parse(requestBody);
-                    requestOptions.body = requestBody;
-                } catch (e) {
-                    showResponse('요청 본문이 유효한 JSON이 아닙니다.', 'error');
-                    return;
-                }
-            }
-
-            try {
-                showResponse(`요청 전송 중...\nURL: ${url}\nMethod: ${method}`, 'info');
-
-                const response = await fetch(url, requestOptions);
-                const data = await response.json();
-
-                const statusClass = response.ok ? 'success' : 'error';
-                const responseText = `Status: ${response.status} ${response.statusText}\n\n${JSON.stringify(data, null, 2)}`;
-
-                showResponse(responseText, statusClass);
-            } catch (error) {
-                showResponse(`네트워크 오류: ${error.message}`, 'error');
-            }
-        }
-
-        // 토큰 표시 업데이트
-        function updateTokenDisplay() {
-            const tokenInfo = document.getElementById('tokenInfo');
-            const accessTokenDisplay = document.getElementById('accessTokenDisplay');
-            const refreshTokenDisplay = document.getElementById('refreshTokenDisplay');
-            const tokenExpiry = document.getElementById('tokenExpiry');
-            const accessTokenParsed = document.getElementById('accessTokenParsed');
-
-            if (accessToken) {
-                tokenInfo.style.display = 'block';
-                tokenInfo.className = 'token-info';
-
-                accessTokenDisplay.textContent = accessToken.substring(0, 50) + '...';
-                refreshTokenDisplay.textContent = refreshToken ? refreshToken.substring(0, 50) + '...' : '없음';
-
-                try {
-                    const decodedToken = decodeJWT(accessToken);
-                    const expiry = new Date(decodedToken.exp * 1000);
-                    tokenExpiry.textContent = expiry.toLocaleString();
-
-                    accessTokenParsed.textContent = JSON.stringify(decodedToken, null, 2);
-                } catch (e) {
-                    tokenExpiry.textContent = '파싱 실패';
-                    accessTokenParsed.textContent = '토큰 디코딩 실패: ' + e.message;
-                }
-            } else {
-                tokenInfo.style.display = 'none';
-            }
-        }
-
-        // JWT 토큰 디코딩 함수
-        function decodeJWT(token) {
-            try {
-                const parts = token.split('.');
-                if (parts.length !== 3) {
-                    throw new Error('유효하지 않은 JWT 형식입니다.');
-                }
-
-                const payload = parts[1];
-                const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
-                const paddedBase64 = base64 + '='.repeat((4 - base64.length % 4) % 4);
-                const decodedPayload = JSON.parse(atob(paddedBase64));
-
-                return decodedPayload;
-            } catch (error) {
-                throw new Error('JWT 디코딩 실패: ' + error.message);
-            }
-        }
-
-        // 토큰 내용 보기/숨기기 토글
-        function toggleTokenDecoded() {
-            const tokenDecoded = document.getElementById('tokenDecoded');
-            if (tokenDecoded.style.display === 'none') {
-                tokenDecoded.style.display = 'block';
-            } else {
-                tokenDecoded.style.display = 'none';
-            }
-        }
-
-        // 로컬스토리지에 토큰 저장
-        function saveTokensToStorage() {
-            try {
-                console.log('토큰 저장 시도:', { accessToken, refreshToken });
-
-                if (accessToken && accessToken !== 'undefined') {
-                    localStorage.setItem('bluecrab_access_token', accessToken);
-                    console.log('Access Token 저장 완료');
-                }
-
-                if (refreshToken && refreshToken !== 'undefined') {
-                    localStorage.setItem('bluecrab_refresh_token', refreshToken);
-                    console.log('Refresh Token 저장 완료');
-                }
-
-                console.log('토큰이 로컬스토리지에 저장되었습니다.');
-            } catch (error) {
-                console.error('토큰 저장 실패:', error);
-            }
-        }
-
-        // 로컬스토리지에서 토큰 로드
-        function loadTokensFromStorage() {
-            try {
-                const savedAccessToken = localStorage.getItem('bluecrab_access_token');
-                const savedRefreshToken = localStorage.getItem('bluecrab_refresh_token');
-
-                console.log('저장된 토큰 로드 시도:', { savedAccessToken, savedRefreshToken });
-
-                if (savedAccessToken && savedAccessToken !== 'undefined' && savedAccessToken !== 'null' &&
-                    savedRefreshToken && savedRefreshToken !== 'undefined' && savedRefreshToken !== 'null') {
-                    try {
-                        const decodedToken = decodeJWT(savedAccessToken);
-                        const currentTime = Math.floor(Date.now() / 1000);
-
-                        console.log('토큰 만료 확인:', {
-                            exp: decodedToken.exp,
-                            current: currentTime,
-                            isValid: decodedToken.exp > currentTime
-                        });
-
-                        if (decodedToken.exp > currentTime) {
-                            accessToken = savedAccessToken;
-                            refreshToken = savedRefreshToken;
-                            updateTokenDisplay();
-                            showResponse('저장된 토큰을 로드했습니다. (유효함)', 'success');
-                        } else {
-                            clearTokensFromStorage();
-                            showResponse('저장된 토큰이 만료되어 제거했습니다.', 'warning');
-                        }
-                    } catch (error) {
-                        console.error('토큰 파싱 실패:', error);
-                        clearTokensFromStorage();
-                        showResponse('저장된 토큰이 유효하지 않아 제거했습니다.', 'warning');
-                    }
-                } else {
-                    console.log('저장된 토큰이 없거나 유효하지 않음');
-                }
-            } catch (error) {
-                console.error('토큰 로드 실패:', error);
-            }
-        }
-
-        // 로컬스토리지에서 토큰 제거
-        function clearTokensFromStorage() {
-            try {
-                localStorage.removeItem('bluecrab_access_token');
-                localStorage.removeItem('bluecrab_refresh_token');
-                console.log('토큰이 로컬스토리지에서 제거되었습니다.');
-            } catch (error) {
-                console.error('토큰 제거 실패:', error);
-            }
-        }
-
-        // ==================== 관리자 인증 함수 ====================
-
-        // 관리자 인증코드 요청 (Step 1)
-        async function adminRequestAuthCode() {
-            const tempToken = document.getElementById('adminTempToken').value.trim();
-            const step2Section = document.getElementById('adminStep2Section');
-
-            if (!tempToken) {
-                showAdminStatus('임시 토큰을 입력해주세요.', 'error');
-                return;
-            }
-
-            try {
-                showAdminStatus('인증코드 요청 중...', 'info');
-
-                const response = await fetch(`${baseURL}/api/admin/email-auth/request`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${tempToken}`
-                    }
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.success) {
-                    showAdminStatus('✅ 인증코드가 이메일로 전송되었습니다. Step 2로 진행하세요.', 'success');
-                    step2Section.style.display = 'block';
-                    showResponse(`관리자 인증코드 요청 성공!\n\n${JSON.stringify(data, null, 2)}`, 'success');
-                } else {
-                    showAdminStatus('❌ 인증코드 요청 실패: ' + (data.message || '알 수 없는 오류'), 'error');
-                    step2Section.style.display = 'none';
-                    showResponse(`관리자 인증코드 요청 실패:\n${JSON.stringify(data, null, 2)}`, 'error');
-                }
-            } catch (error) {
-                showAdminStatus('❌ 네트워크 오류: ' + error.message, 'error');
-                step2Section.style.display = 'none';
-                showResponse(`네트워크 오류: ${error.message}`, 'error');
-            }
-        }
-
-        // 관리자 인증코드 검증 (Step 2)
-        async function adminVerifyAuthCode() {
-            const tempToken = document.getElementById('adminTempToken').value.trim();
-            const authCode = document.getElementById('adminAuthCode').value.trim().toUpperCase();
-
-            if (!tempToken) {
-                showAdminStatus('임시 토큰을 입력해주세요.', 'error');
-                return;
-            }
-
-            if (!authCode || authCode.length !== 6) {
-                showAdminStatus('6자리 인증코드를 입력해주세요.', 'error');
-                return;
-            }
-
-            try {
-                showAdminStatus('인증코드 검증 중...', 'info');
-
-                const response = await fetch(`${baseURL}/api/admin/email-auth/verify`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${tempToken}`
-                    },
-                    body: JSON.stringify({
-                        authCode: authCode
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.success) {
-                    const authData = data.data;
-                    accessToken = authData.accessToken || authData.token || '';
-                    refreshToken = authData.refreshToken || '';
-
-                    console.log('관리자 로그인 성공:', { accessToken, refreshToken, admin: authData.admin });
-
-                    if (accessToken) {
-                        saveTokensToStorage();
-                        updateTokenDisplay();
-
-                        showAdminStatus('✅ 관리자 인증 성공! 토큰이 저장되었습니다.', 'success');
-                        showResponse(`관리자 인증 성공!\n\n관리자 정보:\n${JSON.stringify(authData.admin || authData.user, null, 2)}\n\nAccess Token: ${accessToken.substring(0, 50)}...`, 'success');
-
-                        document.getElementById('adminTempToken').value = '';
-                        document.getElementById('adminAuthCode').value = '';
-                        document.getElementById('adminStep2Section').style.display = 'none';
-                    } else {
-                        showAdminStatus('⚠️ 토큰을 찾을 수 없습니다.', 'error');
-                        showResponse(`토큰 추출 실패:\n${JSON.stringify(data, null, 2)}`, 'error');
-                    }
-                } else {
-                    showAdminStatus('❌ 인증코드 검증 실패: ' + (data.message || '알 수 없는 오류'), 'error');
-                    showResponse(`관리자 인증코드 검증 실패:\n${JSON.stringify(data, null, 2)}`, 'error');
-                }
-            } catch (error) {
-                showAdminStatus('❌ 네트워크 오류: ' + error.message, 'error');
-                showResponse(`네트워크 오류: ${error.message}`, 'error');
-            }
-        }
-
-        // 관리자 인증 상태 표시 헬퍼 함수
-        function showAdminStatus(message, type = 'info') {
-            const adminStatus = document.getElementById('adminAuthStatus');
-            const adminStatusText = document.getElementById('adminAuthStatusText');
-
-            adminStatus.style.display = 'block';
-            adminStatusText.textContent = message;
-
-            if (type === 'success') {
-                adminStatus.style.background = '#e8f5e8';
-                adminStatus.style.borderColor = '#4caf50';
-            } else if (type === 'error') {
-                adminStatus.style.background = '#ffebee';
-                adminStatus.style.borderColor = '#f44336';
-            } else {
-                adminStatus.style.background = '#e3f2fd';
-                adminStatus.style.borderColor = '#2196f3';
-            }
-        }
-
-        // 응답 표시 함수
-        function showResponse(message, type = 'info') {
-            const responseDiv = document.getElementById('response');
-            responseDiv.textContent = message;
-
-            responseDiv.style.background = type === 'success' ? '#27ae60' :
-                                         type === 'error' ? '#e74c3c' :
-                                         type === 'info' ? '#3498db' :
-                                         type === 'warning' ? '#f39c12' : '#2c3e50';
-        }
-
-        // 응답 지우기 함수
-        function clearResponse() {
-            document.getElementById('response').textContent = '여기에 API 응답이 표시됩니다...';
-            document.getElementById('response').style.background = '#2c3e50';
-        }
-
-        // 초기 엔드포인트 정보 업데이트
-        updateEndpointInfo();
+        console.log('Server Info:', serverInfo);
     </script>
+
+    <!-- External JavaScript modules -->
+    <script th:src="@{/js/ui-utils.js}" src="/js/ui-utils.js"></script>
+    <script th:src="@{/js/token-manager.js}" src="/js/token-manager.js"></script>
+    <script th:src="@{/js/history-manager.js}" src="/js/history-manager.js"></script>
+    <script th:src="@{/js/body-template-manager.js}" src="/js/body-template-manager.js"></script>
+    <script th:src="@{/js/api-tester.js}" src="/js/api-tester.js"></script>
 </body>
 </html>

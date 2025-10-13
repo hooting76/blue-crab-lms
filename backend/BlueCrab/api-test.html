@@ -110,6 +110,14 @@
         button.danger:hover {
             background: #c0392b;
         }
+
+        button.warning {
+            background: #f39c12;
+        }
+
+        button.warning:hover {
+            background: #e67e22;
+        }
         
         .response {
             background: #2c3e50;
@@ -171,9 +179,14 @@
         <div class="header">
             <h1>🦀 BlueCrab API 테스트 도구</h1>
             <p>JWT 기반 인증 API 테스트 및 디버깅</p>
+            <div style="margin-top: 10px;">
+                <button id="modeToggleBtn" onclick="toggleMode()" class="warning" style="font-size: 14px; padding: 10px 20px;">
+                    🔄 듀얼 모드로 전환 (관리자 + 일반 사용자)
+                </button>
+            </div>
         </div>
         
-        <div class="content">
+        <div class="content" id="singleModeContent">
             <!-- 로그인 섹션 -->
             <div class="section">
                 <h3>🔐 로그인 & 인증</h3>
@@ -483,6 +496,13 @@
         
         // 5분마다 토큰 상태 확인
         setInterval(updateTokenInfo, 5 * 60 * 1000);
+
+        // 듀얼 모드 전환
+        function toggleMode() {
+            const currentUrl = window.location.href;
+            const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
+            window.location.href = baseUrl + 'api-test-dual.html';
+        }
     </script>
 </body>
 </html>

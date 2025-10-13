@@ -79,6 +79,28 @@
 
 ---
 
+### 🧪 API Testing Tool
+**API 테스터 개발 문서**
+
+- **api-tester-phase1.1-complete.md** ✅ (UI Redesign 완료)
+- **api-tester-phase1.2-complete.md** ✅ (Badge Update 완료)
+- **api-tester-phase1.3-complete.md** ✅ (Auth Tab Navigation 완료)
+- **PHASE1.2-COMPLETION-REPORT.md** 📊 (Phase 1.2 완료 보고서)
+- **PHASE1.2-SUMMARY.md** 📝 (빠른 참조용 요약)
+- api-tester-refactoring-summary.md (리팩토링 이력)
+- api-tester-testing-guide.md (테스트 가이드)
+- bugfix-api-templates-path.md (버그 수정 이력)
+- console-api-tester-guide.md (콘솔 가이드)
+- feature-history-body-preview.md (히스토리 기능)
+
+**개발 진행 상황**:
+- ✅ Phase 1.1: 2-row 레이아웃 UI 재설계
+- ✅ Phase 1.2: Body Template Badge 실시간 업데이트
+- ✅ Phase 1.3: 일반/관리자 로그인 탭 네비게이션
+- 🔜 Phase 2: 추가 기능 개선 (키보드 단축키, 다크 모드 등)
+
+---
+
 ### �️ [database/](./database/)
 **데이터베이스 스키마**
 
@@ -214,6 +236,10 @@ Get-ChildItem -Path .\claudedocs -Recurse -Filter "*키워드*.md"
 
 | 날짜 | 내용 | 문서 |
 |------|------|------|
+| 2025-10-11 | **API Tester Phase 1.3 완료** ✅ | api-tester-phase1.3-complete.md |
+| 2025-10-11 | 일반/관리자 로그인 탭 네비게이션 | status.html, api-tester.css, ui-utils.js |
+| 2025-10-11 | **API Tester Phase 1.2 완료** ✅ | api-tester-phase1.2-complete.md |
+| 2025-10-11 | Body Template Badge 실시간 업데이트 | body-template-manager.js |
 | 2025-10-10 | **시설 예약 API 완전 가이드 작성** ⭐ | facility-reservation-api-complete.md |
 | 2025-10-10 | **시설 예약 API 빠른 참조 작성** ⚡ | facility-reservation-api-quick-reference.md |
 | 2025-10-10 | **연속된 시간대만 예약 가능 정책** 🆕 | consecutive-time-only-policy.md |
@@ -232,5 +258,5 @@ Get-ChildItem -Path .\claudedocs -Recurse -Filter "*키워드*.md"
 ---
 
 **작성자**: GitHub Copilot  
-**최종 수정일**: 2025-10-10  
-**버전**: 1.0
+**최종 수정일**: 2025-10-11  
+**버전**: 1.1

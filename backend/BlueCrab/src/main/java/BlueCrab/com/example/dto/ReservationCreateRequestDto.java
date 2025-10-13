@@ -3,6 +3,7 @@ package BlueCrab.com.example.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.validation.constraints.Future;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
@@ -16,15 +17,18 @@ public class ReservationCreateRequestDto {
 
     @NotNull(message = "시작 시간은 필수 입력 항목입니다.")
     @Future(message = "시작 시간은 현재 시간 이후여야 합니다.")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startTime;
 
     @NotNull(message = "종료 시간은 필수 입력 항목입니다.")
     @Future(message = "종료 시간은 현재 시간 이후여야 합니다.")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endTime;
 
+    @NotNull(message = "인원수는 필수 입력 항목입니다.")
+    @Min(value = 1, message = "인원수는 최소 1명 이상이어야 합니다.")
     private Integer partySize;
+
     private String purpose;
     private String requestedEquipment;
 
