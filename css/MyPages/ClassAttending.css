@@ -84,31 +84,32 @@
 .table-wrap thead th:nth-child(5),
 .table-wrap tbody td:nth-child(5) { width: 12%; } /* 수업계획 */
 .table-wrap thead th:nth-child(6),
-.table-wrap tbody td:nth-child(6) { width: 13%; } 담당교수
+.table-wrap tbody td:nth-child(6) { width: 13%; } /* 담당교수 */
 
 
 .classAttendingContent {
   width: 1000px;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: flex-start;
   margin-top: 50px;
   margin-bottom: 50px;
 }
 
 .noticeAndChat {
-  width: 340px;
+  width: 350px;
   height: 800px;
   background-color: white;
   border-radius: 10px;
-  box-sizing: border-box;
+  margin-right: 25px;
 }
 
 .lectureNotice {
-  width: 340px;
+  width: 330px;
   height: 500px;
   background-color: lightyellow;
   border-radius: 10px;
+  margin: 10px;
 }
 
 .attendanceStatus {
@@ -119,15 +120,11 @@
 }
 
 .testAssignment {
-  width: 340px;
+  width: 350px;
   height: 800px;
   background-color: azure;
   border-radius: 10px;
-}
-
-.noticeAndChat, .attendanceStatus, .testAssignment {
-  display: inline-block;
-  box-sizing: border-box;
+  margin-left: 25px;
 }
 
 .attendance, .absence, .attendanceCall {
@@ -136,15 +133,6 @@
   border: solid 1px black;
   padding: 10px;
   border-radius: 10px;
-}
-
-.attendanceCallBtn {
-  background-color: var(--main-color);
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
   font-size: var(--font-mid);
 }
 
