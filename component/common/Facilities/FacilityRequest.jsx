@@ -1,152 +1,63 @@
-//공용 틀: 배너 + 탭 + 좌측 본문(children) + 우측 사이드(커뮤니티 메뉴)
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CommunitySidebar from "../notices/CommunitySidebar";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import "../../../css/Communities/FacilityRequest.css";
+import { postFacilities } from "../../../src/api/facility";
+import ReservationModal from "./ReservationModal";
+import "../../../css/Facilities/FacilityReserve.css";
 
-// 오전 9시 ~ 오후 6시
-function DatePick({ startDate, endDate, setStartDate, setEndDate }) {
-  const minTime = new Date();
-  minTime.setHours(9, 0, 0, 0);
-  const maxTime = new Date();
-  maxTime.setHours(18, 0, 0, 0);
+export default function FacilityRequest() {
+  const [list, setList] = useState([]);
+  const [open, setOpen] = useState(null);
 
-  const handleEndDateChange = (date) => {
-    if (!startDate) return;
+  useEffect(() => {
+    (async () => {
+      const res = await postFacilities();
+      const rows = res?.data ?? [];
+      setList(rows);
+    })().catch(console.error);
+  }, []);
 
-    const newEndDate = new Date(startDate);
-    newEndDate.setHours(date.getHours());
-    newEndDate.setMinutes(date.getMinutes());
-    setEndDate(newEndDate);
-  };
-
-  return (
-    <div className="date-picker-wrapper">
-      <label>시작 날짜 및 시간</label>
-      <DatePicker
-        selected={startDate}
-        onChange={(date) => {
-          setStartDate(date);
-          setEndDate(null);
-        }}
-        showTimeSelect
-        timeFormat="HH:mm"
-        timeIntervals={60}
-        dateFormat="yyyy/MM/dd h:mm aa"
-        placeholderText="시작 시간 선택"
-        minDate={new Date()}
-        minTime={minTime}
-        maxTime={maxTime}
-      />
-      <br />
-      <label>종료 날짜 및 시간</label>
-      <DatePicker
-        selected={endDate}
-        onChange={handleEndDateChange}
-        showTimeSelect
-        timeFormat="HH:mm"
-        timeIntervals={60}
-        dateFormat="yyyy/MM/dd h:mm aa"
-        placeholderText="종료 시간 선택"
-        minDate={startDate}
-        maxDate={startDate}
-        minTime={startDate ? new Date(new Date(startDate).setMinutes(0)) : minTime}
-        maxTime={maxTime}
-        disabled={!startDate}
-      />
-    </div>
-  );
-}
-
-
-function FacilityRequest({ 
-    currentPage ="시설신청", 
-    setCurrentPage = () => {},
-    children
- }) {
-
-const [startDate, setStartDate] = useState(null);
-const [endDate, setEndDate] = useState(null);
-const [selectedReason, setSelectedReason] = useState("");
-const [customReason, setCustomReason] = useState("");
-
-
-const handleSubmit = () => {
-  // 시간 선택 안 했을 경우
-  if (!startDate || !endDate) {
-    alert("시작 및 종료 시간을 모두 선택하세요.");
-    return;
-  }
-  // 기타 사유 선택하고 입력 안 했을 경우
-  if (selectedReason === "EtcReason" && customReason.trim() === "") {
-    alert("기타 사유를 입력해주세요.");
-    return;
-  }
-
-  // 예시 제출 처리
-  alert("신청 완료");
-};
+  const equipmentText = (f) => (f.defaultEquipment || "").trim();
 
   return (
     <div className="notice-page">
-      {/* 배너 (현재 카테고리 표기) */}
-      <div className="banner" aria-label="공지 배너">
-        <h2>시설물 대여</h2>
-      </div>
-
-    <div className="facilityRequest">
-      <div className="facWhyDate">
-        <span className="facAndWhy">
-          <label htmlFor="Facility">시설물 선택</label>
-          <select id="Facility">
-            <option value="Fac01">시설물01</option>
-            <option value="Fac02">시설물02</option>
-            <option value="Fac03">시설물03</option>
-          </select>
-          
-          <br/>
-          <br/>
-
-          <label htmlFor="FacilityReason">대여 사유 선택</label>
-          <select id="FacilityReason" value={selectedReason} onChange={(e) => setSelectedReason(e.target.value)}>
-            <option value="Reason01">사유01</option>
-            <option value="Reason02">사유02</option>
-            <option value="Reason03">사유03</option>
-            <option value="EtcReason">기타</option>
-          </select>
-        </span>
-
-        <span className="datePick">
-          <DatePick
-            startDate={startDate}
-            endDate={endDate}
-            setStartDate={setStartDate}
-            setEndDate={setEndDate}
-          />
-        </span>
-      </div>
-
-      <div className="facEtcReason">
-        기타 사유(직접 입력)<br />
-        <textarea placeholder="기타사유일때만 입력" value={customReason} onChange={(e) => setCustomReason(e.target.value)}
-          disabled={selectedReason !== "EtcReason"}>
-          {/* 기타 사유가 아닐 경우 입력란 비활성화 */}
-        </textarea>
-        <br />
-        <button type="submit" onClick={handleSubmit}>신청하기</button>
-      </div>
-    </div>
-
-      {/* 본문 2단 레이아웃 */}
       <div className="grid">
-        <main className="left">{children}</main>
+        <main className="left">
+          <h2 className="page-title">시설물 예약</h2>
+          <p className="page-sub">원하는 시설을 클릭해 예약을 진행하세요. (가능 시간 09:00~18:00)</p>
+
+          <div className="facility-cards">
+            {list.map(f => (
+              <button
+                key={f.facilityIdx}
+                className="facility-card"
+                disabled={f.isBlocked}
+                onClick={() => setOpen({
+                  facilityIdx: f.facilityIdx,
+                  name: f.facilityName,
+                  location: f.location,
+                  maxCapacity: f.capacity,
+                  requiresApproval: !!f.requiresApproval,
+                  isBlocked: !!f.isBlocked,
+                  blockReason: f.blockReason,
+                  availableEquipText: equipmentText(f), // 보유 장비 안내
+                })}
+              >
+                <div className="fc-title">{f.facilityName}</div>
+                <div className="fc-sub">정원 {f.capacity ?? "-"}명 · {f.location}</div>
+                <div className="fc-meta">
+                  {f.requiresApproval ? "승인 필요" : "자동 승인"} {f.isBlocked ? " · 사용 불가" : ""}
+                </div>
+              </button>
+            ))}
+          </div>
+        </main>
+
         <aside className="right">
-          <CommunitySidebar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+          <CommunitySidebar />
         </aside>
       </div>
+
+      {open && <ReservationModal facility={open} onClose={() => setOpen(null)} />}
     </div>
   );
 }
-
-export default FacilityRequest;

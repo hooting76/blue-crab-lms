@@ -1,0 +1,177 @@
+/* src/css/Facilities/FacilityReserve.css */
+
+/* ===== 공통 레이아웃 ===== */
+:root{
+  --bg:#f6f7fb;
+  --panel:#ffffff;
+  --text:#111827;
+  --muted:#6b7280;
+  --primary:#2f6bff;
+  --primary-600:#1f54e8;
+  --ok:#22c55e;
+  --ok-bg:#e8f9ef;
+  --wait:#f59e0b;
+  --wait-bg:#fff7e6;
+  --reject:#ef4444;
+  --reject-bg:#ffecec;
+  --done:#9ca3af;
+  --done-bg:#eef0f4;
+  --line:#e5e7eb;
+  --chip:#eef2ff;
+  --slot:#eff6ff;
+  --slot-sel:#2563eb;
+  --slot-busy:#fde2e2;
+  --slot-pending:#fff1c7;
+  --shadow:0 10px 24px rgba(0,0,0,.06);
+  --radius:14px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg); color:var(--text); margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Noto Sans KR","맑은 고딕",sans-serif}
+
+/* 링크형 버튼 */
+button.link{
+  background:none; border:none; color:var(--primary);
+  padding:0; cursor:pointer; font-size:.95rem; margin-bottom:10px;
+}
+
+/* 페이지 공통 */
+.notice-page{padding:24px}
+.notice-page .page-title{font-size:32px; font-weight:800; margin:6px 0 12px}
+.notice-page .page-sub{color:var(--muted); margin:0 0 18px}
+
+/* 좌측-우측 그리드(사이드바 포함) */
+.notice-page .grid{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 320px;
+  gap:24px;
+}
+.notice-page .left{min-width:0}
+.notice-page .right{min-width:0}
+
+/* 폼 요소 */
+select, input[type="date"], input[type="number"], input[type="text"], textarea{
+  width:100%; border:1px solid var(--line); background:#fff; padding:12px 14px;
+  border-radius:10px; font-size:15px; outline:none;
+}
+textarea{min-height:110px; resize:vertical}
+label{display:block; font-weight:600; margin:12px 0 8px}
+.muted{color:var(--muted); font-size:.9rem; margin-top:6px}
+.error{color:#b91c1c; background:#ffecec; border:1px solid #ffc9c9; padding:10px 12px; border-radius:10px}
+
+/* 기본 버튼 */
+button.primary{
+  background:var(--primary); color:#fff; border:none; padding:12px 16px;
+  border-radius:10px; cursor:pointer; font-weight:700;
+}
+button.primary:hover{background:var(--primary-600)}
+button[disabled]{opacity:.6; cursor:not-allowed}
+button.danger{
+  background:#ef4444; color:#fff; border:none; padding:12px 16px;
+  border-radius:10px; cursor:pointer; font-weight:700;
+}
+
+/* ===== 시설 목록 카드 ===== */
+.facility-cards{display:flex; flex-direction:column; gap:16px}
+.facility-card{
+  text-align:left; width:100%; border:1px solid var(--line); background:var(--panel);
+  border-radius:var(--radius); padding:18px 20px; cursor:pointer;
+  box-shadow:0 2px 0 rgba(0,0,0,.02); transition:.15s transform, .15s box-shadow;
+}
+.facility-card:hover{transform:translateY(-1px); box-shadow:var(--shadow)}
+.facility-card:disabled{opacity:.55; cursor:not-allowed}
+
+.fc-title{font-size:20px; font-weight:800; margin-bottom:6px}
+.fc-sub{color:var(--muted); font-size:.95rem; margin-bottom:6px}
+.fc-meta{color:#6b7280; font-size:.9rem}
+
+/* ===== 배지 ===== */
+.badge{display:inline-flex; align-items:center; gap:8px; padding:6px 12px;
+  border-radius:999px; font-weight:700; font-size:.92rem}
+.badge.ok{background:var(--ok-bg); color:#0f8339; border:1px solid #b7f3cd}
+.badge.wait{background:var(--wait-bg); color:#955a00; border:1px solid #ffe29d}
+.badge.reject{background:var(--reject-bg); color:#b91c1c; border:1px solid #ffb7b7}
+.badge.done{background:var(--done-bg); color:#4b5563; border:1px solid #d1d5db}
+
+/* ===== 내 예약 목록 ===== */
+.resv-list{list-style:none; padding:0; margin:14px 0 0; display:flex; flex-direction:column; gap:14px}
+.resv-item{
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+  padding:16px 18px; box-shadow:0 2px 0 rgba(0,0,0,.02);
+}
+.resv-item .head{display:flex; align-items:center; justify-content:space-between; gap:12px}
+.resv-item .title{font-size:20px; font-weight:800}
+.resv-item .row{margin-top:10px; color:#111; font-weight:600}
+.resv-item details{background:#f9fafb; border:1px solid var(--line); border-radius:12px; padding:10px 12px}
+.resv-item details summary{cursor:pointer; list-style:none; font-weight:700}
+.resv-item details summary::-webkit-details-marker{display:none}
+.resv-item dl{display:grid; grid-template-columns:120px 1fr; row-gap:8px; column-gap:16px; margin:10px 0 0}
+.resv-item dt{color:var(--muted); font-weight:700}
+.resv-item dd{margin:0}
+
+.info-box{
+  background:#eef6ff; border:1px solid #cfe1ff; color:#1e3a8a;
+  border-radius:12px; padding:12px; margin-top:12px
+}
+.reject-box{
+  background:var(--reject-bg); border:1px solid #ffb7b7; color:#9f1239;
+  border-radius:12px; padding:12px; margin-top:12px
+}
+
+/* ===== 예약 모달 ===== */
+.resv-modal-backdrop{
+  position:fixed; inset:0; background:rgba(17,24,39,.45);
+  display:flex; align-items:center; justify-content:center; z-index:1000;
+}
+.resv-modal{
+  width:min(860px, calc(100vw - 32px));
+  max-height:calc(100vh - 64px);
+  overflow:auto; background:var(--panel);
+  border-radius:18px; box-shadow:var(--shadow); padding:18px 20px 16px;
+}
+.rm-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px}
+.rm-head h3{font-size:22px; font-weight:800; margin:6px 0}
+.rm-head .icon{border:none; background:none; font-size:22px; cursor:pointer; color:#6b7280}
+
+.rm-section{background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px; margin:12px 0}
+.rm-actions{display:flex; gap:10px; justify-content:flex-end; margin-top:8px}
+
+/* 전설(레전드) 칩 */
+.legend{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px}
+.legend .chip{display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; font-size:.88rem; font-weight:700}
+.legend .chip.available{background:#e8f7ee; color:#166534; border:1px solid #b7f3cd}
+.legend .chip.selected{background:#e7ecff; color:#1f3fb3; border:1px solid #c4d0ff}
+.legend .chip.booked{background:#ffecec; color:#b91c1c; border:1px solid #ffc9c9}
+
+/* 시간 그리드(모달 내부만 적용) */
+.resv-modal .grid{
+  display:grid; grid-template-columns:repeat(4, 1fr); gap:12px;
+}
+@media (max-width:720px){ .resv-modal .grid{grid-template-columns:repeat(2,1fr)} }
+
+/* 시간 슬롯 버튼 */
+.slot{
+  background:#f0f5ff; border:1px solid #dbe5ff; color:#0b3570;
+  border-radius:16px; padding:14px 12px; text-align:center; cursor:pointer;
+  min-height:72px; display:flex; flex-direction:column; justify-content:center; gap:6px;
+  transition:.15s transform, .15s box-shadow, .15s background;
+}
+.slot .h{font-weight:800; font-size:18px}
+.slot .sub{font-size:.92rem; color:#1e3a8a}
+.slot:hover{transform:translateY(-1px); box-shadow:var(--shadow)}
+.slot.selected{background:var(--slot-sel); border-color:#1e40af; color:#fff}
+.slot.selected .sub{color:#eef2ff}
+.slot.booked{background:var(--slot-busy); border-color:#ffb7b7; color:#991b1b; cursor:not-allowed}
+.slot.booked .sub{color:#7f1d1d}
+
+/* 경고/알림 */
+.warn{
+  margin-top:10px; background:#fff7e6; border:1px solid #ffe29d; color:#7a4b00;
+  border-radius:10px; padding:10px 12px; font-weight:600;
+}
+
+/* 푸터 버튼 정렬은 .rm-actions 에서 처리 */
+
+/* ===== 기타 ===== */
+hr.sep{border:none; height:1px; background:var(--line); margin:16px 0}
