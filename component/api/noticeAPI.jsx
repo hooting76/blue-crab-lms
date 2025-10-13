@@ -8,19 +8,19 @@ const getHeaders = (accessToken) => ({
 
 
 // 게시글 목록 조회 (POST 방식)
-const getNotices = async (accessToken, page, size) => {
+const getNotices = async (accessToken, page, size, boardCode) => {
   try {
-    // 요청에 포함할 바디 데이터
     const requestBody = {
-      page : page-1,
-      size
+      page: page - 1,
+      size,
+      ...(boardCode !== "0" && { boardCode })  // "전체"가 아닌 경우에만 필터링 조건 포함
     };
 
     const response = await fetch(`${BASE_URL}/list`, {
       method: 'POST',
       headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
       },
       body: JSON.stringify(requestBody)
     });
@@ -32,6 +32,7 @@ const getNotices = async (accessToken, page, size) => {
     throw error;
   }
 };
+
 
 
 // 특정 게시글 상세 조회

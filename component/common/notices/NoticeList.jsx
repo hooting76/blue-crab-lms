@@ -66,7 +66,7 @@ export default function NoticeList({
             return;
           }
 
-          const res = await getNotices(accessToken, page, size);
+          const res = await getNotices(accessToken, page, size, boardCode);
           if (!alive) return;
 
           const allItems = Array.isArray(res.content) ? res.content : [];
