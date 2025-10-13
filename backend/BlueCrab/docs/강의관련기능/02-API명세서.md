@@ -174,7 +174,7 @@ Authorization: Bearer {accessToken}
   "lectureDescription": "자바 기초 프로그래밍 강의",
   "maxStudents": 30,
   "credit": 3,
-  "lectureTime": "월1,2 수3,4",
+  "lectureTime": "월1월2수3수4",
   "lectureRoom": "공학관 101호",
   "professorIdx": 1,
   "year": 2025,
@@ -444,7 +444,7 @@ Authorization: Bearer {accessToken}
       "credit": 3,
       "currentStudents": 25,
       "maxStudents": 30,
-      "lectureTime": "월1,2 수3,4",
+      "lectureTime": "월1월2수3수4",
       "isEnrolled": false,
       "isWaitlisted": false
     }

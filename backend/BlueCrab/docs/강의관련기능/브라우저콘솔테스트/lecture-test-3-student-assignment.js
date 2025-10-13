@@ -248,7 +248,7 @@ function help() {
     console.log('═══════════════════════════════════════════════════════');
     console.log('⚠️ 먼저 로그인하세요!');
     console.log('📁 docs/일반유저 로그인+게시판/test-1-login.js → await login()');
-📋 getMyAssignments()     - 내 과제 목록');
+    console.log('📋 getMyAssignments()     - 내 과제 목록');
     console.log('🔍 getAssignmentDetail()  - 과제 상세 조회');
     console.log('📝 submitAssignment()     - 과제 제출');
     console.log('📝 resubmitAssignment()   - 과제 재제출');

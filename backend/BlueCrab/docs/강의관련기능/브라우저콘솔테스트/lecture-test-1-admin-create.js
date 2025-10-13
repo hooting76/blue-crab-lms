@@ -33,6 +33,45 @@ function checkAuth() {
     return true;
 }
 
+// ========== 강의 시간 포맷 변환 유틸리티 ==========
+function convertLectureTimeFormat(input) {
+    // "월1,2 수3,4" 형식을 "월1월2수3수4" 형식으로 변환
+    // 공백, 쉼표 제거하고 교시 번호를 개별적으로 처리
+    
+    if (!input || input.trim() === '') {
+        return '';
+    }
+    
+    let result = '';
+    
+    // 정규식: 요일명(월/화/수/목/금) 뒤에 숫자들이 오는 패턴
+    // 예: "월1,2,3" → ["월1", "월2", "월3"]
+    const pattern = /([월화수목금])([0-9,\s]+)/g;
+    let match;
+    
+    while ((match = pattern.exec(input)) !== null) {
+        const dayName = match[1];  // 요일명 (월/화/수/목/금)
+        const periods = match[2];  // 교시들 (예: "1,2,3" 또는 "1 2 3")
+        
+        // 교시 번호들 추출 (쉼표, 공백 기준으로 분리)
+        const periodNumbers = periods.match(/\d/g);
+        
+        if (periodNumbers) {
+            // 각 교시마다 "요일명+교시" 형태로 추가
+            periodNumbers.forEach(period => {
+                result += dayName + period;
+            });
+        }
+    }
+    
+    return result;
+}
+
+// 사용 예시:
+// convertLectureTimeFormat('월1,2 수3,4') → '월1월2수3수4'
+// convertLectureTimeFormat('화2,3 목2') → '화2화3목2'
+// convertLectureTimeFormat('월1월2월3월4') → '월1월2월3월4' (이미 올바른 형식)
+
 // ========== 강의 등록 테스트 ==========
 async function createLecture() {
     // 로그인 확인
@@ -47,7 +86,7 @@ async function createLecture() {
     const lecMajor = parseInt(prompt('� 전공구분 (1:전공강의, 0:교양):', '1')) || 1;
     const lecMust = parseInt(prompt('✅ 필수구분 (1:필수과목, 0:선택과목):', '1')) || 1;
     const lecSummary = prompt('📝 강의 개요를 입력하세요:', '') || `${lectureName} 강의입니다.`;
-    const lecTime = prompt('⏰ 강의 시간을 입력하세요 (예: 월1,2 수3,4):', '월1,2 수3,4');
+    const lecTime = prompt('⏰ 강의 시간을 입력하세요 (예: 월1,2 수3,4 또는 월1월2수3수4):', '월1,2 수3,4');
     const lecAssign = parseInt(prompt('📋 과제유무 (1:과제있음, 0:과제없음):', '0')) || 0;
     const lecOpen = parseInt(prompt('🔓 수강신청 상태 (1:열림, 0:닫힘):', '1')) || 1;
     const maxStudents = parseInt(prompt('👥 최대 정원을 입력하세요:', '30'));
@@ -109,6 +148,17 @@ async function createLecture() {
     console.log('\n📚 강의 등록 테스트');
     console.log('═══════════════════════════════════════════════════════');
     
+    // 강의 시간 포맷 변환 (입력받은 형식을 표준 형식으로)
+    const formattedLecTime = convertLectureTimeFormat(lecTime);
+    console.log(`⏰ 원본 입력: "${lecTime}"`);
+    console.log(`⏰ 변환 결과: "${formattedLecTime}"`);
+    
+    if (!formattedLecTime) {
+        console.log('❌ 강의 시간 형식이 올바르지 않습니다.');
+        console.log('올바른 형식 예시: "월1,2 수3,4" 또는 "월1월2수3수4"');
+        return;
+    }
+    
     // LEC_TBL 테이블 구조에 맞춘 데이터 (사용자 입력값 사용)
     const lectureData = {
         lecSerial: lectureCode,           // 강의 코드 (필수)
@@ -118,7 +168,7 @@ async function createLecture() {
         lecMajor: lecMajor,              // 전공강의:1 / 교양:0 (사용자 입력)
         lecMust: lecMust,                // 필수과목:1 / 선택과목:0 (사용자 입력)
         lecSummary: lecSummary,          // 강의 개요 내용 (사용자 입력)
-        lecTime: lecTime,                // 강의 시간 (필수, 사용자 입력)
+        lecTime: formattedLecTime,       // 강의 시간 (필수, 변환된 형식)
         lecAssign: lecAssign,            // 과제있음:1 / 과제없음:0 (사용자 입력)
         lecOpen: lecOpen,                // 강의열림:1 / 강의닫힘:0 (사용자 입력)
         lecMany: maxStudents,            // 수강가능 인원수 (사용자 입력)

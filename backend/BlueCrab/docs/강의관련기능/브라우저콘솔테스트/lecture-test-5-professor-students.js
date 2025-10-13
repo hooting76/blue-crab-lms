@@ -246,7 +246,7 @@ function help() {
     console.log('═══════════════════════════════════════════════════════');
     console.log('⚠️ 먼저 로그인하세요!');
     console.log('📁 docs/일반유저 로그인+게시판/test-1-login.js → await login()');
-📋 getStudents()           - 수강생 목록 조회');
+    console.log('📋 getStudents()           - 수강생 목록 조회');
     console.log('🔍 getStudentDetail()      - 수강생 상세 조회');
     console.log('📊 getStudentGrades()      - 수강생 성적 조회');
     console.log('📊 getLectureStatistics()  - 강의 통계 조회');

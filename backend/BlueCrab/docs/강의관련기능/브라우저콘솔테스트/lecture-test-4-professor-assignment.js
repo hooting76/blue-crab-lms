@@ -337,21 +337,16 @@ async function deleteAssignment() {
         console.log('❌ 에러 발생:', error.message);
     }
 }
-
 // ========== 도움말 ==========
 function help() {
     console.log('\n👨‍🏫 교수 과제 관리 테스트 함수 목록');
     console.log('═══════════════════════════════════════════════════════');
     console.log('⚠️ 먼저 로그인하세요!');
     console.log('📁 docs/일반유저 로그인+게시판/test-1-login.js → await login()');
-📚 getMyLectures()      - 담당 강의 목록');
+    console.log('📚 getMyLectures()      - 담당 강의 목록');
     console.log('📝 createAssignment()   - 과제 생성');
     console.log('📋 getAssignments()     - 과제 목록 조회');
     console.log('📄 getSubmissions()     - 제출된 과제 목록');
-    console.log('💯 gradeAssignment()    - 과제 채점');
-    console.log('✏️ updateAssignment()   - 과제 수정');
-    console.log('🗑️ deleteAssignment()   - 과제 삭제');
-}
     console.log('💯 gradeAssignment()    - 과제 채점');
     console.log('✏️ updateAssignment()   - 과제 수정');
     console.log('🗑️ deleteAssignment()   - 과제 삭제');
