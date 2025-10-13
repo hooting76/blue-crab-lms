@@ -89,7 +89,7 @@
 .classAttendingContent {
   width: 1000px;
   display: flex;
-  flex-wrap: nowrap;
+  justify-content: space-between;
   align-items: flex-start;
   margin-top: 50px;
   margin-bottom: 50px;
@@ -126,7 +126,6 @@
 
 .noticeAndChat, .attendanceStatus, .testAssignment {
   display: inline-block;
-  min-width: 0;
   box-sizing: border-box;
 }
 
