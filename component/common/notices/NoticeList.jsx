@@ -68,18 +68,13 @@ export default function NoticeList({
 
           const code = boardCode === "0" ? null : Number(boardCode);
 
-          const res = await getNoticesByCode(accessToken, page, size, code);
+          const res = await getNoticesByCode(accessToken, code, page, size);
           if (!alive) return;
 
           const items = Array.isArray(res.content) ? res.content : [];
 
           // ✅ 최신순 정렬 (작성일 기준)
           items.sort((a, b) => (b.boardReg || "").localeCompare(a.boardReg || ""));
-
-          // ✅ 페이징 처리
-          // const start = (page - 1) * size;
-          // const end = start + size;
-          // const pageItems = filtered.slice(start, end);
 
           setState({
             items,
