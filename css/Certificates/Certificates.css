@@ -1,135 +1,35 @@
-/* css/Certificates/Certificates.css */
+/* ===== 화면 공용 ===== */
+#cert-page{max-width:920px;margin:0 auto;padding:12px 16px 48px}
+.cert-actions{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.cert-actions .spacer,.print-modal-head .grow{flex:1 1 auto}
+.cert-actions .tab{height:40px;padding:0 16px;border-radius:10px;border:1px solid #cbd5e1;background:#fff;font-weight:700;color:#1f2937;cursor:pointer}
+.cert-actions .tab.active{background:#3b82f6;border-color:#3b82f6;color:#fff}
+.cert-actions .btn.primary{height:40px;padding:0 16px;border-radius:10px;border:1px solid #3b82f6;background:#3b82f6;color:#fff;font-weight:800;cursor:pointer}
+.cert-actions .btn.ghost{height:36px;padding:0 12px;border-radius:10px;border:1px solid #cbd5e1;background:#fff;color:#334155;cursor:pointer}
 
-/* ====== 화면 공용 ====== */
-#cert-page {
-  max-width: 920px;
-  margin: 0 auto;
-  padding: 12px 16px 48px;
-}
+.cert-paper{background:#fff;border-radius:12px;box-shadow:0 6px 20px rgba(2,6,23,.08);padding:28px 28px 36px}
+.cert-header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.cert-header .logo-area img{width:48px;height:48px}
+.cert-header .title{font-size:28px;font-weight:900;letter-spacing:.02em}
+.cert-body .row{display:grid;grid-template-columns:160px 1fr 120px;align-items:stretch;min-height:54px;border-top:1px solid #e5e7eb}
+.cert-body .row:first-of-type{border-top:0}
+.cert-body .row>.label{display:flex;align-items:center;justify-content:center;font-weight:800;background:#f8fafc;color:#111827}
+.cert-body .row>.value{display:flex;align-items:center;padding:0 14px}
+.cert-body .row>.photo{display:flex;align-items:center;justify-content:center;border-left:1px solid #e5e7eb}
+.cert-body .row>.photo img{width:108px;height:108px;object-fit:cover;border:1px solid #cbd5e1;border-radius:6px}
+.cert-body .desc{margin:18px 0 8px;text-align:center;color:#64748b;font-weight:700}
+.cert-body .sig{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-weight:800}
 
-.cert-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.cert-actions .spacer,
-.print-modal-head .grow { flex: 1 1 auto; }
+/* 인쇄 미리보기 모달 */
+.print-overlay{position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center}
+.print-modal{width:min(1000px,calc(100vw - 40px));max-height:calc(100vh - 40px);background:#fff;border-radius:12px;overflow:auto;box-shadow:0 20px 60px rgba(2,6,23,.2)}
+.print-modal-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;padding:12px;border-bottom:1px solid #e5e7eb;background:#fff}
 
-.cert-actions .tab {
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 10px;
-  border: 1px solid #cbd5e1;
-  background: #fff;
-  font-weight: 700;
-  color: #1f2937;
-  cursor: pointer;
-}
-.cert-actions .tab.active {
-  background: #3b82f6;     /* 선택 시 배경 파란색 */
-  border-color: #3b82f6;
-  color: #fff;              /* 선택 시 글자 흰색(안 보이는 문제 해결) */
-}
-.cert-actions .btn.primary {
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 10px;
-  border: 1px solid #3b82f6;
-  background: #3b82f6;
-  color: #fff;
-  font-weight: 800;
-  cursor: pointer;
-}
-.cert-actions .btn.ghost {
-  height: 36px;
-  padding: 0 12px;
-  border-radius: 10px;
-  border: 1px solid #cbd5e1;
-  background: #fff;
-  color: #334155;
-  cursor: pointer;
-}
 
-/* 증명서 용지(화면 미리보기용) */
-.cert-paper {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(2, 6, 23, .08);
-  padding: 28px 28px 36px;
-}
-
-/* 레이아웃 */
-.cert-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 18px;
-}
-.cert-header .logo-area img { width: 48px; height: 48px; }
-.cert-header .title {
-  font-size: 28px;
-  font-weight: 900;
-  letter-spacing: .02em;
-}
-
-.cert-body .row {
-  display: grid;
-  grid-template-columns: 160px 1fr 120px;
-  align-items: stretch;
-  min-height: 54px;
-  border-top: 1px solid #e5e7eb;
-}
-.cert-body .row:first-of-type { border-top: 0; }
-.cert-body .row > .label {
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 800;
-  background: #f8fafc;
-  color: #111827;
-}
-.cert-body .row > .value {
-  display: flex; align-items: center; padding: 0 14px;
-}
-.cert-body .row > .photo {
-  display: flex; align-items: center; justify-content: center;
-  border-left: 1px solid #e5e7eb;
-}
-.cert-body .row > .photo img {
-  width: 108px; height: 108px; object-fit: cover;
-  border: 1px solid #cbd5e1; border-radius: 6px;
-}
-
-.cert-body .desc {
-  margin: 18px 0 8px;
-  text-align: center;
-  color: #64748b;
-  font-weight: 700;
-}
-.cert-body .sig {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-top: 8px; font-weight: 800;
-}
-
-/* ====== 인쇄 미리보기 모달 ====== */
-.print-overlay {
-  position: fixed; inset: 0; z-index: 9999;
-  background: rgba(15, 23, 42, .55);
-  display: flex; align-items: center; justify-content: center;
-}
-.print-modal {
-  width: min(1000px, calc(100vw - 40px));
-  max-height: calc(100vh - 40px);
-  background: #fff; border-radius: 12px; overflow: auto;
-  box-shadow: 0 20px 60px rgba(2,6,23,.2);
-}
-.print-modal-head {
-  position: sticky; top: 0; z-index: 2;
-  display: flex; align-items: center; gap: 8px;
-  padding: 12px; border-bottom: 1px solid #e5e7eb; background: #fff;
-}
-
-/* ====== 프린트 전용 ====== */
+/* ====== 프린트 전용 (수정) ====== */
 @media print {
+  @page { size: A4 portrait; margin: 10mm; }
+
   html, body {
     margin: 0 !important;
     padding: 0 !important;
@@ -138,34 +38,24 @@
     print-color-adjust: exact;
   }
 
-  /* 기본적으로 화면의 모든 요소 숨김 */
+  /* 기본적으로 모두 감추고 */
   body * { visibility: hidden !important; }
 
-  /* #cert-print 만 보이도록 */
-  #cert-print, #cert-print * {
-    visibility: visible !important;
-  }
+  /* 프린트 타깃만 보이게 */
+  #cert-print, #cert-print * { visibility: visible !important; }
 
-  /* 용지 사이즈/여백 조정 */
+  /* 타깃을 페이지에 고정 */
   #cert-print {
-    position: absolute; left: 0; top: 0;
-    width: 210mm; min-height: 297mm;
-    margin: 0;
+    position: fixed; inset: 0;
+    margin: 0 !important;
+    padding: 0 6mm !important;   /* 좌우 살짝 여백 */
     box-shadow: none !important;
     border-radius: 0 !important;
     background: #fff !important;
-    page-break-after: avoid;
   }
 
-  /* 모달·오버레이·액션바 등 프린트 제외 */
-  .no-print,
-  .print-overlay,
-  .print-modal,
-  .cert-actions { display: none !important; }
-}
-
-/* 반응형 */
-@media (max-width: 640px) {
-  .cert-body .row { grid-template-columns: 120px 1fr 92px; }
-  .cert-header .title { font-size: 22px; }
+  /* 화면 전용 UI만 숨김(부모 오버레이는 숨기지 않음) */
+  .cert-actions,
+  header, footer,
+  .sheet-root { display: none !important; }
 }

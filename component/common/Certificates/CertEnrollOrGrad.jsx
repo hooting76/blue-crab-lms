@@ -28,7 +28,9 @@ export default function CertEnrollOrGrad() {
           try {
             const url = await getMyProfileImage(p.image.imageKey);
             if (!revoked) setImageUrl(url);
-          } catch { setImageUrl(''); }
+          } catch {
+            setImageUrl('');
+          }
         } else {
           setImageUrl('');
         }
@@ -53,7 +55,10 @@ export default function CertEnrollOrGrad() {
 
   const userName = profile?.userName || '-';
   const birthDate = profile?.birthDate || '';
-  const birthText = birthDate ? `${birthDate.slice(0,4)}-${birthDate.slice(4,6)}-${birthDate.slice(6,8)}` : '-';
+  const birthText = birthDate
+    ? `${birthDate.slice(0,4)}-${birthDate.slice(4,6)}-${birthDate.slice(6,8)}`
+    : '-';
+
   const address = useMemo(() => {
     if (!profile) return '';
     const { zipCode, mainAddress, detailAddress } = profile;
@@ -74,9 +79,12 @@ export default function CertEnrollOrGrad() {
   if (loading) return <div style={{ padding: 16 }}>불러오는 중…</div>;
   if (err) return <div style={{ padding: 16, color: 'crimson' }}>에러: {err}</div>;
 
-  // 증명서 본문 (재사용)
+  // 재사용 가능한 증명서 본문
   const Certificate = ({ printable }) => (
-    <div className={`cert-paper${printable ? '' : ' no-print'}`} id={printable ? 'cert-print' : undefined}>
+    <div
+      className={`cert-paper ${printable ? 'print-target' : 'no-print'}`}
+      id={printable ? 'cert-print' : undefined}
+    >
       <div className="cert-header">
         <div className="logo-area">
           <img src="/favicon/android-icon-72x72.png" alt="학교로고" />
@@ -89,7 +97,10 @@ export default function CertEnrollOrGrad() {
           <div className="label">성명</div>
           <div className="value">{userName}</div>
           <div className="photo" aria-hidden="true">
-            <img src={imageUrl || '/assets/default-profile.png'} alt="증명용 사진" />
+            <img
+              src={imageUrl || '/assets/default-profile.png'}
+              alt="증명용 사진"
+            />
           </div>
         </div>
 
@@ -129,7 +140,9 @@ export default function CertEnrollOrGrad() {
           </div>
         )}
 
-        <div className="desc">위와 같이 {docTitle.replace('(예정)','')} 사실을 증명합니다.</div>
+        <div className="desc">
+          위와 같이 {docTitle.replace('(예정)','')} 사실을 증명합니다.
+        </div>
         <div className="sig">
           <div className="date">발급일자: {new Date().toISOString().slice(0,10)}</div>
           <div className="stamp">Blue-Crab University 총장 (인)</div>
@@ -160,10 +173,10 @@ export default function CertEnrollOrGrad() {
         <button className="btn primary" onClick={openPreview}>인쇄하기</button>
       </div>
 
-      {/* 페이지 안에서 보이는 미리보기(인쇄 제외) */}
+      {/* 페이지에 보이는 미리보기 (인쇄 제외) */}
       <Certificate printable={false} />
 
-      {/* 인쇄 미리보기 모달 — 한 번만 뜨도록 단일 렌더 */}
+      {/* 인쇄 미리보기 모달 */}
       {showPreview && (
         <div className="print-overlay no-print" role="dialog" aria-modal="true">
           <div className="print-modal">
@@ -173,7 +186,8 @@ export default function CertEnrollOrGrad() {
               <button className="btn ghost" onClick={closePreview}>닫기</button>
               <button className="btn primary" onClick={doRealPrint}>실제 인쇄</button>
             </div>
-            {/* 진짜 프린트 타깃 */}
+
+            {/* 실제 인쇄 타깃 */}
             <Certificate printable />
           </div>
         </div>
