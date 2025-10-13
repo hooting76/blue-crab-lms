@@ -5,7 +5,7 @@ import NoticeTable from "./NoticeTable";
 import Pagination from "../notices/Pagination";
 import { UseUser } from "../../../hook/UseUser";
 import { UseAdmin } from "../../../hook/UseAdmin";
-import getNotices from "../../api/noticeAPI";
+import getNotices, { getNoticesByCode } from "../../api/noticeAPI";
 import "../../../css/Communities/Notice-ui.css";
 
 export default function NoticeList({
@@ -68,7 +68,7 @@ export default function NoticeList({
 
           const code = boardCode === "0" ? null : Number(boardCode);
 
-          const res = await getNotices(accessToken, page, size, code);
+          const res = await getNoticesByCode(accessToken, page, size, code);
           if (!alive) return;
 
           const items = Array.isArray(res.content) ? res.content : [];
