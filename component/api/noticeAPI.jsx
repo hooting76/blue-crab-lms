@@ -13,7 +13,7 @@ const getNotices = async (accessToken, page, size, boardCode) => {
     const requestBody = {
       page: page - 1,
       size,
-      ...(boardCode !== "0" && { boardCode })  // "전체"가 아닌 경우에만 필터링 조건 포함
+      ...(boardCode !== null && { boardCode })  // "전체"가 아닌 경우에만 필터링 조건 포함
     };
 
     const response = await fetch(`${BASE_URL}/list`, {
