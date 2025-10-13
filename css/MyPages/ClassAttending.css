@@ -104,7 +104,7 @@
 }
 
 .lectureNotice {
-  width: 330px;
+  width: calc(100%-20px);
   height: 500px;
   background-color: lightyellow;
   border-radius: 10px;
