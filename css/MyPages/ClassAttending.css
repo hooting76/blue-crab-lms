@@ -89,13 +89,14 @@
 .classAttendingContent {
   width: 1000px;
   display: flex;
+  flex-wrap: nowrap;
   align-items: flex-start;
   margin-top: 50px;
   margin-bottom: 50px;
 }
 
 .noticeAndChat {
-  width: 350px;
+  width: 340px;
   height: 800px;
   background-color: white;
   border-radius: 10px;
@@ -103,7 +104,7 @@
 }
 
 .lectureNotice {
-  width: 330px;
+  width: 340px;
   height: 500px;
   background-color: lightyellow;
   border-radius: 10px;
@@ -117,13 +118,14 @@
 }
 
 .testAssignment {
-  width: 350px;
+  width: 340px;
   height: 800px;
   background-color: azure;
   border-radius: 10px;
 }
 
 .noticeAndChat, .attendanceStatus, .testAssignment {
+  display: inline-block;
   min-width: 0;
   box-sizing: border-box;
 }
