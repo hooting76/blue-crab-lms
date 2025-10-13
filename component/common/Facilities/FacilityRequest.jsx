@@ -1,63 +1,87 @@
+// src/component/common/Facilities/FacilityRequest.jsx
 import React, { useEffect, useState } from "react";
 import CommunitySidebar from "../notices/CommunitySidebar";
 import { postFacilities } from "../../../src/api/facility";
-import ReservationModal from "./ReservationModal";
 import "../../../css/Facilities/FacilityReserve.css";
+import ReservationModal from "./ReservationModal";
 
-export default function FacilityRequest() {
+export default function FacilityRequest({ currentPage, setCurrentPage }) {
   const [list, setList] = useState([]);
-  const [open, setOpen] = useState(null);
+  const [selFacility, setSelFacility] = useState(null);
 
   useEffect(() => {
+    setCurrentPage?.("시설물 예약");               // ← 타이틀/사이드바 활성화
     (async () => {
-      const res = await postFacilities();
-      const rows = res?.data ?? [];
-      setList(rows);
-    })().catch(console.error);
+      try {
+        const res = await postFacilities();
+        setList(res?.data || []);
+      } catch (e) {
+        console.error(e);
+      }
+    })();
   }, []);
 
-  const equipmentText = (f) => (f.defaultEquipment || "").trim();
-
   return (
-    <div className="notice-page">
-      <div className="grid">
-        <main className="left">
-          <h2 className="page-title">시설물 예약</h2>
-          <p className="page-sub">원하는 시설을 클릭해 예약을 진행하세요. (가능 시간 09:00~18:00)</p>
+    <div className="facility-page">
+      {/* 상단 타이틀/설명 */}
+      <section className="page-head">
+        <h2>시설물 예약</h2>
+        <p className="sub">
+          원하는 시설을 클릭해 예약을 진행하세요. <b>가능 시간: 09:00 ~ 18:00</b>
+        </p>
+      </section>
 
-          <div className="facility-cards">
-            {list.map(f => (
+      {/* 좌: 메인, 우: 사이드 */}
+      <div className="content-grid">
+        <main className="main">
+          {/* (선택) 카테고리/필터 영역 필요하면 여기에 */}
+          <div className="card-list">
+            {list.map((f) => (
               <button
                 key={f.facilityIdx}
                 className="facility-card"
-                disabled={f.isBlocked}
-                onClick={() => setOpen({
+                onClick={() => !f.isBlocked && setSelFacility({
                   facilityIdx: f.facilityIdx,
                   name: f.facilityName,
-                  location: f.location,
                   maxCapacity: f.capacity,
-                  requiresApproval: !!f.requiresApproval,
-                  isBlocked: !!f.isBlocked,
+                  requiresApproval: f.requiresApproval,
+                  isBlocked: f.isBlocked,
                   blockReason: f.blockReason,
-                  availableEquipText: equipmentText(f), // 보유 장비 안내
+                  availableEquipText: f.defaultEquipment
                 })}
+                disabled={f.isBlocked}
               >
-                <div className="fc-title">{f.facilityName}</div>
-                <div className="fc-sub">정원 {f.capacity ?? "-"}명 · {f.location}</div>
-                <div className="fc-meta">
-                  {f.requiresApproval ? "승인 필요" : "자동 승인"} {f.isBlocked ? " · 사용 불가" : ""}
+                <div className="fc-title">
+                  <span className="name">{f.facilityName}</span>
+                  {f.isBlocked && <span className="badge danger">차단됨</span>}
+                  {(!f.isBlocked && f.requiresApproval) && <span className="badge warn">승인 필요</span>}
                 </div>
+                <div className="fc-meta">
+                  <span>위치: {f.location || "-"}</span>
+                  <span>수용 인원: {f.capacity ?? "-"}</span>
+                </div>
+                {!!f.isBlocked && f.blockReason && (
+                  <div className="fc-note">{f.blockReason}</div>
+                )}
               </button>
             ))}
           </div>
         </main>
 
-        <aside className="right">
-          <CommunitySidebar />
+        <aside className="side">
+          <CommunitySidebar
+            currentPage={"시설물 예약"}
+            setCurrentPage={setCurrentPage}
+          />
         </aside>
       </div>
 
-      {open && <ReservationModal facility={open} onClose={() => setOpen(null)} />}
+      {selFacility && (
+        <ReservationModal
+          facility={selFacility}
+          onClose={() => setSelFacility(null)}
+        />
+      )}
     </div>
   );
 }

@@ -146,9 +146,9 @@ function AppContent() {
         return <FAQ currentPage={currentPage} setCurrentPage={setCurrentPage} />;
 
       // ===== 시설 & 문의 =====
-      case '시설신청':
+      case '시설물 예약':
         return <FacilityRequest currentPage={currentPage} setCurrentPage={setCurrentPage} />;
-      case '나의 신청목록':
+      case '내 예약 현황':
         return <MyFacilityRequests currentPage={currentPage} setCurrentPage={setCurrentPage} />;
       case '열람실 신청':
         return <ReadingRoom currentPage={currentPage} setCurrentPage={setCurrentPage} />;

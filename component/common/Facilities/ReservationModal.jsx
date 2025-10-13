@@ -23,7 +23,7 @@ export default function ReservationModal({ facility, onClose }) {
         const arr = res?.data?.timeSlots ?? [];
         // timeSlots: [{hour:"09:00",isAvailable:true}, ...]
         const map = new Map(arr.map(x => [Number((x.hour || "00").split(":")[0]), !!x.isAvailable]));
-        const v = hours.map(h => ({ hour: h, isAvailable: map.get(h) !== false })); // 예약됨/대기는 false로 내려올 것
+        const v = hours.map(h => ({ hour: h, isAvailable: map.get(h) !== false }));
         setSlots(v);
         setSelected([]);
       } catch (e) {
@@ -92,11 +92,17 @@ export default function ReservationModal({ facility, onClose }) {
   }
 
   return (
-    <div className="resv-modal-backdrop" onClick={onClose}>
+    // ⚠️ 기존: onClick={onClose}로 백그라운드가 클릭을 가로채며 사이드바를 막음
+    // 수정: 배경은 시각적(디밍)만 하고 클릭을 통과시킴 (pointer-events: none)
+    <div className="resv-modal-backdrop">
+      {/* 시각적 디밍 레이어 (클릭 통과) */}
+      <div className="resv-dim" />
+
+      {/* 실제 인터랙션은 모달만 받음 */}
       <div className="resv-modal" onClick={(e)=>e.stopPropagation()}>
         <header className="rm-head">
           <h3>{facility.name}</h3>
-          <button className="icon" onClick={onClose}>✕</button>
+          <button className="icon" onClick={onClose} aria-label="닫기">✕</button>
         </header>
 
         <section className="rm-section">
@@ -142,8 +148,13 @@ export default function ReservationModal({ facility, onClose }) {
           )}
 
           <label>예상 인원 *</label>
-          <input type="number" min={1} max={facility.maxCapacity||999}
-                 value={headcount} onChange={e=>setHeadcount(Number(e.target.value))}/>
+          <input
+            type="number"
+            min={1}
+            max={facility.maxCapacity||999}
+            value={headcount}
+            onChange={e=>setHeadcount(Number(e.target.value))}
+          />
           <p className="muted">정원 {facility.maxCapacity ?? "-"}명</p>
         </section>
 

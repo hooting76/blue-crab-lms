@@ -112,14 +112,14 @@ function Header({ currentPage, setCurrentPage }) {
                 style={{ visibility: subMenu2Visibility }}
               >
                 <tbody>
-                  {/* FIX: 공지사항 → 기본 학사공지로 진입 */}
-                  <tr><td onClick={() => setCurrentPage("학사공지")}>공지사항</td></tr>
-                  {/* 단일 */}
-                  <tr><td onClick={() => setCurrentPage("FAQ")}>FAQ</td></tr>
-                  {/* 시설 & 문의 → 기본 ‘신청폼(시설신청)’로 진입 */}
-                  <td onClick={() => {
-                    navigate('/Community', { state: { page: '시설신청' }, replace: true });
-                    setCurrentPage?.('시설신청');}}>시설 & 문의</td>
+                {/* 공지사항 → 기본 학사공지로 진입 */}
+                  <tr><td onClick={() => { setCurrentPage("학사공지"); closeAllSubMenus(); }}>공지사항</td></tr>
+                
+                {/* FAQ */}
+                  <tr><td onClick={() => { setCurrentPage("FAQ"); closeAllSubMenus(); }}>FAQ</td></tr>
+
+                {/* 시설 & 문의 묶음 */}
+                  <tr><td onClick={() => { setCurrentPage("시설물 예약"); closeAllSubMenus(); }}>시설&문의</td></tr>
                 </tbody>
               </table>
 
@@ -203,6 +203,7 @@ function Header({ currentPage, setCurrentPage }) {
             <li onClick={() => { setCurrentPage("총장 인사"); closeAllSubMenus(); }}>학교소개</li>
             <li onClick={() => { setCurrentPage("학사공지"); closeAllSubMenus(); }}>커뮤니티</li>
             {/* 마이페이지 → 수강중인 과목으로 진입 */}
+            <li onClick={() => { setCurrentPage("시설물 예약"); closeAllSubMenus(); }}>시설&문의</li>
             <li onClick={() => { setCurrentPage("수강중인 과목"); closeAllSubMenus(); }}>마이페이지</li>
             <li onClick={() => { setCurrentPage("수강신청"); closeAllSubMenus(); }}>수강신청</li>
           </ul>
