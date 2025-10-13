@@ -101,6 +101,7 @@
   height: 800px;
   background-color: white;
   border-radius: 10px;
+  margin-right: 25px;
 }
 
 .lectureNotice {
@@ -108,7 +109,7 @@
   height: 500px;
   background-color: lightyellow;
   border-radius: 10px;
-  margin: 10px;
+  margin: 0 10px 10px;
 }
 
 .attendanceStatus {
@@ -123,6 +124,7 @@
   height: 800px;
   background-color: azure;
   border-radius: 10px;
+  margin-left: 25px;
 }
 
 .attendance, .absence, .attendanceCall {
