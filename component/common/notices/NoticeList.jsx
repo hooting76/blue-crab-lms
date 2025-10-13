@@ -69,15 +69,10 @@ export default function NoticeList({
           const res = await getNotices(accessToken, page, size, boardCode);
           if (!alive) return;
 
-          const allItems = Array.isArray(res.content) ? res.content : [];
-
-          // ✅ BOARD_CODE 필터링
-          const filtered = boardCode === "0" ? 
-            allItems : 
-            allItems.filter((item) => String(item.boardCode) === String(boardCode));
+          const items = Array.isArray(res.content) ? res.content : [];
 
           // ✅ 최신순 정렬 (작성일 기준)
-          filtered.sort((a, b) => (b.boardReg || "").localeCompare(a.boardReg || ""));
+          items.sort((a, b) => (b.boardReg || "").localeCompare(a.boardReg || ""));
 
           // ✅ 페이징 처리
           // const start = (page - 1) * size;
@@ -85,7 +80,7 @@ export default function NoticeList({
           // const pageItems = filtered.slice(start, end);
 
           setState({
-            items: filtered,
+            items,
             total: res.totalElements || 0,
             loading: false
           });
