@@ -96,16 +96,16 @@ const [isModalOpen, setIsModalOpen] = useState(false);
             </select>
 
             <div className="classAttendingContent">
-                <span className="noticeAndChat">
+                <div className="noticeAndChat">
                     <div className="lectureNotice">
                         과목별 공지사항
                     </div>
                     <div className="lectureChat">
                         실시간 채팅
                     </div>
-                </span>
+                </div>
 
-                <span className="attendanceStatus">
+                <div className="attendanceStatus">
                     출결
                     <div className="attendance">
                         출석일수<br/>
@@ -126,9 +126,9 @@ const [isModalOpen, setIsModalOpen] = useState(false);
                     </div>
                     {/* 모달 렌더링 */}
                     {isModalOpen && <ApproveAttendanceModal onClose={closeModal} />}
-                </span>
+                </div>
 
-                <span className="testAssignment">
+                <div className="testAssignment">
                     시험 및 과제
                     <div className="test">
                         중간고사 : 점<br/>
@@ -138,7 +138,7 @@ const [isModalOpen, setIsModalOpen] = useState(false);
                         과제1 : 점<br/>
                         과제2 : 점
                     </div>
-                </span>
+                </div>
             </div>
         {/* <div className='classAttending_text'>
             수강과목 클릭 시 해당과목 진행사항 표시
