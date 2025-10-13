@@ -665,7 +665,11 @@
             try {
                 updateResponse(userType, '🔄 토큰 갱신 중...', 'loading');
                 
-                const response = await fetch(`${apiUrl}/api/auth/refresh`, {
+                const refreshEndpoint = userType === 'admin'
+                    ? `${apiUrl}/api/admin/auth/refresh`
+                    : `${apiUrl}/api/auth/refresh`;
+
+                const response = await fetch(refreshEndpoint, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
