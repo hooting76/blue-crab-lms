@@ -125,6 +125,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/admin/login").permitAll() // 어드민 1차 로그인 허용
                 .requestMatchers("/api/admin/verify-email").permitAll() // 어드민 이메일 인증 허용
                 .requestMatchers("/api/admin/email-auth/**").permitAll() // 어드민 이메일 인증코드 시스템 허용
+                .requestMatchers("/api/admin/auth/refresh").permitAll() // 어드민 리프레시 토큰 재발급 허용
                 .requestMatchers("/api/ping").permitAll() // 연결 테스트 엔드포인트
                 .requestMatchers("/", "/status").permitAll() // 메인 페이지 및 상태 페이지
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/config/**").permitAll() // 정적 리소스

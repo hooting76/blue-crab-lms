@@ -322,11 +322,30 @@ public class FcmTokenService {
 
     /**
      * 특정 사용자에게 알림 전송
+     * targetType과 targeta 필드를 사용한 새로운 방식 또는 userCode를 사용한 기존 방식 지원
      */
     public FcmSendResponse sendNotification(FcmSendRequest request) {
-        String userCode = request.getUserCode();
+        // 새로운 방식: targetType과 targeta 사용
+        if (request.getTargetType() != null && request.getTargeta() != null && !request.getTargeta().isEmpty()) {
+            logger.info("FCM 알림 전송 요청 (새 방식) - 타입: {}, 대상 수: {}, 제목: {}",
+                    request.getTargetType(), request.getTargeta().size(), request.getTitle());
 
-        logger.info("FCM 알림 전송 요청 - 대상: {}, 제목: {}", userCode, request.getTitle());
+            // USER 타입인 경우 여러 사용자에게 전송
+            if ("USER".equalsIgnoreCase(request.getTargetType())) {
+                return sendToMultipleUsers(request);
+            } else {
+                logger.warn("지원하지 않는 targetType: {}", request.getTargetType());
+                throw new IllegalArgumentException("지원하지 않는 targetType입니다: " + request.getTargetType());
+            }
+        }
+
+        // 기존 방식: userCode 사용
+        String userCode = request.getUserCode();
+        if (userCode == null || userCode.trim().isEmpty()) {
+            throw new IllegalArgumentException("userCode 또는 (targetType + targeta)가 필요합니다");
+        }
+
+        logger.info("FCM 알림 전송 요청 (기존 방식) - 대상: {}, 제목: {}", userCode, request.getTitle());
 
         Optional<FcmToken> fcmTokenOpt = fcmTokenRepository.findByUserCode(userCode);
         if (!fcmTokenOpt.isPresent()) {
@@ -346,6 +365,34 @@ public class FcmTokenService {
 
         // 웹 전송
         sendToPlatform(fcmToken, "WEB", request, sent, failedReasons);
+
+        return new FcmSendResponse("success", sent, failedReasons);
+    }
+
+    /**
+     * 여러 사용자에게 알림 전송 (새로운 방식)
+     */
+    private FcmSendResponse sendToMultipleUsers(FcmSendRequest request) {
+        List<String> userCodes = request.getTargeta();
+        Map<String, Boolean> sent = new HashMap<>();
+        Map<String, String> failedReasons = new HashMap<>();
+
+        for (String userCode : userCodes) {
+            Optional<FcmToken> fcmTokenOpt = fcmTokenRepository.findByUserCode(userCode);
+            if (!fcmTokenOpt.isPresent()) {
+                logger.warn("FCM 토큰 정보 없음 - 사용자: {}", userCode);
+                sent.put(userCode, false);
+                failedReasons.put(userCode, "사용자의 FCM 토큰 정보를 찾을 수 없습니다");
+                continue;
+            }
+
+            FcmToken fcmToken = fcmTokenOpt.get();
+
+            // 각 플랫폼으로 전송
+            sendToPlatform(fcmToken, "ANDROID", request, sent, failedReasons);
+            sendToPlatform(fcmToken, "IOS", request, sent, failedReasons);
+            sendToPlatform(fcmToken, "WEB", request, sent, failedReasons);
+        }
 
         return new FcmSendResponse("success", sent, failedReasons);
     }

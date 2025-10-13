@@ -6,12 +6,14 @@ import BlueCrab.com.example.entity.AdminTbl;
 import BlueCrab.com.example.repository.AdminTblRepository;
 import BlueCrab.com.example.util.SHA256Util;
 import BlueCrab.com.example.util.JwtUtil;
+import BlueCrab.com.example.util.AdminJwtTokenBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import BlueCrab.com.example.exception.UnauthorizedException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -38,6 +40,27 @@ public class AdminService {
 
     private static final Logger logger = LoggerFactory.getLogger(AdminService.class);
 
+    /**
+     * 관리자 토큰 재발급 결과 DTO
+     */
+    public static class AdminTokenRefreshResult {
+        private final AdminJwtTokenBuilder.TokenPair tokenPair;
+        private final AdminTbl admin;
+
+        public AdminTokenRefreshResult(AdminJwtTokenBuilder.TokenPair tokenPair, AdminTbl admin) {
+            this.tokenPair = tokenPair;
+            this.admin = admin;
+        }
+
+        public AdminJwtTokenBuilder.TokenPair getTokenPair() {
+            return tokenPair;
+        }
+
+        public AdminTbl getAdmin() {
+            return admin;
+        }
+    }
+
     @Autowired
     private AdminTblRepository adminRepository;
 
@@ -49,6 +72,12 @@ public class AdminService {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private AdminJwtTokenBuilder adminJwtTokenBuilder;
+
+    @Autowired
+    private TokenBlacklistService tokenBlacklistService;
 
     @Value("${app.frontend.base-url:http://localhost:3000}")
     private String frontendBaseUrl;
@@ -225,5 +254,74 @@ public class AdminService {
             logger.error("Unexpected error during email verification", e);
             throw new RuntimeException("이메일 인증 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
         }
+    }
+
+    /**
+     * 관리자 리프레시 토큰을 사용해 새로운 토큰 쌍을 발급한다.
+     *
+     * @param refreshToken 클라이언트가 보유한 관리자 리프레시 토큰
+     * @return 새로 발급된 토큰 쌍과 관리자 정보
+     */
+    public AdminTokenRefreshResult refreshAdminToken(String refreshToken) {
+        if (refreshToken == null || refreshToken.trim().isEmpty()) {
+            throw new IllegalArgumentException("리프레시 토큰이 필요합니다.");
+        }
+
+        String token = refreshToken.trim();
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
+        if (tokenBlacklistService.isRefreshTokenBlacklisted(token)) {
+            throw new UnauthorizedException("이미 사용된 리프레시 토큰입니다. 다시 로그인해주세요.");
+        }
+
+        if (!jwtUtil.isTokenValid(token)) {
+            throw new UnauthorizedException("리프레시 토큰이 만료되었거나 유효하지 않습니다. 다시 로그인해주세요.");
+        }
+
+        if (!jwtUtil.isRefreshToken(token)) {
+            throw UnauthorizedException.forInvalidToken();
+        }
+
+        String adminId = jwtUtil.getAdminId(token);
+        if (adminId == null || adminId.trim().isEmpty()) {
+            adminId = jwtUtil.extractUsername(token);
+        }
+
+        if (adminId == null || adminId.trim().isEmpty()) {
+            throw UnauthorizedException.forInvalidToken();
+        }
+
+        Optional<AdminTbl> optionalAdmin = adminRepository.findByAdminId(adminId);
+        if (!optionalAdmin.isPresent()) {
+            throw new UnauthorizedException("관리자 계정을 찾을 수 없습니다.");
+        }
+
+        AdminTbl admin = optionalAdmin.get();
+
+        Map<String, Object> statusInfo = redisService.validateAdminStatus(adminId);
+        String cachedStatus = (String) statusInfo.get("cachedStatus");
+        if ("suspended".equals(cachedStatus)) {
+            Boolean isStillSuspended = (Boolean) statusInfo.get("isStillSuspended");
+            if (Boolean.TRUE.equals(isStillSuspended)) {
+                @SuppressWarnings("unchecked")
+                Map<String, String> suspendInfo = (Map<String, String>) statusInfo.get("suspendInfo");
+                String reason = suspendInfo != null ? suspendInfo.getOrDefault("reason", "관리자에 의해 정지") : "관리자에 의해 정지";
+                Long remainingTime = (Long) statusInfo.get("remainingTime");
+                long remainingMinutes = remainingTime != null ? Math.max(0L, remainingTime) / (60_000L) : 0;
+                throw new UnauthorizedException("계정이 정지되었습니다. 사유: " + reason + " (남은 시간: " + remainingMinutes + "분)");
+            }
+        } else if ("banned".equals(cachedStatus)) {
+            throw new UnauthorizedException("계정이 영구 차단되었습니다. 관리자에게 문의하세요.");
+        }
+
+        long expirationMillis = jwtUtil.getTokenExpiration(token);
+        tokenBlacklistService.addRefreshTokenToBlacklist(token, expirationMillis);
+
+        AdminJwtTokenBuilder.TokenPair newTokens = adminJwtTokenBuilder.buildTokenPair(admin);
+        logger.info("Admin refresh token issued - adminId: {}", adminId);
+
+        return new AdminTokenRefreshResult(newTokens, admin);
     }
 }

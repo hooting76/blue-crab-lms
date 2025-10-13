@@ -5,7 +5,7 @@ import NoticeTable from "./NoticeTable";
 import Pagination from "../notices/Pagination";
 import { UseUser } from "../../../hook/UseUser";
 import { UseAdmin } from "../../../hook/UseAdmin";
-import getNotices from "../../api/noticeAPI";
+import { getNoticesByCode } from "../../api/noticeAPI";
 import "../../../css/Communities/Notice-ui.css";
 
 export default function NoticeList({
@@ -66,27 +66,17 @@ export default function NoticeList({
             return;
           }
 
-          const res = await getNotices(accessToken, page, size);
+          const res = await getNoticesByCode(accessToken, boardCode, page - 1, size);
           if (!alive) return;
 
-          const allItems = Array.isArray(res.content) ? res.content : [];
-
-          // ✅ BOARD_CODE 필터링
-          const filtered = boardCode === "0" ? 
-            allItems : 
-            allItems.filter((item) => String(item.boardCode) === String(boardCode));
+          const items = Array.isArray(res.content) ? res.content : [];
 
           // ✅ 최신순 정렬 (작성일 기준)
-          filtered.sort((a, b) => (b.boardReg || "").localeCompare(a.boardReg || ""));
-
-          // ✅ 페이징 처리
-          const start = (page - 1) * size;
-          const end = start + size;
-          const pageItems = filtered.slice(start, end);
+          items.sort((a, b) => (b.boardReg || "").localeCompare(a.boardReg || ""));
 
           setState({
-            items: pageItems,
-            total: filtered.length,
+            items,
+            total: res.totalElements || 0,
             loading: false
           });
         } catch (error) {

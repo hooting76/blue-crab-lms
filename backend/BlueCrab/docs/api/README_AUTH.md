@@ -49,6 +49,16 @@ Content-Type: application/json
 }
 ```
 
+### 2-1. 관리자 토큰 리프레시
+```http
+POST /api/admin/auth/refresh
+Content-Type: application/json
+
+{
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
 ### 3. 로그아웃
 ```http
 POST /api/auth/logout

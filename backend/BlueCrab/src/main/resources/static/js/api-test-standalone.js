@@ -240,8 +240,14 @@ async function sendRequest() {
         'Content-Type': 'application/json',
     };
 
-    // 인증이 필요한 엔드포인트에 토큰 추가
-    if (endpoint !== 'ping' && endpoint !== 'health' && accessToken) {
+    // Authorization 헤더 추가 로직 개선
+    // permitAll 엔드포인트를 제외한 모든 /api/ 요청에 토큰 추가
+    const permitAllEndpoints = ['ping', 'health', 'login', 'register'];
+    const shouldAddAuth = !permitAllEndpoints.includes(endpoint) &&
+                          url.includes('/api/') &&
+                          accessToken;
+
+    if (shouldAddAuth) {
         headers['Authorization'] = `Bearer ${accessToken}`;
     }
 

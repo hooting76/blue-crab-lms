@@ -71,6 +71,10 @@ const attendanceRequestSubmit = (e) => {
     alert("출석인정 신청이 완료되었습니다.");
 }
 
+const profNoticeWrite = () => {
+    alert("과목별 공지 작성 페이지 준비중");
+}
+
 const [isModalOpen, setIsModalOpen] = useState(false);
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
@@ -98,6 +102,10 @@ const [isModalOpen, setIsModalOpen] = useState(false);
                     <div className="lectureNotice">
                         과목별 공지사항
                     </div>
+                    <div className="profNoticeWriteBtn">
+                        {user.data.user.userStudent === 1 &&
+                        <button onClick={profNoticeWrite}>과목별 공지 작성</button>}
+                    </div>
                     <div className="lectureChat">
                         실시간 채팅
                     </div>
@@ -107,12 +115,12 @@ const [isModalOpen, setIsModalOpen] = useState(false);
                     출결
                     <div className="attendance">
                         출석일수<br/>
-                        전체 (강의일수) 중<br/>
+                        전체 (강의일수)일 중<br/>
                         (출석일수)회
                     </div>
                     <div className="absence">
                         결석일수<br/>
-                        전체 (강의일수) 중<br/>
+                        전체 (강의일수)일 중<br/>
                         (결석일수)회
                     </div>
                     <div className="attendanceCall">
