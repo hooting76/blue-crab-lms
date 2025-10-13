@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import CommunitySidebar from "../notices/CommunitySidebar";
-import { postMyReservationsByStatus, deleteReservation } from "../../../src/api/facility";
+import { postMyReservationsByStatus, cancelReservation } from "../../../src/api/facility";
 import "../../../css/Facilities/FacilityReserve.css";
 
 const ENUM = { PENDING:"PENDING", APPROVED:"APPROVED", REJECTED:"REJECTED", CANCELLED:"CANCELLED", COMPLETED:"COMPLETED" };
@@ -53,7 +53,7 @@ export default function MyFacilityRequests(){
   const cancel = async (r) => {
     if(!canCancel(r.status)) return;
     if(!window.confirm("이 예약을 취소하시겠습니까?")) return;
-    try{ await deleteReservation(r.reservationIdx); await load(); }
+    try{ await cancelReservation(r.reservationIdx); await load(); }
     catch(e){ alert(e?.response?.data?.message || "취소 중 오류가 발생했습니다."); }
   };
 
