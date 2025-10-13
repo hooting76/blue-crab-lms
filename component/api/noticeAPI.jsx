@@ -106,9 +106,13 @@ export const deleteNotice = async (accessToken, boardIdx) => {
 // 특정 코드의 게시글 목록 조회
 export const getNoticesByCode = async (accessToken, boardCode, page = 0, size = 10) => {
   try {
-    const response = await fetch(`${BASE_URL}/bycode/${boardCode}?page=${page}&size=${size}`, {
+    const response = await fetch(`${BASE_URL}/bycode`, {
       method: 'POST',
-      headers: getHeaders(accessToken)
+      headers: {
+        ...getHeaders(accessToken),
+        'Content-Type': 'application/json',  // JSON 형식임을 명시
+      },
+      body: JSON.stringify({ boardCode, page, size })  // POST 바디에 담기
     });
     if (!response.ok) throw new Error('게시글 목록을 불러오는데 실패했습니다.');
     return await response.json();
@@ -117,5 +121,6 @@ export const getNoticesByCode = async (accessToken, boardCode, page = 0, size = 
     throw error;
   }
 };
+
 
 export default getNotices;
