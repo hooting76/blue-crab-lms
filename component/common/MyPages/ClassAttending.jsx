@@ -75,6 +75,10 @@ const profNoticeWrite = () => {
     alert("과목별 공지 작성 페이지 준비중");
 }
 
+const registerClass = () => {
+    alert("강의 등록 페이지 준비중");
+}
+
 const [isModalOpen, setIsModalOpen] = useState(false);
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
@@ -134,15 +138,21 @@ const [isModalOpen, setIsModalOpen] = useState(false);
                     {isModalOpen && <ApproveAttendanceModal onClose={closeModal} />}
                 </div>
 
-                <div className="testAssignment">
-                    시험 및 과제
-                    <div className="test">
-                        중간고사 : 점<br/>
-                        기말고사 : 점
+                <div className="testAssignmentEtc">
+                    <div className='testAssignment'>
+                        시험 및 과제
+                        <div className="test">
+                            중간고사 : 점<br/>
+                            기말고사 : 점
+                        </div>
+                        <div className="assignment">
+                            과제1 : 점<br/>
+                            과제2 : 점
+                        </div>
                     </div>
-                    <div className="assignment">
-                        과제1 : 점<br/>
-                        과제2 : 점
+                    <div className='classRegister'>
+                        {user.data.user.userStudent === 1 &&
+                        <button onClick={registerClass}>강의 등록</button>}
                     </div>
                 </div>
             </div>
