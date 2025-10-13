@@ -66,7 +66,7 @@ async function getMyAssignments() {
                 console.log(`   점수: ${assignment.SCORE || 'N/A'}점`);
             });
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -107,7 +107,7 @@ async function getAssignmentDetail() {
             console.log(`   점수: ${assignment.SCORE || 'N/A'}점`);
             console.log(`   피드백: ${assignment.FEEDBACK || 'N/A'}`);
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -152,7 +152,7 @@ try {
             console.log('\n✅ 제출 성공!');
             console.log('📊 제출 정보:', result.data);
         } else {
-            console.log('❌ 제출 실패:', result.message);
+            console.log('❌ 제출 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -197,7 +197,7 @@ try {
             console.log('\n✅ 재제출 성공!');
             console.log('📊 재제출 정보:', result.data);
         } else {
-            console.log('❌ 재제출 실패:', result.message);
+            console.log('❌ 재제출 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -235,7 +235,7 @@ async function cancelSubmission() {
             console.log('\n✅ 제출취소 성공!');
             console.log('📊 결과:', result.message);
         } else {
-            console.log('❌ 제출취소 실패:', result.message);
+            console.log('❌ 제출취소 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);

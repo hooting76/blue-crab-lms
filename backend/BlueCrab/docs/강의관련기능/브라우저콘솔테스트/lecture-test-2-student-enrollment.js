@@ -53,7 +53,7 @@ async function getAvailableLectures() {
                 console.log(`${idx + 1}. ${lecture.LECTURE_NAME} (${lecture.LECTURE_CODE}) - ${lecture.PROFESSOR_NAME || 'N/A'} - ${lecture.CURRENT_STUDENTS || 0}/${lecture.MAX_STUDENTS}명`);
             });
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -85,7 +85,7 @@ async function enrollLecture() {
             console.log(`✅ 수강신청 성공! (ID: ${result.data.ENROLLMENT_IDX})`);
             window.lastEnrollmentIdx = result.data.ENROLLMENT_IDX;
         } else {
-            console.log('❌ 실패:', result.message);
+            console.log('❌ 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러:', error.message);
@@ -130,7 +130,7 @@ async function getMyEnrollments() {
                 console.log(`   신청일: ${enrollment.ENROLLED_AT}`);
             });
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -170,7 +170,7 @@ async function cancelEnrollment() {
             console.log('\n✅ 수강취소 성공!');
             console.log('📊 결과:', result.message);
         } else {
-            console.log('❌ 수강취소 실패:', result.message);
+            console.log('❌ 수강취소 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -212,7 +212,7 @@ async function getLectureDetail() {
             console.log(`   강의실: ${lecture.LECTURE_ROOM}`);
             console.log(`   설명: ${lecture.LECTURE_DESCRIPTION || 'N/A'}`);
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);

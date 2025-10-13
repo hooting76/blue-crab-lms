@@ -60,7 +60,7 @@ async function getLectureStatistics() {`n    if (!checkAuth()) return;`n    cons
             console.log(`   평균 수강률: ${stats.AVERAGE_ENROLLMENT_RATE}%`);
             console.log(`   평균 정원: ${stats.AVERAGE_CAPACITY}명`);
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -97,7 +97,7 @@ async function getStudentStatistics() {`n    if (!checkAuth()) return;`n    cons
             console.log(`   평균 점수: ${stats.AVERAGE_SCORE}점`);
             console.log(`   평균 제출률: ${stats.SUBMISSION_RATE}%`);
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -133,7 +133,7 @@ async function getProfessorStatistics() {`n    if (!checkAuth()) return;`n    co
             console.log(`   평균 과제 점수: ${stats.AVERAGE_ASSIGNMENT_SCORE}점`);
             console.log(`   평균 강의 평가: ${stats.AVERAGE_LECTURE_RATING}점`);
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -173,7 +173,7 @@ async function getSemesterTrends() {`n    if (!checkAuth()) return;`n    const t
                 });
             }
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -214,7 +214,7 @@ async function getPopularLectures() {`n    if (!checkAuth()) return;`n    const 
                 });
             }
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -254,7 +254,7 @@ async function getDepartmentStatistics() {`n    if (!checkAuth()) return;`n    c
                 });
             }
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);

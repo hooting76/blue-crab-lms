@@ -65,7 +65,7 @@ async function getMyLectures() {
                 console.log(`   학기: ${lecture.YEAR}-${lecture.SEMESTER}`);
             });
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -118,7 +118,7 @@ try {
             window.lastAssignmentIdx = result.data.ASSIGNMENT_IDX;
             console.log(`💾 저장된 ASSIGNMENT_IDX: ${window.lastAssignmentIdx}`);
         } else {
-            console.log('❌ 과제 생성 실패:', result.message);
+            console.log('❌ 과제 생성 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -162,7 +162,7 @@ async function getAssignments() {
                 console.log(`   제출 수: ${assignment.SUBMISSION_COUNT || 0}개`);
             });
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -205,7 +205,7 @@ async function getSubmissions() {
                 console.log(`   상태: ${submission.SUBMISSION_STATUS}`);
             });
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -248,7 +248,7 @@ try {
             console.log('\n✅ 채점 성공!');
             console.log('📊 채점 정보:', result.data);
         } else {
-            console.log('❌ 채점 실패:', result.message);
+            console.log('❌ 채점 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -293,7 +293,7 @@ try {
             console.log('\n✅ 수정 성공!');
             console.log('📊 수정된 과제:', result.data);
         } else {
-            console.log('❌ 수정 실패:', result.message);
+            console.log('❌ 수정 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -331,7 +331,7 @@ async function deleteAssignment() {
             console.log('\n✅ 삭제 성공!');
             console.log('📊 결과:', result.message);
         } else {
-            console.log('❌ 삭제 실패:', result.message);
+            console.log('❌ 삭제 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
