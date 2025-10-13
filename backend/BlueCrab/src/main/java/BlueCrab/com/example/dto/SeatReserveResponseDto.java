@@ -21,13 +21,13 @@ public class SeatReserveResponseDto {
     /**
      * 사용 시작 시간
      */
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startTime;
     
     /**
      * 사용 종료 예정 시간
      */
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endTime;
     
     /**

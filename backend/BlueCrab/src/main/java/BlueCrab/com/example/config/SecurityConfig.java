@@ -127,7 +127,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/admin/email-auth/**").permitAll() // 어드민 이메일 인증코드 시스템 허용
                 .requestMatchers("/api/ping").permitAll() // 연결 테스트 엔드포인트
                 .requestMatchers("/", "/status").permitAll() // 메인 페이지 및 상태 페이지
-                .requestMatchers("/css/**", "/js/**", "/images/**").permitAll() // 정적 리소스
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/config/**").permitAll() // 정적 리소스
                 
                 // � 게시판 조회 API (임시로 모두 허용 - 디버깅용)
                 .requestMatchers("/api/boards/**").permitAll() //
