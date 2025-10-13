@@ -1,49 +1,39 @@
 /* ============ BlueCrab MyPage Profile  ============ */
 
+/* 안전한 기본 변수(fallback) */
 :root {
-  --bc-primary: #3B82F6;
-  --bc-primary-600: #2563EB;
-  --bc-line: #CBD5E1;
-  --bc-text: #1F2937;
+  --bc-primary: #3b82f6;
+  --bc-primary-600: #2563eb;
+  --bc-line: #cbd5e1;
+  --bc-text: #1f2937;
   --radius-sm: 10px;
+  --label-w: 112px; /* 데스크톱 기본 라벨 폭 */
 }
 
-/* 카드 전체 */
+/* 카드 */
 #bc-profile .profile-card {
   text-align: left;
-  padding: 24px;
+  padding: 20px;
   overflow: visible;
   max-width: 720px;
   margin: 0 auto;
-  position: relative;
 }
 
-/* 중앙 상단 제목 */
-#bc-profile .profile-card::before {
-  content: "개인정보 수정";
-  display: block;
-  text-align: center;
-  font-weight: 700;
-  font-size: 18px;
-  color: var(--bc-text);
-  margin-bottom: 20px;
-}
-
-/* 헤더 한 줄 (이미지 + 이름 + 학번·학생) */
+/* 헤더 행: 아바타(라벨 영역과 동일 폭) | 텍스트 */
 #bc-profile .head-row {
   display: flex;
-  align-items: center;       /* 수평 정렬 */
-  gap: 14px;
-  margin-bottom: 16px;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+  min-height: 56px;
 }
 
-/* 아바타 (폼 라벨과 같은 세로라인 맞춤) */
 #bc-profile .avatar-col {
-  width: 100px;
-  min-width: 100px;
+  width: var(--label-w);
+  min-width: var(--label-w);
   display: flex;
   justify-content: flex-start;
-  align-items: center;
+  align-items: flex-start;
 }
 
 #bc-profile .avatar.avatar-lg {
@@ -54,55 +44,68 @@
   border: 1px solid var(--bc-line);
 }
 
-/* 이름 / 학번·학생 */
+/* 이름 | 역할 한 줄 */
 #bc-profile .who {
+  flex: 1 1 auto;
   display: flex;
-  flex-direction: row;       /* 가로배치 */
-  align-items: center;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: flex-start;
+}
+#bc-profile .who-name-row {
+  display: flex;
+  align-items: baseline;
   gap: 8px;
 }
-
 #bc-profile .who-name {
   font-size: 16px;
   font-weight: 700;
   color: var(--bc-text);
 }
-
-#bc-profile .who-sub {
-  font-size: 14px;
-  color: #111;
+#bc-profile .who-sep {
+  opacity: 0.55;
 }
-
+#bc-profile .who-role {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+}
+#bc-profile .who-sub {
+  margin-top: 4px;
+  font-size: 13.5px;
+  color: #111;
+  line-height: 1.35;
+}
 #bc-profile .who-sub strong {
   font-weight: 700;
 }
 
-/* 라벨 | 인풋 정렬 */
+/* 폼 그리드 */
 #bc-profile .form-grid {
   display: grid;
   grid-template-columns: 1fr;
   row-gap: 12px;
 }
+
 #bc-profile .field {
   display: flex;
   align-items: center;
   gap: 12px;
 }
+
 #bc-profile .field > span {
-  width: 100px;
-  min-width: 100px;
+  width: var(--label-w);
+  min-width: var(--label-w);
   text-align: left;
   font-weight: 600;
   color: #374151;
+  line-height: 1.25;
 }
 
-/* 인풋 및 텍스트영역 */
-#bc-profile input[type="text"],
-#bc-profile input[type="email"],
-#bc-profile input[type="tel"],
-#bc-profile input[type="number"],
-#bc-profile textarea {
+/* 인풋 공통 */
+#bc-profile input[type='text'],
+#bc-profile input[type='email'],
+#bc-profile input[type='tel'],
+#bc-profile input[type='number'] {
   flex: 1 1 auto;
   height: 44px;
   padding: 12px 14px;
@@ -111,28 +114,43 @@
   background: #fff;
   color: var(--bc-text);
   outline: none;
-  transition: border-color .15s ease, box-shadow .15s ease;
   box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  white-space: normal;         /* 텍스트 잘림 방지 */
+  overflow: visible;
 }
 
-#bc-profile textarea {
-  min-height: 64px;
-  resize: vertical;
-  line-height: 1.4;
-  overflow: auto;
-}
-
-#bc-profile input:focus,
-#bc-profile textarea:focus {
+#bc-profile input:focus {
   border-color: var(--bc-primary);
-  box-shadow: 0 0 0 3px rgba(59,130,246,.12);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
 }
 
-/* 읽기전용 (이메일) */
+/* readOnly / disabled 시 시각적 구분 */
 #bc-profile input[readonly] {
-  border-color: var(--bc-line);
   background: #f8fafc;
+  color: #64748b;
+}
+#bc-profile input[disabled] {
+  background: #f1f5f9;
   color: #94a3b8;
+  cursor: not-allowed;
+  border-color: var(--bc-line);
+  box-shadow: none;
+}
+
+/* 주소 3분할 — 항상 세로 스택 */
+#bc-profile .addr-group {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;   /* ← 가로 대신 세로로 고정 */
+  gap: 8px;
+  align-items: stretch;
+}
+#bc-profile .addr-group .zip,
+#bc-profile .addr-group .addr-main,
+#bc-profile .addr-group .addr-detail {
+  width: 100%;
+  min-width: 0;
 }
 
 /* 버튼 영역 */
@@ -140,9 +158,8 @@
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  margin-top: 20px;
+  margin-top: 18px;
 }
-
 #bc-profile .btn {
   height: 42px;
   padding: 0 16px;
@@ -152,86 +169,28 @@
   color: #fff;
   font-weight: 700;
   cursor: pointer;
-  transition: background .15s ease, border-color .15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.02s ease;
 }
-
 #bc-profile .btn:hover {
   background: var(--bc-primary-600);
   border-color: var(--bc-primary-600);
 }
-
 #bc-profile .btn.secondary {
   background: #fff;
   color: #475569;
-  border-color: #CBD5E1;
+  border-color: #cbd5e1;
 }
-
 #bc-profile .btn.secondary:hover {
-  background: #F1F5F9;
-  border-color: #94A3B8;
+  background: #f1f5f9;
+  border-color: #94a3b8;
 }
 
 /* 반응형 */
+@media (max-width: 768px) {
+  :root { --label-w: 92px; }
+  #bc-profile .avatar.avatar-lg { width: 52px; height: 52px; }
+}
 @media (max-width: 480px) {
+  :root { --label-w: 84px; }
   #bc-profile .profile-card { padding: 16px; }
-  #bc-profile .head-row { flex-direction: column; align-items: flex-start; }
-  #bc-profile .who { flex-direction: column; align-items: flex-start; }
 }
-
-/* 헤더 한 줄 */
-#bc-profile .head-row {
-  display: flex;
-  align-items: center; /* 수평 기준선 */
-  gap: 14px;
-  margin-bottom: 16px;
-}
-
-/* 라벨 폭과 동일 → 세로 기준선 일치 */
-#bc-profile .avatar-col {
-  width: 100px;
-  min-width: 100px;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-/* 이름 + (아래줄) 학번 · 역할 */
-#bc-profile .who-vertical {
-  display: flex;
-  flex-direction: column;   /* ← 이름 밑에 학번 */
-  align-items: flex-start;
-  gap: 2px;
-}
-
-#bc-profile .who-name {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--bc-text);
-}
-
-#bc-profile .who-meta {
-  font-size: 14px;
-  color: #334155;
-}
-
-#bc-profile .who-meta strong { font-weight: 700; }
-
-/* 모든 입력 줄 간격 통일 */
-#bc-profile .form-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  row-gap: 12px;    /* ← 간격 한 번에 제어 */
-}
-#bc-profile .field {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-#bc-profile .field > span {
-  width: 100px;
-  min-width: 100px;
-  font-weight: 600;
-  color: #374151;
-}
-
-/* (옵션) 이미지 옆 작은 '개인정보 수정' 제거: 해당 엘리먼트 자체를 JSX에서 삭제했으므로 X */

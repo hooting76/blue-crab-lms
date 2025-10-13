@@ -1,68 +1,61 @@
-/* src/css/Certificates.css */
-#cert-page { padding: 16px; }
+/* ===== 화면 공용 ===== */
+#cert-page{max-width:920px;margin:0 auto;padding:12px 16px 48px}
+.cert-actions{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.cert-actions .spacer,.print-modal-head .grow{flex:1 1 auto}
+.cert-actions .tab{height:40px;padding:0 16px;border-radius:10px;border:1px solid #cbd5e1;background:#fff;font-weight:700;color:#1f2937;cursor:pointer}
+.cert-actions .tab.active{background:#3b82f6;border-color:#3b82f6;color:#fff}
+.cert-actions .btn.primary{height:40px;padding:0 16px;border-radius:10px;border:1px solid #3b82f6;background:#3b82f6;color:#fff;font-weight:800;cursor:pointer}
+.cert-actions .btn.ghost{height:36px;padding:0 12px;border-radius:10px;border:1px solid #cbd5e1;background:#fff;color:#334155;cursor:pointer}
 
-/* 화면용 상단 액션바 */
-.cert-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.cert-actions .spacer { flex: 1 1 auto; }
-.cert-actions .tab {
-  height: 36px; padding: 0 12px; border-radius: 8px;
-  border: 1px solid #CBD5E1; background: #fff; cursor: pointer;
-}
-.cert-actions .tab.active { border-color: #3B82F6; color: #3B82F6; font-weight: 700; }
-.cert-actions .btn.primary {
-  height: 36px; padding: 0 14px; border-radius: 8px;
-  border: 1px solid #3B82F6; background: #3B82F6; color: #fff; font-weight: 700;
-}
+.cert-paper{background:#fff;border-radius:12px;box-shadow:0 6px 20px rgba(2,6,23,.08);padding:28px 28px 36px}
+.cert-header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.cert-header .logo-area img{width:48px;height:48px}
+.cert-header .title{font-size:28px;font-weight:900;letter-spacing:.02em}
+.cert-body .row{display:grid;grid-template-columns:160px 1fr 120px;align-items:stretch;min-height:54px;border-top:1px solid #e5e7eb}
+.cert-body .row:first-of-type{border-top:0}
+.cert-body .row>.label{display:flex;align-items:center;justify-content:center;font-weight:800;background:#f8fafc;color:#111827}
+.cert-body .row>.value{display:flex;align-items:center;padding:0 14px}
+.cert-body .row>.photo{display:flex;align-items:center;justify-content:center;border-left:1px solid #e5e7eb}
+.cert-body .row>.photo img{width:108px;height:108px;object-fit:cover;border:1px solid #cbd5e1;border-radius:6px}
+.cert-body .desc{margin:18px 0 8px;text-align:center;color:#64748b;font-weight:700}
+.cert-body .sig{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-weight:800}
 
-/* A4 비율 느낌의 용지 박스 */
-.cert-paper {
-  width: 800px; max-width: 100%;
-  margin: 0 auto; padding: 32px;
-  background: #fff; color: #111;
-  border: 1px solid #E5E7EB; border-radius: 12px;
-}
+/* 인쇄 미리보기 모달 */
+.print-overlay{position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center}
+.print-modal{width:min(1000px,calc(100vw - 40px));max-height:calc(100vh - 40px);background:#fff;border-radius:12px;overflow:auto;box-shadow:0 20px 60px rgba(2,6,23,.2)}
+.print-modal-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;padding:12px;border-bottom:1px solid #e5e7eb;background:#fff}
 
-.cert-header {
-  display: grid; grid-template-columns: 72px 1fr;
-  align-items: center; gap: 12px; margin-bottom: 16px;
-}
-.cert-header .logo-area img { width: 72px; height: 72px; }
-.cert-header .title {
-  font-size: 28px; font-weight: 800; text-align: center;
-}
 
-/* 본문 */
-.cert-body .row {
-  display: grid; grid-template-columns: 120px 1fr 120px;
-  align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid #F1F5F9;
-}
-.cert-body .row .label { font-weight: 700; color: #334155; }
-.cert-body .row .value { padding-right: 8px; }
-.cert-body .row .photo { grid-row: span 3; text-align: right; }
-.cert-body .row .photo img {
-  width: 96px; height: 120px; object-fit: cover;
-  border: 1px solid #CBD5E1;
-}
-
-.cert-body .desc { margin: 24px 0 12px; font-size: 15px; }
-.cert-body .sig {
-  margin-top: 24px; display: flex; justify-content: space-between; align-items: center;
-  font-weight: 700;
-}
-
-/* 프린트 최적화 */
+/* ====== 프린트 전용 (수정) ====== */
 @media print {
-  .no-print { display: none !important; }
-  body { background: #fff; }
-  #cert-page { padding: 0; }
-  .cert-paper {
-    width: auto; border: none; border-radius: 0; padding: 16mm; /* 프린트 여백 */
+  @page { size: A4 portrait; margin: 10mm; }
+
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
-  .cert-header .title { font-size: 30px; }
-  .cert-body .row { border-bottom: 1px solid #e5e7eb; }
+
+  /* 기본적으로 모두 감추고 */
+  body * { visibility: hidden !important; }
+
+  /* 프린트 타깃만 보이게 */
+  #cert-print, #cert-print * { visibility: visible !important; }
+
+  /* 타깃을 페이지에 고정 */
+  #cert-print {
+    position: fixed; inset: 0;
+    margin: 0 !important;
+    padding: 0 6mm !important;   /* 좌우 살짝 여백 */
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+  }
+
+  /* 화면 전용 UI만 숨김(부모 오버레이는 숨기지 않음) */
+  .cert-actions,
+  header, footer,
+  .sheet-root { display: none !important; }
 }

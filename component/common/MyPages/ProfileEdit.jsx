@@ -1,10 +1,9 @@
-// src/component/common/MyPages/ProfileEdit.jsx
 import { useEffect, useMemo, useState } from 'react';
 import { getMyProfile, getMyProfileImage } from '../../../src/api/profileApi';
 import '../../../css/MyPages/ProfileEdit.css';
 
-const phoneMask = (v='') =>
-  v.replace(/[^\d]/g,'').replace(/(\d{3})(\d{3,4})(\d{4})/, '$1-$2-$3');
+const phoneMask = (v = '') =>
+  v.replace(/[^\d]/g, '').replace(/(\d{3})(\d{3,4})(\d{4})/, '$1-$2-$3');
 const yyyymmddOk = (s) => /^\d{8}$/.test(s);
 
 export default function ProfileEdit() {
@@ -19,7 +18,10 @@ export default function ProfileEdit() {
     let revoked = false;
     (async () => {
       try {
-        setLoading(true); setErr(''); setMsg('');
+        setLoading(true);
+        setErr('');
+        setMsg('');
+
         const wrapper = await getMyProfile();
         const p = wrapper?.data;
         if (!p) throw new Error('프로필 데이터가 없습니다.');
@@ -57,13 +59,17 @@ export default function ProfileEdit() {
         setLoading(false);
       }
     })();
-    return () => { revoked = true; };
+    return () => {
+      revoked = true;
+    };
   }, []);
 
   useEffect(() => {
     return () => {
       if (imageUrl && imageUrl.startsWith('blob:')) {
-        try { URL.revokeObjectURL(imageUrl); } catch (_) {}
+        try {
+          URL.revokeObjectURL(imageUrl);
+        } catch {}
       }
     };
   }, [imageUrl]);
@@ -77,18 +83,18 @@ export default function ProfileEdit() {
     return mail.includes('@') ? mail.split('@')[0] : '-';
   }, [form]);
 
-  // 역할 텍스트: userTypeText, 없으면 '학생'
+  // 역할 텍스트
   const roleText = useMemo(() => {
     if (!form) return '학생';
-    const s = (form.userTypeText || '').toString().trim();
-    return s || '학생';
+    const t = (form.userTypeText || '').toString().trim();
+    return t || '학생';
   }, [form]);
 
   const onChange = (k) => (e) => {
     let v = e.target.value ?? '';
-    if (k === 'userPhone') v = v.replace(/[^\d]/g,'').slice(0,11);
-    if (k === 'zipCode')   v = v.replace(/[^\d]/g,'').slice(0,5);
-    if (k === 'birthDate') v = v.replace(/[^\d]/g,'').slice(0,8);
+    if (k === 'userPhone') v = v.replace(/[^\d]/g, '').slice(0, 11);
+    if (k === 'zipCode') v = v.replace(/[^\d]/g, '').slice(0, 5);
+    if (k === 'birthDate') v = v.replace(/[^\d]/g, '').slice(0, 8);
     setForm((f) => ({ ...f, [k]: v }));
   };
 
@@ -101,8 +107,10 @@ export default function ProfileEdit() {
   const onSave = async () => {
     setMsg('');
     if (!form?.userName?.trim()) return setMsg('이름을 입력하세요.');
-    if (!/^\d{10,11}$/.test(form.userPhone)) return setMsg('전화번호는 숫자 10~11자리여야 합니다.');
-    if (form.birthDate && !yyyymmddOk(form.birthDate)) return setMsg('생년월일은 YYYYMMDD 8자리 형식입니다.');
+    if (!/^\d{10,11}$/.test(form.userPhone))
+      return setMsg('전화번호는 숫자 10~11자리여야 합니다.');
+    if (form.birthDate && !yyyymmddOk(form.birthDate))
+      return setMsg('생년월일은 YYYYMMDD 8자리 형식입니다.');
     setMsg('현재 개발 중입니다. 저장 API가 아직 연결되지 않았습니다.');
   };
 
@@ -113,10 +121,8 @@ export default function ProfileEdit() {
   return (
     <div id="bc-profile">
       <div className="profile-card">
-        {/* 상단 중앙 제목 (원하면 이 줄을 지워도 됨) */}
-        <h2 className="profile-main-title">개인정보 수정</h2>
-
-        {/* 헤더: 아바타 | (이름 / 학번 · 역할) - 이름 아래 줄로 학번 표시 */}
+        {/* (작은 서브타이틀 제거) 카드 내부만 구성 */}
+        {/* 헤더: 아바타 | (이름 | 역할) + 학번 */}
         <div className="head-row">
           <div className="avatar-col">
             <img
@@ -125,15 +131,19 @@ export default function ProfileEdit() {
               className="avatar avatar-lg"
             />
           </div>
-          <div className="who who-vertical">
-            <div className="who-name">{form.userName}</div>
-            <div className="who-meta">
-              학번 <strong>{idText}</strong> · {roleText}
+          <div className="who">
+            <div className="who-name-row">
+              <span className="who-name">{form.userName}</span>
+              <span className="who-sep">|</span>
+              <span className="who-role">{roleText}</span>
+            </div>
+            <div className="who-sub">
+              학번 <strong>{idText}</strong>
             </div>
           </div>
         </div>
 
-        {/* 폼: 모든 필드를 동일 간격으로 */}
+        {/* 폼 */}
         <div className="form-grid">
           <label className="field">
             <span>이름</span>
@@ -142,36 +152,64 @@ export default function ProfileEdit() {
 
           <label className="field">
             <span>생년월일</span>
-            <input value={form.birthDate} onChange={onChange('birthDate')} inputMode="numeric" />
+            <input value={form.birthDate} readOnly />
           </label>
 
           <label className="field">
             <span>휴대폰</span>
-            <input value={phoneMask(form.userPhone)} onChange={onChange('userPhone')} inputMode="numeric" />
+            <input
+              value={phoneMask(form.userPhone)}
+              onChange={onChange('userPhone')}
+              inputMode="numeric"
+            />
           </label>
 
           <label className="field">
             <span>이메일</span>
-            <input value={form.userEmail} readOnly />
+            <input value={form.userEmail} disabled />
           </label>
 
+          {/* 주소: 라벨 오른쪽 한 줄에 3분할 (네가 준 CSS의 .addr-group 구조) */}
           <label className="field">
             <span>주소</span>
-            <textarea
-              rows={2}
-              value={form.mainAddress}
-              onChange={onChange('mainAddress')}
-              placeholder="도로명 주소"
-            />
+            <div className="addr-group">
+              <input
+                className="zip"
+                value={form.zipCode}
+                onChange={onChange('zipCode')}
+                placeholder="우편번호"
+                inputMode="numeric"
+              />
+              <input
+                className="addr-main"
+                value={form.mainAddress}
+                onChange={onChange('mainAddress')}
+                placeholder="기본 주소"
+              />
+              <input
+                className="addr-detail"
+                value={form.detailAddress}
+                onChange={onChange('detailAddress')}
+                placeholder="상세 주소"
+              />
+            </div>
           </label>
         </div>
 
         <div className="actions">
-          <button className="btn secondary" onClick={onCancel}>취소</button>
-          <button className="btn" onClick={onSave} title="저장 API 준비 중">저장</button>
+          <button className="btn secondary" onClick={onCancel}>
+            취소
+          </button>
+          <button className="btn" onClick={onSave} title="저장 API 준비 중">
+            저장
+          </button>
         </div>
 
-        {msg && <div className="form-msg" data-ok={String(msg.startsWith('저장'))}>{msg}</div>}
+        {msg && (
+          <div className="form-msg" data-ok={String(msg.startsWith('저장'))}>
+            {msg}
+          </div>
+        )}
       </div>
     </div>
   );
