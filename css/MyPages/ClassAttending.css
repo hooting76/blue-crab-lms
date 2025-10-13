@@ -96,7 +96,7 @@
   margin-bottom: 50px;
 }
 
-.noticeChat {
+.noticeAndChat {
   width: 350px;
   height: 800px;
   background-color: white;
@@ -128,11 +128,12 @@
 }
 
 .attendance, .absence, .attendanceCall {
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin-top: 50px;
+  margin-bottom: 50px;
   border: solid 1px black;
   padding: 10px;
-  border-radius: 10px;;
+  border-radius: 10px;
+  font-size: var(--font-mid);
 }
 
 
