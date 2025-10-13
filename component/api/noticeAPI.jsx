@@ -107,6 +107,7 @@ export const deleteNotice = async (accessToken, boardIdx) => {
 export const getNoticesByCode = async (accessToken, boardCode, page = 0, size = 10) => {
   try {
     const response = await fetch(`${BASE_URL}/bycode/${boardCode}?page=${page}&size=${size}`, {
+      method: 'POST',
       headers: getHeaders(accessToken)
     });
     if (!response.ok) throw new Error('게시글 목록을 불러오는데 실패했습니다.');
