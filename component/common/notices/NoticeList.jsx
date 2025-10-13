@@ -5,7 +5,7 @@ import NoticeTable from "./NoticeTable";
 import Pagination from "../notices/Pagination";
 import { UseUser } from "../../../hook/UseUser";
 import { UseAdmin } from "../../../hook/UseAdmin";
-import getNotices, { getNoticesByCode } from "../../api/noticeAPI";
+import { getNoticesByCode } from "../../api/noticeAPI";
 import "../../../css/Communities/Notice-ui.css";
 
 export default function NoticeList({
