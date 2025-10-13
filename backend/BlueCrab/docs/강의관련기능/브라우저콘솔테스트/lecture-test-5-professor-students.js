@@ -1,15 +1,35 @@
-// ===================================================================
-// 👨‍🏫 교수 수강생 관리 테스트
+﻿// ===================================================================
+// � 교수 학생 관리 테스트
 // Blue Crab LMS - 교수 수강생 조회 및 관리 테스트
+// 
+// ⚠️ 사전 준비: 먼저 교수 계정으로 로그인하세요!
+// 📁 위치: docs/일반유저 로그인+게시판/test-1-login.js
+// 📝 실행: await login() (교수 계정 사용)
 // ===================================================================
 
 const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/professor';
 
-// 전역 변수 초기화
+// 전역 변수 (test-1-login.js에서 설정한 토큰 사용)
 if (typeof window.authToken === 'undefined') window.authToken = null;
+
+// ========== 로그인 상태 확인 ==========
+function checkAuth() {
+    const token = window.authToken;
+    const user = window.currentUser;
+    
+    if (!token) {
+        console.log('\n⚠️ 로그인이 필요합니다!');
+        console.log('🔧 docs/일반유저 로그인+게시판/test-1-login.js 실행 → await login()');
+        return false;
+    }
+    return true;
+}
 
 // ========== 수강생 목록 조회 ==========
 async function getStudents() {
+    if (!checkAuth()) return;
+    const token = window.authToken;
+    
     const lectureIdx = parseInt(prompt('📚 LECTURE_IDX:', '1'));
     const page = parseInt(prompt('📄 페이지 번호 (0부터 시작):', '0'));
     const size = parseInt(prompt('📄 페이지 크기:', '10'));
@@ -23,7 +43,7 @@ async function getStudents() {
 
         const response = await fetch(url, {
             headers: {
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -51,6 +71,9 @@ async function getStudents() {
 
 // ========== 수강생 상세 조회 ==========
 async function getStudentDetail() {
+    if (!checkAuth()) return;
+    const token = window.authToken;
+    
     const lectureIdx = parseInt(prompt('📚 LECTURE_IDX:', '1'));
     const studentIdx = parseInt(prompt('👨‍🎓 STUDENT_IDX:', '1'));
 
@@ -60,7 +83,7 @@ async function getStudentDetail() {
     try {
         const response = await fetch(`${API_BASE_URL}/lectures/${lectureIdx}/students/${studentIdx}`, {
             headers: {
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -88,6 +111,9 @@ async function getStudentDetail() {
 
 // ========== 수강생 성적 조회 ==========
 async function getStudentGrades() {
+    if (!checkAuth()) return;
+    const token = window.authToken;
+    
     const lectureIdx = parseInt(prompt('📚 LECTURE_IDX:', '1'));
     const studentIdx = parseInt(prompt('👨‍🎓 STUDENT_IDX:', '1'));
 
@@ -97,7 +123,7 @@ async function getStudentGrades() {
     try {
         const response = await fetch(`${API_BASE_URL}/lectures/${lectureIdx}/students/${studentIdx}/grades`, {
             headers: {
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -130,6 +156,9 @@ async function getStudentGrades() {
 
 // ========== 강의 통계 조회 ==========
 async function getLectureStatistics() {
+    if (!checkAuth()) return;
+    const token = window.authToken;
+    
     const lectureIdx = parseInt(prompt('📚 LECTURE_IDX:', '1'));
 
     console.log('\n📊 강의 통계 조회');
@@ -138,7 +167,7 @@ async function getLectureStatistics() {
     try {
         const response = await fetch(`${API_BASE_URL}/lectures/${lectureIdx}/statistics`, {
             headers: {
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -165,6 +194,9 @@ async function getLectureStatistics() {
 
 // ========== 수강생 검색 ==========
 async function searchStudents() {
+    if (!checkAuth()) return;
+    const token = window.authToken;
+    
     const lectureIdx = parseInt(prompt('📚 LECTURE_IDX:', '1'));
     const keyword = prompt('🔍 검색어 (이름 또는 학번):', '');
     const page = parseInt(prompt('📄 페이지 번호 (0부터 시작):', '0'));
@@ -184,7 +216,7 @@ async function searchStudents() {
 
         const response = await fetch(url, {
             headers: {
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -208,28 +240,17 @@ async function searchStudents() {
     }
 }
 
-// ========== 토큰 설정 ==========
-function setToken() {
-    const token = prompt('🔑 JWT 토큰을 입력하세요:');
-    if (token) {
-        window.authToken = token;
-        localStorage.setItem('authToken', token);
-        console.log('✅ 토큰 저장 완료!');
-    }
-}
-
 // ========== 도움말 ==========
 function help() {
     console.log('\n👨‍🏫 교수 수강생 관리 테스트 함수 목록');
     console.log('═══════════════════════════════════════════════════════');
-    console.log('🔑 setToken()              - JWT 토큰 설정');
-    console.log('📋 getStudents()           - 수강생 목록 조회');
+    console.log('⚠️ 먼저 로그인하세요!');
+    console.log('📁 docs/일반유저 로그인+게시판/test-1-login.js → await login()');
+📋 getStudents()           - 수강생 목록 조회');
     console.log('🔍 getStudentDetail()      - 수강생 상세 조회');
     console.log('📊 getStudentGrades()      - 수강생 성적 조회');
     console.log('📊 getLectureStatistics()  - 강의 통계 조회');
     console.log('🔍 searchStudents()        - 수강생 검색');
-    console.log('═══════════════════════════════════════════════════════');
-    console.log('💡 먼저 setToken()으로 토큰을 설정하세요!');
 }
 
 // 초기 메시지

@@ -76,4 +76,15 @@ public interface FacilityReservationRepository extends JpaRepository<FacilityRes
         @Param("status") String status,
         @Param("facilityIdx") Integer facilityIdx
     );
+
+    // Phase 2: 사용자별 활성 예약 수 조회
+    @Query("SELECT COUNT(r) FROM FacilityReservationTbl r " +
+           "WHERE r.userCode = :userCode " +
+           "AND r.facilityIdx = :facilityIdx " +
+           "AND r.status IN :statuses")
+    long countByUserCodeAndFacilityIdxAndStatusIn(
+        @Param("userCode") String userCode,
+        @Param("facilityIdx") Integer facilityIdx,
+        @Param("statuses") List<String> statuses
+    );
 }

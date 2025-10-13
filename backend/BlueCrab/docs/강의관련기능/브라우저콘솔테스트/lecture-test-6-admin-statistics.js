@@ -1,15 +1,35 @@
-// ===================================================================
+﻿// ===================================================================
 // 📊 관리자 통계 및 모니터링 테스트
 // Blue Crab LMS - 관리자 강의 통계 조회 테스트
+// 
+// ⚠️ 사전 준비: 먼저 관리자 계정으로 로그인하세요!
+// 📁 위치: docs/관리자 로그인/admin-login-to-board-test.js
+// 📝 실행: await adminLogin() → await sendAuthCode() → await verifyAuthCode()
 // ===================================================================
 
 const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/admin';
 
-// 전역 변수 초기화
+// 전역 변수 (admin-login-to-board-test.js에서 설정한 토큰 사용)
 if (typeof window.authToken === 'undefined') window.authToken = null;
 
+// ========== 로그인 상태 확인 ==========
+function checkAuth() {
+    const token = window.authToken;
+    const user = window.currentUser;
+    
+    if (!token) {
+        console.log('\n⚠️ 로그인이 필요합니다!');
+        console.log('🔧 docs/관리자 로그인/admin-login-to-board-test.js 실행');
+        console.log('   1. await adminLogin()');
+        console.log('   2. await sendAuthCode()');
+        console.log('   3. await verifyAuthCode()');
+        return false;
+    }
+    return true;
+}
+
 // ========== 전체 강의 통계 조회 ==========
-async function getLectureStatistics() {
+async function getLectureStatistics() {`n    if (!checkAuth()) return;`n    const token = window.authToken;`n
     const year = parseInt(prompt('📅 연도:', new Date().getFullYear().toString()));
     const semester = parseInt(prompt('📅 학기 (1/2):', '1'));
 
@@ -22,7 +42,7 @@ async function getLectureStatistics() {
 
         const response = await fetch(url, {
             headers: {
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -48,7 +68,7 @@ async function getLectureStatistics() {
 }
 
 // ========== 학생별 통계 조회 ==========
-async function getStudentStatistics() {
+async function getStudentStatistics() {`n    if (!checkAuth()) return;`n    const token = window.authToken;`n
     const studentIdx = parseInt(prompt('👨‍🎓 STUDENT_IDX:', '1'));
 
     console.log('\n📊 학생별 통계 조회');
@@ -57,7 +77,7 @@ async function getStudentStatistics() {
     try {
         const response = await fetch(`${API_BASE_URL}/statistics/students/${studentIdx}`, {
             headers: {
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -85,7 +105,7 @@ async function getStudentStatistics() {
 }
 
 // ========== 교수별 통계 조회 ==========
-async function getProfessorStatistics() {
+async function getProfessorStatistics() {`n    if (!checkAuth()) return;`n    const token = window.authToken;`n
     const professorIdx = parseInt(prompt('👨‍🏫 PROFESSOR_IDX:', '1'));
 
     console.log('\n📊 교수별 통계 조회');
@@ -94,7 +114,7 @@ async function getProfessorStatistics() {
     try {
         const response = await fetch(`${API_BASE_URL}/statistics/professors/${professorIdx}`, {
             headers: {
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -121,7 +141,7 @@ async function getProfessorStatistics() {
 }
 
 // ========== 학기별 트렌드 조회 ==========
-async function getSemesterTrends() {
+async function getSemesterTrends() {`n    if (!checkAuth()) return;`n    const token = window.authToken;`n
     const startYear = parseInt(prompt('📅 시작 연도:', (new Date().getFullYear() - 1).toString()));
     const endYear = parseInt(prompt('📅 종료 연도:', new Date().getFullYear().toString()));
 
@@ -134,7 +154,7 @@ async function getSemesterTrends() {
 
         const response = await fetch(url, {
             headers: {
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -161,7 +181,7 @@ async function getSemesterTrends() {
 }
 
 // ========== 인기 강의 순위 조회 ==========
-async function getPopularLectures() {
+async function getPopularLectures() {`n    if (!checkAuth()) return;`n    const token = window.authToken;`n
     const year = parseInt(prompt('📅 연도:', new Date().getFullYear().toString()));
     const semester = parseInt(prompt('📅 학기 (1/2):', '1'));
     const limit = parseInt(prompt('🔢 조회 개수:', '10'));
@@ -175,7 +195,7 @@ async function getPopularLectures() {
 
         const response = await fetch(url, {
             headers: {
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -202,7 +222,7 @@ async function getPopularLectures() {
 }
 
 // ========== 학과별 통계 조회 ==========
-async function getDepartmentStatistics() {
+async function getDepartmentStatistics() {`n    if (!checkAuth()) return;`n    const token = window.authToken;`n
     const year = parseInt(prompt('📅 연도:', new Date().getFullYear().toString()));
     const semester = parseInt(prompt('📅 학기 (1/2):', '1'));
 
@@ -215,7 +235,7 @@ async function getDepartmentStatistics() {
 
         const response = await fetch(url, {
             headers: {
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -242,28 +262,21 @@ async function getDepartmentStatistics() {
 }
 
 // ========== 토큰 설정 ==========
-function setToken() {
-    const token = prompt('🔑 JWT 토큰을 입력하세요:');
-    if (token) {
-        window.authToken = token;
-        localStorage.setItem('authToken', token);
-        console.log('✅ 토큰 저장 완료!');
-    }
-}
-
 // ========== 도움말 ==========
 function help() {
     console.log('\n📊 관리자 통계 테스트 함수 목록');
     console.log('═══════════════════════════════════════════════════════');
-    console.log('🔑 setToken()                 - JWT 토큰 설정');
-    console.log('📊 getLectureStatistics()     - 전체 강의 통계');
+    console.log('⚠️ 먼저 관리자 로그인하세요!');
+    console.log('� docs/관리자 로그인/admin-login-to-board-test.js');
+    console.log('   1. await adminLogin()');
+    console.log('   2. await sendAuthCode()');
+    console.log('   3. await verifyAuthCode()');
+📊 getLectureStatistics()     - 전체 강의 통계');
     console.log('👨‍🎓 getStudentStatistics()     - 학생별 통계');
     console.log('👨‍🏫 getProfessorStatistics()   - 교수별 통계');
     console.log('📈 getSemesterTrends()        - 학기별 트렌드');
     console.log('🏆 getPopularLectures()       - 인기 강의 순위');
     console.log('🏢 getDepartmentStatistics()  - 학과별 통계');
-    console.log('═══════════════════════════════════════════════════════');
-    console.log('💡 먼저 setToken()으로 토큰을 설정하세요!');
 }
 
 // 초기 메시지

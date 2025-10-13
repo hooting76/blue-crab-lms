@@ -22,8 +22,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,6 +78,12 @@ public class FacilityReservationService {
         FacilityPolicyTbl policy = policyRepository.findByFacilityIdx(request.getFacilityIdx())
             .orElseThrow(() -> new RuntimeException("시설 정책을 찾을 수 없습니다."));
 
+        // ②-A 시설별 예약 정책 검증
+        validateReservationPolicy(policy, request.getStartTime(), request.getEndTime());
+
+        // ②-B 사용자별 예약 수 제한 검증 (Phase 2)
+        validateUserReservationLimit(userCode, request.getFacilityIdx(), policy);
+
         boolean requiresApproval = Boolean.TRUE.equals(policy.getRequiresApproval());
         FacilityTbl facility;
 
@@ -86,6 +97,9 @@ public class FacilityReservationService {
             if (!facility.getIsActive()) {
                 throw new RuntimeException("사용 중지된 시설입니다.");
             }
+
+            // 정원 및 인원수 검증
+            validateCapacity(facility, request.getPartySize());
 
             // 차단 기간만 체크 (예약 충돌은 승인 시점에 검증)
             validateNotBlocked(request.getFacilityIdx(), request.getStartTime(), request.getEndTime());
@@ -101,6 +115,9 @@ public class FacilityReservationService {
             if (!facility.getIsActive()) {
                 throw new RuntimeException("사용 중지된 시설입니다.");
             }
+
+            // 정원 및 인원수 검증
+            validateCapacity(facility, request.getPartySize());
 
             // 락을 획득한 상태에서 가용성 체크 - race condition 방지
             FacilityAvailabilityDto availability = checkAvailabilityWithFacility(
@@ -163,7 +180,97 @@ public class FacilityReservationService {
     public FacilityAvailabilityDto checkAvailability(Integer facilityIdx, LocalDateTime startTime, LocalDateTime endTime) {
         FacilityTbl facility = facilityRepository.findById(facilityIdx)
             .orElseThrow(() -> ResourceNotFoundException.forId("시설", facilityIdx));
+        
+        // 시설별 정책 검증
+        FacilityPolicyTbl policy = policyRepository.findByFacilityIdx(facilityIdx)
+            .orElseThrow(() -> new RuntimeException("시설 정책을 찾을 수 없습니다."));
+        validateReservationPolicy(policy, startTime, endTime);
+        
         return checkAvailabilityInternal(facility, startTime, endTime, null);
+    }
+
+    /**
+     * 특정 날짜의 하루 전체 시간대별 예약 현황 조회
+     * 09:00부터 20:00까지 1시간 단위로 상태 확인
+     * 
+     * @param facilityIdx 시설 ID
+     * @param date 조회 날짜
+     * @return 시간대별 예약 상태 목록
+     */
+    public DailyScheduleDto getDailySchedule(Integer facilityIdx, LocalDate date) {
+        FacilityTbl facility = facilityRepository.findById(facilityIdx)
+            .orElseThrow(() -> ResourceNotFoundException.forId("시설", facilityIdx));
+
+        // 하루의 시작과 끝
+        LocalDateTime dayStart = date.atTime(0, 0);
+        LocalDateTime dayEnd = date.atTime(23, 59, 59);
+
+        // 해당 날짜의 모든 예약 조회 (PENDING, APPROVED만)
+        List<String> activeStatuses = java.util.Arrays.asList(
+            ReservationStatus.PENDING.toDbValue(),
+            ReservationStatus.APPROVED.toDbValue()
+        );
+        List<FacilityReservationTbl> dayReservations = reservationRepository
+            .findConflictingReservations(facilityIdx, dayStart, dayEnd, activeStatuses, null);
+
+        // 해당 날짜의 차단 기간 조회
+        List<FacilityBlockTbl> dayBlocks = blockRepository
+            .findConflictingBlocks(facilityIdx, dayStart, dayEnd);
+
+        // 시간대별 상태 리스트 생성 (09:00 ~ 20:00)
+        List<DailyScheduleDto.TimeSlotStatus> slots = new ArrayList<>();
+        for (int hour = 9; hour <= 20; hour++) {
+            LocalTime slotTime = LocalTime.of(hour, 0);
+            LocalDateTime slotStart = date.atTime(slotTime);
+            LocalDateTime slotEnd = slotStart.plusHours(1);
+
+            String timeStr = String.format("%02d:00", hour);
+            String status = "available";
+            String statusMessage = "예약 가능";
+
+            // 1. 차단 기간 체크
+            boolean isBlocked = dayBlocks.stream()
+                .anyMatch(block -> 
+                    !slotStart.isBefore(block.getBlockStart()) && 
+                    slotStart.isBefore(block.getBlockEnd()));
+
+            if (isBlocked) {
+                FacilityBlockTbl block = dayBlocks.stream()
+                    .filter(b -> !slotStart.isBefore(b.getBlockStart()) && slotStart.isBefore(b.getBlockEnd()))
+                    .findFirst()
+                    .orElse(null);
+                status = "blocked";
+                statusMessage = block != null ? block.getBlockReason() : "관리자에 의해 차단됨";
+            } else {
+                // 2. 예약 충돌 체크
+                for (FacilityReservationTbl reservation : dayReservations) {
+                    // 예약 시간과 슬롯 시간이 겹치는지 확인
+                    boolean overlaps = slotStart.isBefore(reservation.getEndTime()) && 
+                                      slotEnd.isAfter(reservation.getStartTime());
+                    
+                    if (overlaps) {
+                        if (ReservationStatus.APPROVED.toDbValue().equals(reservation.getStatus())) {
+                            status = "reserved";
+                            statusMessage = "예약됨";
+                        } else if (ReservationStatus.PENDING.toDbValue().equals(reservation.getStatus())) {
+                            status = "pending";
+                            statusMessage = "승인 대기";
+                        }
+                        break;  // 하나라도 충돌하면 중단
+                    }
+                }
+            }
+
+            slots.add(new DailyScheduleDto.TimeSlotStatus(
+                timeStr, slotStart, slotEnd, status, statusMessage));
+        }
+
+        return new DailyScheduleDto(
+            facility.getFacilityIdx(),
+            facility.getFacilityName(),
+            date,
+            slots
+        );
     }
 
     /**
@@ -190,6 +297,53 @@ public class FacilityReservationService {
             throw new RuntimeException(
                 String.format("해당 시설은 %s부터 %s까지 예약이 불가합니다. 사유: %s",
                     block.getBlockStart(), block.getBlockEnd(), block.getBlockReason()));
+        }
+    }
+
+    /**
+     * 시설 정원 및 인원수 검증
+     * @param facility 시설 정보
+     * @param partySize 예약 인원수
+     */
+    private void validateCapacity(FacilityTbl facility, Integer partySize) {
+        if (partySize == null || partySize < 1) {
+            throw new RuntimeException("인원수는 최소 1명 이상이어야 합니다.");
+        }
+
+        if (facility.getCapacity() != null && partySize > facility.getCapacity()) {
+            throw new RuntimeException(
+                String.format("요청 인원(%d명)이 시설 정원(%d명)을 초과합니다.",
+                    partySize, facility.getCapacity()));
+        }
+    }
+
+    /**
+     * 사용자별 예약 수 제한 검증 (Phase 2)
+     * @param userCode 사용자 코드
+     * @param facilityIdx 시설 ID
+     * @param policy 시설 정책
+     */
+    private void validateUserReservationLimit(String userCode, Integer facilityIdx, FacilityPolicyTbl policy) {
+        Integer maxReservations = policy.getEffectiveMaxReservationsPerUser();
+
+        // NULL이면 제한 없음
+        if (maxReservations == null) {
+            return;
+        }
+
+        // 해당 시설에 대한 사용자의 활성 예약 수 조회 (PENDING + APPROVED)
+        List<String> activeStatuses = java.util.Arrays.asList(
+            ReservationStatus.PENDING.toDbValue(),
+            ReservationStatus.APPROVED.toDbValue()
+        );
+
+        long activeCount = reservationRepository
+            .countByUserCodeAndFacilityIdxAndStatusIn(userCode, facilityIdx, activeStatuses);
+
+        if (activeCount >= maxReservations) {
+            throw new RuntimeException(
+                String.format("이 시설에 대한 예약 가능 횟수(%d회)를 초과했습니다. 현재 활성 예약: %d건",
+                    maxReservations, activeCount));
         }
     }
 
@@ -293,6 +447,22 @@ public class FacilityReservationService {
             throw new RuntimeException("취소할 수 없는 상태입니다.");
         }
 
+        // 취소 마감 시간 체크
+        FacilityPolicyTbl policy = policyRepository
+            .findByFacilityIdx(reservation.getFacilityIdx())
+            .orElseThrow(() -> new RuntimeException("시설 정책을 찾을 수 없습니다."));
+
+        int deadlineHours = policy.getEffectiveCancellationDeadlineHours();
+        LocalDateTime deadline = reservation.getStartTime().minusHours(deadlineHours);
+        LocalDateTime now = LocalDateTime.now();
+
+        if (now.isAfter(deadline)) {
+            throw new RuntimeException(
+                String.format("예약 시작 %d시간 전까지만 취소 가능합니다. 취소 마감 시간: %s",
+                    deadlineHours,
+                    deadline.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))));
+        }
+
         reservation.setStatusEnum(ReservationStatus.CANCELLED);
         reservationRepository.save(reservation);
 
@@ -331,6 +501,59 @@ public class FacilityReservationService {
 
         if (durationMinutes > policyProperties.getMaxDurationMinutes()) {
             throw new RuntimeException("최대 예약 시간은 " + policyProperties.getMaxDurationMinutes() + "분입니다.");
+        }
+    }
+
+    /**
+     * 시설별 예약 정책 검증
+     * - 최소 사전 예약 일수 (MIN_DAYS_IN_ADVANCE)
+     * - 최대 사전 예약 일수 (MAX_DAYS_IN_ADVANCE)
+     * - 예약 시간 (분 단위)
+     */
+    private void validateReservationPolicy(FacilityPolicyTbl policy, LocalDateTime startTime, LocalDateTime endTime) {
+        LocalDateTime now = LocalDateTime.now();
+        
+        // 1. 최소 사전 예약 일수 체크
+        int minDaysInAdvance = policy.getEffectiveMinDaysInAdvance();
+        if (minDaysInAdvance > 0) {
+            LocalDateTime minDate = now.plusDays(minDaysInAdvance);
+            if (startTime.isBefore(minDate)) {
+                throw new RuntimeException(
+                    String.format("이 시설은 최소 %d일 전에 예약해야 합니다. 예약 가능 시작일: %s", 
+                        minDaysInAdvance, 
+                        minDate.toLocalDate()));
+            }
+        }
+        
+        // 2. 최대 사전 예약 일수 체크 (시설별 설정 우선)
+        int maxDaysInAdvance = policy.getEffectiveMaxDaysInAdvance();
+        LocalDateTime maxDate = now.plusDays(maxDaysInAdvance);
+        if (startTime.isAfter(maxDate)) {
+            throw new RuntimeException(
+                String.format("이 시설은 최대 %d일 이내만 예약 가능합니다.", maxDaysInAdvance));
+        }
+        
+        // 3. 예약 시간(분) 체크 (시설별 설정 우선)
+        long durationMinutes = ChronoUnit.MINUTES.between(startTime, endTime);
+        
+        int minDurationMinutes = policy.getEffectiveMinDurationMinutes();
+        if (durationMinutes < minDurationMinutes) {
+            throw new RuntimeException(
+                String.format("이 시설의 최소 예약 시간은 %d분입니다.", minDurationMinutes));
+        }
+        
+        int maxDurationMinutes = policy.getEffectiveMaxDurationMinutes();
+        if (durationMinutes > maxDurationMinutes) {
+            throw new RuntimeException(
+                String.format("이 시설의 최대 예약 시간은 %d분입니다.", maxDurationMinutes));
+        }
+
+        // 4. 주말 예약 제한 체크 (Phase 2)
+        if (!policy.isEffectiveAllowWeekendBooking()) {
+            DayOfWeek dayOfWeek = startTime.getDayOfWeek();
+            if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY) {
+                throw new RuntimeException("이 시설은 주말 예약이 허용되지 않습니다.");
+            }
         }
     }
 

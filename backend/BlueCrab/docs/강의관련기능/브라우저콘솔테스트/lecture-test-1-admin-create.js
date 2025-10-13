@@ -1,15 +1,45 @@
-// ===================================================================
+﻿// ===================================================================
 // 📚 관리자 강의 등록 테스트
 // Blue Crab LMS - 관리자 강의 생성 및 관리 테스트
+// 
+// ⚠️ 사전 준비: 먼저 관리자 로그인 테스트 파일을 실행하세요!
+// 📁 위치: docs/관리자 로그인/admin-login-to-board-test.js
+// 📝 실행: adminLogin() 또는 quickAdminLogin()
 // ===================================================================
 
 const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/admin';
 
-// 전역 변수 초기화
-if (typeof window.authToken === 'undefined') window.authToken = null;
+// ========== 로그인 상태 확인 ==========
+function checkAuth() {
+    console.log('\n🔍 로그인 상태 확인');
+    console.log('═══════════════════════════════════════════════════════');
+    
+    const token = window.authToken || localStorage.getItem('jwtAccessToken');
+    const user = window.currentUser;
+    
+    console.log(`🔑 JWT 토큰: ${token ? '보유 (' + token.substring(0, 20) + '...)' : '❌ 없음'}`);
+    console.log(`👤 사용자 정보: ${user ? user.userName + ' (' + user.role + ')' : '❌ 없음'}`);
+    
+    if (!token) {
+        console.log('\n⚠️ 로그인이 필요합니다!');
+        console.log('🔧 해결 방법:');
+        console.log('   1. docs/관리자 로그인/admin-login-to-board-test.js 파일 실행');
+        console.log('   2. adminLogin() 또는 quickAdminLogin() 실행');
+        console.log('   3. 로그인 완료 후 이 파일의 함수들 사용');
+        return false;
+    }
+    
+    console.log('\n✅ 로그인됨 - 테스트 실행 가능!');
+    return true;
+}
 
 // ========== 강의 등록 테스트 ==========
 async function createLecture() {
+    // 로그인 확인
+    if (!checkAuth()) return;
+    
+    const token = window.authToken || localStorage.getItem('jwtAccessToken');
+    
     const lectureName = prompt('📝 강의명을 입력하세요:', '자바 프로그래밍');
     const lectureCode = prompt('📝 강의 코드를 입력하세요:', 'CS101');
     const professorIdx = parseInt(prompt('👨‍🏫 교수 IDX를 입력하세요:', '1'));
@@ -40,14 +70,12 @@ async function createLecture() {
         END_DATE: `${year}-06-30`
     };
 
-    console.log('📤 요청 데이터:', JSON.stringify(lectureData, null, 2));
-
-    try {
+try {
         const response = await fetch(`${API_BASE_URL}/lectures`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(lectureData)
         });
@@ -70,6 +98,11 @@ async function createLecture() {
 
 // ========== 강의 목록 조회 ==========
 async function getLectures() {
+    // 로그인 확인
+    if (!checkAuth()) return;
+    
+    const token = window.authToken || localStorage.getItem('jwtAccessToken');
+    
     const page = parseInt(prompt('📄 페이지 번호 (0부터 시작):', '0'));
     const size = parseInt(prompt('📄 페이지 크기:', '10'));
     const year = prompt('📅 연도 (선택사항):', new Date().getFullYear().toString());
@@ -87,7 +120,7 @@ async function getLectures() {
 
         const response = await fetch(url, {
             headers: {
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -114,6 +147,11 @@ async function getLectures() {
 
 // ========== 강의 상세 조회 ==========
 async function getLectureDetail() {
+    // 로그인 확인
+    if (!checkAuth()) return;
+    
+    const token = window.authToken || localStorage.getItem('jwtAccessToken');
+    
     const lectureIdx = parseInt(prompt('🔍 조회할 LECTURE_IDX:', window.lastLectureIdx || '1'));
 
     console.log('\n📚 강의 상세 조회');
@@ -122,7 +160,7 @@ async function getLectureDetail() {
     try {
         const response = await fetch(`${API_BASE_URL}/lectures/${lectureIdx}`, {
             headers: {
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -131,7 +169,6 @@ async function getLectureDetail() {
 
         if (result.success) {
             console.log('\n✅ 조회 성공!');
-            console.log('📊 강의 정보:', JSON.stringify(result.data, null, 2));
         } else {
             console.log('❌ 조회 실패:', result.message);
         }
@@ -142,6 +179,11 @@ async function getLectureDetail() {
 
 // ========== 강의 수정 ==========
 async function updateLecture() {
+    // 로그인 확인
+    if (!checkAuth()) return;
+    
+    const token = window.authToken || localStorage.getItem('jwtAccessToken');
+    
     const lectureIdx = parseInt(prompt('✏️ 수정할 LECTURE_IDX:', window.lastLectureIdx || '1'));
     const lectureName = prompt('📝 새 강의명 (선택사항):');
     const maxStudents = prompt('👥 새 최대 정원 (선택사항):');
@@ -158,14 +200,12 @@ async function updateLecture() {
         return;
     }
 
-    console.log('📤 수정 데이터:', JSON.stringify(updateData, null, 2));
-
-    try {
+try {
         const response = await fetch(`${API_BASE_URL}/lectures/${lectureIdx}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(updateData)
         });
@@ -186,6 +226,11 @@ async function updateLecture() {
 
 // ========== 강의 삭제 (폐강) ==========
 async function deleteLecture() {
+    // 로그인 확인
+    if (!checkAuth()) return;
+    
+    const token = window.authToken || localStorage.getItem('jwtAccessToken');
+    
     const lectureIdx = parseInt(prompt('🗑️ 삭제할 LECTURE_IDX:', window.lastLectureIdx || '1'));
     const confirm = prompt('⚠️ 정말 삭제하시겠습니까? (yes/no):', 'no');
 
@@ -201,7 +246,7 @@ async function deleteLecture() {
         const response = await fetch(`${API_BASE_URL}/lectures/${lectureIdx}`, {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -219,30 +264,24 @@ async function deleteLecture() {
     }
 }
 
-// ========== 토큰 설정 ==========
-function setToken() {
-    const token = prompt('🔑 JWT 토큰을 입력하세요:');
-    if (token) {
-        window.authToken = token;
-        localStorage.setItem('authToken', token);
-        console.log('✅ 토큰 저장 완료!');
-    }
-}
-
 // ========== 도움말 ==========
 function help() {
     console.log('\n📚 관리자 강의 관리 테스트 함수 목록');
     console.log('═══════════════════════════════════════════════════════');
-    console.log('🔑 setToken()        - JWT 토큰 설정');
-    console.log('📝 createLecture()   - 강의 등록');
-    console.log('📋 getLectures()     - 강의 목록 조회');
+    console.log('� checkAuth()        - 로그인 상태 확인');
+    console.log('📝 createLecture()    - 강의 등록');
+    console.log('📋 getLectures()      - 강의 목록 조회');
     console.log('🔍 getLectureDetail() - 강의 상세 조회');
-    console.log('✏️ updateLecture()   - 강의 수정');
-    console.log('🗑️ deleteLecture()   - 강의 삭제');
+    console.log('✏️ updateLecture()    - 강의 수정');
+    console.log('🗑️ deleteLecture()    - 강의 삭제');
     console.log('═══════════════════════════════════════════════════════');
-    console.log('💡 먼저 setToken()으로 토큰을 설정하세요!');
+    console.log('⚠️ 사전 준비:');
+    console.log('   1. docs/관리자 로그인/admin-login-to-board-test.js 실행');
+    console.log('   2. adminLogin() 또는 quickAdminLogin() 실행');
+    console.log('   3. 로그인 완료 후 이 파일의 함수들 사용');
 }
 
 // 초기 메시지
 console.log('✅ 관리자 강의 관리 테스트 스크립트 로드 완료!');
 console.log('💡 help() 를 입력하면 사용 가능한 함수 목록을 볼 수 있습니다.');
+console.log('⚠️ 먼저 관리자 로그인을 완료하세요! (checkAuth()로 확인 가능)');

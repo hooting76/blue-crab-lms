@@ -1,15 +1,35 @@
-// ===================================================================
+﻿// ===================================================================
 // 📄 학생 과제 제출 테스트
 // Blue Crab LMS - 학생 과제 조회 및 제출 테스트
+// 
+// ⚠️ 사전 준비: 먼저 학생 계정으로 로그인하세요!
+// 📁 위치: docs/일반유저 로그인+게시판/test-1-login.js
+// 📝 실행: await login() (학생 계정 사용)
 // ===================================================================
 
 const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/student';
 
-// 전역 변수 초기화
+// 전역 변수 (test-1-login.js에서 설정한 토큰 사용)
 if (typeof window.authToken === 'undefined') window.authToken = null;
+
+// ========== 로그인 상태 확인 ==========
+function checkAuth() {
+    const token = window.authToken;
+    const user = window.currentUser;
+    
+    if (!token) {
+        console.log('\n⚠️ 로그인이 필요합니다!');
+        console.log('🔧 docs/일반유저 로그인+게시판/test-1-login.js 실행 → await login()');
+        return false;
+    }
+    return true;
+}
 
 // ========== 내 과제 목록 조회 ==========
 async function getMyAssignments() {
+    if (!checkAuth()) return;
+    const token = window.authToken;
+    
     const lectureIdx = prompt('📚 LECTURE_IDX (전체 조회는 비워두세요):');
     const page = parseInt(prompt('📄 페이지 번호 (0부터 시작):', '0'));
     const size = parseInt(prompt('📄 페이지 크기:', '10'));
@@ -25,7 +45,7 @@ async function getMyAssignments() {
 
         const response = await fetch(url, {
             headers: {
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -55,6 +75,9 @@ async function getMyAssignments() {
 
 // ========== 과제 상세 조회 ==========
 async function getAssignmentDetail() {
+    if (!checkAuth()) return;
+    const token = window.authToken;
+    
     const assignmentIdx = parseInt(prompt('🔍 조회할 ASSIGNMENT_IDX:', '1'));
 
     console.log('\n📄 과제 상세 조회');
@@ -63,7 +86,7 @@ async function getAssignmentDetail() {
     try {
         const response = await fetch(`${API_BASE_URL}/assignments/${assignmentIdx}`, {
             headers: {
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -93,6 +116,9 @@ async function getAssignmentDetail() {
 
 // ========== 과제 제출 ==========
 async function submitAssignment() {
+    if (!checkAuth()) return;
+    const token = window.authToken;
+    
     const assignmentIdx = parseInt(prompt('📝 제출할 ASSIGNMENT_IDX:', '1'));
     const content = prompt('📝 제출 내용을 입력하세요:', '과제 제출 내용입니다.');
 
@@ -109,14 +135,12 @@ async function submitAssignment() {
         SUBMISSION_FILE_PATH: null // 파일 업로드는 별도 구현 필요
     };
 
-    console.log('📤 제출 데이터:', JSON.stringify(submissionData, null, 2));
-
-    try {
+try {
         const response = await fetch(`${API_BASE_URL}/assignments/${assignmentIdx}/submit`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(submissionData)
         });
@@ -137,6 +161,9 @@ async function submitAssignment() {
 
 // ========== 과제 재제출 ==========
 async function resubmitAssignment() {
+    if (!checkAuth()) return;
+    const token = window.authToken;
+    
     const assignmentIdx = parseInt(prompt('📝 재제출할 ASSIGNMENT_IDX:', '1'));
     const content = prompt('📝 재제출 내용을 입력하세요:', '과제 재제출 내용입니다.');
 
@@ -153,14 +180,12 @@ async function resubmitAssignment() {
         SUBMISSION_FILE_PATH: null
     };
 
-    console.log('📤 재제출 데이터:', JSON.stringify(submissionData, null, 2));
-
-    try {
+try {
         const response = await fetch(`${API_BASE_URL}/assignments/${assignmentIdx}/resubmit`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(submissionData)
         });
@@ -181,6 +206,9 @@ async function resubmitAssignment() {
 
 // ========== 과제 제출 취소 ==========
 async function cancelSubmission() {
+    if (!checkAuth()) return;
+    const token = window.authToken;
+    
     const assignmentIdx = parseInt(prompt('🗑️ 제출취소할 ASSIGNMENT_IDX:', '1'));
     const confirm = prompt('⚠️ 정말 제출을 취소하시겠습니까? (yes/no):', 'no');
 
@@ -196,7 +224,7 @@ async function cancelSubmission() {
         const response = await fetch(`${API_BASE_URL}/assignments/${assignmentIdx}/cancel`, {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -214,28 +242,17 @@ async function cancelSubmission() {
     }
 }
 
-// ========== 토큰 설정 ==========
-function setToken() {
-    const token = prompt('🔑 JWT 토큰을 입력하세요:');
-    if (token) {
-        window.authToken = token;
-        localStorage.setItem('authToken', token);
-        console.log('✅ 토큰 저장 완료!');
-    }
-}
-
 // ========== 도움말 ==========
 function help() {
     console.log('\n📄 학생 과제 제출 테스트 함수 목록');
     console.log('═══════════════════════════════════════════════════════');
-    console.log('🔑 setToken()             - JWT 토큰 설정');
-    console.log('📋 getMyAssignments()     - 내 과제 목록');
+    console.log('⚠️ 먼저 로그인하세요!');
+    console.log('📁 docs/일반유저 로그인+게시판/test-1-login.js → await login()');
+📋 getMyAssignments()     - 내 과제 목록');
     console.log('🔍 getAssignmentDetail()  - 과제 상세 조회');
     console.log('📝 submitAssignment()     - 과제 제출');
     console.log('📝 resubmitAssignment()   - 과제 재제출');
     console.log('🗑️ cancelSubmission()     - 과제 제출 취소');
-    console.log('═══════════════════════════════════════════════════════');
-    console.log('💡 먼저 setToken()으로 토큰을 설정하세요!');
 }
 
 // 초기 메시지

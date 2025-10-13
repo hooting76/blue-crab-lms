@@ -10,6 +10,7 @@ public enum FacilityType {
     SEMINAR_ROOM("세미나실"),
     LECTURE_ROOM("강의실"),
     CONFERENCE_ROOM("회의실"),
+    MEETING_ROOM("미팅룸"),
     LAB("실습실"),
     AUDITORIUM("강당"),
     STUDY_ROOM("스터디룸");

@@ -1,15 +1,40 @@
-// ===================================================================
-// 👨‍🏫 교수 과제 관리 테스트
-// Blue Crab LMS - 교수 과제 생성 및 채점 테스트
+﻿// ===================================================================
+// 📄 교수 과제 관리 테스트
+// Blue Crab LMS - 교수 과제 생성 및 관리 테스트
+// 
+// ⚠️ 사전 준비: 먼저 교수 계정으로 로그인하세요!
+// 📁 위치: docs/일반유저 로그인+게시판/test-1-login.js
+// 📝 실행: await login() (교수 계정 사용)
 // ===================================================================
 
 const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/professor';
+
+// 전역 변수 (test-1-login.js에서 설정한 토큰 사용)
+if (typeof window.authToken === 'undefined') window.authToken = null;
+
+// ========== 로그인 상태 확인 ==========
+function checkAuth() {
+    const token = window.authToken;
+    const user = window.currentUser;
+    
+    if (!token) {
+        console.log('\n⚠️ 로그인이 필요합니다!');
+        console.log('🔧 docs/일반유저 로그인+게시판/test-1-login.js 실행 → await login()');
+        return false;
+    }
+    return true;
+}
+
+// ========== 교수 강의 목록 조회 ==========const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/professor';
 
 // 전역 변수 초기화
 if (typeof window.authToken === 'undefined') window.authToken = null;
 
 // ========== 내 강의 목록 조회 ==========
 async function getMyLectures() {
+    if (!checkAuth()) return;
+    const token = window.authToken;
+    
     const page = parseInt(prompt('📄 페이지 번호 (0부터 시작):', '0'));
     const size = parseInt(prompt('📄 페이지 크기:', '10'));
 
@@ -22,7 +47,7 @@ async function getMyLectures() {
 
         const response = await fetch(url, {
             headers: {
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -49,6 +74,9 @@ async function getMyLectures() {
 
 // ========== 과제 생성 ==========
 async function createAssignment() {
+    if (!checkAuth()) return;
+    const token = window.authToken;
+    
     const lectureIdx = parseInt(prompt('📚 LECTURE_IDX:', '1'));
     const title = prompt('📝 과제 제목:', '1주차 과제');
     const description = prompt('📝 과제 설명:', '자바 프로그래밍 기초 과제입니다.');
@@ -71,14 +99,12 @@ async function createAssignment() {
         DUE_DATE: dueDate
     };
 
-    console.log('📤 요청 데이터:', JSON.stringify(assignmentData, null, 2));
-
-    try {
+try {
         const response = await fetch(`${API_BASE_URL}/assignments`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(assignmentData)
         });
@@ -101,6 +127,9 @@ async function createAssignment() {
 
 // ========== 과제 목록 조회 ==========
 async function getAssignments() {
+    if (!checkAuth()) return;
+    const token = window.authToken;
+    
     const lectureIdx = parseInt(prompt('📚 LECTURE_IDX:', '1'));
     const page = parseInt(prompt('📄 페이지 번호 (0부터 시작):', '0'));
     const size = parseInt(prompt('📄 페이지 크기:', '10'));
@@ -114,7 +143,7 @@ async function getAssignments() {
 
         const response = await fetch(url, {
             headers: {
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -142,6 +171,9 @@ async function getAssignments() {
 
 // ========== 제출된 과제 목록 조회 ==========
 async function getSubmissions() {
+    if (!checkAuth()) return;
+    const token = window.authToken;
+    
     const assignmentIdx = parseInt(prompt('📄 ASSIGNMENT_IDX:', window.lastAssignmentIdx || '1'));
     const page = parseInt(prompt('📄 페이지 번호 (0부터 시작):', '0'));
     const size = parseInt(prompt('📄 페이지 크기:', '10'));
@@ -155,7 +187,7 @@ async function getSubmissions() {
 
         const response = await fetch(url, {
             headers: {
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -182,6 +214,9 @@ async function getSubmissions() {
 
 // ========== 과제 채점 ==========
 async function gradeAssignment() {
+    if (!checkAuth()) return;
+    const token = window.authToken;
+    
     const assignmentIdx = parseInt(prompt('📄 ASSIGNMENT_IDX:', window.lastAssignmentIdx || '1'));
     const studentIdx = parseInt(prompt('👨‍🎓 STUDENT_IDX:', '1'));
     const score = parseInt(prompt('💯 점수:', '85'));
@@ -196,14 +231,12 @@ async function gradeAssignment() {
         FEEDBACK: feedback
     };
 
-    console.log('📤 채점 데이터:', JSON.stringify(gradingData, null, 2));
-
-    try {
+try {
         const response = await fetch(`${API_BASE_URL}/assignments/${assignmentIdx}/grade`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(gradingData)
         });
@@ -224,6 +257,9 @@ async function gradeAssignment() {
 
 // ========== 과제 수정 ==========
 async function updateAssignment() {
+    if (!checkAuth()) return;
+    const token = window.authToken;
+    
     const assignmentIdx = parseInt(prompt('✏️ 수정할 ASSIGNMENT_IDX:', window.lastAssignmentIdx || '1'));
     const title = prompt('📝 새 제목 (선택사항):');
     const dueDate = prompt('📅 새 마감일 (선택사항, YYYY-MM-DD):');
@@ -240,14 +276,12 @@ async function updateAssignment() {
         return;
     }
 
-    console.log('📤 수정 데이터:', JSON.stringify(updateData, null, 2));
-
-    try {
+try {
         const response = await fetch(`${API_BASE_URL}/assignments/${assignmentIdx}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(updateData)
         });
@@ -268,6 +302,9 @@ async function updateAssignment() {
 
 // ========== 과제 삭제 ==========
 async function deleteAssignment() {
+    if (!checkAuth()) return;
+    const token = window.authToken;
+    
     const assignmentIdx = parseInt(prompt('🗑️ 삭제할 ASSIGNMENT_IDX:', window.lastAssignmentIdx || '1'));
     const confirm = prompt('⚠️ 정말 삭제하시겠습니까? (yes/no):', 'no');
 
@@ -283,7 +320,7 @@ async function deleteAssignment() {
         const response = await fetch(`${API_BASE_URL}/assignments/${assignmentIdx}`, {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${window.authToken}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -301,30 +338,23 @@ async function deleteAssignment() {
     }
 }
 
-// ========== 토큰 설정 ==========
-function setToken() {
-    const token = prompt('🔑 JWT 토큰을 입력하세요:');
-    if (token) {
-        window.authToken = token;
-        localStorage.setItem('authToken', token);
-        console.log('✅ 토큰 저장 완료!');
-    }
-}
-
 // ========== 도움말 ==========
 function help() {
     console.log('\n👨‍🏫 교수 과제 관리 테스트 함수 목록');
     console.log('═══════════════════════════════════════════════════════');
-    console.log('🔑 setToken()           - JWT 토큰 설정');
-    console.log('📚 getMyLectures()      - 담당 강의 목록');
+    console.log('⚠️ 먼저 로그인하세요!');
+    console.log('📁 docs/일반유저 로그인+게시판/test-1-login.js → await login()');
+📚 getMyLectures()      - 담당 강의 목록');
     console.log('📝 createAssignment()   - 과제 생성');
     console.log('📋 getAssignments()     - 과제 목록 조회');
     console.log('📄 getSubmissions()     - 제출된 과제 목록');
     console.log('💯 gradeAssignment()    - 과제 채점');
     console.log('✏️ updateAssignment()   - 과제 수정');
     console.log('🗑️ deleteAssignment()   - 과제 삭제');
-    console.log('═══════════════════════════════════════════════════════');
-    console.log('💡 먼저 setToken()으로 토큰을 설정하세요!');
+}
+    console.log('💯 gradeAssignment()    - 과제 채점');
+    console.log('✏️ updateAssignment()   - 과제 수정');
+    console.log('🗑️ deleteAssignment()   - 과제 삭제');
 }
 
 // 초기 메시지
