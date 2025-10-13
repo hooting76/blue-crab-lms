@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registry API 테스트 - BlueCrab LMS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            font-family: 'Courier New', monospace;
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .response {
+            margin-top: 20px;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .response.success {
+            border-left: 4px solid #28a745;
+        }
+
+        .response.error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .json-key {
+            color: #9cdcfe;
+        }
+
+        .json-string {
+            color: #ce9178;
+        }
+
+        .json-number {
+            color: #b5cea8;
+        }
+
+        .json-boolean {
+            color: #569cd6;
+        }
+
+        .json-null {
+            color: #569cd6;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .info-box strong {
+            color: #1976D2;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🦀 BlueCrab LMS - Registry API 테스트</h1>
+            <p>학적 조회 및 증명서 발급 API 테스트 도구</p>
+        </div>
+
+        <div class="content">
+            <!-- JWT 토큰 설정 -->
+            <div class="section">
+                <h2>🔐 1. JWT 토큰 설정</h2>
+                <div class="info-box">
+                    <strong>📌 안내:</strong> 먼저 로그인 API를 통해 JWT 토큰을 발급받아 아래에 입력하세요.
+                </div>
+                <div class="form-group">
+                    <label for="jwtToken">JWT 토큰 (Bearer 토큰)</label>
+                    <input type="text" id="jwtToken" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+                </div>
+                <div class="form-group">
+                    <label for="baseUrl">API Base URL</label>
+                    <input type="text" id="baseUrl" value="http://localhost:8080/BlueCrab-1.0.0">
+                </div>
+            </div>
+
+            <!-- 학적 조회 API -->
+            <div class="section">
+                <h2>📋 2. 학적 조회 API (POST /api/registry/me)</h2>
+                <div class="info-box">
+                    <strong>기능:</strong> JWT 토큰에서 사용자 정보를 추출하여 최신 학적 정보를 조회합니다.
+                </div>
+
+                <div class="form-group">
+                    <label for="asOfDate">스냅샷 기준일 (선택, 형식: YYYY-MM-DD)</label>
+                    <input type="date" id="asOfDate" placeholder="2025-03-01">
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="testRegistryMe()">
+                        🔍 학적 조회 (현재 시점)
+                    </button>
+                    <button class="btn btn-primary" onclick="testRegistryMeAsOf()">
+                        📅 학적 조회 (시점 기준)
+                    </button>
+                    <button class="btn btn-success" onclick="testRegistryExists()">
+                        ✅ 학적 존재 확인
+                    </button>
+                </div>
+
+                <div id="registryResponse" class="response" style="display: none;"></div>
+            </div>
+
+            <!-- 증명서 발급 API -->
+            <div class="section">
+                <h2>📄 3. 증명서 발급 이력 API (POST /api/registry/cert/issue)</h2>
+                <div class="info-box">
+                    <strong>기능:</strong> 증명서 발급 이력을 JSON 스냅샷과 함께 저장합니다.
+                    <br><strong>남발 방지:</strong> 동일 증명서는 5분 이내 재발급 불가
+                </div>
+
+                <div class="form-group">
+                    <label for="certType">증명서 유형</label>
+                    <select id="certType">
+                        <option value="enrollment">재학증명서 (enrollment)</option>
+                        <option value="graduation_expected">졸업예정증명서 (graduation_expected)</option>
+                        <option value="graduation">졸업증명서 (graduation)</option>
+                        <option value="transcript">성적증명서 (transcript)</option>
+                        <option value="certificate">수료증명서 (certificate)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="certAsOfDate">스냅샷 기준일 (선택, 형식: YYYY-MM-DD)</label>
+                    <input type="date" id="certAsOfDate">
+                </div>
+
+                <div class="form-group">
+                    <label for="certFormat">발급 형식</label>
+                    <select id="certFormat">
+                        <option value="html">HTML</option>
+                        <option value="pdf">PDF</option>
+                        <option value="image">이미지</option>
+                    </select>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="testCertIssue()">
+                        📄 증명서 발급
+                    </button>
+                </div>
+
+                <div id="certResponse" class="response" style="display: none;"></div>
+            </div>
+
+            <!-- 종합 테스트 -->
+            <div class="section">
+                <h2>🚀 4. 종합 테스트 (전체 시나리오)</h2>
+                <div class="info-box">
+                    <strong>테스트 시나리오:</strong>
+                    <ol style="margin-left: 20px; margin-top: 10px;">
+                        <li>학적 존재 여부 확인</li>
+                        <li>학적 조회 (현재 시점)</li>
+                        <li>학적 조회 (시점 기준)</li>
+                        <li>재학증명서 발급</li>
+                        <li>졸업예정증명서 발급</li>
+                    </ol>
+                </div>
+
+                <button class="btn btn-success" onclick="runFullTest()" style="width: 100%;">
+                    🎯 전체 시나리오 테스트 실행
+                </button>
+
+                <div id="fullTestResponse" class="response" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JWT 토큰 가져오기
+        function getToken() {
+            const token = document.getElementById('jwtToken').value.trim();
+            if (!token) {
+                alert('JWT 토큰을 입력해주세요.');
+                return null;
+            }
+            return token;
+        }
+
+        // Base URL 가져오기
+        function getBaseUrl() {
+            return document.getElementById('baseUrl').value.trim();
+        }
+
+        // 응답 표시
+        function showResponse(elementId, data, isSuccess = true) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `response ${isSuccess ? 'success' : 'error'}`;
+            element.textContent = JSON.stringify(data, null, 2);
+        }
+
+        // 1. 학적 조회 (현재 시점)
+        async function testRegistryMe() {
+            const token = getToken();
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${getBaseUrl()}/api/registry/me`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
+
+                const data = await response.json();
+                showResponse('registryResponse', data, response.ok);
+            } catch (error) {
+                showResponse('registryResponse', { error: error.message }, false);
+            }
+        }
+
+        // 2. 학적 조회 (시점 기준)
+        async function testRegistryMeAsOf() {
+            const token = getToken();
+            if (!token) return;
+
+            const asOfDate = document.getElementById('asOfDate').value;
+            if (!asOfDate) {
+                alert('스냅샷 기준일을 선택해주세요.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${getBaseUrl()}/api/registry/me`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ asOf: asOfDate })
+                });
+
+                const data = await response.json();
+                showResponse('registryResponse', data, response.ok);
+            } catch (error) {
+                showResponse('registryResponse', { error: error.message }, false);
+            }
+        }
+
+        // 3. 학적 존재 확인
+        async function testRegistryExists() {
+            const token = getToken();
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${getBaseUrl()}/api/registry/me/exists`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+                showResponse('registryResponse', data, response.ok);
+            } catch (error) {
+                showResponse('registryResponse', { error: error.message }, false);
+            }
+        }
+
+        // 4. 증명서 발급
+        async function testCertIssue() {
+            const token = getToken();
+            if (!token) return;
+
+            const certType = document.getElementById('certType').value;
+            const certFormat = document.getElementById('certFormat').value;
+            const certAsOfDate = document.getElementById('certAsOfDate').value || null;
+
+            const requestBody = {
+                type: certType,
+                format: certFormat
+            };
+
+            if (certAsOfDate) {
+                requestBody.asOf = certAsOfDate;
+            }
+
+            try {
+                const response = await fetch(`${getBaseUrl()}/api/registry/cert/issue`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+                showResponse('certResponse', data, response.ok);
+            } catch (error) {
+                showResponse('certResponse', { error: error.message }, false);
+            }
+        }
+
+        // 5. 전체 시나리오 테스트
+        async function runFullTest() {
+            const token = getToken();
+            if (!token) return;
+
+            const results = [];
+            const baseUrl = getBaseUrl();
+
+            // 1. 학적 존재 확인
+            results.push('=== 1. 학적 존재 확인 ===');
+            try {
+                const res1 = await fetch(`${baseUrl}/api/registry/me/exists`, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data1 = await res1.json();
+                results.push(JSON.stringify(data1, null, 2));
+            } catch (e) {
+                results.push(`ERROR: ${e.message}`);
+            }
+
+            // 2. 학적 조회 (현재)
+            results.push('\n=== 2. 학적 조회 (현재 시점) ===');
+            try {
+                const res2 = await fetch(`${baseUrl}/api/registry/me`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
+                const data2 = await res2.json();
+                results.push(JSON.stringify(data2, null, 2));
+            } catch (e) {
+                results.push(`ERROR: ${e.message}`);
+            }
+
+            // 3. 학적 조회 (시점 기준)
+            const asOfDate = new Date();
+            asOfDate.setMonth(asOfDate.getMonth() - 1);
+            const asOfStr = asOfDate.toISOString().split('T')[0];
+
+            results.push(`\n=== 3. 학적 조회 (시점 기준: ${asOfStr}) ===`);
+            try {
+                const res3 = await fetch(`${baseUrl}/api/registry/me`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ asOf: asOfStr })
+                });
+                const data3 = await res3.json();
+                results.push(JSON.stringify(data3, null, 2));
+            } catch (e) {
+                results.push(`ERROR: ${e.message}`);
+            }
+
+            // 4. 재학증명서 발급
+            results.push('\n=== 4. 재학증명서 발급 ===');
+            try {
+                const res4 = await fetch(`${baseUrl}/api/registry/cert/issue`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        type: 'enrollment',
+                        format: 'html'
+                    })
+                });
+                const data4 = await res4.json();
+                results.push(JSON.stringify(data4, null, 2));
+            } catch (e) {
+                results.push(`ERROR: ${e.message}`);
+            }
+
+            // 대기 (남발 방지 테스트)
+            results.push('\n⏳ 5초 대기 중...');
+            showResponse('fullTestResponse', results.join('\n'), true);
+            await new Promise(resolve => setTimeout(resolve, 5000));
+
+            // 5. 재학증명서 재발급 시도 (실패 예상)
+            results.push('\n=== 5. 재학증명서 재발급 시도 (5분 미만 - 실패 예상) ===');
+            try {
+                const res5 = await fetch(`${baseUrl}/api/registry/cert/issue`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        type: 'enrollment',
+                        format: 'html'
+                    })
+                });
+                const data5 = await res5.json();
+                results.push(JSON.stringify(data5, null, 2));
+            } catch (e) {
+                results.push(`ERROR: ${e.message}`);
+            }
+
+            results.push('\n✅ 전체 테스트 완료!');
+            showResponse('fullTestResponse', results.join('\n'), true);
+        }
+    </script>
+</body>
+</html>
