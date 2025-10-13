@@ -80,13 +80,13 @@ export default function NoticeList({
           filtered.sort((a, b) => (b.boardReg || "").localeCompare(a.boardReg || ""));
 
           // ✅ 페이징 처리
-          const start = (page - 1) * size;
-          const end = start + size;
-          const pageItems = filtered.slice(start, end);
+          // const start = (page - 1) * size;
+          // const end = start + size;
+          // const pageItems = filtered.slice(start, end);
 
           setState({
-            items: pageItems,
-            total: filtered.length,
+            items: filtered,
+            total: res.totalElements || 0,
             loading: false
           });
         } catch (error) {
