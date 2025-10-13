@@ -118,7 +118,7 @@ const [isModalOpen, setIsModalOpen] = useState(false);
                         (결석일수)회
                     </div>
                     <div className="attendanceCall">
-                        {user.USER_DEPT === 0 ? (
+                        {user.data.user.userStudent === 0 ? (
                             <button onClick={attendanceRequestSubmit}>출석인정 신청</button>
                         ) : (
                             <button onClick={openModal}>출석인정 승인</button>

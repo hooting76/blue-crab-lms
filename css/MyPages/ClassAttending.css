@@ -87,15 +87,6 @@
 .table-wrap tbody td:nth-child(6) { width: 13%; } /* 담당교수 */
 
 
-@media (max-width: 1000px) {
-    .classAttending_list_container { max-width: 100%; }                
-    .classAttending_text,
-    .classAttending_list_header tr th {
-      width: 100%;
-      font-size: var(--font-small);
-    }
-}
-
 .classAttendingContent {
   width: 1000px;
   display: flex;
@@ -136,17 +127,20 @@
   margin-left: 25px;
 }
 
-.attendance {
+.attendance, .absence, .attendanceCall {
   margin-top: 10px;
   margin-bottom: 10px;
+  border: solid 1px black;
+  padding: 10px;
+  border-radius: 10px;;
 }
 
-.absence {
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
 
-.attendanceCall {
-  margin-top: 10px;
-  margin-bottom: 10px;
+@media (max-width: 1000px) {
+    .classAttending_list_container { max-width: 100%; }                
+    .classAttending_text,
+    .classAttending_list_header tr th {
+      width: 100%;
+      font-size: var(--font-small);
+    }
 }
