@@ -3,7 +3,6 @@
     max-width: 1000px;  
     margin-left: auto;
     margin-right: auto;
-    box-sizing: border-box;
 }
 
 .selectSemester {
@@ -84,12 +83,13 @@
 .table-wrap thead th:nth-child(5),
 .table-wrap tbody td:nth-child(5) { width: 12%; } /* 수업계획 */
 .table-wrap thead th:nth-child(6),
-.table-wrap tbody td:nth-child(6) { width: 13%; } /* 담당교수 */
+.table-wrap tbody td:nth-child(6) { width: 13%; } 담당교수
 
 
 .classAttendingContent {
   width: 1000px;
   display: flex;
+  justify-content: space-between;
   justify-content: center;
   align-items: flex-start;
   margin-top: 50px;
@@ -133,6 +133,15 @@
   border: solid 1px black;
   padding: 10px;
   border-radius: 10px;
+}
+
+.attendanceCallBtn {
+  background-color: var(--main-color);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
   font-size: var(--font-mid);
 }
 

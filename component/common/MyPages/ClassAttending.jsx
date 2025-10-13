@@ -119,9 +119,9 @@ const [isModalOpen, setIsModalOpen] = useState(false);
                     </div>
                     <div className="attendanceCall">
                         {user.data.user.userStudent === 0 ? (
-                            <button onClick={attendanceRequestSubmit}>출석인정 신청</button>
+                            <button className="attendanceCallBtn" onClick={attendanceRequestSubmit}>출석인정 신청</button>
                         ) : (
-                            <button onClick={openModal}>출석인정 승인</button>
+                            <button className="attendanceCallBtn" onClick={openModal}>출석인정 승인</button>
                         )}
                     </div>
                     {/* 모달 렌더링 */}
