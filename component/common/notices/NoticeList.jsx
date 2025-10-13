@@ -66,25 +66,24 @@ export default function NoticeList({
             return;
           }
 
-          const res = await getNotices(accessToken, page, size, "0"); // boardCode 없이 전체 불러오기
-          const allItems = Array.isArray(res.content) ? res.content : [];
+          const res = await getNotices(accessToken, page, size, boardCode);
+          if (!alive) return;
 
-          const filteredItems = boardCode === "0" 
-            ? allItems 
-            : allItems.filter(item => String(item.boardCode) === String(boardCode));
+          const items = Array.isArray(res.content) ? res.content : [];
 
-          const totalFiltered = filteredItems.length;
+          // ✅ 최신순 정렬 (작성일 기준)
+          items.sort((a, b) => (b.boardReg || "").localeCompare(a.boardReg || ""));
 
-          // 클라이언트 페이징 처리
-          const start = (page - 1) * size;
-          const pageItems = filteredItems.slice(start, start + size);
+          // ✅ 페이징 처리
+          // const start = (page - 1) * size;
+          // const end = start + size;
+          // const pageItems = filtered.slice(start, end);
 
           setState({
-            items: pageItems,
-            total: totalFiltered,
+            items,
+            total: res.totalElements || 0,
             loading: false
           });
-
         } catch (error) {
           console.error('게시글 목록 조회 실패:', error);
           if (!alive) return;
