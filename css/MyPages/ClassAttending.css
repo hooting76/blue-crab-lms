@@ -90,7 +90,7 @@
 .classAttendingContent {
   width: 1000px;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: flex-start;
   margin-top: 50px;
   margin-bottom: 50px;

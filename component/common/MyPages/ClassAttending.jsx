@@ -71,8 +71,6 @@ const attendanceRequestSubmit = (e) => {
     alert("출석인정 신청이 완료되었습니다.");
 }
 
-console.log("user :", user);
-
 const [isModalOpen, setIsModalOpen] = useState(false);
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
