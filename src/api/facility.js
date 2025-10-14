@@ -4,7 +4,28 @@
 import { ensureAccessTokenOrRedirect } from '../utils/authFlow';
 import { readAccessToken } from '../utils/readAccessToken';
 
-const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api'; // 절대 URL 유지
+/* ===========================
+ *  환경별 베이스 URL 결정
+ *  - 프론트 테스트 도메인에서는 백엔드 절대경로로 강제
+ *  - 같은 오리진에 배포된 경우 상대경로 사용
+ * =========================== */
+const API_ORIGIN = (() => {
+  const h = window.location.hostname;
+
+  // 프론트 테스트 서버(백엔드와 오리진 다름)
+  if (h.includes('bluecrab-front-test')) {
+    return 'https://bluecrab.chickenkiller.com';
+  }
+
+  // 로컬 개발(백엔드 포트는 환경에 맞게 조정)
+  if (h === 'localhost' || h === '127.0.0.1') {
+    return 'http://localhost:8080';
+  }
+
+  // 같은 오리진
+  return '';
+})();
+const BASE_URL = `${API_ORIGIN}/BlueCrab-1.0.0/api`;
 const REQ_TIMEOUT_MS = 10000;
 
 // 공통 헤더
@@ -13,11 +34,20 @@ const getHeaders = (accessToken) => ({
   'Content-Type': 'application/json',
 });
 
-// 안전 JSON 파싱
+/* ===========================
+ *  안전 JSON 파싱
+ *  - JSON이 아니면 즉시 에러로 처리(HTML 200 응답 등 차단)
+ * =========================== */
 const parseJsonSafe = async (res) => {
   const ct = res.headers.get('content-type') || '';
   if (ct.includes('application/json')) return res.json();
-  return res.text();
+
+  const body = await res.text();
+  const err = new Error('API가 JSON이 아닌 응답을 반환했습니다.');
+  err.nonJsonBody = body;
+  err.status = res.status;
+  err.contentType = ct;
+  throw err;
 };
 
 // 타임아웃 포함 fetch
@@ -76,7 +106,7 @@ async function handleResponse(res, defaultErrMsg = '요청 처리 실패') {
     err.payload = payload;
     throw err;
   }
-  return payload; // ApiResponse<T> 혹은 텍스트
+  return payload; // ApiResponse<T>
 }
 
 /* ===========================
@@ -148,31 +178,13 @@ export const postReservationDetail = async (reservationIdx) => {
 
 /* ==========
  *  예약 취소
+ *  (명세서 준수: DELETE만 사용)
  * ========== */
 
-// 실서버 정책: POST-only 우선.
-// 1) 우선 POST /reservations/cancel 로 시도
-// 2) 없다면 DELETE /reservations/{id} 로 폴백
 export const cancelReservation = async (reservationIdx) => {
   await ensureAccessTokenOrRedirect();
-
-  // 1차: POST 방식(서버에 /cancel 엔드포인트가 구현돼있다면)
-  try {
-    const res1 = await postRetry401(`${BASE_URL}/reservations/cancel`, { reservationIdx });
-    if (res1.ok) return handleResponse(res1, '예약 취소 실패');
-    // ok=false면 아래로 캐치됨
-    const payload = await parseJsonSafe(res1);
-    const msg = typeof payload === 'object' ? (payload.message || '예약 취소 실패') : '예약 취소 실패';
-    throw Object.assign(new Error(msg), { payload, status: res1.status });
-  } catch (e) {
-    // 2차: DELETE 폴백(백엔드가 원래 스펙 그대로인 경우)
-    try {
-      const res2 = await deleteRetry401(`${BASE_URL}/reservations/${reservationIdx}`);
-      return handleResponse(res2, '예약 취소 실패');
-    } catch (e2) {
-      throw e2;
-    }
-  }
+  const res = await deleteRetry401(`${BASE_URL}/reservations/${reservationIdx}`);
+  return handleResponse(res, '예약 취소 실패');
 };
 
 /* ===========================

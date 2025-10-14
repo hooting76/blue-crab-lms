@@ -203,30 +203,73 @@ button.danger{
 }
 hr.sep{ border:none; height:1px; background:var(--line); margin:16px 0 }
 
-/* =========================
-   페이지 레이아웃(학사공지 느낌)
-   ========================= */
-.facility-page{ max-width:1200px; margin:0 auto; padding:16px 16px 48px }
+/* ===== 레이아웃 확장 & 정렬 ===== */
+.facility-page {
+  max-width: 1280px; /* 기존 1200 -> 1280 */
+  margin: 0 auto;
+  padding: 16px 16px 48px;
+}
 
-.page-head{
-  background:#eef3fb; border-radius:14px; padding:28px 24px; margin-bottom:18px;
+.page-head {
+  background: #eef3fb;
+  border-radius: 16px;
+  padding: 32px 28px;
+  margin: 12px auto 20px;
+  max-width: 1120px;      /* 배너 실제 폭 */
 }
 .page-head h2{
   text-align:center; font-size:28px; margin:0 0 8px; color:#234; letter-spacing:.02em;
 }
 .page-head .sub{ text-align:center; color:#5c6773; margin:0 }
 
-/* 본문/사이드 2열 */
-.content-grid{
-  display:grid; grid-template-columns:1fr 320px; gap:20px;
-}
-@media (max-width:1024px){
-  .content-grid{ grid-template-columns:1fr }
-  .side{ order:-1 } /* 모바일에서 사이드를 위로 올리고 싶으면 제거 */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px; /* 메인/사이드 */
+  gap: 24px;
+  align-items: start;
+  max-width: 1120px;      /* 배너 폭과 통일 */
+  margin: 0 auto;         /* 배너와 동일 가운데 정렬 */
 }
 
-/* 본문 카드 리스트 */
-.card-list{ display:grid; grid-template-columns:1fr; gap:12px }
+@media (max-width: 1024px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+    max-width: 100%;
+  }
+}
+
+/* 카드 리스트 여백/폭 최적화 */
+.card-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+/* 페이지네이션 */
+.pager {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  user-select: none;
+}
+.pager button {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+}
+.pager button[disabled] {
+  opacity: .5;
+  cursor: not-allowed;
+}
+.pager .num.active {
+  background: #2f6bff;
+  color: #fff;
+  border-color: #1f54e8;
+}
 
 /* 카드(위쪽 정의 재사용용 확장) */
 .facility-card{
@@ -246,5 +289,9 @@ hr.sep{ border:none; height:1px; background:var(--line); margin:16px 0 }
 .fc-meta{ display:flex; gap:14px; color:#64748b; font-size:14px }
 .fc-note{ margin-top:8px; color:#a11; font-size:13px }
 
-/* 우측 사이드 카드 고정 */
-.side .side-card{ position:sticky; top:12px }
+/* 사이드 카드가 배너 하단 끝선에 맞도록 */
+.side .side-card,
+.side {
+  position: sticky;
+  top: 12px;
+}

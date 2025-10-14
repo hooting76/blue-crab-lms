@@ -1,21 +1,31 @@
 // src/component/common/Facilities/MyFacilityRequests.jsx
 import React, { useEffect, useState } from "react";
 import CommunitySidebar from "../notices/CommunitySidebar";
-import { postMyReservationsByStatus, cancelReservation } from "../../../src/api/facility";
+import { postMyReservations, postMyReservationsByStatus, cancelReservation } from "../../../src/api/facility";
 import "../../../css/Facilities/FacilityReserve.css";
 
 export default function MyFacilityRequests({ currentPage, setCurrentPage }) {
   const [status, setStatus] = useState("ALL");
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // 기존 리스트 로딩 로직 유지
+  const [err, setErr] = useState("");
+  
   useEffect(() => {
     (async () => {
       setLoading(true);
+      setErr("");
       try {
-        const data = await postMyReservationsByStatus(status); // 기존 함수 그대로
-        setList(Array.isArray(data?.data) ? data.data : []);
+        // ★ 핵심 수정: ALL 은 /my, 그 외는 /my/status/{ENUM}
+        const res =
+          status === "ALL"
+            ? await postMyReservations()
+            : await postMyReservationsByStatus(status);
+
+        const arr = Array.isArray(res?.data) ? res.data : [];
+        setList(arr);
+      } catch (e) {
+        setErr(e?.message || "목록을 불러오지 못했습니다.");
+        setList([]);
       } finally {
         setLoading(false);
       }

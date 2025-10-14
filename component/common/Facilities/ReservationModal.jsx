@@ -1,3 +1,4 @@
+// src/component/common/Facilities/ReservationModal.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { postDailySchedule, postAvailability, postReservation } from "../../../src/api/facility";
 import { genBusinessSlots, toYMD, toYMDHMS, validateBusinessHours, packContiguousRanges } from "../../../src/utils/timeUtils";
@@ -14,6 +15,13 @@ export default function ReservationModal({ facility, onClose }) {
   const [saving, setSaving] = useState(false);
 
   const hours = genBusinessSlots(); // [9..17]
+
+  // ESC 키로 닫기
+  useEffect(() => {
+  const onKey = (e) => { if (e.key === 'Escape') onClose?.(); };
+  window.addEventListener('keydown', onKey);
+  return () => window.removeEventListener('keydown', onKey);
+}, [onClose]);
 
   useEffect(() => {
     if (facility.isBlocked) return;
@@ -87,7 +95,7 @@ export default function ReservationModal({ facility, onClose }) {
       alert(facility.requiresApproval ? "예약이 생성되었습니다. 관리자 승인을 기다립니다." : "예약이 생성되었습니다.");
       onClose?.();
     } catch (e) {
-      setMsg(e?.response?.data?.message || e?.message || "신청 중 오류가 발생했습니다.");
+      setMsg(e?.payload?.message || e?.message || "신청 중 오류가 발생했습니다.");
     } finally { setSaving(false); }
   }
 
@@ -102,7 +110,7 @@ export default function ReservationModal({ facility, onClose }) {
       <div className="resv-modal" onClick={(e)=>e.stopPropagation()}>
         <header className="rm-head">
           <h3>{facility.name}</h3>
-          <button className="icon" onClick={onClose} aria-label="닫기">✕</button>
+          <button type="button" className="icon" onClick={onClose} aria-label="닫기">✕</button>
         </header>
 
         <section className="rm-section">
@@ -125,7 +133,7 @@ export default function ReservationModal({ facility, onClose }) {
               const isSel = selected.includes(s.hour);
               const cls = ["slot", !s.isAvailable ? "booked" : isSel ? "selected" : ""].join(" ").trim();
               return (
-                <button key={s.hour} className={cls} disabled={!s.isAvailable} onClick={()=>toggle(s.hour)}>
+                <button type="button" key={s.hour} className={cls} disabled={!s.isAvailable} onClick={()=>toggle(s.hour)}>
                   <div className="h">{String(s.hour).padStart(2,"0")}:00</div>
                   <div className="sub">
                     {!s.isAvailable ? "예약 불가" : isSel ? "✓ 선택됨" : "예약 가능"}
@@ -161,8 +169,8 @@ export default function ReservationModal({ facility, onClose }) {
         {msg && <p className="error">{msg}</p>}
 
         <footer className="rm-actions">
-          <button className="primary" disabled={saving || facility.isBlocked} onClick={submit}>예약 신청하기</button>
-          <button onClick={onClose}>취소</button>
+          <button type="button" className="primary" disabled={saving || facility.isBlocked} onClick={submit}>예약 신청하기</button>
+          <button type="button" onClick={onClose}>취소</button>
         </footer>
       </div>
     </div>
