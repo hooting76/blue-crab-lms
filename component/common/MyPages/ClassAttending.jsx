@@ -5,7 +5,7 @@ import { UseUser } from '../../../hook/UseUser';
 import ApproveAttendanceModal from './ApproveAttendanceModal.jsx';
 import ProfNoticeWritingPage from './ProfNoticeWritingPage.jsx';
 
-function ClassAttending() {
+function ClassAttending(currentPage, setCurrentPage) {
     const { user } = UseUser(); // 유저 정보
     // const [openRow, setOpenRow] = useState(null);
     
