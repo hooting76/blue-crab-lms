@@ -66,9 +66,10 @@ function AdNav({currentPage, setCurrentPage}){
             <ul>
                 <li>시설예약</li>
                 <ul>
-                    <li>신청목록</li>
+                    <li onClick={() => setCurrentPage("관리자 시설예약")} 
+                        style={{ cursor: "pointer" }}>신청목록</li>
                     <li>사용내역</li>
-                </ul>
+            </ul>
             </ul>
             <ul>
                 <li>일정등록</li>

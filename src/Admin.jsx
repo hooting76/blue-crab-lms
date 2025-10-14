@@ -26,6 +26,9 @@ import AdminNotice from '../component/common/Communities/AdminNotice';
 import EtcNotice from '../component/common/Communities/EtcNotice';
 import AdminNoticeWritingPage from '../component/common/Communities/AdminNoticeWritingPage';
 
+// 관리자 시설예약 페이지
+import AdminFacilityReservations from '../components/common/facilities/AdminFacilityReservations';
+
 
 // InApp filter function
 function InAppFilter(){
@@ -70,7 +73,10 @@ const renderPage = () => {
           return <EtcNotice currentPage={currentPage} setCurrentPage={setCurrentPage} setSelectedNotice={setSelectedNotice}/>;
         case 'Admin 공지 작성':
           return <AdminNoticeWritingPage setCurrentPage={setCurrentPage} notice={selectedNotice}/>;
-        default:
+        case '관리자 시설예약':
+          return <AdminFacilityReservations currentPage={currentPage} setCurrentPage={setCurrentPage} />;
+          
+          default:
           return <AdminDashboard />;
       }
   }
