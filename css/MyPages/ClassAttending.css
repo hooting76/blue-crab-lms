@@ -140,6 +140,10 @@
   font-size: var(--font-mid);
 }
 
+.attendanceCallBtn:hover {
+  cursor: pointer;
+}
+
 
 @media (max-width: 1000px) {
     .classAttending_list_container { max-width: 100%; }                
