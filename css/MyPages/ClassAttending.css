@@ -136,8 +136,12 @@
   font-size: var(--font-mid);
 }
 
-.attendanceCallBtn {
+.profNoticeWriteBtn, .attendanceCallBtn {
   font-size: var(--font-mid);
+}
+
+.profNoticeWriteBtn:hover {
+  cursor: pointer;
 }
 
 .attendanceCallBtn:hover {
