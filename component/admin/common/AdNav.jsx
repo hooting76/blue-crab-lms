@@ -63,9 +63,12 @@ function AdNav({currentPage, setCurrentPage}){
                 </ul>
             </ul>
             <ul>
-                <li onClick={() => setCurrentPage("시설물 관리")}>
-                시설물 관리
-                </li>
+                <li>시설물관리</li>
+                <ul>
+                    <li onClick={() => setCurrentPage('시설물관리')}>
+                    시설물관리
+                    </li>
+                </ul>
             </ul>
             <ul>
                 <li>일정등록</li>
