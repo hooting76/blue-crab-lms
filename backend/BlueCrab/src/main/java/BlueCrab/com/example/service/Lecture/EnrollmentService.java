@@ -81,7 +81,8 @@ public class EnrollmentService {
 
     /* 학생 IDX로 수강 목록 조회 (페이징) */
     public Page<EnrollmentExtendedTbl> getEnrollmentsByStudentPaged(Integer studentIdx, Pageable pageable) {
-        return enrollmentRepository.findByStudentIdx(studentIdx, pageable);
+        // JOIN FETCH로 lecture와 student를 함께 조회하여 Lazy Loading 방지
+        return enrollmentRepository.findEnrollmentHistoryByStudent(studentIdx, pageable);
     }
 
     /* 강의 IDX로 수강생 목록 조회 (학생 정보 포함) */
@@ -91,7 +92,8 @@ public class EnrollmentService {
 
     /* 강의 IDX로 수강생 목록 조회 (페이징) */
     public Page<EnrollmentExtendedTbl> getEnrollmentsByLecturePaged(Integer lecIdx, Pageable pageable) {
-        return enrollmentRepository.findByLecIdx(lecIdx, pageable);
+        // JOIN FETCH로 lecture와 student를 함께 조회하여 Lazy Loading 방지
+        return enrollmentRepository.findStudentsByLecture(lecIdx, pageable);
     }
 
     /* 학생 + 강의 조합으로 수강 정보 조회 */

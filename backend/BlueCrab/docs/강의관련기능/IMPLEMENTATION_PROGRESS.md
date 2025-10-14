@@ -1,8 +1,8 @@
 # 강의 관리 시스템 구현 진척도
 
 > **최종 업데이트**: 2025-10-14  
-> **현재 Phase**: Phase 6 완료 + DTO 패턴 적용 완료  
-> **전체 진행률**: 90% (Phase 1-6 완료 + 버그 수정)
+> **현재 Phase**: Phase 6.5 완료 + JOIN FETCH 최적화 완료  
+> **전체 진행률**: 92% (Phase 1-6.5 완료 + 성능 최적화)
 
 ---
 
@@ -15,9 +15,10 @@ Phase 4: Repository 레이어          ████████████ 100%
 Phase 5: Service 레이어             ████████████ 100% ✅
 Phase 6: Controller 레이어          ████████████ 100% ✅
 Phase 6.5: DTO 패턴 적용           ████████████ 100% ✅
-Phase 7: 테스트 & 통합              ████░░░░░░░░  30% 🚧
+Phase 6.6: JOIN FETCH 최적화       ████████████ 100% ✅
+Phase 7: 테스트 & 통합              ████████░░░░  60% 🚧
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-전체 진행률:                        █████████░░░  90%
+전체 진행률:                        ██████████░░  92%
 ```
 
 ---
@@ -87,6 +88,43 @@ Phase 7: 테스트 & 통합              ████░░░░░░░░  3
 - **성능 최적화**: 필요한 데이터만 전송
 - **유지보수성**: 명확한 API 계약 (Contract)
 - **에러 방지**: Lazy Loading 세션 문제 원천 차단
+
+---
+
+## ✅ Phase 6.6: JOIN FETCH 최적화 (완료)
+
+### 기간: 2025-10-14
+### 상태: ✅ 완료
+
+#### 문제 진단
+- [x] **DTO 필드가 null로 반환되는 문제**
+  - EnrollmentDto의 강의 정보(lecTit, lecProf 등) 모두 null
+  - EnrollmentDto의 학생 정보(studentName, studentCode) 모두 null
+  - Lazy Loading 접근 시 Hibernate 세션 종료로 실패
+
+#### 완료 항목
+- [x] **Repository JOIN FETCH 쿼리 개선**
+  - `findEnrollmentHistoryByStudent()`: lecture + student 동시 JOIN FETCH
+  - `findStudentsByLecture()`: lecture + student 동시 JOIN FETCH
+  - DISTINCT 키워드로 중복 제거
+  - countQuery 분리로 페이징 최적화
+
+- [x] **Service 레이어 수정**
+  - `getEnrollmentsByStudentPaged()`: JOIN FETCH 메서드 사용
+  - `getEnrollmentsByLecturePaged()`: JOIN FETCH 메서드 사용
+  - N+1 쿼리 문제 원천 차단
+
+- [x] **테스트 코드 출력 형식 개선**
+  - `getMyEnrollments()`: 정보 그룹화 (수강신청/강의/학생)
+  - `getAvailableLectures()`: 전체 JSON 구조 출력 추가
+  - `enrollLecture()`: 상세 응답 정보 표시
+  - `getLectureDetail()`: lecSummary 출력 및 JSON 확인
+
+#### 기술적 효과
+- **N+1 쿼리 방지**: 한 번의 쿼리로 모든 연관 데이터 조회
+- **Lazy Loading 안전**: 세션 내에서 모든 데이터 로드 완료
+- **성능 향상**: 불필요한 추가 쿼리 제거
+- **DTO 완전성**: 모든 필드가 정상적으로 채워짐
 
 ---
 
