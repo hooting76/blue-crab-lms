@@ -5,7 +5,7 @@ import { UseUser } from '../../../hook/UseUser';
 import ApproveAttendanceModal from './ApproveAttendanceModal.jsx';
 import ProfNoticeWritingPage from './ProfNoticeWritingPage.jsx';
 
-function ClassAttending(currentPage, setCurrentPage) {
+function ClassAttending({currentPage, setCurrentPage}) {
     const { user } = UseUser(); // 유저 정보
     // const [openRow, setOpenRow] = useState(null);
     
@@ -111,7 +111,7 @@ const [isModalOpen, setIsModalOpen] = useState(false);
                     </div>
                     <div className="profNoticeWriteBtnArea">
                         {user.data.user.userStudent === 1 &&
-                        <button className="profNoticeWriteBtn" onClick={() => profNoticeWrite}>과목별 공지 작성</button>}
+                        <button className="profNoticeWriteBtn" onClick={profNoticeWrite}>과목별 공지 작성</button>}
                     </div>
                     <div className="lectureChat">
                         실시간 채팅
