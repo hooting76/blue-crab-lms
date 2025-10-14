@@ -195,8 +195,26 @@ if (shouldAddAuth) {
 - **테스트 페이지**: Authorization 헤더 자동 추가 개선
 - **안정성**: 더 정확한 인증 로직
 
+### 명세서 업데이트
+✅ [backend/BlueCrab/FCM_PUSH_NOTIFICATION_GUIDE.md](../backend/BlueCrab/FCM_PUSH_NOTIFICATION_GUIDE.md)
+- API 명세서에 새로운 요청 방식 추가 (targetType + targeta)
+- 버전 업데이트: v1.0.0 → v1.1.0
+- 변경 이력 추가
+
+### 사용자가 추가한 개선 사항
+✅ 테스트 페이지에 FCM 엔드포인트 추가
+- `fcmSend`: `/api/fcm/send` (단일/여러 사용자)
+- `fcmBatch`: `/api/fcm/send/batch` (일괄 전송)
+- `fcmBroadcast`: `/api/fcm/send/broadcast` (브로드캐스트)
+
 ### 다음 단계
 1. 서버 재시작 및 컴파일
 2. 테스트 페이지에서 FCM 전송 API 테스트
+   - 방식 1: `userCode` (기존)
+   - 방식 2: `targetType` + `targeta` (신규)
 3. 다른 인증 필요 엔드포인트 정상 동작 확인
 4. 필요시 추가 엔드포인트에도 동일 패턴 적용
+
+### 참고 문서
+- 📘 [FCM 푸시 알림 기능 구현 가이드](../backend/BlueCrab/FCM_PUSH_NOTIFICATION_GUIDE.md) - 전체 FCM 시스템 명세서
+- 📋 [테스트 페이지 점검 보고서](../docs/test-page-review.md) - 발견된 문제들 목록

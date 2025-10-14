@@ -8,8 +8,8 @@
 
 ### 접속 방법
 ```
-로컬 개발: http://localhost:8080/api-test.html
-운영 서버: https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api-test.html
+로컬 개발: http://localhost:8080/  (또는 /status)
+운영 서버: https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/
 ```
 
 ### 주요 기능

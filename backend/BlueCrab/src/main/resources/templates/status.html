@@ -213,6 +213,78 @@
             <h3>📋 응답 결과</h3>
             <div id="response" class="response">여기에 API 응답이 표시됩니다...</div>
         </div>
+
+        <!-- [3단] 첨부파일 워크플로 -->
+        <div class="content-row">
+            <div class="section attachments-section full-width-section">
+                <div class="section-header-inline">
+                    <h3>📎 첨부파일 워크플로</h3>
+                    <div>
+                        <button type="button" class="danger" onclick="clearAttachmentLog()">로그 지우기</button>
+                    </div>
+                </div>
+
+                <p class="section-description">
+                    게시글 생성 → 파일 업로드 → 첨부 연결 흐름을 한 화면에서 실행합니다. 로그인 후 토큰이 준비된 상태에서 사용하세요.
+                </p>
+
+                <div class="attachments-grid">
+                    <div class="attachment-form">
+                        <label for="attachmentBoardId">게시글 IDX</label>
+                        <input type="number" id="attachmentBoardId" placeholder="기존 게시글 번호 (선택)">
+                        <p class="input-hint">직접 입력하거나 아래에서 새 게시글을 생성하면 자동으로 채워집니다.</p>
+
+                        <label for="attachmentBoardCode">게시판 코드</label>
+                        <input type="number" id="attachmentBoardCode" value="3" min="1">
+                        <p class="input-hint">기본값 3 (공지사항). 필요한 경우 다른 코드로 변경하세요.</p>
+
+                        <label for="attachmentTitle">게시글 제목</label>
+                        <input type="text" id="attachmentTitle" placeholder="테스트 게시글 제목">
+
+                        <label for="attachmentContent">게시글 본문</label>
+                        <textarea id="attachmentContent" placeholder="게시글 본문"></textarea>
+
+                        <div class="button-group">
+                            <button type="button" class="primary" onclick="attachmentCreateBoard()">게시글 생성</button>
+                            <button type="button" class="success" onclick="attachmentCreateBoardWithFiles()">게시글 + 첨부 한번에</button>
+                        </div>
+
+                        <label for="attachmentFileInput">첨부파일 (최대 5개)</label>
+                        <div class="attachment-file-input">
+                            <input type="file" id="attachmentFileInput" multiple>
+                        </div>
+                        <p class="input-hint">파일을 선택하면 자동으로 로그에 정보가 표시됩니다.</p>
+
+                        <label for="attachmentManualIds">첨부파일 IDX 직접 입력</label>
+                        <input type="text" id="attachmentManualIds" placeholder="예: 12, 15, 18">
+                        <p class="input-hint">이전 업로드 결과를 직접 입력하여 재연결할 수 있습니다.</p>
+
+                        <div class="button-group">
+                            <button type="button" onclick="attachmentUploadFiles()">파일 업로드</button>
+                            <button type="button" class="success" onclick="attachmentLinkFiles()">첨부 연결</button>
+                        </div>
+                    </div>
+                    <div class="attachment-status-card">
+                        <h4>최근 상태</h4>
+                        <dl>
+                            <dt>마지막 게시글</dt>
+                            <dd id="attachmentStateBoard">없음</dd>
+                            <dt>최근 업로드된 첨부</dt>
+                            <dd id="attachmentStateFiles">없음</dd>
+                        </dl>
+                        <div class="button-group">
+                            <button type="button" onclick="attachmentUseLastBoard()">게시글 IDX 적용</button>
+                            <button type="button" onclick="attachmentUseLastAttachments()">첨부 IDX 적용</button>
+                        </div>
+                        <p class="input-hint">첨부파일 API는 모두 인증이 필요합니다. 로그인 후 사용하세요.</p>
+                    </div>
+                </div>
+
+                <div class="attachment-log" id="attachmentLog">
+                    <div class="attachment-log-placeholder">여기에 첨부 파일 흐름 로그가 표시됩니다.</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- 도움말 모달 -->
@@ -300,5 +372,6 @@
     <script th:src="@{/js/history-manager.js}" src="/js/history-manager.js"></script>
     <script th:src="@{/js/body-template-manager.js}" src="/js/body-template-manager.js"></script>
     <script th:src="@{/js/api-tester.js}" src="/js/api-tester.js"></script>
+    <script th:src="@{/js/attachment-tools.js}" src="/js/attachment-tools.js"></script>
 </body>
 </html>

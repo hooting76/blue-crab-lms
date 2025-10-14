@@ -21,6 +21,7 @@
 
 ✅ **API 테스트 HTML 파일 작성**
 - 파일 경로: `backend/BlueCrab/registry-api-test.html`
+- ※ 2025-10-14 기준, 모든 테스트 페이지가 `backend/BlueCrab/src/main/resources/templates/status.html`로 통합되어 본 HTML 파일은 더 이상 유지되지 않습니다.
 - 3개 API 엔드포인트 개별 테스트
 - 전체 시나리오 통합 테스트
 - 남발 방지 검증 테스트
