@@ -38,10 +38,9 @@
             </div>
         </div>
 
-        <!-- [1단] 인증 & 토큰 관리 -->
-        <div class="content-row">
-            <!-- 왼쪽: 인증 섹션 -->
-            <div class="section auth-section">
+        <div class="layout-grid">
+            <!-- 인증 & 토큰 -->
+            <div class="section auth-section layout-span-2">
                 <h3>🔐 인증 & 토큰</h3>
 
                 <div class="endpoint-info">
@@ -116,7 +115,7 @@
                 </div>
             </div>
 
-            <!-- 오른쪽: 토큰 세트 관리 -->
+            <!-- 토큰 세트 관리 -->
             <div class="section token-management-section">
                 <h3>💾 토큰 세트 관리</h3>
 
@@ -129,12 +128,9 @@
                 <h4 class="storage-subtitle">저장된 토큰 세트</h4>
                 <div id="tokenSetsList"></div>
             </div>
-        </div>
 
-        <!-- [2단] API 테스트 & 히스토리 -->
-        <div class="content-row">
-            <!-- 왼쪽: API 테스트 -->
-            <div class="section api-test-section">
+            <!-- API 테스트 -->
+            <div class="section api-test-section layout-span-2">
                 <h3>⚡ API 테스트</h3>
 
                 <!-- 인증 상태 배너 -->
@@ -200,23 +196,18 @@
                 </div>
             </div>
 
-            <!-- 오른쪽: 히스토리 -->
             <div class="section history-section">
                 <h3>📜 요청 히스토리</h3>
                 <button onclick="clearHistory()" class="danger full-width">히스토리 전체 삭제</button>
                 <div id="historyList"></div>
             </div>
-        </div>
 
-        <!-- 응답 결과 섹션 -->
-        <div class="response-section">
-            <h3>📋 응답 결과</h3>
-            <div id="response" class="response">여기에 API 응답이 표시됩니다...</div>
-        </div>
+            <div class="section response-section layout-span-3">
+                <h3>📋 응답 결과</h3>
+                <div id="response" class="response">여기에 API 응답이 표시됩니다...</div>
+            </div>
 
-        <!-- [3단] 첨부파일 워크플로 -->
-        <div class="content-row">
-            <div class="section attachments-section full-width-section">
+            <div class="section attachments-section layout-span-3">
                 <div class="section-header-inline">
                     <h3>📎 첨부파일 워크플로</h3>
                     <div>

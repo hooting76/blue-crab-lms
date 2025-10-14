@@ -12,18 +12,19 @@ body {
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 1680px;
     margin: 0 auto;
     background: white;
     border-radius: 10px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     overflow: hidden;
+    padding: 0 32px 40px;
 }
 
 .header {
     background: #2c3e50;
     color: white;
-    padding: 20px;
+    padding: 24px 32px;
     position: relative;
 }
 
@@ -55,17 +56,20 @@ body {
 
 .server-info {
     background: #34495e;
-    padding: 10px 20px;
+    padding: 12px 32px;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
     font-size: 13px;
     border-bottom: 2px solid #2c3e50;
+    flex-wrap: wrap;
 }
 
 .server-info-item {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
 }
 
 .server-info-item .label {
@@ -91,26 +95,46 @@ body {
     50% { opacity: 0.5; }
 }
 
-/* 2-Row Layout */
-.content-row {
+/* Desktop grid layout */
+.layout-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    padding: 20px;
-    padding-bottom: 10px;
+    grid-template-columns: 1.6fr 1fr 1.2fr;
+    gap: 24px;
+    padding: 24px 0 0;
 }
 
-.content-row:first-of-type {
-    padding-bottom: 10px;
+.layout-span-2 {
+    grid-column: span 2;
 }
 
-.content-row:last-of-type {
-    padding-top: 10px;
+.layout-span-3 {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 1440px) {
+    .layout-grid {
+        grid-template-columns: 1.4fr 1fr 1fr;
+    }
 }
 
 @media (max-width: 1200px) {
-    .content-row {
+    .layout-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .layout-span-3 {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 900px) {
+    .layout-grid {
         grid-template-columns: 1fr;
+    }
+
+    .layout-span-2,
+    .layout-span-3 {
+        grid-column: span 1;
     }
 }
 
@@ -318,10 +342,6 @@ button.full-width {
     margin-right: 5px;
 }
 
-.section.full-width-section {
-    grid-column: 1 / -1;
-}
-
 .attachments-section .section-header-inline {
     display: flex;
     justify-content: space-between;
@@ -495,16 +515,9 @@ label {
     margin-top: 10px;
 }
 
-.full-width {
-    grid-column: 1 / -1;
-}
-
-.response-section {
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 20px;
-    border: 1px solid #e9ecef;
-    margin: 0 20px 20px 20px;
+.section.response-section {
+    display: flex;
+    flex-direction: column;
 }
 
 .endpoint-info {
