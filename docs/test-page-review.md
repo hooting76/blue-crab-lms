@@ -3,6 +3,9 @@
 ## 개요
 BlueCrab LMS의 브라우저 테스트 페이지(`backend/BlueCrab/api-test.html`, `backend/BlueCrab/api-test-dual.html`, `backend/BlueCrab/attachment-test.html`)를 검토해 발견한 문제점을 정리했습니다. 각 항목마다 현재 동작, 원인, 권장 조치를 포함합니다.
 
+> 📌 **2025-10-14 업데이트**  
+> 모든 브라우저 기반 테스트 파일이 `backend/BlueCrab/src/main/resources/templates/status.html`(BlueCrab API 테스트 도구) 한 곳으로 통합되었습니다. 기존 개별 HTML 페이지들은 삭제됐으며, 아래 기록은 통합 이전 구조에서 발견한 이슈를 보존하기 위한 참고용입니다.
+
 ## 핵심 이슈
 
 1. **JWT 로그인 결과 파싱 오류**  

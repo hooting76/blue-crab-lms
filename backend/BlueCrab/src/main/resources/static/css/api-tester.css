@@ -318,6 +318,164 @@ button.full-width {
     margin-right: 5px;
 }
 
+.section.full-width-section {
+    grid-column: 1 / -1;
+}
+
+.attachments-section .section-header-inline {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.attachments-section .section-description {
+    font-size: 12px;
+    color: #495057;
+    background: #eef2f7;
+    border-left: 3px solid #9b59b6;
+    padding: 8px 10px;
+    border-radius: 4px;
+    margin-bottom: 18px;
+    line-height: 1.4;
+}
+
+.attachments-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 1024px) {
+    .attachments-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.attachment-form label {
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
+    color: #2c3e50;
+}
+
+.attachment-form textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.attachment-form .input-hint {
+    font-size: 11px;
+    color: #6c757d;
+    margin-top: -10px;
+    margin-bottom: 12px;
+}
+
+.attachment-file-input {
+    background: #fff;
+    border: 2px dashed #ced4da;
+    padding: 18px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.attachment-file-input input {
+    margin: 0;
+    border: none;
+}
+
+.attachment-status-card {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: 100%;
+}
+
+.attachment-status-card h4 {
+    font-size: 15px;
+    color: #2c3e50;
+}
+
+.attachment-status-card dl {
+    margin: 0;
+}
+
+.attachment-status-card dt {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #6c757d;
+}
+
+.attachment-status-card dd {
+    font-size: 13px;
+    margin: 4px 0 12px;
+    color: #212529;
+    word-break: break-word;
+}
+
+.attachment-status-card .input-hint {
+    margin: 0;
+}
+
+.attachment-status-card .button-group {
+    gap: 6px;
+}
+
+.attachment-status-card .button-group button {
+    min-width: 120px;
+}
+
+.attachment-log {
+    background: #1e1e1e;
+    color: #f1f1f1;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    border-radius: 8px;
+    padding: 16px;
+    max-height: 240px;
+    overflow-y: auto;
+    border: 1px solid #343a40;
+}
+
+.attachment-log-placeholder {
+    color: #adb5bd;
+}
+
+.attachment-log-entry {
+    margin-bottom: 8px;
+    padding-left: 6px;
+    border-left: 3px solid transparent;
+    line-height: 1.4;
+}
+
+.attachment-log-entry:last-child {
+    margin-bottom: 0;
+}
+
+.attachment-log-entry.info {
+    border-color: #3498db;
+}
+
+.attachment-log-entry.success {
+    border-color: #27ae60;
+}
+
+.attachment-log-entry.warning {
+    border-color: #f39c12;
+}
+
+.attachment-log-entry.error {
+    border-color: #e74c3c;
+}
+
 .status-success {
     background: #4caf50;
 }

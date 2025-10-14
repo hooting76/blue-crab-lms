@@ -60,8 +60,46 @@ function updateEndpointInfo() {
             requestBody.value = '';
             document.getElementById('httpMethod').value = 'DELETE';
             break;
+        case 'fcmSend':
+            document.getElementById('httpMethod').value = 'POST';
+            requestBody.value = JSON.stringify({
+                targetType: 'USER',
+                targeta: ['user@example.com'],
+                title: '테스트 알림',
+                body: '테스트 메시지입니다.',
+                data: {
+                    type: 'TEST'
+                }
+            }, null, 2);
+            break;
+        case 'fcmBatch':
+            document.getElementById('httpMethod').value = 'POST';
+            requestBody.value = JSON.stringify({
+                userCodes: ['user1@example.com', 'user2@example.com'],
+                title: '배치 알림',
+                body: '여러 사용자에게 전송되는 테스트 메시지입니다.',
+                data: {
+                    type: 'BATCH_TEST'
+                }
+            }, null, 2);
+            break;
+        case 'fcmBroadcast':
+            document.getElementById('httpMethod').value = 'POST';
+            requestBody.value = JSON.stringify({
+                title: '브로드캐스트 알림',
+                body: '전체 사용자에게 전송되는 테스트 메시지입니다.',
+                platforms: ['android', 'ios', 'web'],
+                data: {
+                    type: 'BROADCAST_TEST'
+                },
+                filter: {
+                    userType: 'ALL'
+                }
+            }, null, 2);
+            break;
         default:
             requestBody.value = '';
+            document.getElementById('httpMethod').value = 'GET';
     }
 }
 
@@ -184,7 +222,10 @@ async function sendRequest() {
             'users': '/api/user/list',
             'facilityList': '/api/facilities',
             'reservationCreate': '/api/reservations',
-            'reservationMy': '/api/reservations/my'
+            'reservationMy': '/api/reservations/my',
+            'fcmSend': '/api/fcm/send',
+            'fcmBatch': '/api/fcm/send/batch',
+            'fcmBroadcast': '/api/fcm/send/broadcast'
         };
 
         switch (endpoint) {

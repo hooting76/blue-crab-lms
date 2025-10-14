@@ -83,10 +83,13 @@ function ClassAttendingNotice({currentPage, setCurrentPage}) {
                 ))}
             </select>
 
-            <div className="profNoticeWriteBtnArea">
-                {user.data.user.userStudent === 1 &&
-                <button className="profNoticeWriteBtn" onClick={profNoticeWrite}>과목별 공지 작성</button>}
-            </div>
+            {user.data.user.userStudent === 1 && // 교수일 경우 공지 작성 버튼 표시
+                <>
+                    <div className="profNoticeWriteBtnArea">
+                        <button className="profNoticeWriteBtn" onClick={profNoticeWrite}>과목별 공지 작성</button>
+                    </div>
+                </>
+            }
         </>
     )
 }
