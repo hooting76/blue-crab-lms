@@ -1,8 +1,8 @@
 # 강의 관리 시스템 구현 진척도
 
 > **최종 업데이트**: 2025-10-14  
-> **현재 Phase**: Phase 6.7 완료 - 교수 이름 조회 기능  
-> **전체 진행률**: 94% (Phase 1-6.7 완료 + 성능 최적화)
+> **현재 Phase**: Phase 6.8 완료 - LectureController DTO 변환  
+> **전체 진행률**: 95% (Phase 1-6.8 완료 + 성능 최적화)
 
 ---
 
@@ -17,9 +17,10 @@ Phase 6: Controller 레이어          ████████████ 100%
 Phase 6.5: DTO 패턴 적용           ████████████ 100% ✅
 Phase 6.6: JOIN FETCH 최적화       ████████████ 100% ✅
 Phase 6.7: 교수 이름 조회 기능     ████████████ 100% ✅
+Phase 6.8: LectureController DTO   ████████████ 100% ✅
 Phase 7: 테스트 & 통합              ████████░░░░  60% 🚧
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-전체 진행률:                        ██████████░░  94%
+전체 진행률:                        ██████████░░  95%
 ```
 
 ---
@@ -262,6 +263,113 @@ Phase 7: 테스트 & 통합              ████████░░░░  6
 
 ---
 
+## ✅ Phase 6.8: LectureController DTO 변환 적용 (완료)
+
+### 기간: 2025-10-14
+### 상태: ✅ 완료
+
+#### 문제 진단
+- [x] **GET /api/lectures API 문제**
+  - Entity를 직접 반환하여 `lecProfName` 필드 누락
+  - EnrollmentController는 DTO 변환으로 교수 이름 포함
+  - LectureController는 Entity 직접 반환으로 일관성 결여
+  - 테스트 시 "교수명: N/A" 표시됨
+
+#### 완료 항목
+- [x] **LectureDto.java 필드 추가**
+  ```java
+  private String lecProfName;    // 교수 이름 (USER_NAME)
+  private String lecSummary;     // 강의 설명
+  ```
+  - Getter/Setter 추가
+
+- [x] **LectureController.java 대규모 리팩토링**
+  - UserTblRepository 주입:
+    ```java
+    @Autowired
+    private UserTblRepository userTblRepository;
+    ```
+  
+  - convertToDto() 메서드 추가 (45 라인):
+    ```java
+    private LectureDto convertToDto(LecTbl entity) {
+        // 모든 필드 매핑
+        dto.setLecProf(entity.getLecProf());
+        dto.setLecSummary(entity.getLecSummary());
+        
+        // 교수 이름 조회
+        userTblRepository.findByUserCode(entity.getLecProf())
+            .ifPresent(professor -> dto.setLecProfName(professor.getUserName()));
+        
+        return dto;
+    }
+    ```
+  
+  - convertToDtoList() 메서드 추가:
+    ```java
+    private List<LectureDto> convertToDtoList(List<LecTbl> entities) {
+        return entities.stream()
+            .map(this::convertToDto)
+            .collect(Collectors.toList());
+    }
+    ```
+  
+  - convertToDtoPage() 메서드 추가:
+    ```java
+    private Page<LectureDto> convertToDtoPage(Page<LecTbl> entityPage) {
+        List<LectureDto> dtoList = convertToDtoList(entityPage.getContent());
+        return new PageImpl<>(dtoList, entityPage.getPageable(), 
+                             entityPage.getTotalElements());
+    }
+    ```
+
+- [x] **모든 조회 API DTO 반환으로 변경**
+  - `GET /api/lectures` (페이징) → Page<LectureDto>
+  - `GET /api/lectures/{lecIdx}` → LectureDto
+  - `GET /api/lectures?professor=...` → List<LectureDto>
+  - `GET /api/lectures?title=...` → List<LectureDto>
+  - `GET /api/lectures?serial=...` → LectureDto
+
+- [x] **lecture-test-2-student-enrollment.js 업데이트**
+  - getAvailableLectures() 함수:
+    ```javascript
+    console.log(`   👨‍🏫 교수코드: ${lecture.lecProf || 'N/A'}`);
+    console.log(`   👨‍🏫 교수명: ${lecture.lecProfName || 'N/A'}`);
+    ```
+  - getLectureDetail() 함수:
+    ```javascript
+    console.log(`   교수코드: ${lecture.lecProf || 'N/A'}`);
+    console.log(`   교수명: ${lecture.lecProfName || 'N/A'}`);
+    ```
+
+- [x] **문서화**
+  - BACKEND_FIX_LECTURE_DTO.md 생성
+  - 문제 상황, 수정 내용, 영향 범위 상세 문서화
+
+#### 기술적 효과
+- **API 일관성**: EnrollmentController와 LectureController 모두 DTO 반환
+- **사용자 경험**: 모든 강의 조회 API에서 교수 이름 표시
+- **데이터 완전성**: lecProf(코드) + lecProfName(이름) + lecSummary(설명) 모두 제공
+- **확장성**: 동일한 DTO 변환 패턴으로 일관성 유지
+- **테스트 안정성**: 모든 테스트 코드에서 교수 정보 정상 출력
+
+#### 영향받는 API 엔드포인트
+1. ✅ `GET /api/lectures` - 강의 목록 조회 (페이징)
+2. ✅ `GET /api/lectures/{lecIdx}` - 강의 상세 조회
+3. ✅ `GET /api/lectures?professor=...` - 교수별 강의 조회
+4. ✅ `GET /api/lectures?title=...` - 강의명 검색
+5. ✅ `GET /api/lectures?serial=...` - 강의코드 단일 조회
+
+#### 관련 파일
+- `LectureController.java` (Lines 6-25, 45-47, 73-105, 115-118, 200-271)
+- `LectureDto.java` (Lines 14-16, 105-123)
+- `lecture-test-2-student-enrollment.js` (Lines 114-115, 397-398)
+- `lecture-test-1-admin-create.js` (Lines 221-222, 273-274, 316-317)
+- `lecture-test-4-professor-assignment.js` (Lines 102-103, 121-122)
+- `BACKEND_FIX_LECTURE_DTO.md` (전체)
+
+---
+
 ## ✅ Phase 3: Entity & DTO 레이어 (완료)
 
 ### 기간: 2025-10-10 ~ 2025-10-11
@@ -478,14 +586,14 @@ Phase 7: 테스트 & 통합              ████████░░░░  6
 | **DTO** | 11 | ~150 | ~900 | ✅ 완료 |
 | **Repository** | 4 | 67 | ~700 | ✅ 완료 |
 | **Service** | 3 | 73 | ~850 | ✅ 완료 |
-| **Controller** | 3 | 21 + DTO 변환 | ~900 | ✅ 완료 |
-| **Total** | **24** | **361+** | **~3,800** | **94%** |
+| **Controller** | 3 | 21 + DTO 변환 | ~1,000 | ✅ 완료 |
+| **Total** | **24** | **361+** | **~3,900** | **95%** |
 
 ### API 엔드포인트 현황
 
 | Controller | 엔드포인트 수 | 상태 | 비고 |
 |------------|---------------|------|------|
-| **LectureController** | 6 | ✅ | 통합 최적화 완료 |
+| **LectureController** | 6 | ✅ | DTO 변환 + 교수 조회 완료 ⭐ |
 | **EnrollmentController** | 7 | ✅ | DTO + PageImpl + 교수 조회 완료 ⭐ |
 | **AssignmentController** | 8 | ✅ | 통합 최적화 완료 |
 | **Total** | **21** | **✅** | **34→21 (38% 감소)** |
@@ -512,6 +620,17 @@ Phase 7: 테스트 & 통합              ████████░░░░  6
 ---
 
 ## 📝 변경 이력
+
+### 2025-10-14 (Phase 6.8)
+- ✅ **LectureController DTO 변환 완료**: Entity 직접 반환 → DTO 변환으로 개선
+- ✅ **lecProfName 필드 추가**: 모든 강의 조회 API에서 교수 이름 표시
+- ✅ LectureDto에 lecProfName, lecSummary 필드 추가
+- ✅ LectureController에 UserTblRepository 주입 및 교수 조회 로직 추가
+- ✅ convertToDto() / convertToDtoList() / convertToDtoPage() 메서드 구현
+- ✅ 5개 GET 엔드포인트 모두 DTO 반환으로 통일
+- ✅ lecture-test-1/2/4 테스트 코드 업데이트 (교수코드 + 교수명 표시)
+- ✅ BACKEND_FIX_LECTURE_DTO.md 문서 작성
+- ✅ API 일관성 확보: Enrollment와 Lecture 컨트롤러 동일 패턴 적용
 
 ### 2025-10-14 (Phase 6.7)
 - ✅ **PageImpl 패턴 적용**: Page.map() 대신 명시적 PageImpl 생성

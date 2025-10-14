@@ -2,6 +2,23 @@
 
 > **작성일**: 2025-10-10  
 > **업데이트**: 2025-10-14  
+> **버전**: 7.0 (LectureController DTO 변환 추가)  
+> **변경사항**: 
+> - Phase 1-2: 데이터베이스 구축 완료 ✅
+> - Phase 3: Entity 3개, DTO 11개 생성 완료 ✅
+> - Phase 4: Repository 4개 생성 완료 (UserTblRepository 추가) ✅
+> - Phase 5: Service 레이어 완료 ✅
+> - Phase 6: Controller 레이어 완료 ✅
+> - **Phase 6.5: EnrollmentController DTO 패턴 적용 완료 ⭐**
+> - **Phase 6.6: JOIN FETCH 최적화 완료 (N+1 쿼리 방지) ⭐**
+> - **Phase 6.7: 교수 이름 조회 기능 추가 (EnrollmentController) ⭐**
+> - **Phase 6.8: LectureController DTO 변환 적용 완료 ⭐**
+> - **HTTP 400 Hibernate Lazy Loading 이슈 해결 완료 ✅**
+> - **PageImpl 패턴으로 Entity 참조 완전 제거 ✅**
+> - **API 일관성 확보: Enrollment와 Lecture 컨트롤러 동일 패턴 ✅**
+> - 폴더 구조화 완료 (entity/Lecture/, dto/Lecture/, repository/Lecture/) ✅
+> **작성일**: 2025-10-10  
+> **업데이트**: 2025-10-14  
 > **버전**: 6.0 (교수 이름 조회 기능 추가)  
 > **변경사항**: 
 > - Phase 1-2: 데이터베이스 구축 완료 ✅
@@ -214,6 +231,42 @@
 - ✅ **사용자 경험 향상**: "11" 대신 "굴림체" 표시
 - ✅ **데이터 완전성**: 한 번의 API 호출로 필요한 모든 정보 제공
 - ✅ **확장성**: 동일 패턴으로 다른 참조 데이터 조회 가능
+
+### ⭐ Phase 6.8: LectureController DTO 변환 적용 (완료)
+
+#### 문제 상황
+- **GET /api/lectures API lecProfName 누락**: Entity 직접 반환으로 교수 이름 조회 불가
+- **API 일관성 결여**: EnrollmentController는 DTO 변환, LectureController는 Entity 반환
+- **테스트 시 N/A 표시**: "교수명: N/A" 문제 발생
+
+#### 해결 방법
+- [x] **LectureDto 필드 추가**
+  - lecProfName 필드 추가 (교수 이름)
+  - lecSummary 필드 추가 (강의 설명)
+  - Getter/Setter 메서드 추가
+
+- [x] **LectureController DTO 변환 레이어 구현**
+  - UserTblRepository 주입
+  - convertToDto() 메서드 구현 (45 라인)
+  - convertToDtoList() 메서드 구현
+  - convertToDtoPage() 메서드 구현
+  - 5개 GET 엔드포인트 모두 DTO 반환으로 변경
+
+- [x] **테스트 코드 업데이트**
+  - lecture-test-1-admin-create.js 업데이트
+  - lecture-test-2-student-enrollment.js 업데이트
+  - lecture-test-4-professor-assignment.js 업데이트
+  - 모든 출력에 "교수코드 + 교수명" 표시
+
+- [x] **문서화**
+  - BACKEND_FIX_LECTURE_DTO.md 작성 (273 라인)
+  - 문제 상황, 수정 내용, 영향 범위 상세 문서화
+
+#### 기술적 효과
+- ✅ **API 일관성 확보**: EnrollmentController와 LectureController 동일 패턴
+- ✅ **사용자 경험 향상**: 모든 강의 조회 API에서 교수 이름 표시
+- ✅ **데이터 완전성**: lecProf(코드) + lecProfName(이름) + lecSummary(설명) 제공
+- ✅ **확장성**: 동일한 DTO 변환 패턴으로 일관성 유지
 
 ### 📅 Phase 7: 테스트 & 통합 (진행 중)
 

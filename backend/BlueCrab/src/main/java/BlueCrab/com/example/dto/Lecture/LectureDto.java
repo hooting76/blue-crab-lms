@@ -11,7 +11,9 @@ public class LectureDto {
     private Integer lecIdx;
     private String lecSerial;
     private String lecTit;
-    private String lecProf;
+    private String lecProf;        // 교수코드 (USER_CODE)
+    private String lecProfName;    // 교수 이름 (USER_NAME)
+    private String lecSummary;     // 강의 설명
     private Integer lecPoint;
     private Integer lecMajor;
     private Integer lecMust;
@@ -102,6 +104,22 @@ public class LectureDto {
 
     public void setLecProf(String lecProf) {
         this.lecProf = lecProf;
+    }
+
+    public String getLecProfName() {
+        return lecProfName;
+    }
+
+    public void setLecProfName(String lecProfName) {
+        this.lecProfName = lecProfName;
+    }
+
+    public String getLecSummary() {
+        return lecSummary;
+    }
+
+    public void setLecSummary(String lecSummary) {
+        this.lecSummary = lecSummary;
     }
 
     public Integer getLecPoint() {

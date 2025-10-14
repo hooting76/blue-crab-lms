@@ -3,12 +3,15 @@
 
 package BlueCrab.com.example.controller.Lecture;
 
+import BlueCrab.com.example.dto.Lecture.LectureDto;
 import BlueCrab.com.example.entity.Lecture.LecTbl;
+import BlueCrab.com.example.repository.UserTblRepository;
 import BlueCrab.com.example.service.Lecture.LectureService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /* 강의 관리 REST API 컨트롤러 (통합 버전)
  * 
@@ -37,6 +41,9 @@ public class LectureController {
 
     @Autowired
     private LectureService lectureService;
+
+    @Autowired
+    private UserTblRepository userTblRepository;
 
     /* 강의 목록 조회 및 검색 (통합 엔드포인트)
      * 
@@ -65,6 +72,7 @@ public class LectureController {
             // 1. 강의코드로 단일 조회
             if (serial != null) {
                 return lectureService.getLectureBySerial(serial)
+                        .map(this::convertToDto)
                         .map(ResponseEntity::ok)
                         .orElse(ResponseEntity.notFound().build());
             }
@@ -72,25 +80,29 @@ public class LectureController {
             // 2. 교수별 조회 (단일 조건)
             if (professor != null && year == null && title == null) {
                 List<LecTbl> lectures = lectureService.getLecturesByProfessor(professor);
-                return ResponseEntity.ok(lectures);
+                List<LectureDto> dtoList = convertToDtoList(lectures);
+                return ResponseEntity.ok(dtoList);
             }
             
             // 3. 강의명 검색 (단일 조건)
             if (title != null && professor == null && year == null) {
                 List<LecTbl> lectures = lectureService.searchLecturesByTitle(title);
-                return ResponseEntity.ok(lectures);
+                List<LectureDto> dtoList = convertToDtoList(lectures);
+                return ResponseEntity.ok(dtoList);
             }
             
             // 4. 복합 검색 또는 전체 목록
             Pageable pageable = PageRequest.of(page, size);
             if (year != null || semester != null || major != null || open != null) {
                 Page<LecTbl> lectures = lectureService.searchLectures(year, semester, major, open, pageable);
-                return ResponseEntity.ok(lectures);
+                Page<LectureDto> dtoPage = convertToDtoPage(lectures);
+                return ResponseEntity.ok(dtoPage);
             }
             
             // 5. 전체 목록 (필터 없음)
             Page<LecTbl> lectures = lectureService.getAllLectures(pageable);
-            return ResponseEntity.ok(lectures);
+            Page<LectureDto> dtoPage = convertToDtoPage(lectures);
+            return ResponseEntity.ok(dtoPage);
             
         } catch (Exception e) {
             logger.error("강의 조회 실패", e);
@@ -104,6 +116,7 @@ public class LectureController {
     public ResponseEntity<?> getLectureById(@PathVariable Integer lecIdx) {
         try {
             return lectureService.getLectureById(lecIdx)
+                    .map(this::convertToDto)
                     .map(ResponseEntity::ok)
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
@@ -194,5 +207,69 @@ public class LectureController {
         response.put("success", true);
         response.put("message", message);
         return response;
+    }
+
+    /**
+     * Entity를 DTO로 변환 (교수 이름 조회 포함)
+     */
+    private LectureDto convertToDto(LecTbl entity) {
+        if (entity == null) {
+            return null;
+        }
+
+        LectureDto dto = new LectureDto();
+        dto.setLecIdx(entity.getLecIdx());
+        dto.setLecSerial(entity.getLecSerial());
+        dto.setLecTit(entity.getLecTit());
+        dto.setLecProf(entity.getLecProf());  // 교수코드
+        dto.setLecSummary(entity.getLecSummary());  // 강의 설명
+        dto.setLecPoint(entity.getLecPoint());
+        dto.setLecMajor(entity.getLecMajor());
+        dto.setLecMust(entity.getLecMust());
+        dto.setLecTime(entity.getLecTime());
+        dto.setLecAssign(entity.getLecAssign());
+        dto.setLecOpen(entity.getLecOpen());
+        dto.setLecMany(entity.getLecMany());
+        dto.setLecCurrent(entity.getLecCurrent());
+        dto.setLecMcode(entity.getLecMcode());
+        dto.setLecMcodeDep(entity.getLecMcodeDep());
+        dto.setLecMin(entity.getLecMin());
+        dto.setLecYear(entity.getLecYear());
+        dto.setLecSemester(entity.getLecSemester());
+
+        // 교수코드로 교수 이름 조회
+        if (entity.getLecProf() != null && !entity.getLecProf().isEmpty()) {
+            try {
+                userTblRepository.findByUserCode(entity.getLecProf())
+                    .ifPresent(professor -> dto.setLecProfName(professor.getUserName()));
+            } catch (Exception e) {
+                logger.warn("교수 정보 조회 실패 (USER_CODE: {}): {}", entity.getLecProf(), e.getMessage());
+            }
+        }
+
+        return dto;
+    }
+
+    /**
+     * Entity List를 DTO List로 변환
+     */
+    private List<LectureDto> convertToDtoList(List<LecTbl> entities) {
+        if (entities == null) {
+            return List.of();
+        }
+        return entities.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Entity Page를 DTO Page로 변환
+     */
+    private Page<LectureDto> convertToDtoPage(Page<LecTbl> entityPage) {
+        if (entityPage == null) {
+            return Page.empty();
+        }
+        List<LectureDto> dtoList = convertToDtoList(entityPage.getContent());
+        return new PageImpl<>(dtoList, entityPage.getPageable(), entityPage.getTotalElements());
     }
 }
