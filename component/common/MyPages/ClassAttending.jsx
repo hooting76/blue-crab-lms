@@ -3,8 +3,11 @@ import '../../../css/MyPages/ClassAttending.css';
 import classAttendingDummy from '../../../src/mock/classAttendingDummy.js'; //더미데이터
 import { UseUser } from '../../../hook/UseUser';
 import ApproveAttendanceModal from './ApproveAttendanceModal.jsx';
+import TestModal from './TestModal.jsx';
+import AssignmentModal from './AssignmentModal.jsx';
+import ProfNoticeWritingPage from './ProfNoticeWritingPage.jsx';
 
-function ClassAttending() {
+function ClassAttending({currentPage, setCurrentPage}) {
     const { user } = UseUser(); // 유저 정보
     // const [openRow, setOpenRow] = useState(null);
     
@@ -72,16 +75,26 @@ const attendanceRequestSubmit = (e) => {
 }
 
 const profNoticeWrite = () => {
-    alert("과목별 공지 작성 페이지 준비중");
+    setCurrentPage("과목별 공지 작성");
 }
 
-const registerClass = () => {
-    alert("강의 등록 페이지 준비중");
+if (currentPage === "과목별 공지 작성") {
+    return (
+        <ProfNoticeWritingPage currentPage={currentPage} setCurrentPage={setCurrentPage}/>
+    );
 }
 
-const [isModalOpen, setIsModalOpen] = useState(false);
-    const openModal = () => setIsModalOpen(true);
-    const closeModal = () => setIsModalOpen(false);
+const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
+    const openAttendanceModal = () => setIsAttendanceModalOpen(true);
+    const closeAttendanceModal = () => setIsAttendanceModalOpen(false);
+
+const [isTestModalOpen, setIsTestModalOpen] = useState(false);
+    const openTestModal = () => setIsTestModalOpen(true);
+    const closeTestModal = () => setIsTestModalOpen(false);
+
+const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
+    const openAssignmentModal = () => setIsAssignmentModalOpen(true);
+    const closeAssignmentModal = () => setIsAssignmentModalOpen(false);
 
     return (
         <div className="classAttending_list_container">
@@ -106,10 +119,15 @@ const [isModalOpen, setIsModalOpen] = useState(false);
                     <div className="lectureNotice">
                         과목별 공지사항
                     </div>
-                    <div className="profNoticeWriteBtn">
-                        {user.data.user.userStudent === 1 &&
-                        <button onClick={profNoticeWrite}>과목별 공지 작성</button>}
-                    </div>
+
+                    {user.data.user.userStudent === 1 && // 교수일 경우 공지 작성 버튼 추가
+                        <>
+                            <div className="profNoticeWriteBtnArea">
+                                <button className="profNoticeWriteBtn" onClick={profNoticeWrite}>과목별 공지 작성</button>
+                            </div>
+                        </>
+                    }
+
                     <div className="lectureChat">
                         실시간 채팅
                     </div>
@@ -117,43 +135,57 @@ const [isModalOpen, setIsModalOpen] = useState(false);
 
                 <div className="attendanceStatus">
                     출결
-                    <div className="attendance">
-                        출석일수<br/>
-                        전체 (강의일수) 중<br/>
-                        (출석일수)회
-                    </div>
-                    <div className="absence">
-                        결석일수<br/>
-                        전체 (강의일수) 중<br/>
-                        (결석일수)회
-                    </div>
+                    {user.data.user.userStudent === 0 && // 학생일 경우 출결상황 표시
+                        <>
+                            <div className="attendance">
+                                출석일수<br/>
+                                전체 (강의일수)일 중<br/>
+                                (출석일수)회
+                            </div>
+                            <div className="absence">
+                                결석일수<br/>
+                                전체 (강의일수)일 중<br/>
+                                (결석일수)회
+                            </div>
+                        </>
+                    }
                     <div className="attendanceCall">
-                        {user.data.user.userStudent === 0 ? (
+                        {user.data.user.userStudent === 0 ? ( // 학생
                             <button className="attendanceCallBtn" onClick={attendanceRequestSubmit}>출석인정 신청</button>
-                        ) : (
-                            <button className="attendanceCallBtn" onClick={openModal}>출석인정 승인</button>
+                        ) : ( // 교수
+                            <button className="attendanceCallBtn" onClick={openAttendanceModal}>출석인정 승인</button>
                         )}
                     </div>
                     {/* 모달 렌더링 */}
-                    {isModalOpen && <ApproveAttendanceModal onClose={closeModal} />}
+                    {isAttendanceModalOpen && <ApproveAttendanceModal onClose={closeAttendanceModal} />}
                 </div>
 
-                <div className="testAssignmentEtc">
-                    <div className='testAssignment'>
-                        시험 및 과제
-                        <div className="test">
-                            중간고사 : 점<br/>
-                            기말고사 : 점
-                        </div>
-                        <div className="assignment">
-                            과제1 : 점<br/>
-                            과제2 : 점
-                        </div>
-                    </div>
-                    <div className='classRegister'>
-                        {user.data.user.userStudent === 1 &&
-                        <button onClick={registerClass}>강의 등록</button>}
-                    </div>
+                <div className="testAssignment">
+                    시험 및 과제
+                    {user.data.user.userStudent === 0 ? ( // 학생일 경우 개인 성적 표시
+                        <>
+                            <div className="studentTest">
+                                중간고사 : 점<br/>
+                                기말고사 : 점
+                            </div>
+                            <div className="studentAssignment">
+                                과제1 : 점<br/>
+                                과제2 : 점
+                            </div>
+                        </>
+                    ) : ( // 교수
+                        <>
+                            <div className="profTest">
+                                <button className="testModalBtn" onClick={openTestModal}>시험 관리</button>
+                            </div>
+                            <div className="profAssignment">
+                                <button className="assignmentModalBtn" onClick={openAssignmentModal}>과제 관리</button>
+                            </div>
+                            {/* 모달 렌더링 */}
+                            {isTestModalOpen && <TestModal onClose={closeTestModal}/>}
+                            {isAssignmentModalOpen && <AssignmentModal onClose={closeAssignmentModal}/>}
+                        </>
+                    )}
                 </div>
             </div>
         {/* <div className='classAttending_text'>

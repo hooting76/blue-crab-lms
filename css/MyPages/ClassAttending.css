@@ -136,8 +136,24 @@
   font-size: var(--font-mid);
 }
 
-.attendanceCallBtn {
+.profNoticeWriteBtn, .attendanceCallBtn, .testModalBtn, .assignmentModalBtn {
   font-size: var(--font-mid);
+}
+
+.profNoticeWriteBtn:hover {
+  cursor: pointer;
+}
+
+.attendanceCallBtn:hover {
+  cursor: pointer;
+}
+
+.testModalBtn:hover {
+  cursor: pointer;
+}
+
+.assignmentModalBtn:hover {
+  cursor: pointer;
 }
 
 

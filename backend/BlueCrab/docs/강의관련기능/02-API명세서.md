@@ -1,8 +1,13 @@
 # 02. API 명세서
 
-> **작성일**: 2025-10-10
-> **버전**: 2.1 (명명 규칙 통일 버전)
-> **변경사항**: 모든 필드명을 대문자 + 언더스코어 규칙으로 통일
+> **작성일**: 2025-10-10  
+> **최종 수정**: 2025-10-14  
+> **버전**: 2.2 (DTO 패턴 적용 버전)  
+> **변경사항**:
+> - 모든 필드명을 대문자 + 언더스코어 규칙으로 통일
+> - EnrollmentController DTO 패턴 적용 완료
+> - HTTP 400 Hibernate Lazy Loading 이슈 해결
+> - 수강신청 API 응답 구조 명확화
 
 ---
 
@@ -174,7 +179,7 @@ Authorization: Bearer {accessToken}
   "lectureDescription": "자바 기초 프로그래밍 강의",
   "maxStudents": 30,
   "credit": 3,
-  "lectureTime": "월1,2 수3,4",
+  "lectureTime": "월1월2수3수4",
   "lectureRoom": "공학관 101호",
   "professorIdx": 1,
   "year": 2025,
@@ -444,7 +449,7 @@ Authorization: Bearer {accessToken}
       "credit": 3,
       "currentStudents": 25,
       "maxStudents": 30,
-      "lectureTime": "월1,2 수3,4",
+      "lectureTime": "월1월2수3수4",
       "isEnrolled": false,
       "isWaitlisted": false
     }
@@ -504,11 +509,82 @@ Authorization: Bearer {accessToken}
 
 ### **내 강의 관리**
 
-#### **수강중인 강의 목록 조회**
+#### **수강중인 강의 목록 조회 (DTO 패턴 적용 ⭐)**
+
+**엔드포인트:**
 ```http
-GET /api/v1/student/enrollments
+GET /api/enrollments?studentIdx={studentIdx}&page=0&size=10
 Authorization: Bearer {accessToken}
 ```
+
+**특징:**
+- ✅ **DTO 패턴 적용**: Entity 대신 EnrollmentDto 반환
+- ✅ **Lazy Loading 안전**: Hibernate 프록시 객체 문제 해결
+- ✅ **JWT 자동 인식**: 프론트엔드에서 토큰에서 studentIdx 자동 추출
+- ✅ **쿼리 파라미터 통합**: studentIdx, lecIdx, page, size 조합 가능
+
+**응답 (DTO 구조):**
+```json
+{
+  "content": [
+    {
+      "enrollmentIdx": 1,
+      "lecIdx": 101,
+      "lecSerial": "CS101",
+      "lecTit": "자바 프로그래밍",
+      "lecProf": "김교수",
+      "lecPoint": 3,
+      "lecTime": "월수 10:00-11:30",
+      "studentIdx": 6,
+      "studentCode": "2024001",
+      "studentName": "홍길동",
+      "enrollmentStatus": "ENROLLED",
+      "enrollmentDate": "2024-09-01",
+      "cancelDate": null,
+      "cancelReason": null,
+      "attendanceRecords": null,
+      "grade": null
+    }
+  ],
+  "pageable": {
+    "pageNumber": 0,
+    "pageSize": 10
+  },
+  "totalElements": 5,
+  "totalPages": 1,
+  "size": 10,
+  "number": 0,
+  "first": true,
+  "last": true,
+  "empty": false
+}
+```
+
+**DTO 필드 설명:**
+| 필드명 | 타입 | 설명 | 출처 |
+|--------|------|------|------|
+| enrollmentIdx | Long | 수강신청 ID (PK) | ENROLLMENT_EXTENDED_TBL |
+| lecIdx | Long | 강의 ID | LEC_TBL (Lazy Loading) |
+| lecSerial | String | 강의 코드 (예: CS101) | LEC_TBL |
+| lecTit | String | 강의명 | LEC_TBL |
+| lecProf | String | 담당 교수 | LEC_TBL |
+| lecPoint | Integer | 학점 | LEC_TBL |
+| lecTime | String | 강의 시간 | LEC_TBL |
+| studentIdx | Long | 학생 ID | USER_TBL (Lazy Loading) |
+| studentCode | String | 학번 | USER_TBL |
+| studentName | String | 학생 이름 | USER_TBL |
+| enrollmentStatus | String | 수강 상태 (ENROLLED/CANCELLED) | ENROLLMENT_DATA JSON |
+| enrollmentDate | String | 수강신청일 | ENROLLMENT_DATA JSON |
+| cancelDate | String | 취소일 (nullable) | ENROLLMENT_DATA JSON |
+| cancelReason | String | 취소 사유 (nullable) | ENROLLMENT_DATA JSON |
+| attendanceRecords | Array | 출석 기록 (nullable) | ENROLLMENT_DATA JSON |
+| grade | Object | 성적 정보 (nullable) | ENROLLMENT_DATA JSON |
+
+**구현 세부사항:**
+- **Controller**: EnrollmentController.convertToDto() 메서드
+- **안전 처리**: Lazy Loading 접근 시 try-catch로 예외 처리
+- **JSON 파싱**: ENROLLMENT_DATA 필드를 Jackson ObjectMapper로 파싱
+- **Performance**: 필요한 데이터만 전송하여 네트워크 최적화
 
 #### **강의 상세 정보 조회**
 ```http

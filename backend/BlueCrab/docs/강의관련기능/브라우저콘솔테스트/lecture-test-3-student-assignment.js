@@ -7,7 +7,7 @@
 // 📝 실행: await login() (학생 계정 사용)
 // ===================================================================
 
-const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/student';
+const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
 // 전역 변수 (test-1-login.js에서 설정한 토큰 사용)
 if (typeof window.authToken === 'undefined') window.authToken = null;
@@ -66,7 +66,7 @@ async function getMyAssignments() {
                 console.log(`   점수: ${assignment.SCORE || 'N/A'}점`);
             });
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -107,7 +107,7 @@ async function getAssignmentDetail() {
             console.log(`   점수: ${assignment.SCORE || 'N/A'}점`);
             console.log(`   피드백: ${assignment.FEEDBACK || 'N/A'}`);
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -152,7 +152,7 @@ try {
             console.log('\n✅ 제출 성공!');
             console.log('📊 제출 정보:', result.data);
         } else {
-            console.log('❌ 제출 실패:', result.message);
+            console.log('❌ 제출 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -197,7 +197,7 @@ try {
             console.log('\n✅ 재제출 성공!');
             console.log('📊 재제출 정보:', result.data);
         } else {
-            console.log('❌ 재제출 실패:', result.message);
+            console.log('❌ 재제출 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -235,7 +235,7 @@ async function cancelSubmission() {
             console.log('\n✅ 제출취소 성공!');
             console.log('📊 결과:', result.message);
         } else {
-            console.log('❌ 제출취소 실패:', result.message);
+            console.log('❌ 제출취소 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -248,7 +248,7 @@ function help() {
     console.log('═══════════════════════════════════════════════════════');
     console.log('⚠️ 먼저 로그인하세요!');
     console.log('📁 docs/일반유저 로그인+게시판/test-1-login.js → await login()');
-📋 getMyAssignments()     - 내 과제 목록');
+    console.log('📋 getMyAssignments()     - 내 과제 목록');
     console.log('🔍 getAssignmentDetail()  - 과제 상세 조회');
     console.log('📝 submitAssignment()     - 과제 제출');
     console.log('📝 resubmitAssignment()   - 과제 재제출');

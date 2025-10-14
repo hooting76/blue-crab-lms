@@ -1,9 +1,13 @@
 # 📚 강의 관리 시스템 브라우저 콘솔 테스트 가이드
 
 > **작성일**: 2025-10-12  
-> **최종 업데이트**: 2025-10-13
-> **버전**: 2.0
-> **목적**: 브라우저 콘솔에서 API 테스트하기
+> **최종 업데이트**: 2025-10-14  
+> **버전**: 3.0 (DTO 패턴 적용)  
+> **목적**: 브라우저 콘솔에서 API 테스트하기  
+> **변경사항**:
+> - lecture-test-2-student-enrollment.js JWT 자동 인식 추가
+> - DTO 응답 구조에 맞게 출력 형식 업데이트
+> - HTTP 400 Hibernate Lazy Loading 이슈 해결 완료
 
 ---
 
@@ -164,32 +168,65 @@ deleteLecture()
 
 ---
 
-### 2. 학생 - 수강 신청
+### 2. 학생 - 수강 신청 (⭐ DTO 패턴 적용)
 **파일**: `lecture-test-2-student-enrollment.js`
 
+#### 🆕 주요 업데이트
+- ✅ **JWT 자동 인식**: 로그인 토큰에서 studentIdx 자동 추출
+- ✅ **DTO 응답 구조**: lecTit, lecSerial, lecProf, studentName 등 포함
+- ✅ **HTTP 400 해결**: Hibernate Lazy Loading 이슈 해결 완료
+- ✅ **디버그 기능**: debugTokenInfo() 함수로 토큰 정보 확인
+
 #### 제공 함수
-- `setToken()` - JWT 토큰 설정
+- `checkAuth()` - JWT 토큰 및 사용자 정보 자동 확인 ⭐
+- `getUserFromToken()` - JWT에서 사용자 IDX 추출 (신규)
+- `debugTokenInfo()` - JWT 디버깅 (신규)
 - `getAvailableLectures()` - 수강 가능 강의 목록
-- `enrollLecture()` - 수강 신청
-- `getMyEnrollments()` - 내 수강 목록
+- `enrollLecture()` - 수강 신청 (JWT 자동 studentIdx)
+- `getMyEnrollments()` - 내 수강 목록 (DTO 응답)
 - `cancelEnrollment()` - 수강 취소
 - `getLectureDetail()` - 강의 상세 조회
 
+#### DTO 응답 예시
+```json
+{
+  "content": [
+    {
+      "enrollmentIdx": 1,
+      "lecIdx": 101,
+      "lecSerial": "CS101",
+      "lecTit": "자바 프로그래밍",
+      "lecProf": "김교수",
+      "lecPoint": 3,
+      "lecTime": "월수 10:00-11:30",
+      "studentIdx": 6,
+      "studentCode": "2024001",
+      "studentName": "홍길동",
+      "enrollmentStatus": "ENROLLED",
+      "enrollmentDate": "2024-09-01"
+    }
+  ]
+}
+```
+
 #### 테스트 순서
 ```javascript
-// 1. 토큰 설정 (학생 토큰)
-setToken()
+// 1. JWT 토큰 자동 확인 (로그인 후)
+checkAuth()  // studentIdx 자동 추출 확인
 
 // 2. 수강 가능 강의 조회
 getAvailableLectures()
 
-// 3. 수강 신청
+// 3. 수강 신청 (studentIdx 자동)
 enrollLecture()
 
-// 4. 내 수강 목록 확인
-getMyEnrollments()
+// 4. 내 수강 목록 확인 (DTO 응답)
+await getMyEnrollments()
 
-// 5. 수강 취소 (선택)
+// 5. JWT 디버깅 (선택)
+debugTokenInfo()
+
+// 6. 수강 취소 (선택)
 cancelEnrollment()
 ```
 
@@ -413,6 +450,41 @@ const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 - `window.lastLectureIdx` - 마지막 생성된 강의 IDX
 - `window.lastEnrollmentIdx` - 마지막 수강신청 IDX
 - `window.lastAssignmentIdx` - 마지막 과제 IDX
+
+### 강의 시간 포맷 (v2.0 업데이트)
+
+**새로운 포맷**: `요일명+교시` 형식
+
+#### 입력 가능한 형식
+1. **쉼표/공백 형식**: `월1,2 수3,4` 
+2. **표준 형식**: `월1월2수3수4`
+
+두 형식 모두 자동으로 표준 형식(`월1월2수3수4`)으로 변환됩니다.
+
+#### 요일 코드
+- `월`: 월요일
+- `화`: 화요일  
+- `수`: 수요일
+- `목`: 목요일
+- `금`: 금요일
+
+#### 교시 코드 (1~8교시)
+- 1교시: 09:00-09:50
+- 2교시: 10:00-10:50
+- 3교시: 11:00-11:50
+- 4교시: 12:00-12:50
+- **점심시간**: 12:50-13:50
+- 5교시: 13:50-14:40
+- 6교시: 14:50-15:40
+- 7교시: 15:50-16:40
+- 8교시: 16:50-17:40
+
+#### 예시
+| 입력 | 변환 결과 | 의미 |
+|------|-----------|------|
+| `월1,2 수3,4` | `월1월2수3수4` | 월요일 1,2교시 + 수요일 3,4교시 |
+| `화2,3 목2` | `화2화3목2` | 화요일 2,3교시 + 목요일 2교시 |
+| `월1월2월3월4` | `월1월2월3월4` | 월요일 1~4교시 (변환 불필요) |
 
 ---
 

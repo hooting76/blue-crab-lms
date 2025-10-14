@@ -1,4 +1,4 @@
-.approve-attendance-modal-container {
+.test-modal-container {
     position: fixed;
     top: 0;
     left: 0;
@@ -11,7 +11,7 @@
     z-index: 999;
 }
 
-.approve-attendance-modal-content {
+.test-modal-content {
     font-size: var(--font-mid);
     background-color: white;
     padding: 25px;

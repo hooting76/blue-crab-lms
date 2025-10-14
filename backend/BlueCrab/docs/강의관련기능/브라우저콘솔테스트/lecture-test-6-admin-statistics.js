@@ -7,7 +7,7 @@
 // 📝 실행: await adminLogin() → await sendAuthCode() → await verifyAuthCode()
 // ===================================================================
 
-const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/admin';
+const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
 // 전역 변수 (admin-login-to-board-test.js에서 설정한 토큰 사용)
 if (typeof window.authToken === 'undefined') window.authToken = null;
@@ -29,15 +29,17 @@ function checkAuth() {
 }
 
 // ========== 전체 강의 통계 조회 ==========
-async function getLectureStatistics() {`n    if (!checkAuth()) return;`n    const token = window.authToken;`n
-    const year = parseInt(prompt('📅 연도:', new Date().getFullYear().toString()));
+async function getLectureStatistics() {
+    if (!checkAuth()) return;
+    const token = window.authToken;
+    const targetGrade = prompt('🎓 대상 학년 (1-4학년, 공란=전체):', ''); // LEC_YEAR = 강의 대상 학년
     const semester = parseInt(prompt('📅 학기 (1/2):', '1'));
 
     console.log('\n📊 전체 강의 통계 조회');
     console.log('═══════════════════════════════════════════════════════');
 
     try {
-        const url = `${API_BASE_URL}/statistics/lectures?year=${year}&semester=${semester}`;
+        const url = `${API_BASE_URL}/admin/statistics/lectures?year=${targetGrade}&semester=${semester}`;
         console.log('📡 요청 URL:', url);
 
         const response = await fetch(url, {
@@ -60,7 +62,7 @@ async function getLectureStatistics() {`n    if (!checkAuth()) return;`n    cons
             console.log(`   평균 수강률: ${stats.AVERAGE_ENROLLMENT_RATE}%`);
             console.log(`   평균 정원: ${stats.AVERAGE_CAPACITY}명`);
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -68,7 +70,9 @@ async function getLectureStatistics() {`n    if (!checkAuth()) return;`n    cons
 }
 
 // ========== 학생별 통계 조회 ==========
-async function getStudentStatistics() {`n    if (!checkAuth()) return;`n    const token = window.authToken;`n
+async function getStudentStatistics() {
+    if (!checkAuth()) return;
+    const token = window.authToken;
     const studentIdx = parseInt(prompt('👨‍🎓 STUDENT_IDX:', '1'));
 
     console.log('\n📊 학생별 통계 조회');
@@ -97,7 +101,7 @@ async function getStudentStatistics() {`n    if (!checkAuth()) return;`n    cons
             console.log(`   평균 점수: ${stats.AVERAGE_SCORE}점`);
             console.log(`   평균 제출률: ${stats.SUBMISSION_RATE}%`);
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -105,7 +109,9 @@ async function getStudentStatistics() {`n    if (!checkAuth()) return;`n    cons
 }
 
 // ========== 교수별 통계 조회 ==========
-async function getProfessorStatistics() {`n    if (!checkAuth()) return;`n    const token = window.authToken;`n
+async function getProfessorStatistics() {
+    if (!checkAuth()) return;
+    const token = window.authToken;
     const professorIdx = parseInt(prompt('👨‍🏫 PROFESSOR_IDX:', '1'));
 
     console.log('\n📊 교수별 통계 조회');
@@ -133,7 +139,7 @@ async function getProfessorStatistics() {`n    if (!checkAuth()) return;`n    co
             console.log(`   평균 과제 점수: ${stats.AVERAGE_ASSIGNMENT_SCORE}점`);
             console.log(`   평균 강의 평가: ${stats.AVERAGE_LECTURE_RATING}점`);
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -141,7 +147,9 @@ async function getProfessorStatistics() {`n    if (!checkAuth()) return;`n    co
 }
 
 // ========== 학기별 트렌드 조회 ==========
-async function getSemesterTrends() {`n    if (!checkAuth()) return;`n    const token = window.authToken;`n
+async function getSemesterTrends() {
+    if (!checkAuth()) return;
+    const token = window.authToken;
     const startYear = parseInt(prompt('📅 시작 연도:', (new Date().getFullYear() - 1).toString()));
     const endYear = parseInt(prompt('📅 종료 연도:', new Date().getFullYear().toString()));
 
@@ -173,7 +181,7 @@ async function getSemesterTrends() {`n    if (!checkAuth()) return;`n    const t
                 });
             }
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -181,7 +189,9 @@ async function getSemesterTrends() {`n    if (!checkAuth()) return;`n    const t
 }
 
 // ========== 인기 강의 순위 조회 ==========
-async function getPopularLectures() {`n    if (!checkAuth()) return;`n    const token = window.authToken;`n
+async function getPopularLectures() {
+    if (!checkAuth()) return;
+    const token = window.authToken;
     const year = parseInt(prompt('📅 연도:', new Date().getFullYear().toString()));
     const semester = parseInt(prompt('📅 학기 (1/2):', '1'));
     const limit = parseInt(prompt('🔢 조회 개수:', '10'));
@@ -214,7 +224,7 @@ async function getPopularLectures() {`n    if (!checkAuth()) return;`n    const 
                 });
             }
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -222,7 +232,9 @@ async function getPopularLectures() {`n    if (!checkAuth()) return;`n    const 
 }
 
 // ========== 학과별 통계 조회 ==========
-async function getDepartmentStatistics() {`n    if (!checkAuth()) return;`n    const token = window.authToken;`n
+async function getDepartmentStatistics() {
+    if (!checkAuth()) return;
+    const token = window.authToken;
     const year = parseInt(prompt('📅 연도:', new Date().getFullYear().toString()));
     const semester = parseInt(prompt('📅 학기 (1/2):', '1'));
 
@@ -254,24 +266,23 @@ async function getDepartmentStatistics() {`n    if (!checkAuth()) return;`n    c
                 });
             }
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
     }
 }
 
-// ========== 토큰 설정 ==========
 // ========== 도움말 ==========
 function help() {
     console.log('\n📊 관리자 통계 테스트 함수 목록');
     console.log('═══════════════════════════════════════════════════════');
     console.log('⚠️ 먼저 관리자 로그인하세요!');
-    console.log('� docs/관리자 로그인/admin-login-to-board-test.js');
+    console.log('📁 docs/관리자 로그인/admin-login-to-board-test.js');
     console.log('   1. await adminLogin()');
     console.log('   2. await sendAuthCode()');
     console.log('   3. await verifyAuthCode()');
-📊 getLectureStatistics()     - 전체 강의 통계');
+    console.log('📊 getLectureStatistics()     - 전체 강의 통계');
     console.log('👨‍🎓 getStudentStatistics()     - 학생별 통계');
     console.log('👨‍🏫 getProfessorStatistics()   - 교수별 통계');
     console.log('📈 getSemesterTrends()        - 학기별 트렌드');

@@ -7,7 +7,7 @@
 // 📝 실행: await login() (교수 계정 사용)
 // ===================================================================
 
-const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/professor';
+const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
 // 전역 변수 (test-1-login.js에서 설정한 토큰 사용)
 if (typeof window.authToken === 'undefined') window.authToken = null;
@@ -62,7 +62,7 @@ async function getStudents() {
                 console.log(`   신청일: ${student.ENROLLED_AT}`);
             });
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -102,7 +102,7 @@ async function getStudentDetail() {
             console.log(`   과제 제출 수: ${student.ASSIGNMENT_COUNT || 0}개`);
             console.log(`   평균 점수: ${student.AVERAGE_SCORE || 'N/A'}점`);
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -147,7 +147,7 @@ async function getStudentGrades() {
                 });
             }
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -185,7 +185,7 @@ async function getLectureStatistics() {
             console.log(`   평균 제출률: ${stats.AVERAGE_SUBMISSION_RATE}%`);
             console.log(`   전체 평균 점수: ${stats.AVERAGE_SCORE}점`);
         } else {
-            console.log('❌ 조회 실패:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -233,7 +233,7 @@ async function searchStudents() {
                 console.log(`   학과: ${student.DEPARTMENT || 'N/A'}`);
             });
         } else {
-            console.log('❌ 검색 실패:', result.message);
+            console.log('❌ 검색 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -246,7 +246,7 @@ function help() {
     console.log('═══════════════════════════════════════════════════════');
     console.log('⚠️ 먼저 로그인하세요!');
     console.log('📁 docs/일반유저 로그인+게시판/test-1-login.js → await login()');
-📋 getStudents()           - 수강생 목록 조회');
+    console.log('📋 getStudents()           - 수강생 목록 조회');
     console.log('🔍 getStudentDetail()      - 수강생 상세 조회');
     console.log('📊 getStudentGrades()      - 수강생 성적 조회');
     console.log('📊 getLectureStatistics()  - 강의 통계 조회');

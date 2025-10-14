@@ -154,9 +154,53 @@ async function verifyAuthCode(authCode = null) {
             
         } else if (response.status === 401) {
             console.log('❌ HTTP 401 - 인증 실패');
-            console.log('   - 세션 토큰 만료');
-            console.log('   - 인증 코드 틀림');
-            console.log('🔄 해결: 1단계부터 다시 시작');
+            
+            // 서버 응답 메시지로 정확한 원인 파악
+            if (result.message) {
+                console.log(`📋 서버 메시지: "${result.message}"`);
+                console.log('');
+                
+                if (result.message.includes('임시토큰') || result.message.includes('유효하지 않은')) {
+                    console.log('🔍 원인: 세션 토큰에서 이메일 추출 실패');
+                    console.log('   - 세션 토큰이 유효하지 않음');
+                    console.log('   - 세션 토큰 형식 오류');
+                    console.log('💡 해결: clearAllTokens() 후 1단계부터 재시작');
+                    
+                } else if (result.message.includes('세션이 만료') || result.message.includes('만료되었습니다')) {
+                    console.log('🔍 원인: 인증 코드 발송 후 5분 초과');
+                    console.log('   - Redis에서 인증 데이터 삭제됨');
+                    console.log('💡 해결: sendAuthCode() 재실행 후 5분 내 검증');
+                    
+                } else if (result.message.includes('인증코드가 올바르지 않')) {
+                    console.log('🔍 원인: 인증 코드 불일치');
+                    console.log(`   - 입력한 코드: ${authCode}`);
+                    console.log('   - 이메일에서 최신 코드 확인 필요');
+                    console.log('💡 해결: 이메일의 6자리 코드를 정확히 복사');
+                    
+                } else if (result.message.includes('계정을 찾을 수 없')) {
+                    console.log('� 원인: 관리자 계정 정보 없음');
+                    console.log('   - DB에 해당 이메일의 관리자 계정 없음');
+                    console.log('💡 해결: 관리자 계정 등록 확인');
+                    
+                } else {
+                    console.log('🔍 일반 인증 실패');
+                    console.log('   - 세션 토큰 만료 가능성');
+                    console.log('   - 인증 코드 불일치 가능성');
+                }
+            } else {
+                console.log('   - 응답 메시지 없음 (401 Unauthorized)');
+            }
+            
+            console.log('\n🔄 권장 조치:');
+            console.log('   1. clearAllTokens() 실행하여 초기화');
+            console.log('   2. 1단계부터 다시 시작 (adminLogin)');
+            console.log('   3. 코드 발송 후 5분 이내 검증 완료');
+            
+        } else if (response.status === 403) {
+            console.log('❌ HTTP 403 - IP 불일치');
+            console.log('   - 코드 발송 시 IP와 검증 시 IP가 다름');
+            console.log('   - VPN 또는 네트워크 변경 감지');
+            console.log('💡 해결: 같은 네트워크에서 2-3단계 진행');
             
         } else if (response.status === 404) {
             console.log('❌ HTTP 404 - 엔드포인트 없음');
