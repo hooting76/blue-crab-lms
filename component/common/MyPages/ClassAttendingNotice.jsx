@@ -67,9 +67,7 @@ function ClassAttendingNotice({currentPage, setCurrentPage}) {
 
     return(
         <>
-            수강과목 공지사항
-
-             <select value={selectedSemester} onChange={handleSemesterChange} className='selectSemester'>
+            <select value={selectedSemester} onChange={handleSemesterChange} className='selectSemester'>
                 {semesterOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                         {option.label}

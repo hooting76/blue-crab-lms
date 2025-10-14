@@ -1,3 +1,5 @@
+import '../../../css/MyPages/TestModal.css';
+
 const TestModal = ({ onClose }) => {
     return (
         <div className="test-modal-container">

@@ -167,10 +167,10 @@ const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
                     ) : (
                         <>
                             <div className="profTest">
-                                <button className="testModal" onClick={openTesetModal}>시험 관리</button>
+                                <button className="testModalBtn" onClick={openTesetModal}>시험 관리</button>
                             </div>
                             <div className="profAssignment">
-                                <button className="assignmentModal" onClick={openAssignmentModal}>과제 관리</button>
+                                <button className="assignmentModalBtn" onClick={openAssignmentModal}>과제 관리</button>
                             </div>
                             {/* 모달 렌더링 */}
                             {isTestModalOpen && <TestModal onClose={closeTestModal}/>}

@@ -1,3 +1,5 @@
+import "../../../css/MyPages/AssignmentModal.css";
+
 const AssignmentModal = ({ onClose }) => {
     return (
         <div className="assignment-modal-container">
