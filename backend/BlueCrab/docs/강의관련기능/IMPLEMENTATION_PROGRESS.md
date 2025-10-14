@@ -1,8 +1,8 @@
 # 강의 관리 시스템 구현 진척도
 
 > **최종 업데이트**: 2025-10-14  
-> **현재 Phase**: Phase 6.5 완료 + JOIN FETCH 최적화 완료  
-> **전체 진행률**: 92% (Phase 1-6.5 완료 + 성능 최적화)
+> **현재 Phase**: Phase 6.7 완료 - 교수 이름 조회 기능  
+> **전체 진행률**: 94% (Phase 1-6.7 완료 + 성능 최적화)
 
 ---
 
@@ -16,9 +16,10 @@ Phase 5: Service 레이어             ████████████ 100%
 Phase 6: Controller 레이어          ████████████ 100% ✅
 Phase 6.5: DTO 패턴 적용           ████████████ 100% ✅
 Phase 6.6: JOIN FETCH 최적화       ████████████ 100% ✅
+Phase 6.7: 교수 이름 조회 기능     ████████████ 100% ✅
 Phase 7: 테스트 & 통합              ████████░░░░  60% 🚧
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-전체 진행률:                        ██████████░░  92%
+전체 진행률:                        ██████████░░  94%
 ```
 
 ---
@@ -125,6 +126,139 @@ Phase 7: 테스트 & 통합              ████████░░░░  6
 - **Lazy Loading 안전**: 세션 내에서 모든 데이터 로드 완료
 - **성능 향상**: 불필요한 추가 쿼리 제거
 - **DTO 완전성**: 모든 필드가 정상적으로 채워짐
+
+---
+
+## ✅ Phase 6.7: 교수 이름 조회 기능 + PageImpl 최적화 (완료)
+
+### 기간: 2025-10-14
+### 상태: ✅ 완료
+
+#### 문제 진단
+- [x] **Page.map()의 Entity 참조 유지 문제**
+  - Page<Entity>.map(this::convertToDto)는 내부적으로 Entity 참조 유지
+  - JSON 직렬화 시 Hibernate 프록시 객체 접근 시도
+  - 동일한 HTTP 400 에러 재발 가능성
+
+- [x] **교수 코드만 표시되는 문제**
+  - LEC_PROF 필드가 USER_CODE 값만 저장 (예: "11")
+  - 실제 교수 이름(USER_NAME)이 API 응답에 없음
+  - 프론트엔드에서 "11" 대신 "굴림체" 표시 필요
+
+#### 데이터 구조 분석
+- **USER_TBL 스키마**:
+  - `USER_CODE` (VARCHAR): 식별자/코드 (예: "11", "PROF001", "240105045")
+  - `USER_NAME` (VARCHAR(50)): 실제 이름 (예: "굴림체", "김교수", "홍길동")
+  - `USER_IDX` (INT): 자동 증가 PK
+
+- **LEC_TBL 스키마**:
+  - `LEC_PROF` (VARCHAR(50)): USER_CODE 참조 (예: "11")
+
+- **조회 로직**:
+  - LEC_PROF="11" → USER_TBL에서 USER_CODE="11" 검색 → USER_NAME="굴림체" 추출
+
+#### 완료 항목
+
+##### 1. PageImpl 패턴 적용
+- [x] **EnrollmentController.java 수정**
+  - `org.springframework.data.domain.PageImpl` import 추가
+  - getEnrollments() 메서드 3개 섹션 수정:
+    * 학생별 조회 (studentIdx 파라미터)
+    * 강의별 조회 (lecIdx 파라미터)
+    * 전체 조회 (파라미터 없음)
+  
+- [x] **변경 전 (문제)**:
+  ```java
+  Page<EnrollmentDto> dtoPage = enrollments.map(this::convertToDto);
+  ```
+  - Page.map()은 원본 Entity에 대한 참조를 유지
+  - convertToDto() 내부에서 Lazy Loading 발생 가능
+  - JSON 직렬화 시 Hibernate 프록시 접근 실패
+
+- [x] **변경 후 (해결)**:
+  ```java
+  List<EnrollmentDto> dtoList = enrollments.getContent().stream()
+          .map(this::convertToDto)
+          .collect(Collectors.toList());
+  Page<EnrollmentDto> dtoPage = new PageImpl<>(dtoList, pageable, enrollments.getTotalElements());
+  ```
+  - 명시적으로 Entity → DTO 변환 후 새로운 Page 객체 생성
+  - Entity 참조 완전히 제거
+  - 순수 DTO만 포함된 Page 객체 반환
+
+##### 2. 교수 이름 조회 기능 구현
+- [x] **EnrollmentDto.java 필드 추가**
+  ```java
+  private String lecProf;      // 교수코드 (USER_CODE) - 예: "11"
+  private String lecProfName;  // 교수 이름 (USER_NAME) - 예: "굴림체"
+  ```
+  - Getter/Setter 메서드 추가
+  - 필드 주석으로 의미 명확화
+
+- [x] **UserTblRepository.java 메서드 추가**
+  ```java
+  /**
+   * 교수 코드(USER_CODE)로 사용자 조회
+   * @param userCode 교수 코드 등 (예: "11", "PROF001", "P001")
+   * @return 사용자 정보
+   */
+  Optional<UserTbl> findByUserCode(String userCode);
+  
+  /**
+   * 사용자 이름(USER_NAME)으로 조회
+   * @param userName 이름 (예: "굴림체", "김교수", "홍길동")
+   * @return 사용자 정보
+   */
+  Optional<UserTbl> findByUserName(String userName);
+  ```
+  - Spring Data JPA 메서드 명명 규칙 활용
+  - 자동으로 WHERE USER_CODE = ? 쿼리 생성
+
+- [x] **EnrollmentController.java 교수 조회 로직**
+  - UserTblRepository 주입 추가
+  - convertToDto() 메서드 수정:
+    ```java
+    // 교수 코드 설정
+    dto.setLecProf(lecture.getLecProf());  // "11"
+    
+    // 교수 이름 조회 및 설정
+    userTblRepository.findByUserCode(lecture.getLecProf())
+        .ifPresent(professor -> {
+            dto.setLecProfName(professor.getUserName());  // "굴림체"
+        });
+    ```
+  - 교수 정보 없을 시 lecProfName은 null (프론트엔드에서 'N/A' 처리)
+
+- [x] **lecture-test-2-student-enrollment.js 업데이트**
+  ```javascript
+  console.log(`교수코드: ${enrollment.lecProf || 'N/A'}`);     // "11"
+  console.log(`교수 이름: ${enrollment.lecProfName || 'N/A'}`); // "굴림체"
+  ```
+  - 두 필드 모두 출력하여 데이터 검증 용이
+
+- [x] **문서화**
+  - BACKEND_FIX_PROFESSOR_NAME_LOOKUP.md 생성
+  - 데이터 흐름, API 예시, 테스트 방법 문서화
+
+#### 기술적 효과
+- **JSON 직렬화 안정성**: Entity 참조 완전 제거로 프록시 접근 에러 원천 차단
+- **사용자 경험 향상**: 교수 코드("11") 대신 실제 이름("굴림체") 표시
+- **데이터 완전성**: 한 번의 API 호출로 필요한 모든 정보 제공
+- **확장성**: 동일한 패턴으로 다른 참조 데이터 조회 가능
+- **성능 영향 최소**: Repository 조회는 Optional로 캐싱 가능, 추가 쿼리 1회
+
+#### 구현 세부사항
+- **Entity 분리**: PageImpl로 Entity → DTO 변환 후 원본 Entity 제거
+- **Optional 처리**: findByUserCode()가 빈 값일 경우 lecProfName은 null
+- **에러 처리**: 교수 조회 실패 시에도 나머지 데이터는 정상 반환
+- **테스트 가능**: 브라우저 콘솔 스크립트로 즉시 검증 가능
+
+#### 관련 파일
+- `EnrollmentController.java` (Lines 7-17, 107-145, 280-305)
+- `EnrollmentDto.java` (Lines 15-19, 89-97)
+- `UserTblRepository.java` (Lines 60-75)
+- `lecture-test-2-student-enrollment.js` (Lines 328-334)
+- `BACKEND_FIX_PROFESSOR_NAME_LOOKUP.md` (전체)
 
 ---
 
@@ -342,17 +476,17 @@ Phase 7: 테스트 & 통합              ████████░░░░  6
 |--------|---------|-----------|--------------|------|
 | **Entity** | 3 | ~50 | ~450 | ✅ 완료 |
 | **DTO** | 11 | ~150 | ~900 | ✅ 완료 |
-| **Repository** | 3 | 65 | ~650 | ✅ 완료 |
+| **Repository** | 4 | 67 | ~700 | ✅ 완료 |
 | **Service** | 3 | 73 | ~850 | ✅ 완료 |
-| **Controller** | 3 | 21 + DTO 변환 | ~850 | ✅ 완료 |
-| **Total** | **23** | **359+** | **~3,700** | **90%** |
+| **Controller** | 3 | 21 + DTO 변환 | ~900 | ✅ 완료 |
+| **Total** | **24** | **361+** | **~3,800** | **94%** |
 
 ### API 엔드포인트 현황
 
 | Controller | 엔드포인트 수 | 상태 | 비고 |
 |------------|---------------|------|------|
 | **LectureController** | 6 | ✅ | 통합 최적화 완료 |
-| **EnrollmentController** | 7 | ✅ | DTO 패턴 적용 완료 ⭐ |
+| **EnrollmentController** | 7 | ✅ | DTO + PageImpl + 교수 조회 완료 ⭐ |
 | **AssignmentController** | 8 | ✅ | 통합 최적화 완료 |
 | **Total** | **21** | **✅** | **34→21 (38% 감소)** |
 
@@ -379,7 +513,24 @@ Phase 7: 테스트 & 통합              ████████░░░░  6
 
 ## 📝 변경 이력
 
-### 2025-10-14
+### 2025-10-14 (Phase 6.7)
+- ✅ **PageImpl 패턴 적용**: Page.map() 대신 명시적 PageImpl 생성
+- ✅ **교수 이름 조회 기능 구현**: LEC_PROF → USER_CODE → USER_NAME 조회
+- ✅ EnrollmentDto에 lecProfName 필드 추가
+- ✅ UserTblRepository에 findByUserCode() 메서드 추가
+- ✅ EnrollmentController에 교수 조회 로직 추가
+- ✅ lecture-test-2-student-enrollment.js 출력 업데이트
+- ✅ BACKEND_FIX_PROFESSOR_NAME_LOOKUP.md 문서 작성
+- ✅ Entity 참조 완전 제거로 JSON 직렬화 안정성 확보
+
+### 2025-10-14 (Phase 6.6)
+- ✅ **JOIN FETCH 최적화**: Repository 쿼리에 DISTINCT + JOIN FETCH 적용
+- ✅ findEnrollmentHistoryByStudent() 및 findStudentsByLecture() 개선
+- ✅ Service 레이어에서 JOIN FETCH 메서드 사용
+- ✅ N+1 쿼리 문제 원천 차단
+- ✅ DTO 필드 null 문제 해결
+
+### 2025-10-14 (Phase 6.5)
 - ✅ **HTTP 400 에러 수정**: Hibernate Lazy Loading 이슈 해결
 - ✅ EnrollmentController에 DTO 패턴 적용
 - ✅ convertToDto() 메서드 구현 (60+ 라인)

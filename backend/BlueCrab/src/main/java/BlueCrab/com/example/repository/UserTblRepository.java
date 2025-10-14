@@ -56,7 +56,23 @@ public interface UserTblRepository extends JpaRepository<UserTbl, Integer> {
      */
     Optional<UserTbl> findByUserEmail(String userEmail);
 
+    /**
+     * USER_CODE로 사용자 조회 (교수 코드 등)
+     * 교수 정보 조회 시 사용
+     *
+     * @param userCode 사용자 코드 (예: "11", "P001")
+     * @return Optional<UserTbl> - 해당 사용자
+     */
     Optional<UserTbl> findByUserCode(String userCode);
+
+    /**
+     * USER_NAME으로 사용자 조회 (이름)
+     * 사용자 이름으로 검색 시 사용
+     *
+     * @param userName 사용자 이름 (예: "굴림체", "김교수")
+     * @return Optional<UserTbl> - 해당 사용자
+     */
+    Optional<UserTbl> findByUserName(String userName);
 
     /**
      * 여러 사용자 코드로 사용자 목록을 배치 조회

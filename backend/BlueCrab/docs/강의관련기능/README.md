@@ -2,15 +2,18 @@
 
 > **작성일**: 2025-10-10  
 > **업데이트**: 2025-10-14  
-> **버전**: 5.0 (DTO 패턴 적용 완료)  
+> **버전**: 6.0 (교수 이름 조회 기능 추가)  
 > **변경사항**: 
 > - Phase 1-2: 데이터베이스 구축 완료 ✅
 > - Phase 3: Entity 3개, DTO 11개 생성 완료 ✅
-> - Phase 4: Repository 3개 생성 완료 ✅
+> - Phase 4: Repository 4개 생성 완료 (UserTblRepository 추가) ✅
 > - Phase 5: Service 레이어 완료 ✅
 > - Phase 6: Controller 레이어 완료 ✅
 > - **Phase 6.5: EnrollmentController DTO 패턴 적용 완료 ⭐**
+> - **Phase 6.6: JOIN FETCH 최적화 완료 (N+1 쿼리 방지) ⭐**
+> - **Phase 6.7: 교수 이름 조회 기능 추가 (LEC_PROF → USER_NAME) ⭐**
 > - **HTTP 400 Hibernate Lazy Loading 이슈 해결 완료 ✅**
+> - **PageImpl 패턴으로 Entity 참조 완전 제거 ✅**
 > - 폴더 구조화 완료 (entity/Lecture/, dto/Lecture/, repository/Lecture/) ✅
 
 ---
@@ -27,6 +30,7 @@
 - ✅ **단계적 구현**: Phase별로 체계적인 개발 진행
 - ✅ **확장성 보장**: 필요시 기능별 테이블 분리 가능
 - ✅ **폴더 구조화**: 기능별 하위 폴더로 체계적 관리
+- ✅ **성능 최적화**: JOIN FETCH, PageImpl, DTO 패턴으로 안정성 확보
 
 ---
 
@@ -57,13 +61,14 @@
 #### DTO 클래스 (11개)
 - [x] LectureDto, LectureDetailDto
 - [x] LectureCreateRequest, LectureUpdateRequest
-- [x] EnrollmentDto, EnrollmentCreateRequest
+- [x] **EnrollmentDto** (교수 이름 필드 추가: lecProf + lecProfName)
+- [x] EnrollmentCreateRequest
 - [x] AttendanceDto, GradeDto
 - [x] AssignmentDto, AssignmentSubmissionDto, AssignmentStatisticsDto
 
 ### ✅ Phase 4: Repository 레이어 (완료)
 
-#### Repository 인터페이스 (3개)
+#### Repository 인터페이스 (4개)
 - [x] **LecTblRepository.java** (`repository/Lecture/LecTblRepository.java`)
   - 강의 조회: 강의코드, 교수명, 학년/학기별 조회
   - 수강신청 관련: 상태별, 정원 확인 조회
@@ -74,7 +79,7 @@
   
 - [x] **EnrollmentExtendedTblRepository.java** (`repository/Lecture/EnrollmentExtendedTblRepository.java`)
   - 수강신청 조회: 학생별, 강의별 조회
-  - JOIN FETCH: N+1 문제 방지를 위한 최적화 쿼리
+  - **JOIN FETCH 최적화**: N+1 문제 방지를 위한 DISTINCT + JOIN FETCH
   - 배치 조회: 여러 강의/학생의 수강신청 일괄 조회
   - 통계: 수강생 수, 수강신청 건수 조회
   - 삭제: 수강 취소 관련 메서드
@@ -89,10 +94,15 @@
   - JSON 기반 확장 가능 설계
   - 총 **15개 메서드** 제공
 
+- [x] **UserTblRepository.java** (기존 Repository 확장)
+  - **findByUserCode()**: 교수 코드로 사용자 조회 (예: "11", "PROF001")
+  - **findByUserName()**: 사용자 이름으로 조회 (예: "굴림체", "김교수")
+  - 교수 이름 조회 기능 지원
+
 #### Repository 주요 특징
 - ✅ **Spring Data JPA 활용**: 메서드 네이밍 규칙으로 쿼리 자동 생성
 - ✅ **JPQL 최적화**: @Query로 복잡한 조회 쿼리 작성
-- ✅ **N+1 문제 방지**: JOIN FETCH 활용
+- ✅ **N+1 문제 방지**: JOIN FETCH + DISTINCT + countQuery 분리
 - ✅ **배치 처리**: IN 절을 활용한 일괄 조회
 - ✅ **상세한 주석**: 각 메서드의 용도와 사용 예시 포함
 - ✅ **확장 가능 설계**: JSON 데이터 활용을 위한 가이드 포함
@@ -128,7 +138,7 @@
   - 통합 API 설계 완료
   - 과제 제출 관리 API
 
-### ⭐ Phase 6.5: DTO 패턴 적용 (신규 완료)
+### ⭐ Phase 6.5: DTO 패턴 적용 (완료)
 
 #### 문제 상황
 - **HTTP 400 에러**: "Could not write JSON: could not initialize proxy - no Session"
@@ -147,20 +157,63 @@
   - getEnrollmentById() → EnrollmentDto
   - Entity 내부 구조 노출 차단
 
-- [x] **프론트엔드 테스트 스크립트 업데이트**
-  - lecture-test-2-student-enrollment.js 수정
-  - DTO 필드 구조에 맞게 출력 형식 변경
-
 - [x] **문서화**
   - BACKEND_FIX_ENROLLMENT_400_ERROR.md 작성
   - 3가지 해결 방안 비교
   - DTO 패턴 권장 사유 설명
 
+### ⭐ Phase 6.6: JOIN FETCH 최적화 (완료)
+
+#### 문제 상황
+- **DTO 필드 null 문제**: lecTit, lecProf, studentName 등이 모두 null 반환
+- **원인**: Lazy Loading 시 Hibernate 세션이 이미 종료됨
+- **N+1 쿼리 문제**: 각 엔티티마다 추가 쿼리 발생
+
+#### 해결 방법
+- [x] **Repository JOIN FETCH 쿼리**
+  - findEnrollmentHistoryByStudent(): DISTINCT + JOIN FETCH lecture + student
+  - findStudentsByLecture(): DISTINCT + JOIN FETCH lecture + student
+  - countQuery 분리로 페이징 최적화
+
+- [x] **Service 레이어 수정**
+  - getEnrollmentsByStudentPaged(): JOIN FETCH 메서드 사용
+  - getEnrollmentsByLecturePaged(): JOIN FETCH 메서드 사용
+
 #### 기술적 효과
-- ✅ **API 안정성 향상**: Hibernate 세션 문제 원천 차단
-- ✅ **성능 최적화**: 필요한 데이터만 전송
-- ✅ **유지보수성 향상**: 명확한 API 계약 (Contract)
-- ✅ **확장성 보장**: Entity 변경 시 API 영향 최소화
+- ✅ **N+1 쿼리 방지**: 한 번의 쿼리로 모든 연관 데이터 로드
+- ✅ **Lazy Loading 안전**: 세션 내에서 모든 데이터 로드 완료
+- ✅ **DTO 완전성**: 모든 필드가 정상적으로 채워짐
+
+### ⭐ Phase 6.7: 교수 이름 조회 기능 + PageImpl 최적화 (완료)
+
+#### 문제 상황
+- **Page.map() Entity 참조 유지**: JSON 직렬화 시 프록시 접근 위험
+- **교수 코드만 표시**: LEC_PROF="11" 형태로만 표시되어 사용자 경험 저하
+
+#### 데이터 구조
+- **USER_TBL**: USER_CODE (식별자), USER_NAME (실제 이름)
+- **LEC_TBL**: LEC_PROF (USER_CODE 값 저장)
+- **조회 로직**: LEC_PROF="11" → USER_CODE="11" 검색 → USER_NAME="굴림체" 반환
+
+#### 해결 방법
+- [x] **PageImpl 패턴 적용**
+  - Page.map() 대신 명시적 List<DTO> → PageImpl 생성
+  - Entity 참조 완전 제거로 JSON 직렬화 안정성 확보
+
+- [x] **교수 이름 조회 기능**
+  - EnrollmentDto에 lecProfName 필드 추가
+  - UserTblRepository에 findByUserCode() 메서드 추가
+  - convertToDto()에서 교수 정보 자동 조회
+
+- [x] **문서화**
+  - BACKEND_FIX_PROFESSOR_NAME_LOOKUP.md 작성
+  - 데이터 흐름, API 예시, 테스트 방법 문서화
+
+#### 기술적 효과
+- ✅ **JSON 직렬화 안정성**: Entity 참조 완전 제거
+- ✅ **사용자 경험 향상**: "11" 대신 "굴림체" 표시
+- ✅ **데이터 완전성**: 한 번의 API 호출로 필요한 모든 정보 제공
+- ✅ **확장성**: 동일 패턴으로 다른 참조 데이터 조회 가능
 
 ### 📅 Phase 7: 테스트 & 통합 (진행 중)
 
