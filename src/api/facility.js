@@ -183,9 +183,26 @@ export const postReservationDetail = async (reservationIdx) => {
 
 export const cancelReservation = async (reservationIdx) => {
   await ensureAccessTokenOrRedirect();
-  const res = await deleteRetry401(`${BASE_URL}/reservations/${reservationIdx}`);
-  return handleResponse(res, '예약 취소 실패');
+  const token = readAccessToken();
+
+  const res = await fetch(`${BASE_URL}/reservations/${reservationIdx}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  const payload = await parseJsonSafe(res);
+  if (!res.ok) {
+    const msg = payload?.message || '예약 취소 실패';
+    const err = new Error(msg);
+    err.payload = payload;
+    throw err;
+  }
+  return payload;
 };
+
 
 /* ===========================
  *  상수 (상태 enum – 경로용)

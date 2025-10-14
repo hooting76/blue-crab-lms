@@ -171,7 +171,7 @@ button.danger{
 /* 전설(칩) */
 .legend{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px }
 .legend .chip{
-  display:inline-flex; align-items:center; gap:6px;
+  white-space: nowrap; display:inline-flex; align-items:center; gap:6px;
   padding:6px 10px; border-radius:999px; font-size:.88rem; font-weight:700;
 }
 .legend .chip.available{ background:#e8f7ee; color:#166534; border:1px solid #b7f3cd }
@@ -197,6 +197,18 @@ button.danger{
 .slot.booked{ background:var(--slot-busy); border-color:#ffb7b7; color:#991b1b; cursor:not-allowed }
 .slot.booked .sub{ color:#7f1d1d }
 
+/* 슬롯 안 텍스트가 세로로 쪼개지지 않도록 */
+.slot .h,
+.slot .sub {white-space: nowrap; line-height: 1.2;word-break: keep-all;     /* 한국어 개별 글자 줄바꿈 방지 */
+}
+
+/* 버튼 폭이 줄어도 글자가 한 줄로 보이게 */
+.slot {
+  align-items: center;}
+
+/* 상태 표기 칩(전설)도 한 줄 유지 */
+.legend .chip { white-space: nowrap; }
+
 .warn{
   margin-top:10px; background:var(--wait-bg); border:1px solid #ffe29d;
   color:#7a4b00; border-radius:10px; padding:10px 12px; font-weight:600;
@@ -210,12 +222,7 @@ hr.sep{ border:none; height:1px; background:var(--line); margin:16px 0 }
   padding: 16px 16px 48px;
 }
 
-.page-head {
-  background: #eef3fb;
-  border-radius: 16px;
-  padding: 32px 28px;
-  margin: 12px auto 20px;
-  max-width: 1120px;      /* 배너 실제 폭 */
+.page-head {background: #eef3fb;border-radius: 16px;padding: 32px 28px;margin: 12px auto 20px;max-width: 1120px;      /* 배너 실제 폭 */
 }
 .page-head h2{
   text-align:center; font-size:28px; margin:0 0 8px; color:#234; letter-spacing:.02em;
