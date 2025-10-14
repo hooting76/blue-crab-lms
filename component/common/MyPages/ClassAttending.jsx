@@ -3,6 +3,8 @@ import '../../../css/MyPages/ClassAttending.css';
 import classAttendingDummy from '../../../src/mock/classAttendingDummy.js'; //더미데이터
 import { UseUser } from '../../../hook/UseUser';
 import ApproveAttendanceModal from './ApproveAttendanceModal.jsx';
+import TestModal from './TestModal.jsx';
+import AssignmentModal from './AssignmentModal.jsx';
 import ProfNoticeWritingPage from './ProfNoticeWritingPage.jsx';
 
 function ClassAttending({currentPage, setCurrentPage}) {
@@ -82,9 +84,17 @@ if (currentPage === "과목별 공지 작성") {
     );
 }
 
-const [isModalOpen, setIsModalOpen] = useState(false);
-    const openModal = () => setIsModalOpen(true);
-    const closeModal = () => setIsModalOpen(false);
+const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
+    const openAttendanceModal = () => setIsAttendanceModalOpen(true);
+    const closeAttendanceModal = () => setIsAttendanceModalOpen(false);
+
+const [isTestModalOpen, setIsTestModalOpen] = useState(false);
+    const openTesetModal = () => setIsTestModalOpen(true);
+    const closeTestModal = () => setIsTestModalOpen(false);
+
+const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
+    const openAssignmentModal = () => setIsAssignmentModalOpen(true);
+    const closeAssignmentModal = () => setIsAssignmentModalOpen(false);
 
     return (
         <div className="classAttending_list_container">
@@ -134,23 +144,39 @@ const [isModalOpen, setIsModalOpen] = useState(false);
                         {user.data.user.userStudent === 0 ? (
                             <button className="attendanceCallBtn" onClick={attendanceRequestSubmit}>출석인정 신청</button>
                         ) : (
-                            <button className="attendanceCallBtn" onClick={openModal}>출석인정 승인</button>
+                            <button className="attendanceCallBtn" onClick={openAttendanceModal}>출석인정 승인</button>
                         )}
                     </div>
                     {/* 모달 렌더링 */}
-                    {isModalOpen && <ApproveAttendanceModal onClose={closeModal} />}
+                    {isAttendanceModalOpen && <ApproveAttendanceModal onClose={closeAttendanceModal} />}
                 </div>
 
                 <div className="testAssignment">
                     시험 및 과제
-                    <div className="test">
-                        중간고사 : 점<br/>
-                        기말고사 : 점
-                    </div>
-                    <div className="assignment">
-                        과제1 : 점<br/>
-                        과제2 : 점
-                    </div>
+                    {user.data.user.userStudent === 0 ? (
+                        <>
+                            <div className="studentTest">
+                                중간고사 : 점<br/>
+                                기말고사 : 점
+                            </div>
+                            <div className="studentAssignment">
+                                과제1 : 점<br/>
+                                과제2 : 점
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div className="profTest">
+                                <button className="testModal" onClick={openTesetModal}>시험 관리</button>
+                            </div>
+                            <div className="profAssignment">
+                                <button className="assignmentModal" onClick={openAssignmentModal}>과제 관리</button>
+                            </div>
+                            {/* 모달 렌더링 */}
+                            {isTestModalOpen && <TestModal onClose={closeTestModal}/>}
+                            {isAssignmentModalOpen && <AssignmentModal onClose={closeAssignmentModal}/>}
+                        </>
+                    )}
                 </div>
             </div>
         {/* <div className='classAttending_text'>
