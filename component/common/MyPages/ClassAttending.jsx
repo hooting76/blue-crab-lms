@@ -73,10 +73,8 @@ const attendanceRequestSubmit = (e) => {
 }
 
 const profNoticeWrite = () => {
-    setCurrentPage("과목별 공지 작성");
+    return setCurrentPage("과목별 공지 작성");
 }
-
-console.log("currentPage :", currentPage);
 
 if (currentPage === "과목별 공지 작성") {
     return (
