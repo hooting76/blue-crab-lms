@@ -99,7 +99,8 @@ async function getMyLectures() {
             result.forEach((lecture, idx) => {
                 console.log(`\n${idx + 1}. ${lecture.lecTit || lecture.LEC_TIT} (${lecture.lecSerial || lecture.LEC_SERIAL})`);
                 console.log(`   강의 IDX: ${lecture.lecIdx || lecture.LEC_IDX}`);
-                console.log(`   교수번호: ${lecture.lecProf || lecture.LEC_PROF}`);
+                console.log(`   교수코드: ${lecture.lecProf || lecture.LEC_PROF}`);
+                console.log(`   교수명: ${lecture.lecProfName || lecture.LEC_PROF_NAME || 'N/A'}`);
                 console.log(`   학기: ${lecture.lecYear || lecture.LEC_YEAR}-${lecture.lecSemester || lecture.LEC_SEMESTER}`);
                 console.log(`   정원: ${lecture.lecCurrent || 0}/${lecture.lecMany || lecture.LEC_MANY}명`);
                 
@@ -117,7 +118,8 @@ async function getMyLectures() {
             result.data.content.forEach((lecture, idx) => {
                 console.log(`\n${idx + 1}. ${lecture.lecTit || lecture.LEC_TIT} (${lecture.lecSerial || lecture.LEC_SERIAL})`);
                 console.log(`   강의 IDX: ${lecture.lecIdx || lecture.LEC_IDX}`);
-                console.log(`   교수번호: ${lecture.lecProf || lecture.LEC_PROF}`);
+                console.log(`   교수코드: ${lecture.lecProf || lecture.LEC_PROF}`);
+                console.log(`   교수명: ${lecture.lecProfName || lecture.LEC_PROF_NAME || 'N/A'}`);
                 console.log(`   학기: ${lecture.lecYear || lecture.LEC_YEAR}-${lecture.lecSemester || lecture.LEC_SEMESTER}`);
                 console.log(`   정원: ${lecture.lecCurrent || 0}/${lecture.lecMany || lecture.LEC_MANY}명`);
                 

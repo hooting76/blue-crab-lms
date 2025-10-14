@@ -302,6 +302,7 @@ public class EnrollmentController {
                 dto.setLecSerial(lecture.getLecSerial());
                 dto.setLecTit(lecture.getLecTit());
                 dto.setLecProf(lecture.getLecProf());  // 교수코드 (USER_CODE)
+                dto.setLecSummary(lecture.getLecSummary());  // 강의 설명
                 dto.setLecPoint(lecture.getLecPoint());
                 dto.setLecTime(lecture.getLecTime());
                 

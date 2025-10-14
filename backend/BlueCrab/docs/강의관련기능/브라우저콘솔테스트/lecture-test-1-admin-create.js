@@ -218,7 +218,8 @@ try {
             console.log(`   - 강의 ID: ${result.lecIdx}`);
             console.log(`   - 강의 코드: ${result.lecSerial}`);
             console.log(`   - 강의명: ${result.lecTit}`);
-            console.log(`   - 담당교수: ${result.lecProf}`);
+            console.log(`   - 담당교수코드: ${result.lecProf}`);
+            console.log(`   - 담당교수명: ${result.lecProfName || 'N/A'}`);
             console.log(`   - 대상학년: ${result.lecYear}학년 ${result.lecSemester}학기`);
             window.lastLectureIdx = result.lecIdx;  // LecTbl의 lecIdx 필드
             console.log(`💾 저장된 lecIdx: ${window.lastLectureIdx}`);
@@ -269,7 +270,8 @@ async function getLectures() {
             console.log('📋 강의 목록:');
             result.content.forEach((lecture, idx) => {
                 console.log(`\n${idx + 1}. ${lecture.lecTit} (${lecture.lecSerial})`);
-                console.log(`   교수: ${lecture.lecProf}`);
+                console.log(`   교수코드: ${lecture.lecProf}`);
+                console.log(`   교수명: ${lecture.lecProfName || 'N/A'}`);
                 console.log(`   정원: ${lecture.lecCurrent || 0}/${lecture.lecMany}`);
                 console.log(`   상태: ${lecture.lecOpen ? '수강신청 열림' : '수강신청 닫힘'}`);
                 console.log(`   대상: ${lecture.lecYear}학년 ${lecture.lecSemester}학기`);
@@ -313,7 +315,8 @@ async function getLectureDetail() {
             console.log(`   - 강의 ID: ${result.lecIdx}`);
             console.log(`   - 강의 코드: ${result.lecSerial}`);
             console.log(`   - 강의명: ${result.lecTit}`);
-            console.log(`   - 담당교수: ${result.lecProf}`);
+            console.log(`   - 담당교수코드: ${result.lecProf}`);
+            console.log(`   - 담당교수명: ${result.lecProfName || 'N/A'}`);
             console.log(`   - 학점: ${result.lecPoint}점`);
             console.log(`   - 전공구분: ${result.lecMajor ? '전공강의' : '교양'}`);
             console.log(`   - 필수구분: ${result.lecMust ? '필수과목' : '선택과목'}`);
