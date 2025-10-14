@@ -3,7 +3,7 @@ import { Editor } from '@toast-ui/react-editor';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor/dist/i18n/ko-kr';
 import { UseUser } from '../../../hook/UseUser';
-import ClassAttending from './ClassAttending';
+import ClassAttendingNotice from './ClassAttendingNotice';
 
 function ProfNoticeWritingPage({ notice, accessToken: propToken, currentPage, setCurrentPage }) {
 
@@ -186,7 +186,7 @@ useEffect(() => {
       setBoardCode(null);
       setSelectedFiles([]);
       editorRef.current.getInstance().setMarkdown('');
-      setCurrentPage("수강중인 과목");
+      setCurrentPage("수강과목 공지사항");
     } catch (error) {
       alert(error.message);
     }
@@ -262,16 +262,16 @@ useEffect(() => {
       setExistingAttachments([]);
       setDeletedAttachments([]);
       editorRef.current.getInstance().setMarkdown('');
-      setCurrentPage("수강중인 과목");
+      setCurrentPage("수강과목 공지사항");
     } catch (error) {
       alert(error.message);
     }
   };
 
 
-  
-  if (currentPage === "수강중인 과목")
-    return <ClassAttending currentPage={currentPage} setCurrentPage={setCurrentPage} />;
+
+  if (currentPage === "수강과목 공지사항")
+    return <ClassAttendingNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
 
   return (
     <form>
