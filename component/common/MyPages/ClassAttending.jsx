@@ -3,8 +3,9 @@ import '../../../css/MyPages/ClassAttending.css';
 import classAttendingDummy from '../../../src/mock/classAttendingDummy.js'; //더미데이터
 import { UseUser } from '../../../hook/UseUser';
 import ApproveAttendanceModal from './ApproveAttendanceModal.jsx';
+import ProfNoticeWritingPage from './ProfNoticeWritingPage.jsx';
 
-function ClassAttending() {
+function ClassAttending({currentPage, setCurrentPage}) {
     const { user } = UseUser(); // 유저 정보
     // const [openRow, setOpenRow] = useState(null);
     
@@ -72,7 +73,13 @@ const attendanceRequestSubmit = (e) => {
 }
 
 const profNoticeWrite = () => {
-    alert("과목별 공지 작성 페이지 준비중");
+    setCurrentPage("과목별 공지 작성");
+}
+
+if (currentPage === "과목별 공지 작성") {
+    return (
+        <ProfNoticeWritingPage currentPage={currentPage} setCurrentPage={setCurrentPage}/>
+    );
 }
 
 const [isModalOpen, setIsModalOpen] = useState(false);
