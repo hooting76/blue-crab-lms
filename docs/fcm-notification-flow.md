@@ -167,15 +167,33 @@
      - 강제 교체: `/api/fcm/register/force` 호출.
 
 3. **알림 수신 UI**  
-   - `setupForegroundListener()` 가 발생시키는 `fcm-message` 이벤트를 구독해 토스트/배지 업데이트.  
-   - `firebase-messaging-sw.js` 의 `notificationclick`에서 `payload.data`를 활용해 특정 화면으로 라우팅.
+   - **포그라운드**: `setupForegroundListener()`가 발생시키는 `fcm-message` 이벤트를 구독해 UI 업데이트 (토스트, 배지 등).
+     - ⚠️ **중요**: 중복 알림 방지를 위해 포그라운드에서는 `new Notification()` 호출을 제거하고 UI 이벤트만 발생시킵니다.
+     - Service Worker가 모든 알림 표시를 담당합니다.
+   - **백그라운드**: `firebase-messaging-sw.js`의 `onBackgroundMessage`가 자동으로 알림 표시.
+     - 중복 방지를 위해 내용 기반 고유 `tag` 사용 권장 (예: `'notification-' + title + body.substring(0,20)`).
+     - `renotify: false` 설정으로 재알림 시 진동 방지.
+   - **클릭 이벤트**: `notificationclick`에서 `payload.data`를 활용해 특정 화면으로 라우팅.
 
 4. **토큰 관리**  
    - `getCurrentToken()`으로 마지막 토큰을 보관해 로그아웃 시 `/unregister`에 전달.  
    - 토큰 갱신 필요 시 `refreshToken()` 호출.
+   - 권장: 24시간마다 토큰 유효성 체크 로직 추가.
 
 5. **환경 분리**  
    - VAPID 키와 백엔드 URL을 환경 변수로 분리하는 것을 권장.
+
+6. **플랫폼 감지**  
+   - User Agent 기반 플랫폼 자동 감지:
+     ```javascript
+     function detectPlatform() {
+         const ua = navigator.userAgent.toLowerCase();
+         if (/android/.test(ua)) return 'ANDROID';
+         if (/iphone|ipad|ipod/.test(ua)) return 'IOS';
+         return 'WEB';  // Windows, Mac, Linux 등
+     }
+     ```
+   - ⚠️ User Agent는 변조 가능하므로 보안이 중요한 경우 추가 검증 필요.
 
 ---
 
@@ -186,5 +204,99 @@
 3. **관리자 발송**: `/send` 또는 `/send/batch`/`/send/broadcast`.  
 4. **로그아웃**: `/unregister` 로 토큰 정리.  
 5. **주기 관리**: `/stats`, `cleanupInactiveTokens`(스케줄러)로 상태 점검.
+
+---
+
+## 7. 알려진 이슈 및 해결책
+
+### 7.1 중복 알림 이슈
+
+#### 문제 1: 브로드캐스트 중복 전송
+- **증상**: 같은 사용자에게 알림이 2번 도착
+- **원인**: DB 토큰과 Redis 임시 토큰이 모두 전송 대상에 포함
+- **해결**: 브로드캐스트(`/send/broadcast`)에서는 DB 영구 토큰만 사용
+  - 임시 토큰은 개별 전송(`/send`)에서만 사용하도록 수정됨
+
+#### 문제 2: 포그라운드/백그라운드 중복
+- **증상**: 브라우저 탭이 열려있을 때 알림이 2번 표시
+- **원인**: `onMessage` 리스너와 Service Worker가 둘 다 알림 표시
+- **해결**: 포그라운드에서는 브라우저 알림 표시 제거, UI 이벤트만 발생
+  ```javascript
+  // ✅ 올바른 구현
+  setupForegroundListener() {
+      onMessage(messaging, (payload) => {
+          // new Notification(...); ← 주석 처리 (중복 방지)
+          
+          // UI 이벤트만 발생
+          window.dispatchEvent(new CustomEvent('fcm-message', {
+              detail: payload
+          }));
+      });
+  }
+  ```
+
+#### 문제 3: Service Worker 태그 중복
+- **증상**: 같은 알림이 연속으로 여러 번 표시
+- **원인**: `tag: 'notification-' + Date.now()` 사용으로 매번 새로운 알림 생성
+- **해결**: 내용 기반 고유 태그 사용
+  ```javascript
+  // ✅ 올바른 구현
+  const uniqueTag = 'notification-' + 
+      (payload.notification?.title || '') + 
+      (payload.notification?.body || '').substring(0, 20);
+  
+  const notificationOptions = {
+      tag: uniqueTag,  // 같은 태그는 덮어쓰기
+      renotify: false  // 재알림 시 진동 안함
+  };
+  ```
+
+### 7.2 토큰 만료 이슈
+
+- **증상**: 모바일 기기에서 알림이 오지 않음 (브로드캐스트 응답에 `invalidTokens` 포함)
+- **원인**: FCM 토큰 만료 (앱 재설치, 데이터 삭제, 장기 미사용 등)
+- **해결**: 
+  - 백엔드가 자동으로 무효 토큰 감지 및 DB에서 제거
+  - 사용자는 앱 재실행 또는 재로그인으로 새 토큰 등록
+  - 권장: 프론트엔드에서 24시간마다 토큰 유효성 체크 및 재등록
+
+### 7.3 플랫폼 감지 정확도
+
+- **문제**: User Agent 기반 플랫폼 감지가 불완전 (Mac, Linux, iPad 등)
+- **개선**: 포괄적인 패턴 매칭 사용
+  ```javascript
+  function detectPlatform() {
+      const ua = navigator.userAgent.toLowerCase();
+      
+      if (/android/.test(ua)) {
+          return 'ANDROID';
+      } else if (/iphone|ipad|ipod/.test(ua)) {
+          return 'IOS';
+      } else {
+          return 'WEB';  // Windows, Mac, Linux 모두 포함
+      }
+  }
+  ```
+
+### 7.4 네트워크 장애 대응
+
+- **문제**: 알림 전송 실패 시 재시도 로직 부재
+- **권장**: 
+  - 백엔드: FCM 전송 실패 시 큐에 저장 후 재시도
+  - 프론트엔드: 네트워크 복구 시 토큰 재등록 로직 추가
+
+---
+
+## 8. 부록
+
+### 관련 문서
+- [FCM_PUSH_NOTIFICATION_GUIDE.md](../backend/BlueCrab/FCM_PUSH_NOTIFICATION_GUIDE.md) - 상세 기술 문서
+- [bugfix-duplicate-notifications.md](../claudedocs/bugfix-duplicate-notifications.md) - 중복 알림 수정 내역
+- [Firebase Cloud Messaging 공식 문서](https://firebase.google.com/docs/cloud-messaging)
+
+### 변경 이력
+- **2025-10-14**: 중복 알림 이슈 섹션 추가, 프론트엔드 권장사항 업데이트
+
+---
 
 이 문서를 기반으로 프런트엔드와 백엔드가 동일한 시나리오를 공유하면, 기기 충돌, 다중 사용자 알림, 로그아웃 정리 등 세부 절차가 명확해집니다.

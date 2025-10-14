@@ -655,17 +655,21 @@ public class FcmTokenService {
         List<String> invalidTokens = new ArrayList<>();
 
         // 플랫폼별로 토큰 수집
+        // 브로드캐스트는 DB에 등록된 영구 토큰만 사용 (임시 토큰 제외하여 중복 방지)
         for (FcmToken fcmToken : allTokens) {
             for (String platform : targetPlatforms) {
                 String token = fcmToken.getTokenByPlatform(platform);
                 if (token != null) {
                     allValidTokens.add(token);
                 }
-
-                String tempToken = fcmSessionService.getTemporaryToken(fcmToken.getUserIdx(), platform);
-                if (tempToken != null && !Objects.equals(tempToken, token)) {
-                    allValidTokens.add(tempToken);
-                }
+                
+                // ⚠️ 브로드캐스트에서는 임시 토큰 제외 (중복 알림 방지)
+                // 임시 토큰은 개별 알림 전송에서만 사용
+                
+                // String tempToken = fcmSessionService.getTemporaryToken(fcmToken.getUserIdx(), platform);
+                // if (tempToken != null && !Objects.equals(tempToken, token)) {
+                //     allValidTokens.add(tempToken);
+                // }
             }
         }
 
