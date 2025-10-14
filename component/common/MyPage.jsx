@@ -34,7 +34,7 @@ function MyPage({ currentPage, setCurrentPage }) {
         </>
         );
         case "수강과목 공지사항":
-            return <ClassAttendingNotice />;
+            return <ClassAttendingNotice currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
         case "과목별 공지 작성":
             return <ProfNoticeWritingPage/>;
         case "실시간 상담":
