@@ -432,28 +432,153 @@ await fetch('/api/lectures?professor=11');
 
 ---
 
-## 📊 통계
+## � Phase 6.8.1: 과제 관리 버그 수정 (2025-10-14)
+
+### 문제 발견
+**증상**: GET /api/assignments API 호출 시 400 Bad Request 발생
+```
+❌ JSON 파싱 실패: Unexpected non-whitespace character after JSON at position 67
+```
+
+**원인 분석**:
+서버 응답:
+```json
+{"content":[{"assignmentIdx":1,"lecIdx":6,"lecture":{"lecIdx":6}}]}
+{"success":false,"message":"Could not write JSON: could not initialize proxy [BlueCrab.com.example.entity.Lecture.LecTbl#6] - no Session; nested exception is com.fasterxml.jackson.databind.JsonMappingException: could not initialize proxy..."}
+```
+
+**근본 원인**:
+1. `AssignmentExtendedTbl`의 `lecture` 필드가 `@ManyToOne(fetch = FetchType.LAZY)` 설정
+2. Jackson이 JSON 직렬화 시 Lazy 프록시 객체에 접근 시도
+3. Hibernate 세션이 이미 닫혀있어 `LazyInitializationException` 발생
+4. Spring Boot가 정상 JSON 응답과 에러 응답을 연결하여 반환
+5. 클라이언트에서 JSON 파싱 실패 (이중 JSON 구조)
+
+### 해결 방법
+
+#### 수정된 파일: AssignmentExtendedTbl.java
+**위치**: `src/main/java/BlueCrab/com/example/entity/Lecture/AssignmentExtendedTbl.java`
+
+#### 변경 사항
+```java
+// Import 추가
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+// lecture 필드에 @JsonIgnore 추가
+@JsonIgnore
+@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "LEC_IDX", referencedColumnName = "LEC_IDX", insertable = false, updatable = false)
+private LecTbl lecture;
+```
+
+**주석 추가**:
+```java
+/**
+ * LecTbl 엔티티 참조
+ * 강의 정보를 조회할 때 사용
+ * Lazy Loading으로 필요 시에만 로드
+ * 
+ * JSON 직렬화에서 제외 (@JsonIgnore):
+ * - Lazy loading 프록시 객체가 세션 없이 접근되면 예외 발생
+ * - JSON 응답에 lecture 정보가 필요한 경우 DTO 사용 권장
+ */
+```
+
+### 기술적 배경
+
+#### Hibernate Lazy Loading + Jackson 직렬화 문제
+이 버그는 JPA + Spring Boot 환경에서 흔히 발생하는 "N+1 문제"와 관련된 전형적인 패턴입니다:
+
+**문제 발생 프로세스**:
+1. Controller에서 `Page<AssignmentExtendedTbl>` 직접 반환
+2. Spring이 Jackson을 사용해 JSON 직렬화
+3. Jackson이 `AssignmentExtendedTbl` 객체의 모든 필드 접근 시도
+4. `lecture` 필드는 LAZY 프록시 객체
+5. 이미 Hibernate 세션이 닫혀있어 프록시 초기화 불가능
+6. `LazyInitializationException` 발생
+7. Spring Boot의 에러 핸들러가 에러 JSON 생성
+8. 원래 응답과 에러 응답이 함께 전송됨
+
+**일반적인 해결책**:
+1. ✅ **@JsonIgnore 추가** (현재 적용) - 간단하고 효과적
+2. **DTO 패턴 사용** (권장) - 계층 분리, Phase 6.8 패턴
+3. **@EntityGraph 사용** - 필요 시 Eager loading
+4. **@Transactional + Open Session In View** - 성능 이슈 가능성
+5. **FetchType.EAGER 변경** - N+1 문제 발생 가능
+
+### 영향 범위
+- **변경 파일**: 1개 (AssignmentExtendedTbl.java)
+- **변경 라인**: +2 라인 (import, @JsonIgnore)
+- **영향 API**: GET /api/assignments
+- **Side Effect**: 없음 (lecture 정보가 필요한 경우 lecIdx로 별도 조회 가능)
+
+### 테스트 결과
+
+#### Before (버그 상황)
+```javascript
+await getAssignments();
+// ❌ JSON 파싱 실패: Unexpected non-whitespace character after JSON at position 67
+// 📡 HTTP 상태: 400
+```
+
+#### After (수정 후)
+```javascript
+await getAssignments();
+// ✅ 조회 성공! 총 1개 과제
+// 📋 과제 목록:
+// 1. 과제 IDX: 1
+//    강의 IDX: 6
+//    제목: 식인대게의 생태조사
+//    설명: 300자 이상
+//    마감일: 2025-12-31
+//    배점: 25점
+```
+
+### 배운 점
+
+#### Entity 직접 반환의 위험성
+Controller에서 Entity를 직접 반환하면 다음 문제가 발생할 수 있습니다:
+- Lazy Loading 예외
+- 불필요한 필드 노출
+- 순환 참조 (Circular Reference)
+- API 스펙 변경 어려움
+
+#### DTO 패턴의 중요성
+Phase 6.8에서 DTO 패턴을 적용한 이유:
+- **계층 분리**: Entity와 API 응답 분리
+- **유연성**: 필요한 필드만 선택적 포함
+- **안정성**: Lazy Loading 문제 원천 차단
+- **확장성**: API 스펙 독립적 관리
+
+---
+
+## �📊 통계 (업데이트)
 
 ### 코드 변경
 - **파일 수**: 6개
   - LectureDto.java (수정)
   - LectureController.java (대규모 수정)
+  - **AssignmentExtendedTbl.java (버그 수정 - @JsonIgnore 추가)**
   - lecture-test-1-admin-create.js (수정)
   - lecture-test-2-student-enrollment.js (수정)
-  - lecture-test-4-professor-assignment.js (수정)
+  - lecture-test-4-professor-assignment.js (수정 + 응답 디버깅 추가)
   - BACKEND_FIX_LECTURE_DTO.md (신규)
 
-- **추가된 코드**: 약 120 라인
+- **추가된 코드**: 약 122 라인
   - LectureDto.java: +16 라인
   - LectureController.java: +100 라인
+  - **AssignmentExtendedTbl.java: +2 라인 (@JsonIgnore)**
   - 테스트 코드: +4 라인 (표시 로직 수정)
 
-- **문서**: 273 라인 (BACKEND_FIX_LECTURE_DTO.md)
+- **문서**: 
+  - BACKEND_FIX_LECTURE_DTO.md: 273 라인
+  - **Phase 6.8 버그 수정 추가: +120 라인**
 
 ### 영향 범위
 - **Repository 레이어**: 변경 없음
 - **Service 레이어**: 변경 없음
 - **Controller 레이어**: LectureController만 수정
+- **Entity 레이어**: **AssignmentExtendedTbl 수정 (Lazy Loading 버그 수정)**
 - **DTO 레이어**: LectureDto만 수정
 - **테스트 코드**: 3개 파일 수정
 
@@ -466,6 +591,8 @@ await fetch('/api/lectures?professor=11');
 - ✅ 5개 GET 엔드포인트 모두 DTO 반환
 - ✅ 교수 이름 조회 기능 추가
 - ✅ API 일관성 확보 (EnrollmentController와 동일 패턴)
+- ✅ **Phase 6.8.1: 과제 관리 Lazy Loading 버그 수정**
+- ✅ **@JsonIgnore 추가로 JSON 직렬화 문제 해결**
 - ✅ 테스트 코드 업데이트
 - ✅ 포괄적인 문서화
 
@@ -475,14 +602,23 @@ await fetch('/api/lectures?professor=11');
 - **데이터 완전성**: 한 번의 API 호출로 필요한 모든 정보 제공
 - **확장성**: 동일한 패턴으로 추가 필드 쉽게 추가 가능
 - **유지보수성**: 명확한 코드 구조와 상세한 주석
+- **안정성**: Lazy Loading 예외 원천 차단
+
+### 배운 핵심 교훈
+1. **Entity 직접 반환 지양**: Controller에서 Entity를 직접 반환하면 Lazy Loading, 순환 참조 등 문제 발생 가능
+2. **DTO 패턴 필수**: Entity와 API 응답 계층 분리로 안정성과 유연성 확보
+3. **@JsonIgnore 활용**: 직렬화 제외가 필요한 필드에 명시적 설정
+4. **디버깅 전략**: JSON 파싱 실패 시 response.text()로 원본 확인 필수
+5. **Hibernate 세션 관리**: LAZY 프록시는 세션 범위 내에서만 접근 가능
 
 ### 프로젝트 진행률
 - **전체 진행률**: 94% → 95%
-- **Phase 6 완료**: 6.0 → 6.8
+- **Phase 6 완료**: 6.0 → 6.8.1
 - **문서화**: 95% 완료
+- **버그 수정**: Lazy Loading 직렬화 문제 해결 ✅
 
 ---
 
 **작성자**: 성태준  
-**문서 버전**: 1.0  
+**문서 버전**: 1.1 (Phase 6.8.1 버그 수정 포함)  
 **최종 검토**: 2025-10-14

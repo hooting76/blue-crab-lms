@@ -2,6 +2,8 @@
 
 package BlueCrab.com.example.entity.Lecture;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 /**
@@ -84,7 +86,12 @@ public class AssignmentExtendedTbl {
      * LecTbl 엔티티 참조
      * 강의 정보를 조회할 때 사용
      * Lazy Loading으로 필요 시에만 로드
+     * 
+     * JSON 직렬화에서 제외 (@JsonIgnore):
+     * - Lazy loading 프록시 객체가 세션 없이 접근되면 예외 발생
+     * - JSON 응답에 lecture 정보가 필요한 경우 DTO 사용 권장
      */
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "LEC_IDX", referencedColumnName = "LEC_IDX", insertable = false, updatable = false)
     private LecTbl lecture;

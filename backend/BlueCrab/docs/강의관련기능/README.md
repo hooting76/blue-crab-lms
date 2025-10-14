@@ -2,7 +2,7 @@
 
 > **작성일**: 2025-10-10  
 > **업데이트**: 2025-10-14  
-> **버전**: 7.0 (LectureController DTO 변환 추가)  
+> **버전**: 7.1 (Phase 6.8.1 과제 관리 버그 수정)  
 > **변경사항**: 
 > - Phase 1-2: 데이터베이스 구축 완료 ✅
 > - Phase 3: Entity 3개, DTO 11개 생성 완료 ✅
@@ -13,24 +13,11 @@
 > - **Phase 6.6: JOIN FETCH 최적화 완료 (N+1 쿼리 방지) ⭐**
 > - **Phase 6.7: 교수 이름 조회 기능 추가 (EnrollmentController) ⭐**
 > - **Phase 6.8: LectureController DTO 변환 적용 완료 ⭐**
+> - **Phase 6.8.1: AssignmentExtendedTbl Lazy Loading 버그 수정 ✅**
+> - **@JsonIgnore 추가로 JSON 직렬화 문제 해결 ✅**
 > - **HTTP 400 Hibernate Lazy Loading 이슈 해결 완료 ✅**
 > - **PageImpl 패턴으로 Entity 참조 완전 제거 ✅**
 > - **API 일관성 확보: Enrollment와 Lecture 컨트롤러 동일 패턴 ✅**
-> - 폴더 구조화 완료 (entity/Lecture/, dto/Lecture/, repository/Lecture/) ✅
-> **작성일**: 2025-10-10  
-> **업데이트**: 2025-10-14  
-> **버전**: 6.0 (교수 이름 조회 기능 추가)  
-> **변경사항**: 
-> - Phase 1-2: 데이터베이스 구축 완료 ✅
-> - Phase 3: Entity 3개, DTO 11개 생성 완료 ✅
-> - Phase 4: Repository 4개 생성 완료 (UserTblRepository 추가) ✅
-> - Phase 5: Service 레이어 완료 ✅
-> - Phase 6: Controller 레이어 완료 ✅
-> - **Phase 6.5: EnrollmentController DTO 패턴 적용 완료 ⭐**
-> - **Phase 6.6: JOIN FETCH 최적화 완료 (N+1 쿼리 방지) ⭐**
-> - **Phase 6.7: 교수 이름 조회 기능 추가 (LEC_PROF → USER_NAME) ⭐**
-> - **HTTP 400 Hibernate Lazy Loading 이슈 해결 완료 ✅**
-> - **PageImpl 패턴으로 Entity 참조 완전 제거 ✅**
 > - 폴더 구조화 완료 (entity/Lecture/, dto/Lecture/, repository/Lecture/) ✅
 
 ---

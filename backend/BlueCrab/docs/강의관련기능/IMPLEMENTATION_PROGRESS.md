@@ -1,8 +1,8 @@
 # 강의 관리 시스템 구현 진척도
 
 > **최종 업데이트**: 2025-10-14  
-> **현재 Phase**: Phase 6.8 완료 - LectureController DTO 변환  
-> **전체 진행률**: 95% (Phase 1-6.8 완료 + 성능 최적화)
+> **현재 Phase**: Phase 6.8.1 완료 - 과제 관리 Lazy Loading 버그 수정  
+> **전체 진행률**: 95% (Phase 1-6.8.1 완료 + 성능 최적화 + 버그 수정)
 
 ---
 
@@ -18,6 +18,7 @@ Phase 6.5: DTO 패턴 적용           ████████████ 100%
 Phase 6.6: JOIN FETCH 최적화       ████████████ 100% ✅
 Phase 6.7: 교수 이름 조회 기능     ████████████ 100% ✅
 Phase 6.8: LectureController DTO   ████████████ 100% ✅
+Phase 6.8.1: Lazy Loading 버그수정 ████████████ 100% ✅
 Phase 7: 테스트 & 통합              ████████░░░░  60% 🚧
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 전체 진행률:                        ██████████░░  95%
@@ -367,6 +368,89 @@ Phase 7: 테스트 & 통합              ████████░░░░  6
 - `lecture-test-1-admin-create.js` (Lines 221-222, 273-274, 316-317)
 - `lecture-test-4-professor-assignment.js` (Lines 102-103, 121-122)
 - `BACKEND_FIX_LECTURE_DTO.md` (전체)
+
+---
+
+## ✅ Phase 6.8.1: 과제 관리 Lazy Loading 버그 수정 (완료)
+
+### 기간: 2025-10-14
+### 상태: ✅ 완료
+
+#### 문제 진단
+- [x] **GET /api/assignments 400 에러**
+  - 증상: "Unexpected non-whitespace character after JSON at position 67"
+  - 원인: `AssignmentExtendedTbl.lecture` Lazy Loading 프록시 직렬화 실패
+  - 근본 원인: Hibernate 세션 외부에서 Jackson이 프록시 객체 접근 시도
+
+#### 해결 방법
+- [x] **@JsonIgnore 어노테이션 추가**
+  - `AssignmentExtendedTbl.lecture` 필드에 `@JsonIgnore` 적용
+  - JSON 직렬화에서 lecture 필드 제외
+  - LazyInitializationException 원천 차단
+
+#### 완료 항목
+- [x] **AssignmentExtendedTbl.java 수정**
+  - Import 추가: `com.fasterxml.jackson.annotation.JsonIgnore`
+  - `@JsonIgnore` 어노테이션 추가
+  - 주석 보강: Lazy Loading 직렬화 문제 설명
+  - 변경 라인: +5 라인 (Import, @JsonIgnore, 주석)
+
+- [x] **테스트 확인**
+  - lecture-test-4-professor-assignment.js 수정
+  - response.text() 디버깅 로직 추가
+  - getAssignments() 정상 동작 확인
+
+#### 기술적 효과
+- **안정성 향상**: Lazy Loading 예외 완전 제거
+- **JSON 응답 정상화**: 이중 JSON 구조 해결
+- **성능 개선**: 불필요한 직렬화 제거
+- **Side Effect 없음**: lecture 정보 필요 시 lecIdx로 별도 조회 가능
+
+#### Before / After
+
+**Before (버그 상황)**:
+```
+📡 HTTP 상태: 400
+📄 응답 텍스트:
+{"content":[{"assignmentIdx":1,"lecIdx":6,"lecture":{"lecIdx":6}}]}
+{"success":false,"message":"Could not write JSON: could not initialize proxy..."}
+❌ JSON 파싱 실패
+```
+
+**After (수정 후)**:
+```
+📡 HTTP 상태: 200
+🔍 파싱된 JSON:
+{
+  "content": [
+    {
+      "assignmentIdx": 1,
+      "lecIdx": 6,
+      "assignmentData": "{...}",
+      "createdDate": "2025-10-14T..."
+    }
+  ],
+  "totalElements": 1,
+  "totalPages": 1,
+  "size": 10,
+  "number": 0
+}
+✅ 조회 성공! 총 1개 과제
+```
+
+#### 배운 교훈
+- **Entity 직접 반환 위험성**: Lazy Loading, 순환 참조, 보안 문제
+- **DTO 패턴 중요성**: Entity와 API 계층 분리의 핵심 가치
+- **@JsonIgnore 전략적 사용**: 순환 참조 및 Lazy 프록시 필드 제외
+- **Hibernate 세션 생명주기**: 트랜잭션 범위와 JSON 직렬화 타이밍
+
+#### 관련 문서
+- `AssignmentExtendedTbl.java` (Lines 5-6, 87-96)
+- `lecture-test-4-professor-assignment.js` (Lines 309-370)
+- `BACKEND_FIX_ASSIGNMENT_LAZY_LOADING.md` (신규 작성 - 전체)
+- `PHASE_6.8_COMPLETION_SUMMARY.md` (Phase 6.8.1 섹션 추가)
+- `05-교수플로우.md` (과제 관리 플로우 업데이트)
+- `README.md` (버전 7.1 업데이트)
 
 ---
 

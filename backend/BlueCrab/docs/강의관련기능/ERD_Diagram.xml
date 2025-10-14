@@ -1,5 +1,5 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" version="28.2.5">
-  <diagram id="ERD-Diagram" name="LMS ERD v2.3 (DTO 패턴 + lecProfName)">
+  <diagram id="ERD-Diagram" name="LMS ERD v2.4 (Phase 6.8.1 과제 버그 수정)">
     <mxGraphModel dx="1426" dy="777" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
       <root>
         <mxCell id="0" />
@@ -70,7 +70,7 @@
         <mxCell id="assign-1" value="🔑 ASSIGNMENT_IDX (PK)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontStyle=1" parent="assign-table" vertex="1">
           <mxGeometry y="40" width="320" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="assign-2" value="🔗 LEC_IDX (FK → LEC_TBL)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#d79b00;" parent="assign-table" vertex="1">
+        <mxCell id="assign-2" value="🔗 LEC_IDX (FK → LEC_TBL - Lazy + @JsonIgnore)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#d79b00;" parent="assign-table" vertex="1">
           <mxGeometry y="70" width="320" height="30" as="geometry" />
         </mxCell>
         <mxCell id="assign-3" value="📦 ASSIGNMENT_DATA (JSON)" style="text;strokeColor=none;fillColor=#ffe6cc;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontStyle=1;strokeColor=#d79b00;" parent="assign-table" vertex="1">

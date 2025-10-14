@@ -134,7 +134,7 @@ public class AssignmentController {
         try {
             Integer lecIdx = (Integer) request.get("lecIdx");
             String title = (String) request.get("title");
-            String description = (String) request.get("description");
+            String body = (String) request.get("body");  // ✅ DTO 패턴: body 필드
             String dueDate = (String) request.get("dueDate");
             Integer maxScore = (Integer) request.get("maxScore");
             
@@ -144,7 +144,7 @@ public class AssignmentController {
             }
             
             AssignmentExtendedTbl assignment = assignmentService.createAssignment(
-                    lecIdx, title, description, dueDate, maxScore);
+                    lecIdx, title, body, dueDate, maxScore);  // body 전달
             return ResponseEntity.status(HttpStatus.CREATED).body(assignment);
         } catch (IllegalArgumentException e) {
             logger.warn("과제 등록 실패: {}", e.getMessage());
@@ -190,12 +190,12 @@ public class AssignmentController {
             @RequestBody Map<String, Object> request) {
         try {
             String title = (String) request.get("title");
-            String description = (String) request.get("description");
+            String body = (String) request.get("body");  // ✅ DTO 패턴: body 필드
             String dueDate = (String) request.get("dueDate");
             Integer maxScore = (Integer) request.get("maxScore");
             
             AssignmentExtendedTbl updated = assignmentService.updateAssignment(
-                    assignmentIdx, title, description, dueDate, maxScore);
+                    assignmentIdx, title, body, dueDate, maxScore);  // body 전달
             return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException e) {
             logger.warn("과제 수정 실패: {}", e.getMessage());

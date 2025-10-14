@@ -41,15 +41,103 @@ function checkAuth() {
 }
 
 // ========== JWT에서 교수 정보 추출 ==========
-function getProfessorFromToken() {
+// ========== JWT에서 교수 정보 추출 ==========
+async function getProfessorFromToken() {
     if (!window.authToken) return null;
     
     const payload = decodeJWT(window.authToken);
     if (!payload) return null;
     
-    // JWT에서 교수번호(USER_NAME) 추출 (필드명은 실제 JWT 구조에 맞게 조정)
-    // USER_NAME = 학번/교수번호/사원번호 (예: "PROF001", "P2024001")
-    return payload.userName || payload.username || payload.USER_NAME || payload.sub || null;
+    // JWT에서 userId (USER_IDX) 추출
+    const userId = payload.userId || payload.USER_ID || payload.user_id || payload.id;
+    
+    if (!userId) {
+        console.log('⚠️ JWT에서 userId를 찾을 수 없습니다.');
+        return null;
+    }
+    
+    console.log(`🔍 JWT에서 userId 추출: ${userId}`);
+    
+    // userId로 USER_CODE 조회
+    try {
+        const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+            headers: {
+                'Authorization': `Bearer ${window.authToken}`
+            }
+        });
+        
+        if (!response.ok) {
+            console.log(`⚠️ 사용자 정보 조회 실패 (${response.status})`);
+            return null;
+        }
+        
+        const result = await response.json();
+        const userData = result.data || result;
+        const userCode = userData.userCode || userData.USER_CODE || userData.user_code;
+        
+        if (userCode) {
+            console.log(`✅ USER_CODE 조회 성공: userId=${userId} → userCode="${userCode}"`);
+            return userCode;
+        } else {
+            console.log('⚠️ 사용자 정보에 USER_CODE가 없습니다.');
+            console.log('응답:', userData);
+            return null;
+        }
+    } catch (error) {
+        console.log('❌ USER_CODE 조회 에러:', error.message);
+        return null;
+    }
+}
+
+// ========== JWT 토큰 디버깅 ==========
+async function debugTokenInfo() {
+    if (!window.authToken) {
+        console.log('❌ 로그인 토큰이 없습니다.');
+        console.log('💡 먼저 로그인하세요: await login()');
+        return;
+    }
+    
+    const payload = decodeJWT(window.authToken);
+    if (!payload) {
+        console.log('❌ JWT 디코딩 실패');
+        return;
+    }
+    
+    console.log('\n🔍 JWT Payload 전체 내용:');
+    console.log('═══════════════════════════════════════════════════════');
+    console.log(JSON.stringify(payload, null, 2));
+    
+    console.log('\n📋 모든 필드 나열:');
+    console.log('═══════════════════════════════════════════════════════');
+    Object.keys(payload).forEach(key => {
+        console.log(`   ${key}: ${JSON.stringify(payload[key])}`);
+    });
+    
+    console.log('\n🔎 userId 확인:');
+    console.log('═══════════════════════════════════════════════════════');
+    const userId = payload.userId || payload.USER_ID || payload.user_id || payload.id;
+    if (userId) {
+        console.log(`   ✅ userId: ${userId}`);
+    } else {
+        console.log('   ❌ userId를 찾을 수 없음');
+    }
+    
+    console.log('\n👨‍🏫 USER_CODE 조회 시도:');
+    console.log('═══════════════════════════════════════════════════════');
+    const userCode = await getProfessorFromToken();
+    if (userCode) {
+        console.log(`   ✅ 최종 USER_CODE: "${userCode}"`);
+    } else {
+        console.log('   ❌ USER_CODE 조회 실패 - 수동 입력이 필요합니다.');
+    }
+    
+    console.log('\n💡 currentUser 정보:');
+    console.log('═══════════════════════════════════════════════════════');
+    if (window.currentUser) {
+        console.log(JSON.stringify(window.currentUser, null, 2));
+    } else {
+        console.log('   (없음)');
+    }
 }
 
 // ========== 교수 강의 목록 조회 ==========
@@ -60,19 +148,22 @@ async function getMyLectures() {
     if (!checkAuth()) return;
     const token = window.authToken;
     
-    // JWT에서 교수번호(USER_NAME) 추출
-    const professorCode = getProfessorFromToken();
+    // JWT에서 userId 추출 후 USER_CODE 조회
+    console.log('🔄 교수번호 조회 중...');
+    const professorCode = await getProfessorFromToken();
+    
     if (!professorCode) {
-        console.log('⚠️ JWT에서 교수번호를 찾을 수 없습니다.');
-        console.log('💡 수동으로 교수번호를 입력하시겠습니까?');
+        console.log('⚠️ 자동으로 교수번호를 조회할 수 없습니다.');
+        console.log('💡 수동으로 교수번호를 입력하세요.');
     }
     
-    const professor = professorCode || prompt('👨‍🏫 교수번호 (예: PROF001):', 'PROF001');
+    const professor = professorCode || prompt('👨‍🏫 교수번호 (예: 11, PROF001):', '11');
     const page = parseInt(prompt('📄 페이지 번호 (0부터 시작):', '0'));
     const size = parseInt(prompt('📄 페이지 크기:', '10'));
 
     console.log('\n📚 담당 강의 목록 조회');
     console.log('═══════════════════════════════════════════════════════');
+    console.log(`👨‍🏫 교수번호: ${professor}`);
     console.log(`👨‍🏫 교수번호: ${professor}`);
 
     try {
@@ -142,7 +233,7 @@ async function createAssignment() {
     if (!checkAuth()) return;
     const token = window.authToken;
     
-    const lectureIdx = parseInt(prompt('📚 LECTURE_IDX:', '1'));
+    const lectureIdx = window.lastLectureIdx || parseInt(prompt('📚 강의 IDX:', '1'));
     const title = prompt('📝 과제 제목:', '1주차 과제');
     const description = prompt('📝 과제 설명:', '자바 프로그래밍 기초 과제입니다.');
     const maxScore = parseInt(prompt('💯 배점:', '100'));
@@ -155,14 +246,21 @@ async function createAssignment() {
 
     console.log('\n📄 과제 생성');
     console.log('═══════════════════════════════════════════════════════');
+    console.log(`📚 강의 IDX: ${lectureIdx}`);
+    console.log(`📝 제목: ${title}`);
+    console.log(`📅 마감일: ${dueDate}`);
 
+    // ✅ DTO 패턴 - camelCase 필드명 사용
     const assignmentData = {
-        LECTURE_IDX: lectureIdx,
-        ASSIGNMENT_TITLE: title,
-        ASSIGNMENT_DESCRIPTION: description,
-        MAX_SCORE: maxScore,
-        DUE_DATE: dueDate
+        lecIdx: lectureIdx,
+        title: title,
+        body: description,
+        maxScore: maxScore,
+        dueDate: dueDate
     };
+
+    console.log('\n📤 요청 데이터:');
+    console.log(JSON.stringify(assignmentData, null, 2));
 
 try {
         const response = await fetch(`${API_BASE_URL}/assignments`, {
@@ -177,13 +275,22 @@ try {
         console.log(`📡 HTTP 상태: ${response.status}`);
         const result = await response.json();
 
-        if (result.success) {
+        console.log('\n🔍 전체 응답:');
+        console.log(JSON.stringify(result, null, 2));
+
+        if (response.ok || result.success) {
             console.log('\n✅ 과제 생성 성공!');
-            console.log('📊 생성된 과제:', result.data);
-            window.lastAssignmentIdx = result.data.ASSIGNMENT_IDX;
-            console.log(`💾 저장된 ASSIGNMENT_IDX: ${window.lastAssignmentIdx}`);
+            const assignment = result.data || result;
+            console.log('📊 생성된 과제:');
+            console.log(`   IDX: ${assignment.assignmentIdx || assignment.ASSIGNMENT_IDX}`);
+            console.log(`   제목: ${assignment.title || assignment.ASSIGNMENT_TITLE}`);
+            console.log(`   마감일: ${assignment.dueDate || assignment.DUE_DATE}`);
+            console.log(`   배점: ${assignment.maxScore || assignment.MAX_SCORE}점`);
+            
+            window.lastAssignmentIdx = assignment.assignmentIdx || assignment.ASSIGNMENT_IDX;
+            console.log(`💾 저장됨: window.lastAssignmentIdx = ${window.lastAssignmentIdx}`);
         } else {
-            console.log('❌ 과제 생성 실패 [' + response.status + ']:', result.message);
+            console.log('❌ 과제 생성 실패 [' + response.status + ']:', result.message || result);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -195,15 +302,17 @@ async function getAssignments() {
     if (!checkAuth()) return;
     const token = window.authToken;
     
-    const lectureIdx = parseInt(prompt('📚 LECTURE_IDX:', '1'));
+    const lectureIdx = window.lastLectureIdx || parseInt(prompt('📚 강의 IDX:', '1'));
     const page = parseInt(prompt('📄 페이지 번호 (0부터 시작):', '0'));
     const size = parseInt(prompt('📄 페이지 크기:', '10'));
 
     console.log('\n📄 과제 목록 조회');
     console.log('═══════════════════════════════════════════════════════');
+    console.log(`📚 강의 IDX: ${lectureIdx}`);
 
     try {
-        const url = `${API_BASE_URL}/assignments?lectureIdx=${lectureIdx}&page=${page}&size=${size}`;
+        // ✅ DTO 패턴: lecIdx 파라미터 사용
+        const url = `${API_BASE_URL}/assignments?lecIdx=${lectureIdx}&page=${page}&size=${size}`;
         console.log('📡 요청 URL:', url);
 
         const response = await fetch(url, {
@@ -213,21 +322,53 @@ async function getAssignments() {
         });
 
         console.log(`📡 HTTP 상태: ${response.status}`);
-        const result = await response.json();
+        
+        // 응답 텍스트 먼저 확인
+        const responseText = await response.text();
+        console.log('\n📄 응답 텍스트 (원본):');
+        console.log(responseText);
+        
+        // JSON 파싱 시도
+        let result;
+        try {
+            result = JSON.parse(responseText);
+            console.log('\n🔍 파싱된 JSON:');
+            console.log(JSON.stringify(result, null, 2));
+        } catch (parseError) {
+            console.log('❌ JSON 파싱 실패:', parseError.message);
+            console.log('서버가 JSON이 아닌 응답을 반환했습니다.');
+            return;
+        }
 
-        if (result.success) {
-            console.log('\n✅ 조회 성공!');
-            console.log(`📊 총 ${result.data.totalElements}개 과제`);
+        // Page 객체 응답 처리
+        if (result.content) {
+            console.log(`\n✅ 조회 성공! 총 ${result.totalElements}개 과제`);
             console.log('📋 과제 목록:');
-            result.data.content.forEach((assignment, idx) => {
-                console.log(`\n${idx + 1}. ${assignment.ASSIGNMENT_TITLE}`);
-                console.log(`   IDX: ${assignment.ASSIGNMENT_IDX}`);
-                console.log(`   마감일: ${assignment.DUE_DATE}`);
-                console.log(`   배점: ${assignment.MAX_SCORE}점`);
-                console.log(`   제출 수: ${assignment.SUBMISSION_COUNT || 0}개`);
+            result.content.forEach((assignment, idx) => {
+                console.log(`\n${idx + 1}. 과제 IDX: ${assignment.assignmentIdx}`);
+                console.log(`   강의 IDX: ${assignment.lecIdx}`);
+                console.log(`   생성일: ${assignment.createdDate}`);
+                
+                // assignmentData JSON 파싱
+                try {
+                    const data = JSON.parse(assignment.assignmentData || '{}');
+                    const assignmentInfo = data.assignment || {};
+                    console.log(`   제목: ${assignmentInfo.title || 'N/A'}`);
+                    console.log(`   설명: ${assignmentInfo.description || 'N/A'}`);
+                    console.log(`   마감일: ${assignmentInfo.dueDate || 'N/A'}`);
+                    console.log(`   배점: ${assignmentInfo.maxScore || 'N/A'}점`);
+                } catch (e) {
+                    console.log(`   ⚠️ JSON 파싱 실패: ${e.message}`);
+                }
+                
+                // 첫 번째 과제 IDX 저장
+                if (idx === 0) {
+                    window.lastAssignmentIdx = assignment.assignmentIdx;
+                    console.log(`   💾 저장됨: window.lastAssignmentIdx = ${window.lastAssignmentIdx}`);
+                }
             });
         } else {
-            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message || result);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -239,15 +380,15 @@ async function getSubmissions() {
     if (!checkAuth()) return;
     const token = window.authToken;
     
-    const assignmentIdx = parseInt(prompt('📄 ASSIGNMENT_IDX:', window.lastAssignmentIdx || '1'));
-    const page = parseInt(prompt('📄 페이지 번호 (0부터 시작):', '0'));
-    const size = parseInt(prompt('📄 페이지 크기:', '10'));
+    const assignmentIdx = window.lastAssignmentIdx || parseInt(prompt('📄 과제 IDX:', '1'));
 
     console.log('\n📄 제출된 과제 목록 조회');
     console.log('═══════════════════════════════════════════════════════');
+    console.log(`📄 과제 IDX: ${assignmentIdx}`);
 
     try {
-        const url = `${API_BASE_URL}/assignments/${assignmentIdx}/submissions?page=${page}&size=${size}`;
+        // assignmentData 조회
+        const url = `${API_BASE_URL}/assignments/${assignmentIdx}/data`;
         console.log('📡 요청 URL:', url);
 
         const response = await fetch(url, {
@@ -259,18 +400,30 @@ async function getSubmissions() {
         console.log(`📡 HTTP 상태: ${response.status}`);
         const result = await response.json();
 
-        if (result.success) {
-            console.log('\n✅ 조회 성공!');
-            console.log(`📊 총 ${result.data.totalElements}개 제출`);
-            console.log('📋 제출 목록:');
-            result.data.content.forEach((submission, idx) => {
-                console.log(`\n${idx + 1}. ${submission.STUDENT_NAME} (${submission.STUDENT_NO})`);
-                console.log(`   제출일: ${submission.SUBMITTED_AT}`);
-                console.log(`   점수: ${submission.SCORE || '미채점'}점`);
-                console.log(`   상태: ${submission.SUBMISSION_STATUS}`);
-            });
+        console.log('\n🔍 전체 응답:');
+        console.log(JSON.stringify(result, null, 2));
+
+        if (response.ok) {
+            const submissions = result.submissions || [];
+            console.log(`\n✅ 조회 성공! 총 ${submissions.length}개 제출`);
+            
+            if (submissions.length === 0) {
+                console.log('📋 제출된 과제가 없습니다.');
+            } else {
+                console.log('📋 제출 목록:');
+                submissions.forEach((submission, idx) => {
+                    console.log(`\n${idx + 1}. 학생 IDX: ${submission.studentIdx}`);
+                    console.log(`   제출일: ${submission.submittedAt || 'N/A'}`);
+                    console.log(`   파일: ${submission.fileUrl || 'N/A'}`);
+                    console.log(`   점수: ${submission.score || '미채점'}점`);
+                    console.log(`   피드백: ${submission.feedback || 'N/A'}`);
+                    if (submission.gradedAt) {
+                        console.log(`   채점일: ${submission.gradedAt}`);
+                    }
+                });
+            }
         } else {
-            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message || result);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -282,23 +435,29 @@ async function gradeAssignment() {
     if (!checkAuth()) return;
     const token = window.authToken;
     
-    const assignmentIdx = parseInt(prompt('📄 ASSIGNMENT_IDX:', window.lastAssignmentIdx || '1'));
-    const studentIdx = parseInt(prompt('👨‍🎓 STUDENT_IDX:', '1'));
+    const assignmentIdx = window.lastAssignmentIdx || parseInt(prompt('📄 과제 IDX:', '1'));
+    const studentIdx = parseInt(prompt('👨‍🎓 학생 IDX:', '1'));
     const score = parseInt(prompt('💯 점수:', '85'));
     const feedback = prompt('📝 피드백:', '잘 작성했습니다.');
 
     console.log('\n💯 과제 채점');
     console.log('═══════════════════════════════════════════════════════');
+    console.log(`📄 과제 IDX: ${assignmentIdx}`);
+    console.log(`👨‍🎓 학생 IDX: ${studentIdx}`);
 
+    // ✅ DTO 패턴 - camelCase 필드명 사용
     const gradingData = {
-        STUDENT_IDX: studentIdx,
-        SCORE: score,
-        FEEDBACK: feedback
+        studentIdx: studentIdx,
+        score: score,
+        feedback: feedback
     };
+
+    console.log('\n📤 요청 데이터:');
+    console.log(JSON.stringify(gradingData, null, 2));
 
 try {
         const response = await fetch(`${API_BASE_URL}/assignments/${assignmentIdx}/grade`, {
-            method: 'POST',
+            method: 'PUT',  // ✅ PUT 메서드
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
@@ -309,11 +468,14 @@ try {
         console.log(`📡 HTTP 상태: ${response.status}`);
         const result = await response.json();
 
-        if (result.success) {
+        console.log('\n🔍 전체 응답:');
+        console.log(JSON.stringify(result, null, 2));
+
+        if (response.ok) {
             console.log('\n✅ 채점 성공!');
-            console.log('📊 채점 정보:', result.data);
+            console.log('📊 채점된 과제 정보가 업데이트되었습니다.');
         } else {
-            console.log('❌ 채점 실패 [' + response.status + ']:', result.message);
+            console.log('❌ 채점 실패 [' + response.status + ']:', result.message || result);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -325,21 +487,30 @@ async function updateAssignment() {
     if (!checkAuth()) return;
     const token = window.authToken;
     
-    const assignmentIdx = parseInt(prompt('✏️ 수정할 ASSIGNMENT_IDX:', window.lastAssignmentIdx || '1'));
+    const assignmentIdx = window.lastAssignmentIdx || parseInt(prompt('✏️ 수정할 과제 IDX:', '1'));
     const title = prompt('📝 새 제목 (선택사항):');
+    const body = prompt('📝 새 설명 (선택사항):');
     const dueDate = prompt('📅 새 마감일 (선택사항, YYYY-MM-DD):');
+    const maxScore = prompt('💯 새 배점 (선택사항):');
 
     console.log('\n✏️ 과제 수정');
     console.log('═══════════════════════════════════════════════════════');
+    console.log(`📄 과제 IDX: ${assignmentIdx}`);
 
+    // ✅ DTO 패턴 - camelCase 필드명 사용
     const updateData = {};
-    if (title) updateData.ASSIGNMENT_TITLE = title;
-    if (dueDate) updateData.DUE_DATE = dueDate;
+    if (title) updateData.title = title;
+    if (body) updateData.body = body;
+    if (dueDate) updateData.dueDate = dueDate;
+    if (maxScore) updateData.maxScore = parseInt(maxScore);
 
     if (Object.keys(updateData).length === 0) {
         console.log('❌ 수정할 내용이 없습니다.');
         return;
     }
+
+    console.log('\n📤 요청 데이터:');
+    console.log(JSON.stringify(updateData, null, 2));
 
 try {
         const response = await fetch(`${API_BASE_URL}/assignments/${assignmentIdx}`, {
@@ -354,11 +525,16 @@ try {
         console.log(`📡 HTTP 상태: ${response.status}`);
         const result = await response.json();
 
-        if (result.success) {
+        console.log('\n🔍 전체 응답:');
+        console.log(JSON.stringify(result, null, 2));
+
+        if (response.ok) {
             console.log('\n✅ 수정 성공!');
-            console.log('📊 수정된 과제:', result.data);
+            console.log('📊 수정된 과제:');
+            console.log(`   IDX: ${result.assignmentIdx}`);
+            console.log(`   강의 IDX: ${result.lecIdx}`);
         } else {
-            console.log('❌ 수정 실패 [' + response.status + ']:', result.message);
+            console.log('❌ 수정 실패 [' + response.status + ']:', result.message || result);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -370,7 +546,7 @@ async function deleteAssignment() {
     if (!checkAuth()) return;
     const token = window.authToken;
     
-    const assignmentIdx = parseInt(prompt('🗑️ 삭제할 ASSIGNMENT_IDX:', window.lastAssignmentIdx || '1'));
+    const assignmentIdx = window.lastAssignmentIdx || parseInt(prompt('🗑️ 삭제할 과제 IDX:', '1'));
     const confirm = prompt('⚠️ 정말 삭제하시겠습니까? (yes/no):', 'no');
 
     if (confirm.toLowerCase() !== 'yes') {
@@ -380,6 +556,7 @@ async function deleteAssignment() {
 
     console.log('\n🗑️ 과제 삭제');
     console.log('═══════════════════════════════════════════════════════');
+    console.log(`📄 과제 IDX: ${assignmentIdx}`);
 
     try {
         const response = await fetch(`${API_BASE_URL}/assignments/${assignmentIdx}`, {
@@ -390,13 +567,20 @@ async function deleteAssignment() {
         });
 
         console.log(`📡 HTTP 상태: ${response.status}`);
-        const result = await response.json();
 
-        if (result.success) {
-            console.log('\n✅ 삭제 성공!');
-            console.log('📊 결과:', result.message);
+        if (response.ok) {
+            // 204 No Content 또는 200 OK
+            if (response.status === 204) {
+                console.log('\n✅ 삭제 성공! (No Content)');
+            } else {
+                const result = await response.json();
+                console.log('\n� 전체 응답:');
+                console.log(JSON.stringify(result, null, 2));
+                console.log('\n✅ 삭제 성공!');
+            }
         } else {
-            console.log('❌ 삭제 실패 [' + response.status + ']:', result.message);
+            const result = await response.json();
+            console.log('❌ 삭제 실패 [' + response.status + ']:', result.message || result);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -409,27 +593,34 @@ function help() {
     console.log('⚠️ 먼저 로그인하세요!');
     console.log('📁 docs/일반유저 로그인+게시판/test-1-login.js → await login()');
     console.log('');
-    console.log('📚 getMyLectures()      - 담당 강의 목록 (JWT 자동 교수번호 추출)');
-    console.log('📝 createAssignment()   - 과제 생성');
-    console.log('📋 getAssignments()     - 과제 목록 조회');
-    console.log('📄 getSubmissions()     - 제출된 과제 목록');
-    console.log('💯 gradeAssignment()    - 과제 채점');
-    console.log('✏️ updateAssignment()   - 과제 수정');
-    console.log('🗑️ deleteAssignment()   - 과제 삭제');
+    console.log('� await debugTokenInfo()     - JWT 토큰 전체 내용 확인 (교수번호 추출 확인)');
+    console.log('�📚 await getMyLectures()      - 담당 강의 목록 (JWT 자동 교수번호 추출)');
+    console.log('📝 await createAssignment()   - 과제 생성 (DTO 패턴)');
+    console.log('📋 await getAssignments()     - 과제 목록 조회');
+    console.log('📄 await getSubmissions()     - 제출된 과제 목록');
+    console.log('💯 await gradeAssignment()    - 과제 채점');
+    console.log('✏️ await updateAssignment()   - 과제 수정');
+    console.log('🗑️ await deleteAssignment()   - 과제 삭제');
     console.log('');
-    console.log('💡 JWT 토큰에서 자동으로 교수번호(USER_NAME)를 추출합니다.');
+    console.log('💡 모든 함수는 async이므로 await를 붙여서 호출하세요!');
+    console.log('💡 JWT 토큰에서 자동으로 교수번호(USER_CODE)를 추출합니다.');
+    console.log('💡 Phase 6.8 DTO 패턴: camelCase 필드명 사용 (lecIdx, title, body 등)');
 }
 
 // 초기 메시지
 console.log('✅ 교수 과제 관리 테스트 스크립트 로드 완료!');
 console.log('💡 help() 를 입력하면 사용 가능한 함수 목록을 볼 수 있습니다.');
 
-// JWT 디코딩 테스트
+// JWT 디코딩 테스트 (async 함수이므로 즉시 실행하지 않음)
 if (window.authToken) {
-    const professorCode = getProfessorFromToken();
-    if (professorCode) {
-        console.log(`👨‍🏫 인식된 교수번호: ${professorCode}`);
-    } else {
-        console.log('⚠️ JWT에서 교수번호(USER_NAME)를 자동 추출할 수 없습니다. 수동 입력이 필요합니다.');
-    }
+    console.log('🔄 교수번호 조회 중...');
+    getProfessorFromToken().then(professorCode => {
+        if (professorCode) {
+            console.log(`👨‍🏫 인식된 교수번호: ${professorCode}`);
+        } else {
+            console.log('⚠️ JWT에서 교수번호(USER_CODE)를 자동 추출할 수 없습니다. 수동 입력이 필요합니다.');
+        }
+    }).catch(err => {
+        console.log('⚠️ 교수번호 조회 실패:', err.message);
+    });
 }
