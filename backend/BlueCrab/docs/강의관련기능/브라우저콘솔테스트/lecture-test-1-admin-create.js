@@ -81,7 +81,7 @@ async function createLecture() {
     
     const lectureName = prompt('📝 강의명을 입력하세요:', '자바 프로그래밍');
     const lectureCode = prompt('📝 강의 코드를 입력하세요:', 'CS101');
-    const professorName = prompt('👨‍🏫 담당교수 이름을 입력하세요:', '김교수');
+    const professorCode = prompt('👨‍🏫 담당교수 번호를 입력하세요 (예: PROF001):', 'PROF001');
     const lecPoint = parseInt(prompt('📊 이수학점을 입력하세요 (0~10):', '3')) || 3;
     const lecMajor = parseInt(prompt('� 전공구분 (1:전공강의, 0:교양):', '1')) || 1;
     const lecMust = parseInt(prompt('✅ 필수구분 (1:필수과목, 0:선택과목):', '1')) || 1;
@@ -97,9 +97,9 @@ async function createLecture() {
     const semester = parseInt(prompt('📅 학기를 입력하세요 (1/2):', '1'));
 
     // 필수 입력값 검증 (학부코드, 학과코드는 선택사항)
-    if (!lectureName || !lectureCode || !professorName || !lecTime) {
+    if (!lectureName || !lectureCode || !professorCode || !lecTime) {
         console.log('❌ 필수 입력값이 누락되었습니다.');
-        console.log('필수: 강의명, 강의코드, 담당교수, 강의시간');
+        console.log('필수: 강의명, 강의코드, 담당교수번호, 강의시간');
         console.log('선택: 학부코드, 학과코드 (공란 시 모든 학과 학생 수강 가능)');
         return;
     }
@@ -163,7 +163,7 @@ async function createLecture() {
     const lectureData = {
         lecSerial: lectureCode,           // 강의 코드 (필수)
         lecTit: lectureName,             // 강의명칭 (필수)
-        lecProf: professorName,          // 강의 담당교수 (필수) - 사용자 입력
+        lecProf: professorCode,          // 강의 담당교수번호 (필수, USER_NAME) - 사용자 입력
         lecPoint: lecPoint,              // 이수학점 (사용자 입력, 0~10)
         lecMajor: lecMajor,              // 전공강의:1 / 교양:0 (사용자 입력)
         lecMust: lecMust,                // 필수과목:1 / 선택과목:0 (사용자 입력)
@@ -186,7 +186,7 @@ async function createLecture() {
     console.log('═══════════════════════════════════════════════════════');
     console.log(`📝 강의코드: ${lectureData.lecSerial}`);
     console.log(`📚 강의명: ${lectureData.lecTit}`);
-    console.log(`👨‍🏫 담당교수: ${lectureData.lecProf}`);
+    console.log(`👨‍🏫 담당교수번호: ${lectureData.lecProf}`);
     console.log(`📊 학점: ${lectureData.lecPoint}점`);
     console.log(`🎯 전공구분: ${lectureData.lecMajor ? '전공강의' : '교양'}`);
     console.log(`✅ 필수구분: ${lectureData.lecMust ? '필수과목' : '선택과목'}`);
@@ -345,7 +345,7 @@ async function updateLecture() {
     
     const lectureIdx = parseInt(prompt('✏️ 수정할 강의 IDX (lecIdx):', window.lastLectureIdx || '1'));
     const lectureName = prompt('📝 새 강의명 (lecTit, 빈값=수정안함):');
-    const professorName = prompt('👨‍🏫 새 담당교수 (lecProf, 빈값=수정안함):');
+    const professorCode = prompt('👨‍🏫 새 담당교수번호 (lecProf, 예: PROF001, 빈값=수정안함):');
     const lecPoint = prompt('📊 새 이수학점 (lecPoint, 0~10, 빈값=수정안함):');
     const lecMajor = prompt('🎯 전공구분 (lecMajor, 1:전공 0:교양, 빈값=수정안함):');
     const lecMust = prompt('✅ 필수구분 (lecMust, 1:필수 0:선택, 빈값=수정안함):');
@@ -366,7 +366,7 @@ async function updateLecture() {
     // LEC_TBL 필드명에 맞춘 수정 데이터
     const updateData = {};
     if (lectureName) updateData.lecTit = lectureName;
-    if (professorName) updateData.lecProf = professorName;
+    if (professorCode) updateData.lecProf = professorCode;
     if (lecPoint) {
         const point = parseInt(lecPoint);
         if (point >= 0 && point <= 10) {

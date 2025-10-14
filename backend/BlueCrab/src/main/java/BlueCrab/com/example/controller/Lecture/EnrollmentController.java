@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -99,7 +100,11 @@ public class EnrollmentController {
                 Pageable pageable = PageRequest.of(page, size);
                 Page<EnrollmentExtendedTbl> enrollments = 
                         enrollmentService.getEnrollmentsByStudentPaged(studentIdx, pageable);
-                Page<EnrollmentDto> dtoPage = enrollments.map(this::convertToDto);
+                // DTO 리스트로 변환 후 새 Page 객체 생성 (Entity 참조 제거)
+                List<EnrollmentDto> dtoList = enrollments.getContent().stream()
+                        .map(this::convertToDto)
+                        .collect(Collectors.toList());
+                Page<EnrollmentDto> dtoPage = new PageImpl<>(dtoList, pageable, enrollments.getTotalElements());
                 return ResponseEntity.ok(dtoPage);
             }
             
@@ -108,14 +113,22 @@ public class EnrollmentController {
                 Pageable pageable = PageRequest.of(page, size);
                 Page<EnrollmentExtendedTbl> enrollments = 
                         enrollmentService.getEnrollmentsByLecturePaged(lecIdx, pageable);
-                Page<EnrollmentDto> dtoPage = enrollments.map(this::convertToDto);
+                // DTO 리스트로 변환 후 새 Page 객체 생성 (Entity 참조 제거)
+                List<EnrollmentDto> dtoList = enrollments.getContent().stream()
+                        .map(this::convertToDto)
+                        .collect(Collectors.toList());
+                Page<EnrollmentDto> dtoPage = new PageImpl<>(dtoList, pageable, enrollments.getTotalElements());
                 return ResponseEntity.ok(dtoPage);
             }
             
             // 6. 전체 목록 - DTO 변환
             Pageable pageable = PageRequest.of(page, size);
             Page<EnrollmentExtendedTbl> enrollments = enrollmentService.getAllEnrollments(pageable);
-            Page<EnrollmentDto> dtoPage = enrollments.map(this::convertToDto);
+            // DTO 리스트로 변환 후 새 Page 객체 생성 (Entity 참조 제거)
+            List<EnrollmentDto> dtoList = enrollments.getContent().stream()
+                    .map(this::convertToDto)
+                    .collect(Collectors.toList());
+            Page<EnrollmentDto> dtoPage = new PageImpl<>(dtoList, pageable, enrollments.getTotalElements());
             return ResponseEntity.ok(dtoPage);
             
         } catch (Exception e) {
