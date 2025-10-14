@@ -145,6 +145,32 @@ body {
     border: 1px solid #e9ecef;
 }
 
+.history-section {
+    display: flex;
+    flex-direction: column;
+    min-height: 320px;
+}
+
+#historyList {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 6px;
+    max-height: 520px;
+}
+
+#historyList::-webkit-scrollbar {
+    width: 6px;
+}
+
+#historyList::-webkit-scrollbar-thumb {
+    background: rgba(44, 62, 80, 0.2);
+    border-radius: 3px;
+}
+
+#historyList::-webkit-scrollbar-track {
+    background: transparent;
+}
+
 .section h3 {
     margin-bottom: 15px;
     color: #2c3e50;
