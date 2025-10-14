@@ -12,6 +12,7 @@
 }
 
 .test-modal-content {
+    font-size: var(--font-mid);
     background-color: white;
     padding: 25px;
     border-radius: 8px;
