@@ -73,7 +73,7 @@ const attendanceRequestSubmit = (e) => {
 }
 
 const profNoticeWrite = () => {
-    return setCurrentPage("과목별 공지 작성");
+    setCurrentPage("과목별 공지 작성");
 }
 
 if (currentPage === "과목별 공지 작성") {
@@ -111,7 +111,7 @@ const [isModalOpen, setIsModalOpen] = useState(false);
                     </div>
                     <div className="profNoticeWriteBtnArea">
                         {user.data.user.userStudent === 1 &&
-                        <button className="profNoticeWriteBtn" onClick={profNoticeWrite}>과목별 공지 작성</button>}
+                        <button className="profNoticeWriteBtn" onClick={() => profNoticeWrite}>과목별 공지 작성</button>}
                     </div>
                     <div className="lectureChat">
                         실시간 채팅
