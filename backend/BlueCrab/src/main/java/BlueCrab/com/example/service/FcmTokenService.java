@@ -65,6 +65,24 @@ public class FcmTokenService {
         }
     }
 
+    private static final class PlatformDeliverySummary {
+        private final boolean success;
+        private final String failureReason;
+
+        private PlatformDeliverySummary(boolean success, String failureReason) {
+            this.success = success;
+            this.failureReason = failureReason;
+        }
+
+        public boolean isSuccess() {
+            return success;
+        }
+
+        public String getFailureReason() {
+            return failureReason;
+        }
+    }
+
     public FcmTokenService(FcmTokenRepository fcmTokenRepository,
                            UserTblRepository userTblRepository,
                            FirebaseMessaging firebaseMessaging,
@@ -354,17 +372,19 @@ public class FcmTokenService {
         }
 
         FcmToken fcmToken = fcmTokenOpt.get();
-        Map<String, Boolean> sent = new HashMap<>();
-        Map<String, String> failedReasons = new HashMap<>();
+        Map<String, Boolean> sent = new LinkedHashMap<>();
+        Map<String, String> failedReasons = new LinkedHashMap<>();
 
-        // 안드로이드 전송
-        sendToPlatform(fcmToken, "ANDROID", request, sent, failedReasons);
-
-        // iOS 전송
-        sendToPlatform(fcmToken, "IOS", request, sent, failedReasons);
-
-        // 웹 전송
-        sendToPlatform(fcmToken, "WEB", request, sent, failedReasons);
+        for (String platform : Arrays.asList("ANDROID", "IOS", "WEB")) {
+            PlatformDeliverySummary summary = sendToPlatform(fcmToken, platform, request);
+            String key = platform.toLowerCase(Locale.ROOT);
+            sent.put(key, summary.isSuccess());
+            if (summary.getFailureReason() != null && !summary.getFailureReason().isEmpty()) {
+                failedReasons.put(key, summary.getFailureReason());
+            } else {
+                failedReasons.remove(key);
+            }
+        }
 
         return new FcmSendResponse("success", sent, failedReasons);
     }
@@ -373,9 +393,18 @@ public class FcmTokenService {
      * 여러 사용자에게 알림 전송 (새로운 방식)
      */
     private FcmSendResponse sendToMultipleUsers(FcmSendRequest request) {
-        List<String> userCodes = request.getTargeta();
-        Map<String, Boolean> sent = new HashMap<>();
-        Map<String, String> failedReasons = new HashMap<>();
+        Set<String> userCodes = request.getTargeta().stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(code -> !code.isEmpty())
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        if (userCodes.isEmpty()) {
+            throw new IllegalArgumentException("targeta에 전송 대상이 필요합니다");
+        }
+
+        Map<String, Boolean> sent = new LinkedHashMap<>();
+        Map<String, String> failedReasons = new LinkedHashMap<>();
 
         for (String userCode : userCodes) {
             Optional<FcmToken> fcmTokenOpt = fcmTokenRepository.findByUserCode(userCode);
@@ -387,11 +416,22 @@ public class FcmTokenService {
             }
 
             FcmToken fcmToken = fcmTokenOpt.get();
+            boolean anySuccess = false;
+            List<String> failureMessages = new ArrayList<>();
 
-            // 각 플랫폼으로 전송
-            sendToPlatform(fcmToken, "ANDROID", request, sent, failedReasons);
-            sendToPlatform(fcmToken, "IOS", request, sent, failedReasons);
-            sendToPlatform(fcmToken, "WEB", request, sent, failedReasons);
+            for (String platform : Arrays.asList("ANDROID", "IOS", "WEB")) {
+                PlatformDeliverySummary summary = sendToPlatform(fcmToken, platform, request);
+                if (summary.isSuccess()) {
+                    anySuccess = true;
+                } else if (summary.getFailureReason() != null && !summary.getFailureReason().isEmpty()) {
+                    failureMessages.add(platform.toLowerCase(Locale.ROOT) + ": " + summary.getFailureReason());
+                }
+            }
+
+            sent.put(userCode, anySuccess);
+            if (!failureMessages.isEmpty()) {
+                failedReasons.put(userCode, String.join("; ", failureMessages));
+            }
         }
 
         return new FcmSendResponse("success", sent, failedReasons);
@@ -400,10 +440,7 @@ public class FcmTokenService {
     /**
      * 특정 플랫폼으로 알림 전송 (DB + Redis 임시 토큰)
      */
-    private void sendToPlatform(FcmToken fcmToken, String platform, FcmSendRequest request,
-                                Map<String, Boolean> sent, Map<String, String> failedReasons) {
-        String platformKey = platform.toLowerCase(Locale.ROOT);
-
+    private PlatformDeliverySummary sendToPlatform(FcmToken fcmToken, String platform, FcmSendRequest request) {
         List<DeliveryAttemptResult> attempts = new ArrayList<>();
 
         String dbToken = fcmToken.getTokenByPlatform(platform);
@@ -418,29 +455,25 @@ public class FcmTokenService {
         }
 
         if (attempts.isEmpty()) {
-            sent.put(platformKey, false);
-            failedReasons.put(platformKey, "토큰이 등록되지 않았습니다");
-            return;
+            return new PlatformDeliverySummary(false, "토큰이 등록되지 않았습니다");
         }
 
         boolean success = attempts.stream().anyMatch(DeliveryAttemptResult::isSuccess);
-        sent.put(platformKey, success);
-
         if (success) {
-            failedReasons.remove(platformKey);
-        } else {
-            String reason = attempts.stream()
-                    .map(DeliveryAttemptResult::getFailureReason)
-                    .filter(Objects::nonNull)
-                    .distinct()
-                    .collect(Collectors.joining("; "));
-
-            if (reason.isEmpty()) {
-                reason = "전송 실패";
-            }
-
-            failedReasons.put(platformKey, reason);
+            return new PlatformDeliverySummary(true, null);
         }
+
+        String reason = attempts.stream()
+                .map(DeliveryAttemptResult::getFailureReason)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.joining("; "));
+
+        if (reason.isEmpty()) {
+            reason = "전송 실패";
+        }
+
+        return new PlatformDeliverySummary(false, reason);
     }
 
     /**
