@@ -1,216 +1,129 @@
-// 시설물 예약 관리 (관리자 페이지) 
-// 목록/필터/통계 + 상세 모달
+// components/common/facilities/AdminFacilityReservations.jsx
+// 관리자 시설예약
+//  -  승인 대기 목록 & 전체 예약 목록 탭
+//  -  대기 목록: adminPendingList() 연동
+//  -  모달 열기/닫기 & 처리 후 목록 재조회
+//  - 전체예약 탭은 API가 아직 없어 비활성(또는 동일 목록 재사용) 처리
 
-import React, { useEffect, useMemo, useState } from "react";
-import {
-  adminStats,
-  adminPendingList,
-  adminSearchList,
-  adminGetDetail,
-} from "../../src/api/adminReservations";
+import React, { useEffect, useState, useCallback } from "react";
+import { adminPendingList } from "../../../src/api/adminReservations";
 import AdminReservationDetailModal from "./AdminReservationDetailModal";
 import "../../../css/facilities/admin-resv.css";
 
-/** 상태 뱃지 색상 */
-const statusBadge = (statusKo) => {
-  switch (statusKo) {
-    case "대기중": return "badge wait";
-    case "승인됨": return "badge ok";
-    case "반려됨": return "badge reject";
-    case "취소됨": return "badge cancel";
-    case "완료됨": return "badge done";
-    default: return "badge";
-  }
-};
-
 export default function AdminFacilityReservations() {
-  const [tab, setTab] = useState("PENDING"); // PENDING | ALL
-  const [stats, setStats] = useState(null);
-
-  // filters (ALL 탭에서 사용)
-  const [status, setStatus] = useState("ALL");
-  const [facilityIdx, setFacilityIdx] = useState("ALL");
-  const [query, setQuery] = useState("");
-  const [page, setPage] = useState(0);
-  const [size] = useState(10);
-
-  const [rows, setRows] = useState([]);
-  const [total, setTotal] = useState(0);
+  const [activeTab, setActiveTab] = useState("PENDING"); // "PENDING" | "ALL"(비활성)
+  const [pending, setPending] = useState([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+  const [selectedIdx, setSelectedIdx] = useState(null); // 모달용
 
-  const [detailId, setDetailId] = useState(null); // modal
-
-  // 통계
-  useEffect(() => {
-    (async () => {
-      try {
-        const r = await adminStats();
-        setStats(r?.data || null);
-      } catch (_) {/* 무시 */}
-    })();
-  }, []);
-
-  // 목록
-  useEffect(() => {
+  const loadPending = useCallback(async () => {
     setLoading(true);
     setErr("");
-    const load = async () => {
-      try {
-        if (tab === "PENDING") {
-          const r = await adminPendingList({ page, size });
-          setRows(r?.data?.items || r?.data || []); // 백엔드 응답 형태에 맞게 양쪽 케이스 처리
-          setTotal(r?.data?.total ?? (r?.data?.length ?? 0));
-        } else {
-          const r = await adminSearchList({
-            status: status === "ALL" ? undefined : status,
-            facilityIdx: facilityIdx === "ALL" ? undefined : Number(facilityIdx),
-            query: query || undefined,
-            page,
-            size,
-          });
-          setRows(r?.data?.items || r?.data || []);
-          setTotal(r?.data?.total ?? (r?.data?.length ?? 0));
-        }
-      } catch (e) {
-        setErr(e?.message || "목록을 불러오지 못했습니다.");
-        setRows([]);
-        setTotal(0);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, [tab, page, size, status, facilityIdx, query]);
+    try {
+      const res = await adminPendingList({ page: 0, size: 20 });
+      // 응답 형식: { success, message, data: [...] }
+      setPending(Array.isArray(res.data) ? res.data : []);
+    } catch (e) {
+      setErr(e?.message || "승인 대기 목록 조회 실패");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const onOpenDetail = async (id) => {
-    // 상세는 모달 내부에서 다시 불러오지만, 404 방지용 ping 가능
-    setDetailId(id);
+  useEffect(() => {
+    if (activeTab === "PENDING") {
+      loadPending();
+    }
+  }, [activeTab, loadPending]);
+
+  const openModal = (reservationIdx) => setSelectedIdx(reservationIdx);
+  const closeModal = () => setSelectedIdx(null);
+
+  // [CHANGED] 모달에서 승인/반려 후 목록 새로고침
+  const handleActionDone = async () => {
+    closeModal();
+    await loadPending();
   };
 
-  const totalPages = useMemo(() => Math.max(1, Math.ceil(total / size)), [total, size]);
-
   return (
-    <div className="admin-resv-page">
-      <h2>시설물 예약 관리</h2>
-      <p className="muted">예약 승인 및 전체 현황을 관리합니다.</p>
-
-      {/* Stats */}
-      <div className="stats">
-        <div className="card">
-          <div className="label">승인 대기</div>
-          <div className="num">{stats?.pending ?? "-"}</div>
+    <div className="ar-wrap">
+      <header className="ar-header">
+        <h2>시설물 예약 관리</h2>
+        <p className="ar-sub">예약 승인 및 전체 현황을 관리합니다</p>
+        <div className="ar-tabs">
+          <button
+            className={`ar-tab ${activeTab === "PENDING" ? "active" : ""}`}
+            onClick={() => setActiveTab("PENDING")}
+          >
+            승인 대기
+          </button>
+          <button
+            className={`ar-tab ${activeTab === "ALL" ? "active" : ""}`}
+            onClick={() => setActiveTab("ALL")}
+            disabled
+            title="전체예약 API 준비되면 활성화"
+          >
+            전체 예약
+          </button>
         </div>
-        <div className="card">
-          <div className="label">오늘 예약</div>
-          <div className="num">{stats?.today ?? "-"}</div>
-        </div>
-        <div className="card">
-          <div className="label">이번 주</div>
-          <div className="num">{stats?.thisWeek ?? "-"}</div>
-        </div>
-        <div className="card">
-          <div className="label">이번 달</div>
-          <div className="num">{stats?.thisMonth ?? "-"}</div>
-        </div>
-      </div>
+      </header>
 
-      {/* Tabs */}
-      <div className="tabs">
-        <button className={tab === "PENDING" ? "active" : ""} onClick={() => { setTab("PENDING"); setPage(0); }}>승인 대기</button>
-        <button className={tab === "ALL" ? "active" : ""} onClick={() => { setTab("ALL"); setPage(0); }}>전체 예약</button>
-      </div>
+      {activeTab === "PENDING" && (
+        <section className="ar-list">
+          {loading && <div className="ar-loading">불러오는 중...</div>}
+          {err && <div className="ar-error">{err}</div>}
+          {!loading && !err && pending.length === 0 && (
+            <div className="ar-empty">승인 대기 중인 예약이 없습니다.</div>
+          )}
 
-      {/* Filters (ALL 탭 전용) */}
-      {tab === "ALL" && (
-        <div className="filters">
-          <select value={status} onChange={(e) => { setStatus(e.target.value); setPage(0); }}>
-            <option value="ALL">전체 상태</option>
-            <option value="PENDING">대기중</option>
-            <option value="APPROVED">승인됨</option>
-            <option value="REJECTED">반려됨</option>
-            <option value="CANCELLED">취소됨</option>
-            <option value="COMPLETED">완료됨</option>
-          </select>
+          {pending.map((item) => (
+            <article className="ar-card" key={item.reservationIdx}>
+              <div className="ar-card-head">
+                <h3 className="ar-title">{item.facilityName}</h3>
+                <span className="ar-badge yellow">승인 대기</span>
+              </div>
 
-          <select value={facilityIdx} onChange={(e) => { setFacilityIdx(e.target.value); setPage(0); }}>
-            <option value="ALL">전체 시설</option>
-            {/* 필요 시 시설목록 API 붙여 채우기 */}
-            {/* <option value="1">세미나실 301호</option> */}
-          </select>
+              <div className="ar-meta">
+                <div>예약 일시: {item.startTime} ~ {item.endTime}</div>
+                <div>신청자: {item.userName} ({item.userCode})</div>
+                <div>인원: {item.partySize}명</div>
+                <div>신청일시: {item.createdAt}</div>
+              </div>
 
-          <div className="search">
-            <input
-              value={query}
-              onChange={(e) => { setQuery(e.target.value); setPage(0); }}
-              placeholder="이름, 학번, 시설명"
-            />
-            <span className="icon">🔍</span>
-          </div>
-        </div>
+              {(item.purpose || item.requestedEquipment) && (
+                <div className="ar-desc">
+                  {item.purpose && (
+                    <>
+                      <div className="ar-label">사용 목적</div>
+                      <div className="ar-box">{item.purpose}</div>
+                    </>
+                  )}
+                  {item.requestedEquipment && (
+                    <>
+                      <div className="ar-label">요청 장비</div>
+                      <div className="ar-box">{item.requestedEquipment}</div>
+                    </>
+                  )}
+                </div>
+              )}
+
+              <div className="ar-actions">
+                <button className="ar-primary" onClick={() => openModal(item.reservationIdx)}>
+                  처리하기
+                </button>
+              </div>
+            </article>
+          ))}
+        </section>
       )}
 
-      {/* List */}
-      <div className="list">
-        {loading ? (
-          <div className="muted">불러오는 중…</div>
-        ) : err ? (
-          <div className="error">{err}</div>
-        ) : rows.length === 0 ? (
-          <div className="muted">데이터가 없습니다.</div>
-        ) : (
-          <table className="tbl">
-            <thead>
-              <tr>
-                <th>신청일시</th>
-                <th>시설</th>
-                <th>예약일시</th>
-                <th>신청자</th>
-                <th>인원</th>
-                <th>상태</th>
-                <th>액션</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr key={r.reservationIdx}>
-                  <td>{(r.createdAt || "").replace(" ", " ")}</td>
-                  <td>{r.facilityName}</td>
-                  <td>
-                    {(r.startTime || "").slice(0, 16)} ~ {(r.endTime || "").slice(11, 16)}
-                  </td>
-                  <td>{r.userName} <span className="muted">{r.userCode}</span></td>
-                  <td>{r.partySize ? `${r.partySize}명` : "-"}</td>
-                  <td><span className={statusBadge(r.status)}>{r.status}</span></td>
-                  <td>
-                    <button className="link" onClick={() => onOpenDetail(r.reservationIdx)}>상세보기</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="pager">
-          <button disabled={page === 0} onClick={() => setPage((p) => p - 1)}>이전</button>
-          <span>{page + 1} / {totalPages}</span>
-          <button disabled={page + 1 >= totalPages} onClick={() => setPage((p) => p + 1)}>다음</button>
-        </div>
-      )}
-
-      {/* Detail Modal */}
-      {detailId != null && (
+      {/* 상세 모달 */}
+      {selectedIdx !== null && (
         <AdminReservationDetailModal
-          reservationIdx={detailId}
-          onClose={() => setDetailId(null)}
-          // 갱신 콜백: 승인/반려 후 목록 새고
-          onChanged={() => {
-            // 간단히 현재 페이지 재조회 트리거
-            setPage((p) => p);
-          }}
+          reservationIdx={selectedIdx}
+          onClose={closeModal}
+          onActionDone={handleActionDone}
         />
       )}
     </div>

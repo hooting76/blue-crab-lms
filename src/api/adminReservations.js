@@ -1,11 +1,14 @@
+// src/api/adminReservations.js
 // 관리자 시설예약 API (엔드포인트 한 곳에서 관리)
-// 필요에 따라 BASE_URL_* 만 실제 서버 경로에 맞게 수정하세요.
+//  - 관리자 대기목록/승인/반려: /api/admin/reservations/*
+//  - 상세 조회는 사용자용 /api/reservations/{id} 재사용
+//  - 토큰 자동 확인/401 재시도/에러 공통 처리
 
 import { ensureAccessTokenOrRedirect } from "../utils/authFlow";
 import { readAccessToken } from "../utils/readAccessToken";
 
-const BASE_URL = "/BlueCrab-1.0.0/api";                // 공용 prefix
-const ADMIN = `${BASE_URL}/admin/reservations`;        // 관리자 prefix 가정
+const BASE_URL = "/api";
+const ADMIN_BASE = `${BASE_URL}/admin/reservations`;
 
 const REQ_TIMEOUT_MS = 10000;
 
@@ -48,7 +51,8 @@ async function postRetry401(url, body) {
 async function handle(res, fallbackMessage = "요청 처리 실패") {
   const payload = await parseJsonSafe(res);
   if (!res.ok) {
-    const msg = typeof payload === "object" ? payload?.message || fallbackMessage : fallbackMessage;
+    const msg =
+      typeof payload === "object" ? payload?.message || fallbackMessage : fallbackMessage;
     const e = new Error(msg);
     e.status = res.status;
     e.payload = payload;
@@ -57,61 +61,56 @@ async function handle(res, fallbackMessage = "요청 처리 실패") {
   if (typeof payload === "object" && payload.success === false) {
     throw new Error(payload.message || fallbackMessage);
   }
-  return payload; // { success, message, data }
+  return payload; // ApiResponse<T> 그대로 반환
 }
 
 /* ===========================
- *   관리자 API (가정된 경로)
- *   실제 백엔드 경로와 다르면 여기만 바꾸면 됨
+ *   관리자 API (명세에 존재)
  * =========================== */
 
-// 대시보드 카운터(승인대기/오늘/이번주/이번달)
-export async function adminStats() {
-  await ensureAccessTokenOrRedirect();
-  const res = await postRetry401(`${ADMIN}/stats`, {});
-  return handle(res, "통계 조회 실패");
-}
-
-// 승인 대기 목록 (간단 페이징 옵션)
+// 승인 대기 목록
+// POST /api/admin/reservations/pending
 export async function adminPendingList({ page = 0, size = 20 } = {}) {
   await ensureAccessTokenOrRedirect();
-  const res = await postRetry401(`${ADMIN}/pending`, { page, size });
+  const res = await postRetry401(`${ADMIN_BASE}/pending`, { page, size });
   return handle(res, "승인 대기 목록 조회 실패");
 }
 
-// 전체 예약 검색(상태/시설/키워드/기간/페이징)
-export async function adminSearchList({
-  status,          // PENDING/APPROVED/REJECTED/CANCELLED/COMPLETED | undefined
-  facilityIdx,     // number | undefined
-  query,           // string | undefined (이름/학번/시설명)
-  dateFrom,        // 'YYYY-MM-DD' | undefined
-  dateTo,          // 'YYYY-MM-DD' | undefined
-  page = 0,
-  size = 20,
-} = {}) {
+// 승인 처리
+// POST /api/admin/reservations/approve
+// body: { reservationIdx, adminNote? }
+export async function adminApprove({ reservationIdx, adminNote } = {}) {
+  if (!reservationIdx) throw new Error("reservationIdx는 필수입니다.");
   await ensureAccessTokenOrRedirect();
-  const body = { status, facilityIdx, query, dateFrom, dateTo, page, size };
-  const res = await postRetry401(`${ADMIN}/search`, body);
-  return handle(res, "예약 목록 조회 실패");
-}
-
-// 예약 상세
-export async function adminGetDetail(reservationIdx) {
-  await ensureAccessTokenOrRedirect();
-  const res = await postRetry401(`${ADMIN}/${reservationIdx}`, {});
-  return handle(res, "예약 상세 조회 실패");
-}
-
-// 승인
-export async function adminApprove(reservationIdx, { adminNote } = {}) {
-  await ensureAccessTokenOrRedirect();
-  const res = await postRetry401(`${ADMIN}/${reservationIdx}/approve`, { adminNote });
+  const res = await postRetry401(`${ADMIN_BASE}/approve`, { reservationIdx, adminNote });
   return handle(res, "예약 승인 실패");
 }
 
-// 반려
-export async function adminReject(reservationIdx, { rejectionReason } = {}) {
+// 반려 처리
+// POST /api/admin/reservations/reject
+// body: { reservationIdx, rejectionReason }
+export async function adminReject({ reservationIdx, rejectionReason } = {}) {
+  if (!reservationIdx) throw new Error("reservationIdx는 필수입니다.");
+  if (!rejectionReason) throw new Error("반려 사유는 필수입니다.");
   await ensureAccessTokenOrRedirect();
-  const res = await postRetry401(`${ADMIN}/${reservationIdx}/reject`, { rejectionReason });
+  const res = await postRetry401(`${ADMIN_BASE}/reject`, { reservationIdx, rejectionReason });
   return handle(res, "예약 반려 실패");
 }
+
+/* ======================================
+ *   상세 조회는 사용자 API 임시 재사용
+ * ====================================== */
+
+// 사용자 상세 API 재사용
+// POST /api/reservations/{reservationIdx}
+export async function adminFetchReservationDetail(reservationIdx) {
+  if (!reservationIdx) throw new Error("reservationIdx는 필수입니다.");
+  await ensureAccessTokenOrRedirect();
+  const token = readAccessToken();
+  const res = await fetchWithTimeout(`${BASE_URL}/reservations/${reservationIdx}`, {
+    method: "POST",
+    headers: getHeaders(token),
+  });
+  return handle(res, "예약 상세 조회 실패");
+}
+// (관리자용 상세 조회 API가 명세에 없으므로 사용자용 재사용. 추후 별도 구현 가능)

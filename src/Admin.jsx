@@ -73,8 +73,8 @@ const renderPage = () => {
           return <EtcNotice currentPage={currentPage} setCurrentPage={setCurrentPage} setSelectedNotice={setSelectedNotice}/>;
         case 'Admin 공지 작성':
           return <AdminNoticeWritingPage setCurrentPage={setCurrentPage} notice={selectedNotice}/>;
-        case '관리자 시설예약':
-          return <AdminFacilityReservations currentPage={currentPage} setCurrentPage={setCurrentPage} />;
+        case '시설물 관리':
+          return <AdminFacilityReservations />;
           
           default:
           return <AdminDashboard />;

@@ -60,16 +60,12 @@ function AdNav({currentPage, setCurrentPage}){
                     <li>열람실</li>
                     <li>푸시알림</li>
                     <li>강의</li>
-                    <li>교내시설</li>
                 </ul>
             </ul>
             <ul>
-                <li>시설예약</li>
-                <ul>
-                    <li onClick={() => setCurrentPage("관리자 시설예약")} 
-                        style={{ cursor: "pointer" }}>신청목록</li>
-                    <li>사용내역</li>
-            </ul>
+                <li onClick={() => setCurrentPage("시설물 관리")}>
+                시설물 관리
+                </li>
             </ul>
             <ul>
                 <li>일정등록</li>
