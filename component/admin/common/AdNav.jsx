@@ -62,14 +62,15 @@ function AdNav({currentPage, setCurrentPage}){
                     <li>강의</li>
                 </ul>
             </ul>
+            {/* 좌측 메뉴: '시설물관리' 하나만 */}
             <ul>
-                <li>시설물관리</li>
-                <ul>
-                    <li onClick={() => setCurrentPage('시설물관리')}>
-                    시설물관리
-                    </li>
+                
+                <li onClick={() => setCurrentPage('시설물관리')}
+                    className={currentPage === '시설물관리' ? AdNavCss.active : ''}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setCurrentPage('시설물관리')}>시설물관리</li>
                 </ul>
-            </ul>
             <ul>
                 <li>일정등록</li>
                 <ul>
