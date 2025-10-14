@@ -7,7 +7,7 @@
 // 📝 실행: await adminLogin() → await sendAuthCode() → await verifyAuthCode()
 // ===================================================================
 
-const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/admin';
+const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
 // 전역 변수 (admin-login-to-board-test.js에서 설정한 토큰 사용)
 if (typeof window.authToken === 'undefined') window.authToken = null;
@@ -32,14 +32,14 @@ function checkAuth() {
 async function getLectureStatistics() {
     if (!checkAuth()) return;
     const token = window.authToken;
-    const year = parseInt(prompt('📅 연도:', new Date().getFullYear().toString()));
+    const targetGrade = prompt('🎓 대상 학년 (1-4학년, 공란=전체):', ''); // LEC_YEAR = 강의 대상 학년
     const semester = parseInt(prompt('📅 학기 (1/2):', '1'));
 
     console.log('\n📊 전체 강의 통계 조회');
     console.log('═══════════════════════════════════════════════════════');
 
     try {
-        const url = `${API_BASE_URL}/statistics/lectures?year=${year}&semester=${semester}`;
+        const url = `${API_BASE_URL}/admin/statistics/lectures?year=${targetGrade}&semester=${semester}`;
         console.log('📡 요청 URL:', url);
 
         const response = await fetch(url, {
