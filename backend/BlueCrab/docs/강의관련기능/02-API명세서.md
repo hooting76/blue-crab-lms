@@ -519,6 +519,8 @@ Authorization: Bearer {accessToken}
 
 **특징:**
 - ✅ **DTO 패턴 적용**: Entity 대신 EnrollmentDto 반환
+- ✅ **PageImpl 최적화**: Entity 참조 완전 제거로 JSON 직렬화 안정성 확보
+- ✅ **교수 이름 조회**: LEC_PROF (USER_CODE) → USER_NAME 자동 조회
 - ✅ **Lazy Loading 안전**: Hibernate 프록시 객체 문제 해결
 - ✅ **JWT 자동 인식**: 프론트엔드에서 토큰에서 studentIdx 자동 추출
 - ✅ **쿼리 파라미터 통합**: studentIdx, lecIdx, page, size 조합 가능
@@ -532,7 +534,8 @@ Authorization: Bearer {accessToken}
       "lecIdx": 101,
       "lecSerial": "CS101",
       "lecTit": "자바 프로그래밍",
-      "lecProf": "김교수",
+      "lecProf": "PROF001",
+      "lecProfName": "김교수",
       "lecPoint": 3,
       "lecTime": "월수 10:00-11:30",
       "studentIdx": 6,
@@ -567,12 +570,13 @@ Authorization: Bearer {accessToken}
 | lecIdx | Long | 강의 ID | LEC_TBL (Lazy Loading) |
 | lecSerial | String | 강의 코드 (예: CS101) | LEC_TBL |
 | lecTit | String | 강의명 | LEC_TBL |
-| lecProf | String | 담당 교수 | LEC_TBL |
+| lecProf | String | 교수 코드 (USER_CODE) ⭐ | LEC_TBL.LEC_PROF |
+| lecProfName | String | 교수 이름 (USER_NAME) ⭐ | USER_TBL (Repository 조회) |
 | lecPoint | Integer | 학점 | LEC_TBL |
 | lecTime | String | 강의 시간 | LEC_TBL |
 | studentIdx | Long | 학생 ID | USER_TBL (Lazy Loading) |
-| studentCode | String | 학번 | USER_TBL |
-| studentName | String | 학생 이름 | USER_TBL |
+| studentCode | String | 학번 (USER_CODE) | USER_TBL |
+| studentName | String | 학생 이름 (USER_NAME) | USER_TBL |
 | enrollmentStatus | String | 수강 상태 (ENROLLED/CANCELLED) | ENROLLMENT_DATA JSON |
 | enrollmentDate | String | 수강신청일 | ENROLLMENT_DATA JSON |
 | cancelDate | String | 취소일 (nullable) | ENROLLMENT_DATA JSON |
@@ -582,9 +586,23 @@ Authorization: Bearer {accessToken}
 
 **구현 세부사항:**
 - **Controller**: EnrollmentController.convertToDto() 메서드
+- **PageImpl 패턴**: 명시적으로 List<DTO> 생성 후 PageImpl로 래핑
+- **교수 조회**: UserTblRepository.findByUserCode(lecProf) → getUserName()
 - **안전 처리**: Lazy Loading 접근 시 try-catch로 예외 처리
 - **JSON 파싱**: ENROLLMENT_DATA 필드를 Jackson ObjectMapper로 파싱
 - **Performance**: 필요한 데이터만 전송하여 네트워크 최적화
+
+**교수 이름 조회 로직:**
+```java
+// LEC_PROF에서 교수 코드 가져오기
+dto.setLecProf(lecture.getLecProf());  // 예: "PROF001", "11"
+
+// USER_TBL에서 교수 이름 조회
+userTblRepository.findByUserCode(lecture.getLecProf())
+    .ifPresent(professor -> {
+        dto.setLecProfName(professor.getUserName());  // 예: "김교수", "굴림체"
+    });
+```
 
 #### **강의 상세 정보 조회**
 ```http

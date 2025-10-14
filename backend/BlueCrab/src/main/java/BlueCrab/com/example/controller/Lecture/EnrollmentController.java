@@ -7,6 +7,7 @@ import BlueCrab.com.example.dto.Lecture.EnrollmentDto;
 import BlueCrab.com.example.entity.Lecture.EnrollmentExtendedTbl;
 import BlueCrab.com.example.entity.Lecture.LecTbl;
 import BlueCrab.com.example.entity.UserTbl;
+import BlueCrab.com.example.repository.UserTblRepository;
 import BlueCrab.com.example.service.Lecture.EnrollmentService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,6 +46,9 @@ public class EnrollmentController {
 
     @Autowired
     private EnrollmentService enrollmentService;
+
+    @Autowired
+    private UserTblRepository userTblRepository;
 
     /* 수강신청 목록 조회 (통합 엔드포인트)
      * 
@@ -297,9 +301,19 @@ public class EnrollmentController {
             if (lecture != null) {
                 dto.setLecSerial(lecture.getLecSerial());
                 dto.setLecTit(lecture.getLecTit());
-                dto.setLecProf(lecture.getLecProf());
+                dto.setLecProf(lecture.getLecProf());  // 교수코드 (USER_CODE)
                 dto.setLecPoint(lecture.getLecPoint());
                 dto.setLecTime(lecture.getLecTime());
+                
+                // 교수코드(USER_CODE)로 교수 이름(USER_NAME) 조회
+                if (lecture.getLecProf() != null && !lecture.getLecProf().isEmpty()) {
+                    try {
+                        userTblRepository.findByUserCode(lecture.getLecProf())
+                            .ifPresent(professor -> dto.setLecProfName(professor.getUserName()));
+                    } catch (Exception e) {
+                        logger.warn("교수 정보 조회 실패 (USER_CODE: {}): {}", lecture.getLecProf(), e.getMessage());
+                    }
+                }
             }
         } catch (Exception e) {
             logger.warn("강의 정보 조회 실패 (Lazy Loading): {}", e.getMessage());
