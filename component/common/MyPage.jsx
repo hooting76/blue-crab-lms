@@ -25,7 +25,7 @@ function MyPage({ currentPage, setCurrentPage }) {
         case "수강중인 과목":
             return (
         <>
-            <ClassAttending onSelectCourse={handleSelectCourse} />
+            <ClassAttending currentPage={currentPage} setCurrentPage={setCurrentPage} onSelectCourse={handleSelectCourse} />
             {selectedCourseId && (
             <div style={{ marginTop: 16 }}>
                 <ClassAttendingProgress courseId={selectedCourseId} />
