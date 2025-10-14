@@ -3,8 +3,13 @@
 
 package BlueCrab.com.example.controller.Lecture;
 
+import BlueCrab.com.example.dto.Lecture.EnrollmentDto;
 import BlueCrab.com.example.entity.Lecture.EnrollmentExtendedTbl;
+import BlueCrab.com.example.entity.Lecture.LecTbl;
+import BlueCrab.com.example.entity.UserTbl;
 import BlueCrab.com.example.service.Lecture.EnrollmentService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /* 수강신청 관리 REST API 컨트롤러 (통합 버전)
  * 
@@ -84,29 +90,33 @@ public class EnrollmentController {
             // 3. 현재 수강중인 목록 (enrolled = true)
             if (enrolled && studentIdx != null) {
                 List<EnrollmentExtendedTbl> enrollments = enrollmentService.getEnrolledByStudent(studentIdx);
-                return ResponseEntity.ok(enrollments);
+                List<EnrollmentDto> dtoList = convertToDtoList(enrollments);
+                return ResponseEntity.ok(dtoList);
             }
             
-            // 4. 학생별 수강 목록 (페이징)
+            // 4. 학생별 수강 목록 (페이징) - DTO 변환
             if (studentIdx != null && !enrolled) {
                 Pageable pageable = PageRequest.of(page, size);
                 Page<EnrollmentExtendedTbl> enrollments = 
                         enrollmentService.getEnrollmentsByStudentPaged(studentIdx, pageable);
-                return ResponseEntity.ok(enrollments);
+                Page<EnrollmentDto> dtoPage = enrollments.map(this::convertToDto);
+                return ResponseEntity.ok(dtoPage);
             }
             
-            // 5. 강의별 수강생 목록 (페이징)
+            // 5. 강의별 수강생 목록 (페이징) - DTO 변환
             if (lecIdx != null) {
                 Pageable pageable = PageRequest.of(page, size);
                 Page<EnrollmentExtendedTbl> enrollments = 
                         enrollmentService.getEnrollmentsByLecturePaged(lecIdx, pageable);
-                return ResponseEntity.ok(enrollments);
+                Page<EnrollmentDto> dtoPage = enrollments.map(this::convertToDto);
+                return ResponseEntity.ok(dtoPage);
             }
             
-            // 6. 전체 목록
+            // 6. 전체 목록 - DTO 변환
             Pageable pageable = PageRequest.of(page, size);
             Page<EnrollmentExtendedTbl> enrollments = enrollmentService.getAllEnrollments(pageable);
-            return ResponseEntity.ok(enrollments);
+            Page<EnrollmentDto> dtoPage = enrollments.map(this::convertToDto);
+            return ResponseEntity.ok(dtoPage);
             
         } catch (Exception e) {
             logger.error("수강신청 조회 실패", e);
@@ -115,11 +125,12 @@ public class EnrollmentController {
         }
     }
 
-    /* 수강신청 상세 조회 */
+    /* 수강신청 상세 조회 - DTO 변환 */
     @GetMapping("/{enrollmentIdx}")
     public ResponseEntity<?> getEnrollmentById(@PathVariable Integer enrollmentIdx) {
         try {
             return enrollmentService.getEnrollmentById(enrollmentIdx)
+                    .map(this::convertToDto)
                     .map(ResponseEntity::ok)
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
@@ -247,5 +258,80 @@ public class EnrollmentController {
         response.put("success", true);
         response.put("message", message);
         return response;
+    }
+
+    /**
+     * EnrollmentExtendedTbl 엔티티를 EnrollmentDto로 변환
+     * Lazy Loading 문제를 방지하고 필요한 정보만 포함
+     * 
+     * @param entity 수강신청 엔티티
+     * @return EnrollmentDto
+     */
+    private EnrollmentDto convertToDto(EnrollmentExtendedTbl entity) {
+        if (entity == null) {
+            return null;
+        }
+
+        EnrollmentDto dto = new EnrollmentDto();
+        dto.setEnrollmentIdx(entity.getEnrollmentIdx());
+        dto.setLecIdx(entity.getLecIdx());
+        dto.setStudentIdx(entity.getStudentIdx());
+        dto.setEnrollmentStatus(entity.getEnrollmentData());
+
+        // Lecture 정보 추가 (Lazy Loading 방지)
+        try {
+            LecTbl lecture = entity.getLecture();
+            if (lecture != null) {
+                dto.setLecSerial(lecture.getLecSerial());
+                dto.setLecTit(lecture.getLecTit());
+                dto.setLecProf(lecture.getLecProf());
+                dto.setLecPoint(lecture.getLecPoint());
+                dto.setLecTime(lecture.getLecTime());
+            }
+        } catch (Exception e) {
+            logger.warn("강의 정보 조회 실패 (Lazy Loading): {}", e.getMessage());
+        }
+
+        // Student 정보 추가 (Lazy Loading 방지)
+        try {
+            UserTbl student = entity.getStudent();
+            if (student != null) {
+                dto.setStudentName(student.getUserName());
+                dto.setStudentCode(student.getUserCode());
+            }
+        } catch (Exception e) {
+            logger.warn("학생 정보 조회 실패 (Lazy Loading): {}", e.getMessage());
+        }
+
+        // JSON 데이터 파싱 (enrollment date 추출)
+        try {
+            if (entity.getEnrollmentData() != null && !entity.getEnrollmentData().isEmpty()) {
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode root = mapper.readTree(entity.getEnrollmentData());
+                JsonNode enrollment = root.path("enrollment");
+                if (enrollment.has("enrollmentDate")) {
+                    dto.setEnrollmentDate(enrollment.get("enrollmentDate").asText());
+                }
+                if (enrollment.has("status")) {
+                    dto.setEnrollmentStatus(enrollment.get("status").asText());
+                }
+            }
+        } catch (Exception e) {
+            logger.warn("JSON 데이터 파싱 실패: {}", e.getMessage());
+        }
+
+        return dto;
+    }
+
+    /**
+     * List<EnrollmentExtendedTbl>을 List<EnrollmentDto>로 변환
+     */
+    private List<EnrollmentDto> convertToDtoList(List<EnrollmentExtendedTbl> entities) {
+        if (entities == null) {
+            return null;
+        }
+        return entities.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 }

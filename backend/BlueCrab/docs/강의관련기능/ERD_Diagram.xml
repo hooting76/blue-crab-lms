@@ -1,5 +1,5 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0" version="24.7.17">
-  <diagram id="ERD-Diagram" name="LMS ERD v2.1 (최종 구현)">
+  <diagram id="ERD-Diagram" name="LMS ERD v2.2 (DTO 패턴 적용)">
     <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
       <root>
         <mxCell id="0" />
@@ -52,20 +52,20 @@
           <mxGeometry y="250" width="280" height="30" as="geometry" />
         </mxCell>
         
-        <mxCell id="enroll-table" value="&lt;b&gt;ENROLLMENT_EXTENDED_TBL&lt;/b&gt;&lt;br&gt;&lt;i&gt;(수강/출결/성적 통합 신규)&lt;/i&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
-          <mxGeometry x="750" y="80" width="320" height="160" as="geometry" />
+        <mxCell id="enroll-table" value="&lt;b&gt;ENROLLMENT_EXTENDED_TBL&lt;/b&gt;&lt;br&gt;&lt;i&gt;(수강/출결/성적 통합 신규)&lt;/i&gt;&lt;br&gt;&lt;span style=&quot;color:#009900;font-weight:bold;&quot;&gt;⭐ DTO 패턴 적용&lt;/span&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=60;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="750" y="80" width="320" height="180" as="geometry" />
         </mxCell>
         <mxCell id="enroll-1" value="🔑 ENROLLMENT_IDX (PK)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontStyle=1" parent="enroll-table" vertex="1">
-          <mxGeometry y="40" width="320" height="30" as="geometry" />
+          <mxGeometry y="60" width="320" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="enroll-2" value="🔗 LEC_IDX (FK → LEC_TBL)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#d79b00;" parent="enroll-table" vertex="1">
-          <mxGeometry y="70" width="320" height="30" as="geometry" />
+        <mxCell id="enroll-2" value="🔗 LEC_IDX (FK → LEC_TBL - Lazy)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#d79b00;" parent="enroll-table" vertex="1">
+          <mxGeometry y="90" width="320" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="enroll-3" value="🔗 STUDENT_IDX (FK → USER_TBL)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#0066cc;" parent="enroll-table" vertex="1">
-          <mxGeometry y="100" width="320" height="30" as="geometry" />
+        <mxCell id="enroll-3" value="🔗 STUDENT_IDX (FK → USER_TBL - Lazy)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#0066cc;" parent="enroll-table" vertex="1">
+          <mxGeometry y="120" width="320" height="30" as="geometry" />
         </mxCell>
         <mxCell id="enroll-4" value="📦 ENROLLMENT_DATA (JSON)" style="text;strokeColor=none;fillColor=#ffe6cc;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontStyle=1;strokeColor=#d79b00;" parent="enroll-table" vertex="1">
-          <mxGeometry y="130" width="320" height="30" as="geometry" />
+          <mxGeometry y="150" width="320" height="30" as="geometry" />
         </mxCell>
         
         <mxCell id="assign-table" value="&lt;b&gt;ASSIGNMENT_EXTENDED_TBL&lt;/b&gt;&lt;br&gt;&lt;i&gt;(과제/제출 통합 신규)&lt;/i&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
@@ -132,12 +132,12 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         
-        <mxCell id="legend" value="&lt;b&gt;📋 범례 (v2.1 최종)&lt;/b&gt;&lt;br&gt;🔑 Primary Key&lt;br&gt;🔗 Foreign Key&lt;br&gt;📦 JSON 통합 데이터&lt;br&gt;✨ 신규 추가 필드&lt;br&gt;1:N 일대다 관계" style="text;html=1;strokeColor=#666666;fillColor=#f5f5f5;align=left;verticalAlign=top;whiteSpace=wrap;rounded=1;fontColor=#333333;" parent="1" vertex="1">
-          <mxGeometry x="750" y="280" width="180" height="120" as="geometry" />
+        <mxCell id="legend" value="&lt;b&gt;📋 범례 (v2.2 DTO 패턴)&lt;/b&gt;&lt;br&gt;🔑 Primary Key&lt;br&gt;🔗 Foreign Key&lt;br&gt;📦 JSON 통합 데이터&lt;br&gt;✨ 신규 추가 필드&lt;br&gt;⭐ DTO 변환 적용&lt;br&gt;1:N 일대다 관계" style="text;html=1;strokeColor=#666666;fillColor=#f5f5f5;align=left;verticalAlign=top;whiteSpace=wrap;rounded=1;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="750" y="280" width="180" height="140" as="geometry" />
         </mxCell>
         
-        <mxCell id="note" value="&lt;b&gt;⚠️ 구현 완료 현황&lt;/b&gt;&lt;br&gt;✅ 신규 테이블 2개&lt;br&gt;✅ 기존 테이블 2개 확장&lt;br&gt;✅ JSON 기반 유연한 구조&lt;br&gt;✅ 외래키/인덱스 설정" style="text;html=1;strokeColor=#82b366;fillColor=#d5e8d4;align=left;verticalAlign=top;whiteSpace=wrap;rounded=1;" parent="1" vertex="1">
-          <mxGeometry x="750" y="430" width="180" height="120" as="geometry" />
+        <mxCell id="note" value="&lt;b&gt;⚠️ 구현 완료 현황&lt;/b&gt;&lt;br&gt;✅ 신규 테이블 2개&lt;br&gt;✅ 기존 테이블 2개 확장&lt;br&gt;✅ JSON 기반 유연한 구조&lt;br&gt;✅ 외래키/인덱스 설정&lt;br&gt;✅ DTO 패턴 (HTTP 400 해결)" style="text;html=1;strokeColor=#82b366;fillColor=#d5e8d4;align=left;verticalAlign=top;whiteSpace=wrap;rounded=1;" parent="1" vertex="1">
+          <mxGeometry x="750" y="450" width="200" height="130" as="geometry" />
         </mxCell>
         
       </root>

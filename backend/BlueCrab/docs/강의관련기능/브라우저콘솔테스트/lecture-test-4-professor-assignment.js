@@ -7,7 +7,7 @@
 // 📝 실행: await login() (교수 계정 사용)
 // ===================================================================
 
-const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/professor';
+const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
 // 전역 변수 (test-1-login.js에서 설정한 토큰 사용)
 if (typeof window.authToken === 'undefined') window.authToken = null;
@@ -25,9 +25,7 @@ function checkAuth() {
     return true;
 }
 
-// ========== 교수 강의 목록 조회 ==========const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/professor';
-
-// 전역 변수 초기화
+// ========== 교수 강의 목록 조회 ==========
 if (typeof window.authToken === 'undefined') window.authToken = null;
 
 // ========== 내 강의 목록 조회 ==========

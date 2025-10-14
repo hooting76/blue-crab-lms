@@ -1,12 +1,16 @@
 # 강의 관리 시스템 문서
 
 > **작성일**: 2025-10-10  
-> **업데이트**: 2025-10-12  
-> **버전**: 4.0 (Repository 레이어 완료)  
+> **업데이트**: 2025-10-14  
+> **버전**: 5.0 (DTO 패턴 적용 완료)  
 > **변경사항**: 
 > - Phase 1-2: 데이터베이스 구축 완료 ✅
 > - Phase 3: Entity 3개, DTO 11개 생성 완료 ✅
 > - Phase 4: Repository 3개 생성 완료 ✅
+> - Phase 5: Service 레이어 완료 ✅
+> - Phase 6: Controller 레이어 완료 ✅
+> - **Phase 6.5: EnrollmentController DTO 패턴 적용 완료 ⭐**
+> - **HTTP 400 Hibernate Lazy Loading 이슈 해결 완료 ✅**
 > - 폴더 구조화 완료 (entity/Lecture/, dto/Lecture/, repository/Lecture/) ✅
 
 ---
@@ -93,15 +97,72 @@
 - ✅ **상세한 주석**: 각 메서드의 용도와 사용 예시 포함
 - ✅ **확장 가능 설계**: JSON 데이터 활용을 위한 가이드 포함
 
-### 📅 Phase 5: Service 레이어 (다음 단계)
-- [ ] LectureService.java
-- [ ] EnrollmentService.java
-- [ ] AssignmentService.java
+### ✅ Phase 5: Service 레이어 (완료)
+- [x] **LectureService.java**
+  - 강의 CRUD 및 검색 기능
+  - 수강 인원 관리
+  - 강의 통계 조회
 
-### 📅 Phase 6: Controller 레이어 (예정)
-- [ ] LectureController.java
-- [ ] EnrollmentController.java
-- [ ] AssignmentController.java
+- [x] **EnrollmentService.java**
+  - 수강신청 처리
+  - 수강 목록 조회
+  - 수강신청 취소
+
+- [x] **AssignmentService.java**
+  - 과제 CRUD
+  - 과제 제출 관리
+  - 과제 통계 조회
+
+### ✅ Phase 6: Controller 레이어 (완료)
+- [x] **LectureController.java** (6개 엔드포인트)
+  - 통합 API 설계 완료
+  - 쿼리 파라미터 기반 필터링
+
+- [x] **EnrollmentController.java** (7개 엔드포인트) ⭐
+  - 통합 API 설계 완료
+  - **DTO 패턴 적용 완료** (HTTP 400 해결)
+  - convertToDto() 메서드 구현
+  - Lazy Loading 안전 처리
+
+- [x] **AssignmentController.java** (8개 엔드포인트)
+  - 통합 API 설계 완료
+  - 과제 제출 관리 API
+
+### ⭐ Phase 6.5: DTO 패턴 적용 (신규 완료)
+
+#### 문제 상황
+- **HTTP 400 에러**: "Could not write JSON: could not initialize proxy - no Session"
+- **원인**: Hibernate Lazy Loading 프록시 객체를 직접 JSON 직렬화
+- **발생 위치**: EnrollmentController의 모든 GET 엔드포인트
+
+#### 해결 방법
+- [x] **convertToDto() 메서드 구현**
+  - EnrollmentExtendedTbl → EnrollmentDto 변환
+  - Lazy Loading 안전 처리 (try-catch)
+  - JSON 파싱으로 추가 필드 추출
+  - 60+ 라인 상세 구현
+
+- [x] **모든 엔드포인트 DTO 반환**
+  - getEnrollments() 4가지 케이스 → Page<EnrollmentDto>
+  - getEnrollmentById() → EnrollmentDto
+  - Entity 내부 구조 노출 차단
+
+- [x] **프론트엔드 테스트 스크립트 업데이트**
+  - lecture-test-2-student-enrollment.js 수정
+  - DTO 필드 구조에 맞게 출력 형식 변경
+
+- [x] **문서화**
+  - BACKEND_FIX_ENROLLMENT_400_ERROR.md 작성
+  - 3가지 해결 방안 비교
+  - DTO 패턴 권장 사유 설명
+
+#### 기술적 효과
+- ✅ **API 안정성 향상**: Hibernate 세션 문제 원천 차단
+- ✅ **성능 최적화**: 필요한 데이터만 전송
+- ✅ **유지보수성 향상**: 명확한 API 계약 (Contract)
+- ✅ **확장성 보장**: Entity 변경 시 API 영향 최소화
+
+### 📅 Phase 7: 테스트 & 통합 (진행 중)
 
 ---
 

@@ -1,8 +1,8 @@
 # 강의 관리 시스템 구현 진척도
 
-> **최종 업데이트**: 2025-10-12  
-> **현재 Phase**: Phase 6 완료 (API 통합 최적화)  
-> **전체 진행률**: 85% (Phase 1-6 완료)
+> **최종 업데이트**: 2025-10-14  
+> **현재 Phase**: Phase 6 완료 + DTO 패턴 적용 완료  
+> **전체 진행률**: 90% (Phase 1-6 완료 + 버그 수정)
 
 ---
 
@@ -14,9 +14,10 @@ Phase 3: Entity & DTO 레이어       ████████████ 100% 
 Phase 4: Repository 레이어          ████████████ 100% ✅
 Phase 5: Service 레이어             ████████████ 100% ✅
 Phase 6: Controller 레이어          ████████████ 100% ✅
-Phase 7: 테스트 & 통합              ░░░░░░░░░░░░  10% 🚧
+Phase 6.5: DTO 패턴 적용           ████████████ 100% ✅
+Phase 7: 테스트 & 통합              ████░░░░░░░░  30% 🚧
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-전체 진행률:                        ██████████░░  85%
+전체 진행률:                        █████████░░░  90%
 ```
 
 ---
@@ -45,6 +46,47 @@ Phase 7: 테스트 & 통합              ░░░░░░░░░░░░  1
   - 과제 + 제출 통합 관리
   - JSON 데이터 필드 (ASSIGNMENT_DATA)
   - 외래키: LEC_IDX
+
+---
+
+## ✅ Phase 6.5: DTO 패턴 적용 (완료)
+
+### 기간: 2025-10-14
+### 상태: ✅ 완료
+
+#### 문제 진단
+- [x] **HTTP 400 에러 발생**
+  - Hibernate Lazy Loading 프록시 객체 JSON 직렬화 실패
+  - "Could not write JSON: could not initialize proxy - no Session" 에러
+  - Entity를 직접 반환할 때 발생
+
+#### 완료 항목
+- [x] **EnrollmentController.java DTO 패턴 구현**
+  - convertToDto() 메서드 추가 (60+ 라인)
+  - convertToDtoList() 헬퍼 메서드 추가
+  - Lazy Loading 안전 처리 (try-catch)
+  - JSON 파싱으로 추가 필드 추출
+
+- [x] **모든 엔드포인트 DTO 반환으로 변경**
+  - getEnrollments() 4가지 케이스 → Page<EnrollmentDto>
+  - getEnrollmentById() → EnrollmentDto
+  - Hibernate 프록시 노출 차단
+
+- [x] **프론트엔드 테스트 스크립트 업데이트**
+  - lecture-test-2-student-enrollment.js 수정
+  - DTO 필드 구조에 맞게 출력 형식 변경
+  - HTTP 400 에러 안내 제거
+
+- [x] **문서화**
+  - BACKEND_FIX_ENROLLMENT_400_ERROR.md 생성
+  - 3가지 해결 방안 문서화
+  - DTO 패턴 권장 사유 설명
+
+#### 기술적 개선
+- **API 안정성 향상**: Entity 내부 구조 노출 방지
+- **성능 최적화**: 필요한 데이터만 전송
+- **유지보수성**: 명확한 API 계약 (Contract)
+- **에러 방지**: Lazy Loading 세션 문제 원천 차단
 
 ---
 
@@ -264,15 +306,15 @@ Phase 7: 테스트 & 통합              ░░░░░░░░░░░░  1
 | **DTO** | 11 | ~150 | ~900 | ✅ 완료 |
 | **Repository** | 3 | 65 | ~650 | ✅ 완료 |
 | **Service** | 3 | 73 | ~850 | ✅ 완료 |
-| **Controller** | 3 | 21 | ~750 | ✅ 완료 |
-| **Total** | **23** | **359** | **~3,600** | **85%** |
+| **Controller** | 3 | 21 + DTO 변환 | ~850 | ✅ 완료 |
+| **Total** | **23** | **359+** | **~3,700** | **90%** |
 
 ### API 엔드포인트 현황
 
 | Controller | 엔드포인트 수 | 상태 | 비고 |
 |------------|---------------|------|------|
 | **LectureController** | 6 | ✅ | 통합 최적화 완료 |
-| **EnrollmentController** | 7 | ✅ | 통합 최적화 완료 |
+| **EnrollmentController** | 7 | ✅ | DTO 패턴 적용 완료 ⭐ |
 | **AssignmentController** | 8 | ✅ | 통합 최적화 완료 |
 | **Total** | **21** | **✅** | **34→21 (38% 감소)** |
 
@@ -298,6 +340,14 @@ Phase 7: 테스트 & 통합              ░░░░░░░░░░░░  1
 ---
 
 ## 📝 변경 이력
+
+### 2025-10-14
+- ✅ **HTTP 400 에러 수정**: Hibernate Lazy Loading 이슈 해결
+- ✅ EnrollmentController에 DTO 패턴 적용
+- ✅ convertToDto() 메서드 구현 (60+ 라인)
+- ✅ 모든 수강신청 API 엔드포인트 DTO 반환으로 변경
+- ✅ 프론트엔드 테스트 스크립트 업데이트
+- ✅ BACKEND_FIX_ENROLLMENT_400_ERROR.md 문서 작성
 
 ### 2025-10-12
 - ✅ Phase 6 완료: Controller 레이어 API 통합 최적화
@@ -332,5 +382,5 @@ Phase 7: 테스트 & 통합              ░░░░░░░░░░░░  1
 ---
 
 **작성자**: 성태준  
-**문서 버전**: 2.0  
-**마지막 수정**: 2025-10-12
+**문서 버전**: 3.0  
+**마지막 수정**: 2025-10-14
