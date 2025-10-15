@@ -7,7 +7,7 @@
 // 📝 실행: adminLogin() 또는 quickAdminLogin()
 // ===================================================================
 
-const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
+const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0';
 
 // ========== 로그인 상태 확인 ==========
 function checkAuth() {

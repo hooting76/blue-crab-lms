@@ -1,24 +1,19 @@
 # 강의 관리 시스템 문서
 
 > **작성일**: 2025-10-10  
-> **업데이트**: 2025-10-14  
-> **버전**: 7.1 (Phase 6.8.1 과제 관리 버그 수정)  
-> **변경사항**: 
-> - Phase 1-2: 데이터베이스 구축 완료 ✅
-> - Phase 3: Entity 3개, DTO 11개 생성 완료 ✅
-> - Phase 4: Repository 4개 생성 완료 (UserTblRepository 추가) ✅
-> - Phase 5: Service 레이어 완료 ✅
-> - Phase 6: Controller 레이어 완료 ✅
-> - **Phase 6.5: EnrollmentController DTO 패턴 적용 완료 ⭐**
-> - **Phase 6.6: JOIN FETCH 최적화 완료 (N+1 쿼리 방지) ⭐**
-> - **Phase 6.7: 교수 이름 조회 기능 추가 (EnrollmentController) ⭐**
-> - **Phase 6.8: LectureController DTO 변환 적용 완료 ⭐**
-> - **Phase 6.8.1: AssignmentExtendedTbl Lazy Loading 버그 수정 ✅**
-> - **@JsonIgnore 추가로 JSON 직렬화 문제 해결 ✅**
-> - **HTTP 400 Hibernate Lazy Loading 이슈 해결 완료 ✅**
-> - **PageImpl 패턴으로 Entity 참조 완전 제거 ✅**
-> - **API 일관성 확보: Enrollment와 Lecture 컨트롤러 동일 패턴 ✅**
-> - 폴더 구조화 완료 (entity/Lecture/, dto/Lecture/, repository/Lecture/) ✅
+> **업데이트**: 2025-10-15  
+> **버전**: 7.2 (Phase 6.9 출석 관리 시스템 완료)  
+
+---
+
+## 📋 **목차**
+
+1. [🎯 핵심 특징](#-핵심-특징)
+2. [📊 구현 현황](#-구현-현황)
+3. [📁 문서 구조](#-문서-구조)
+4. [🛠 기술 스택](#-기술-스택)
+5. [📈 개발 진행 상황](#-개발-진행-상황)
+6. [🎯 다음 단계](#-다음-단계)
 
 ---
 
@@ -27,6 +22,24 @@
 강의 관리 시스템의 **최소화 구현**을 위한 기술 문서입니다. **신규 테이블 2개**로 모든 기능을 구현하는 효율적인 설계를 제공합니다.
 
 **명명 규칙**: 모든 테이블/컬럼명은 **대문자 + 언더스코어** (예: `USER_TBL`, `LEC_IDX`, `ENROLLMENT_DATA`)
+
+**변경사항**: 
+- Phase 1-2: 데이터베이스 구축 완료 ✅
+- Phase 3: Entity 3개, DTO 11개 생성 완료 ✅
+- Phase 4: Repository 4개 생성 완료 (UserTblRepository 추가) ✅
+- Phase 5: Service 레이어 완료 ✅
+- Phase 6: Controller 레이어 완료 ✅
+- **Phase 6.5: EnrollmentController DTO 패턴 적용 완료 ⭐**
+- **Phase 6.6: JOIN FETCH 최적화 완료 (N+1 쿼리 방지) ⭐**
+- **Phase 6.7: 교수 이름 조회 기능 추가 (EnrollmentController) ⭐**
+- **Phase 6.8: LectureController DTO 변환 적용 완료 ⭐**
+- **Phase 6.8.1: AssignmentExtendedTbl Lazy Loading 버그 수정 ✅**
+- **Phase 6.9: 출석 관리 시스템 완료 (출/결/지 3가지 상태) 🆕**
+- **@JsonIgnore 추가로 JSON 직렬화 문제 해결 ✅**
+- **HTTP 400 Hibernate Lazy Loading 이슈 해결 완료 ✅**
+- **PageImpl 패턴으로 Entity 참조 완전 제거 ✅**
+- **API 일관성 확보: Enrollment와 Lecture 컨트롤러 동일 패턴 ✅**
+- 폴더 구조화 완료 (entity/Lecture/, dto/Lecture/, repository/Lecture/) ✅
 
 ### 🎯 **핵심 특징**
 - ✅ **신규 테이블 최소화**: 기존 테이블 확장 + 2개 신규 테이블

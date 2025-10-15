@@ -1,45 +1,41 @@
-// 작성자: 성태준
-
 package BlueCrab.com.example.dto.Lecture;
 
 /**
  * 출결 정보 전송을 위한 DTO 클래스
  * 출결 조회, 출결 체크 시 사용
+ * 
+ * 출석 상태:
+ * - 출: 출석
+ * - 결: 결석
+ * - 지: 지각
  */
 public class AttendanceDto {
 
-    private String date;                // 출결 날짜 (YYYY-MM-DD)
-    private String status;              // 출결 상태 (PRESENT, LATE, ABSENT, EXCUSED)
-    private String requestReason;       // 신청 사유 (예: 병원 진료)
-    private String approvalStatus;      // 승인 상태 (PENDING, APPROVED, REJECTED)
-    private Integer approvedBy;         // 승인자 IDX
-    private String approvedAt;          // 승인 일시
+    private Integer sessionNumber;      // 회차 번호 (1~80)
+    private String status;              // 출석 상태 (출/결/지)
+    private String attendanceStr;       // 출석 문자열 전체 (예: "1출2출3결4지...")
+    private String attendanceRate;      // 출석률 (예: "75/80")
 
     public AttendanceDto() {}
 
-    public AttendanceDto(String date, String status) {
-        this.date = date;
+    public AttendanceDto(Integer sessionNumber, String status) {
+        this.sessionNumber = sessionNumber;
         this.status = status;
     }
 
-    public AttendanceDto(String date, String status, String requestReason, String approvalStatus,
-                         Integer approvedBy, String approvedAt) {
-        this.date = date;
-        this.status = status;
-        this.requestReason = requestReason;
-        this.approvalStatus = approvalStatus;
-        this.approvedBy = approvedBy;
-        this.approvedAt = approvedAt;
+    public AttendanceDto(String attendanceStr, String attendanceRate) {
+        this.attendanceStr = attendanceStr;
+        this.attendanceRate = attendanceRate;
     }
 
     // Getters and Setters
 
-    public String getDate() {
-        return date;
+    public Integer getSessionNumber() {
+        return sessionNumber;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setSessionNumber(Integer sessionNumber) {
+        this.sessionNumber = sessionNumber;
     }
 
     public String getStatus() {
@@ -50,35 +46,19 @@ public class AttendanceDto {
         this.status = status;
     }
 
-    public String getRequestReason() {
-        return requestReason;
+    public String getAttendanceStr() {
+        return attendanceStr;
     }
 
-    public void setRequestReason(String requestReason) {
-        this.requestReason = requestReason;
+    public void setAttendanceStr(String attendanceStr) {
+        this.attendanceStr = attendanceStr;
     }
 
-    public String getApprovalStatus() {
-        return approvalStatus;
+    public String getAttendanceRate() {
+        return attendanceRate;
     }
 
-    public void setApprovalStatus(String approvalStatus) {
-        this.approvalStatus = approvalStatus;
-    }
-
-    public Integer getApprovedBy() {
-        return approvedBy;
-    }
-
-    public void setApprovedBy(Integer approvedBy) {
-        this.approvedBy = approvedBy;
-    }
-
-    public String getApprovedAt() {
-        return approvedAt;
-    }
-
-    public void setApprovedAt(String approvedAt) {
-        this.approvedAt = approvedAt;
+    public void setAttendanceRate(String attendanceRate) {
+        this.attendanceRate = attendanceRate;
     }
 }
