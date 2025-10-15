@@ -1,14 +1,12 @@
 .lectureNameCode,
-.maxStudentsCredit,
-.lectureYearSemester,
+.maxStudentsCreditYearSemester,
 .majorRequiredType {
     display: flex;
     justify-content: space-between;
     gap: 16px;
 }
 .lectureNameCode span,
-.maxStudentsCredit span,
-.lectureYearSemester span,
+.maxStudentsCreditYearSemester span,
 .majorRequiredType span {
     flex: 1;
 }

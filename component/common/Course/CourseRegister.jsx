@@ -98,30 +98,6 @@ function CourseRegister() {
                     />
                 </div>
 
-                <div className="maxStudentsCredit">
-                    <span>
-                        <label>수강 인원</label><br/>
-                        <input
-                        type="number"
-                        value={maxStudents}
-                        onChange={(e) => setMaxStudents(Number(e.target.value))}
-                        required
-                        style={{ width: '50%', padding: '8px', marginBottom: '16px' }}
-                        />
-                    </span>
-                    
-                    <span>
-                        <label>학점</label><br/>
-                        <input
-                        type="number"
-                        value={credit}
-                        onChange={(e) => setCredit(Number(e.target.value))}
-                        required
-                        style={{ width: '50%', padding: '8px', marginBottom: '16px' }}
-                        />
-                    </span>
-                </div>
-
                 <div>
                     <label>담당 교수 Idx</label><br/>
                     <input
@@ -133,7 +109,29 @@ function CourseRegister() {
                     />
                 </div>
 
-                <div className='lectureYearSemester'>
+                <div className="maxStudentsCreditYearSemester">
+                    <span>
+                        <label>수강 인원</label><br/>
+                        <input
+                        type="number"
+                        value={maxStudents}
+                        onChange={(e) => setMaxStudents(Number(e.target.value))}
+                        required
+                        style={{ width: '20%', padding: '8px', marginBottom: '16px' }}
+                        />
+                    </span>
+                    
+                    <span>
+                        <label>학점</label><br/>
+                        <input
+                        type="number"
+                        value={credit}
+                        onChange={(e) => setCredit(Number(e.target.value))}
+                        required
+                        style={{ width: '20%', padding: '8px', marginBottom: '16px' }}
+                        />
+                    </span>
+
                     <span>
                         <label>연도</label><br/>
                         <input
@@ -141,7 +139,7 @@ function CourseRegister() {
                         value={year}
                         onChange={(e) => setYear(Number(e.target.value))}
                         required
-                        style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                        style={{ width: '30%', padding: '8px', marginBottom: '16px' }}
                         />
                     </span>
 
@@ -151,7 +149,7 @@ function CourseRegister() {
                         value={semester}
                         onChange={(e) => setSemester(Number(e.target.value))}
                         required
-                        style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                        style={{ width: '30%', padding: '8px', marginBottom: '16px' }}
                         >
                             <option value="">학기를 선택하세요</option>
                             <option value={1}>1학기</option>
