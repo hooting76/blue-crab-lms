@@ -9,6 +9,11 @@ function CourseRegister() {
     const [maxStudents, setMaxStudents] = useState(0);
     const [credit, setCredit] = useState(0);
     const [professorIdx, setProfessorIdx] = useState(0);
+    const [year, setYear] = useState(null);
+    const [semester, setSemester] = useState(null);
+    const [majorType, setMajorType] = useState(null);
+    const [requiredType, setRequiredType] = useState(null);
+    const [minGrade, setMinGrade] = useState(null);
 
     const {admin} = UseAdmin();
     const accessToken = admin.data.accessToken;
@@ -16,16 +21,28 @@ function CourseRegister() {
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
     const submitCourseRegister = async (e) => {
+         e.preventDefault();
+
         const CourseRegisterDetails = {
             lectureName,
             lectureCode,
             lectureDescription,
             maxStudents,
-            credit
+            credit,
+            professorIdx,
+            year,
+            semester,
+            majorType,
+            requiredType,
+            minGrade
         }
 
-        try {
-            const response = await fetch(`${BASE_URL}/lectures`, {
+            if  (lectureName === "" || lectureCode === "" || lectureDescription === "" || maxStudents === 0 ||
+                 credit === 0 || professorIdx === 0 || year === null || semester === "" || 
+                 majorType === "" || requiredType === "" || minGrade === "")
+                 alert("모든 칸을 작성해주세요");
+             else {
+                try {const response = await fetch(`${BASE_URL}/lectures`, {
                 method: 'POST',
                 headers: {
                 'Content-Type': 'application/json',
@@ -35,10 +52,12 @@ function CourseRegister() {
             });
 
         if (!response.ok) throw new Error('서버 에러가 발생했습니다.');
+        alert('강의가 성공적으로 등록되었습니다!');
         } catch (error) {
         alert(error.message);
         }
     }
+}
 
     return (
         <>
@@ -81,7 +100,7 @@ function CourseRegister() {
                     <input
                     type="number"
                     value={maxStudents}
-                    onChange={(e) => setMaxStudents(e.target.value)}
+                    onChange={(e) => setMaxStudents(Number(e.target.value))}
                     required
                     style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
                     />
@@ -92,21 +111,90 @@ function CourseRegister() {
                     <input
                     type="number"
                     value={credit}
-                    onChange={(e) => setCredit(e.target.value)}
+                    onChange={(e) => setCredit(Number(e.target.value))}
                     required
                     style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
                     />
                 </div>
 
                 <div>
-                    <label>담당 교수</label><br/>
+                    <label>담당 교수 Idx</label><br/>
                     <input
                     type="number"
                     value={professorIdx}
-                    onChange={(e) => setProfessorIdx(e.target.value)}
+                    onChange={(e) => setProfessorIdx(Number(e.target.value))}
                     required
                     style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
                     />
+                </div>
+
+                <div>
+                    <label>연도</label><br/>
+                    <input
+                    type="number"
+                    value={year}
+                    onChange={(e) => setYear(Number(e.target.value))}
+                    required
+                    style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                    />
+                </div>
+
+                <div>
+                    <label>학기</label><br/>
+                    <select
+                    value={semester}
+                    onChange={(e) => setSemester(Number(e.target.value))}
+                    required
+                    style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                    >
+                        <option value="">학기를 선택하세요</option>
+                        <option value={1}>1학기</option>
+                        <option value={2}>2학기</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>전공 여부</label><br/>
+                    <select
+                    value={majorType}
+                    onChange={(e) => setMajorType(Number(e.target.value))}
+                    required
+                    style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                    >
+                        <option value="">전공 여부를 선택하세요</option>
+                        <option value={1}>전공</option>
+                        <option value={0}>교양</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>필수 여부</label><br/>
+                    <select
+                    value={requiredType}
+                    onChange={(e) => setRequiredType(Number(e.target.value))}
+                    required
+                    style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                    >
+                        <option value="">필수 여부를 선택하세요</option>
+                        <option value={1}>필수</option>
+                        <option value={0}>선택</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>수강 최소 학년</label><br/>
+                    <select
+                    value={minGrade}
+                    onChange={(e) => setMinGrade(Number(e.target.value))}
+                    required
+                    style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                    >
+                        <option value="">수강에 필요한 최소 학년을 선택하세요</option>
+                        <option value={1}>1학년</option>
+                        <option value={2}>2학년</option>
+                        <option value={3}>3학년</option>
+                        <option value={4}>4학년</option>
+                    </select>
                 </div>
             </form>
 
