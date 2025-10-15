@@ -24,7 +24,7 @@ function CourseRegister() {
 
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
-    
+
     const submitCourseRegister = async (e) => {
          e.preventDefault();
 
@@ -176,6 +176,17 @@ function CourseRegister() {
                             <option value={4}>4학년</option>
                         </select>
 
+                        <label>학기</label><br/>
+                        <select
+                        value={lecSemester}
+                        onChange={(e) => setLecSemester(Number(e.target.value))}
+                        style={{ width: '30%', padding: '8px' }}
+                        >
+                            <option value="">학기를 선택하세요</option>
+                            <option value={1}>1학기</option>
+                            <option value={2}>2학기</option>
+                        </select>
+
                         <label>전공 여부</label><br/>
                         <select
                         value={lecMajor}
@@ -215,7 +226,6 @@ function CourseRegister() {
                             <option value={5}>5학기 이상</option>
                             <option value={6}>6학기 이상</option>
                             <option value={7}>7학기 이상</option>
-                            <option value={8}>8학기 이상</option>
                         </select>
 
                         <label>수강신청 가능 여부</label><br/>
