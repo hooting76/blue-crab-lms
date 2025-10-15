@@ -51,23 +51,19 @@ import Admin from './Admin';
 import '../css/App.css';
 
 // window / mobile close logout func
-function ClearState() {
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      localStorage.clear();
-      sessionStorage.clear();
-    };
+useEffect(() => {
+  const handleBeforeUnload = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+  };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
+  window.addEventListener('beforeunload', handleBeforeUnload);
 
-    // Cleanup
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, []);
-
-  return null;
-};
+  // Cleanup
+  return () => {
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+  };
+}, []);
 
 // InApp filter function
 function InAppFilter(){
