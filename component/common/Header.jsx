@@ -82,9 +82,15 @@ function Header({ currentPage, setCurrentPage }) {
                 <li onMouseOver={() => {hideSubMenu1(); showSubMenu2(); hideSubMenu3();}}
                     onClick={() => setCurrentPage('학사공지')}>커뮤니티</li>
                 <li onMouseOver={() => { hideSubMenu1(); hideSubMenu2(); showSubMenu3(); }}>마이페이지</li>
-                  {/* 수강신청: 드롭다운 없이 한 번에 진입 */}
-                <li onMouseOver={() => { hideSubMenu1(); hideSubMenu2(); hideSubMenu3(); }}
-                    onClick={() => { setCurrentPage('수강신청'); closeAllSubMenus(); }}>수강신청</li>
+                
+                {user.data.user.userStudent === 0 &&
+                  <>
+                    {/* 수강신청: 학생에게만 표시, 드롭다운 없이 한 번에 진입 */}
+                    <li onMouseOver={() => { hideSubMenu1(); hideSubMenu2(); hideSubMenu3(); }}
+                        onClick={() => { setCurrentPage('수강신청'); closeAllSubMenus(); }}>수강신청</li>
+                  </>
+                }
+                
                 <li onMouseOver={() => { hideSubMenu1(); hideSubMenu2(); hideSubMenu3(); }}
                     onClick={() => { setCurrentPage('증명서'); closeAllSubMenus(); }}>증명서</li>
               </ul>

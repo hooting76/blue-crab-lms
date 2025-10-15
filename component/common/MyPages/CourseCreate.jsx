@@ -1,6 +1,6 @@
 import {useState} from 'react';
 
-function CourseRegister ({currentPage, setCurrentPage}) {
+function CourseCreate ({currentPage, setCurrentPage}) {
 
     const [lectureName, setLectureName] = useState("");
     const [lectureCode, setLectureCode] = useState("");
@@ -16,17 +16,6 @@ function CourseRegister ({currentPage, setCurrentPage}) {
                 type="text"
                 value={lectureName}
                 onChange={(e) => setLectureName(e.target.value)}
-                required
-                style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
-                />
-            </div>
-
-            <div>
-                <label>강의 코드</label><br/>
-                <input
-                type="text"
-                value={lectureCode}
-                onChange={(e) => setLectureCode(e.target.value)}
                 required
                 style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
                 />
@@ -70,4 +59,4 @@ function CourseRegister ({currentPage, setCurrentPage}) {
     )
 }
 
-export default CourseRegister;
+export default CourseCreate;
