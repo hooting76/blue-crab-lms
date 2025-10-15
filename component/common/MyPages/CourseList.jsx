@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { UseUser } from '../../../hook/UseUser';
 import CourseDetail from './CourseDetail';
 
-function CourseEdit() {
+function CourseList() {
     const { user } = UseUser();
     const [courseList, setCourseList] = useState([]);
     const [selectedLecture, setSelectedLecture] = useState(null);
@@ -93,4 +93,4 @@ function CourseEdit() {
     );
 }
 
-export default CourseEdit;
+export default CourseList;
