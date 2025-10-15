@@ -60,6 +60,9 @@ function AdNav({currentPage, setCurrentPage}){
                     <li>열람실</li>
                     <li>푸시알림</li>
                     <li>강의</li>
+                    <li onClick={() => setCurrentPage('강의 등록')}>
+                        강의 등록
+                    </li>
                 </ul>
             </ul>
             {/* 좌측 메뉴: '시설물관리' 하나만 */}
