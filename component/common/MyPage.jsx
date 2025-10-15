@@ -7,7 +7,7 @@ import ClassAttendingProgress from "./MyPages/ClassAttendingProgress";
 import ProfileEdit from "./MyPages/ProfileEdit"; // 개인정보 페이지
 import MyPageSidebar from "./MyPages/MyPageSidebar"; // 사이드탭
 import ProfNoticeWritingPage from "./MyPages/ProfNoticeWritingPage";
-import CourseEdit from "./MyPages/CourseEdit";
+import CourseList from "./MyPages/CourseList";
 import { useState } from "react";
 
 
@@ -39,7 +39,7 @@ function MyPage({ currentPage, setCurrentPage }) {
         case "과목별 공지 작성":
             return <ProfNoticeWritingPage/>;
         case "강의 수정":
-            return <CourseEdit/>;
+            return <CourseList/>;
         case "실시간 상담":
             return <Consult />;
         default:
