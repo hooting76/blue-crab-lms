@@ -10,10 +10,10 @@ function CourseRegister() {
     const [credit, setCredit] = useState(0);
     const [professorIdx, setProfessorIdx] = useState(0);
     const [year, setYear] = useState(null);
-    const [semester, setSemester] = useState(null);
-    const [majorType, setMajorType] = useState(null);
-    const [requiredType, setRequiredType] = useState(null);
-    const [minGrade, setMinGrade] = useState(null);
+    const [semester, setSemester] = useState("");
+    const [majorType, setMajorType] = useState("");
+    const [requiredType, setRequiredType] = useState("");
+    const [minGrade, setMinGrade] = useState("");
 
     const {admin} = UseAdmin();
     const accessToken = admin.data.accessToken;
