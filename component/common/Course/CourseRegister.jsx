@@ -71,7 +71,7 @@ function CourseRegister() {
                         value={lectureName}
                         onChange={(e) => setLectureName(e.target.value)}
                         required
-                        style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                        style={{ width: '70%', padding: '8px', marginBottom: '16px' }}
                         />
                     </span>
                 
@@ -82,7 +82,7 @@ function CourseRegister() {
                         value={lectureCode}
                         onChange={(e) => setLectureCode(e.target.value)}
                         required
-                        style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                        style={{ width: '30%', padding: '8px', marginBottom: '16px' }}
                         />
                     </span>
                 </div>
@@ -106,7 +106,7 @@ function CourseRegister() {
                         value={maxStudents}
                         onChange={(e) => setMaxStudents(Number(e.target.value))}
                         required
-                        style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                        style={{ width: '50%', padding: '8px', marginBottom: '16px' }}
                         />
                     </span>
                     
@@ -117,7 +117,7 @@ function CourseRegister() {
                         value={credit}
                         onChange={(e) => setCredit(Number(e.target.value))}
                         required
-                        style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                        style={{ width: '50%', padding: '8px', marginBottom: '16px' }}
                         />
                     </span>
                 </div>
