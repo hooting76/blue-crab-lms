@@ -1,0 +1,7 @@
+.lectureNameCode, .maxStudentsCredit, .lectureYearSemester, .majorRequiredType {
+    display: inline-block;
+}
+
+.courseRegisterBtn {
+    font-size: var(--font-mid);
+}

@@ -1,5 +1,6 @@
 import {useState} from 'react';
 import { UseAdmin } from '../../../hook/UseAdmin';
+import "../../../css/Course/CourseRegister.css";
 
 function CourseRegister() {
 
@@ -63,23 +64,27 @@ function CourseRegister() {
         <>
             <form>
                 <div className='lectureNameCode'>
-                    <label>강의 제목</label><br/>
-                    <input
-                    type="text"
-                    value={lectureName}
-                    onChange={(e) => setLectureName(e.target.value)}
-                    required
-                    style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
-                    />
+                    <span>
+                        <label>강의 제목</label><br/>
+                        <input
+                        type="text"
+                        value={lectureName}
+                        onChange={(e) => setLectureName(e.target.value)}
+                        required
+                        style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                        />
+                    </span>
                 
-                    <label>강의 코드</label><br/>
-                    <input
-                    type="text"
-                    value={lectureCode}
-                    onChange={(e) => setLectureCode(e.target.value)}
-                    required
-                    style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
-                    />
+                    <span>
+                        <label>강의 코드</label><br/>
+                        <input
+                        type="text"
+                        value={lectureCode}
+                        onChange={(e) => setLectureCode(e.target.value)}
+                        required
+                        style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                        />
+                    </span>
                 </div>
 
                 <div>
@@ -94,23 +99,27 @@ function CourseRegister() {
                 </div>
 
                 <div className="maxStudentsCredit">
-                    <label>수강 인원</label><br/>
-                    <input
-                    type="number"
-                    value={maxStudents}
-                    onChange={(e) => setMaxStudents(Number(e.target.value))}
-                    required
-                    style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
-                    />
-                
-                    <label>학점</label><br/>
-                    <input
-                    type="number"
-                    value={credit}
-                    onChange={(e) => setCredit(Number(e.target.value))}
-                    required
-                    style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
-                    />
+                    <span>
+                        <label>수강 인원</label><br/>
+                        <input
+                        type="number"
+                        value={maxStudents}
+                        onChange={(e) => setMaxStudents(Number(e.target.value))}
+                        required
+                        style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                        />
+                    </span>
+                    
+                    <span>
+                        <label>학점</label><br/>
+                        <input
+                        type="number"
+                        value={credit}
+                        onChange={(e) => setCredit(Number(e.target.value))}
+                        required
+                        style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                        />
+                    </span>
                 </div>
 
                 <div>
@@ -125,52 +134,60 @@ function CourseRegister() {
                 </div>
 
                 <div className='lectureYearSemester'>
-                    <label>연도</label><br/>
-                    <input
-                    type="number"
-                    value={year}
-                    onChange={(e) => setYear(Number(e.target.value))}
-                    required
-                    style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
-                    />
-                
-                    <label>학기</label><br/>
-                    <select
-                    value={semester}
-                    onChange={(e) => setSemester(Number(e.target.value))}
-                    required
-                    style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
-                    >
-                        <option value="">학기를 선택하세요</option>
-                        <option value={1}>1학기</option>
-                        <option value={2}>2학기</option>
-                    </select>
+                    <span>
+                        <label>연도</label><br/>
+                        <input
+                        type="number"
+                        value={year}
+                        onChange={(e) => setYear(Number(e.target.value))}
+                        required
+                        style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                        />
+                    </span>
+
+                    <span>
+                        <label>학기</label><br/>
+                        <select
+                        value={semester}
+                        onChange={(e) => setSemester(Number(e.target.value))}
+                        required
+                        style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                        >
+                            <option value="">학기를 선택하세요</option>
+                            <option value={1}>1학기</option>
+                            <option value={2}>2학기</option>
+                        </select>
+                    </span>
                 </div>
 
                 <div className='majorRequiredType'>
-                    <label>전공 여부</label><br/>
-                    <select
-                    value={majorType}
-                    onChange={(e) => setMajorType(Number(e.target.value))}
-                    required
-                    style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
-                    >
-                        <option value="">전공 여부를 선택하세요</option>
-                        <option value={1}>전공</option>
-                        <option value={0}>교양</option>
-                    </select>
-                
-                    <label>필수 여부</label><br/>
-                    <select
-                    value={requiredType}
-                    onChange={(e) => setRequiredType(Number(e.target.value))}
-                    required
-                    style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
-                    >
-                        <option value="">필수 여부를 선택하세요</option>
-                        <option value={1}>필수</option>
-                        <option value={0}>선택</option>
-                    </select>
+                    <span>
+                        <label>전공 여부</label><br/>
+                        <select
+                        value={majorType}
+                        onChange={(e) => setMajorType(Number(e.target.value))}
+                        required
+                        style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                        >
+                            <option value="">전공 여부를 선택하세요</option>
+                            <option value={1}>전공</option>
+                            <option value={0}>교양</option>
+                        </select>
+                    </span>
+
+                    <span>
+                        <label>필수 여부</label><br/>
+                        <select
+                        value={requiredType}
+                        onChange={(e) => setRequiredType(Number(e.target.value))}
+                        required
+                        style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                        >
+                            <option value="">필수 여부를 선택하세요</option>
+                            <option value={1}>필수</option>
+                            <option value={0}>선택</option>
+                        </select>
+                    </span>
                 </div>
 
                 <div>
