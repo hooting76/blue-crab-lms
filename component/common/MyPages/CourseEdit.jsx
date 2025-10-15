@@ -1,0 +1,53 @@
+import React, { useEffect, useState } from 'react';
+import { UseUser } from '../../../hook/UseUser';
+
+function CourseEdit() {
+    const { user } = UseUser();
+    const [courseList, setCourseList] = useState([]);
+    const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
+
+    const getAccessToken = () => {
+        const storedToken = localStorage.getItem('accessToken');
+        if (storedToken) return storedToken;
+        if (user && user.data && user.data.accessToken) return user.data.accessToken;
+        return null;
+    };
+
+    const getCourseList = async (accessToken) => {
+        try {
+            const response = await fetch(`${BASE_URL}/v1/professor/lectures`, {
+                method: "POST",
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({}) // 🔄 빈 객체 또는 필요한 데이터 전달
+            });
+            if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
+            const data = await response.json();
+            setCourseList(data); // ✅ 받아온 데이터 저장
+        } catch (error) {
+            console.error('강의 목록 조회 에러:', error);
+        }
+    };
+
+    useEffect(() => {
+        const token = getAccessToken();
+        if (token) {
+            getCourseList(token); // ✅ 실제 호출
+        }
+    }, []);
+
+    return (
+        <div>
+            <h2>강의 목록</h2>
+            <ul>
+                {courseList.map((course, idx) => (
+                    <li key={idx}>{course.title}</li>
+                ))}
+            </ul>
+        </div>
+    );
+}
+
+export default CourseEdit;

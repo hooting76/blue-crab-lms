@@ -75,9 +75,9 @@ export default function MyPageSidebar({ currentPage, setCurrentPage }) {
             <div className="acc-panel">
             <Item name="수강중인 과목" />
             <Item name="수강과목 공지사항" />
-            {user.data.user.userStudent === 1 && // 교수일 경우 강의 생성 페이지 진입 가능
+            {user.data.user.userStudent === 1 && // 교수일 경우 강의 수정 페이지 진입 가능
                 <>
-                    <Item name="강의 생성"/>
+                    <Item name="강의 수정"/>
                 </>
             }
             {/* 과목별 진행사항은 리스트 클릭 시 노출되므로 메뉴에는 미표시 */}
