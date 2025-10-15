@@ -10,7 +10,7 @@ function CourseRegister() {
     const [maxStudents, setMaxStudents] = useState(0);
     const [credit, setCredit] = useState(0);
     const [professorIdx, setProfessorIdx] = useState(0);
-    const [year, setYear] = useState(null);
+    const [lecYear, setLecYear] = useState("");
     const [semester, setSemester] = useState("");
     const [majorType, setMajorType] = useState("");
     const [requiredType, setRequiredType] = useState("");
@@ -71,7 +71,7 @@ function CourseRegister() {
                         value={lectureName}
                         onChange={(e) => setLectureName(e.target.value)}
                         required
-                        style={{ width: '70%', padding: '8px', marginBottom: '16px' }}
+                        style={{ width: '70%', padding: '8px' }}
                         />
                     </span>
                 
@@ -82,7 +82,7 @@ function CourseRegister() {
                         value={lectureCode}
                         onChange={(e) => setLectureCode(e.target.value)}
                         required
-                        style={{ width: '30%', padding: '8px', marginBottom: '16px' }}
+                        style={{ width: '30%', padding: '8px' }}
                         />
                     </span>
                 </div>
@@ -94,7 +94,7 @@ function CourseRegister() {
                     value={lectureDescription}
                     onChange={(e) => setLectureDescription(e.target.value)}
                     required
-                    style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                    style={{ width: '100%', padding: '8px' }}
                     />
                 </div>
 
@@ -105,7 +105,7 @@ function CourseRegister() {
                     value={professorIdx}
                     onChange={(e) => setProfessorIdx(Number(e.target.value))}
                     required
-                    style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                    style={{ width: '100%', padding: '8px' }}
                     />
                 </div>
 
@@ -117,7 +117,7 @@ function CourseRegister() {
                         value={maxStudents}
                         onChange={(e) => setMaxStudents(Number(e.target.value))}
                         required
-                        style={{ width: '20%', padding: '8px', marginBottom: '16px' }}
+                        style={{ width: '20%', padding: '8px' }}
                         />
                     </span>
                     
@@ -128,19 +128,24 @@ function CourseRegister() {
                         value={credit}
                         onChange={(e) => setCredit(Number(e.target.value))}
                         required
-                        style={{ width: '20%', padding: '8px', marginBottom: '16px' }}
+                        style={{ width: '20%', padding: '8px' }}
                         />
                     </span>
 
                     <span>
-                        <label>연도</label><br/>
-                        <input
-                        type="number"
-                        value={year}
-                        onChange={(e) => setYear(Number(e.target.value))}
+                        <label>수강 최소 학년</label><br/>
+                        <select
+                        value={lecYear}
+                        onChange={(e) => setLecYear(Number(e.target.value))}
                         required
-                        style={{ width: '30%', padding: '8px', marginBottom: '16px' }}
-                        />
+                        style={{ width: '100%', padding: '8px' }}
+                        >
+                            <option value="">수강에 필요한 최소 학년을 선택하세요</option>
+                            <option value={1}>1학년</option>
+                            <option value={2}>2학년</option>
+                            <option value={3}>3학년</option>
+                            <option value={4}>4학년</option>
+                        </select>
                     </span>
 
                     <span>
@@ -149,7 +154,7 @@ function CourseRegister() {
                         value={semester}
                         onChange={(e) => setSemester(Number(e.target.value))}
                         required
-                        style={{ width: '30%', padding: '8px', marginBottom: '16px' }}
+                        style={{ width: '30%', padding: '8px' }}
                         >
                             <option value="">학기를 선택하세요</option>
                             <option value={1}>1학기</option>
@@ -165,7 +170,7 @@ function CourseRegister() {
                         value={majorType}
                         onChange={(e) => setMajorType(Number(e.target.value))}
                         required
-                        style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                        style={{ width: '100%', padding: '8px' }}
                         >
                             <option value="">전공 여부를 선택하세요</option>
                             <option value={1}>전공</option>
@@ -179,7 +184,7 @@ function CourseRegister() {
                         value={requiredType}
                         onChange={(e) => setRequiredType(Number(e.target.value))}
                         required
-                        style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                        style={{ width: '100%', padding: '8px' }}
                         >
                             <option value="">필수 여부를 선택하세요</option>
                             <option value={1}>필수</option>
@@ -194,7 +199,7 @@ function CourseRegister() {
                     value={minGrade}
                     onChange={(e) => setMinGrade(Number(e.target.value))}
                     required
-                    style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                    style={{ width: '100%', padding: '8px' }}
                     >
                         <option value="">수강에 필요한 최소 학년을 선택하세요</option>
                         <option value={1}>1학년</option>

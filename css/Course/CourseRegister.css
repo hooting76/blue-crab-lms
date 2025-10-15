@@ -11,6 +11,10 @@
     flex: 1;
 }
 
+input {
+    margin-bottom: 10px;
+}
+
 .courseRegisterBtn {
     font-size: var(--font-mid);
 }
