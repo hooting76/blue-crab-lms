@@ -62,7 +62,7 @@ function CourseRegister() {
     return (
         <>
             <form>
-                <div>
+                <div className='lectureNameCode'>
                     <label>강의 제목</label><br/>
                     <input
                     type="text"
@@ -71,9 +71,7 @@ function CourseRegister() {
                     required
                     style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
                     />
-                </div>
-
-                <div>
+                
                     <label>강의 코드</label><br/>
                     <input
                     type="text"
@@ -95,7 +93,7 @@ function CourseRegister() {
                     />
                 </div>
 
-                <div>
+                <div className="maxStudentsCredit">
                     <label>수강 인원</label><br/>
                     <input
                     type="number"
@@ -104,9 +102,7 @@ function CourseRegister() {
                     required
                     style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
                     />
-                </div>
-
-                <div>
+                
                     <label>학점</label><br/>
                     <input
                     type="number"
@@ -128,7 +124,7 @@ function CourseRegister() {
                     />
                 </div>
 
-                <div>
+                <div className='lectureYearSemester'>
                     <label>연도</label><br/>
                     <input
                     type="number"
@@ -137,9 +133,7 @@ function CourseRegister() {
                     required
                     style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
                     />
-                </div>
-
-                <div>
+                
                     <label>학기</label><br/>
                     <select
                     value={semester}
@@ -153,7 +147,7 @@ function CourseRegister() {
                     </select>
                 </div>
 
-                <div>
+                <div className='majorRequiredType'>
                     <label>전공 여부</label><br/>
                     <select
                     value={majorType}
@@ -165,9 +159,7 @@ function CourseRegister() {
                         <option value={1}>전공</option>
                         <option value={0}>교양</option>
                     </select>
-                </div>
-
-                <div>
+                
                     <label>필수 여부</label><br/>
                     <select
                     value={requiredType}
