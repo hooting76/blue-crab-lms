@@ -153,8 +153,8 @@ function CourseRegister() {
                     
                         <label>학과</label><br/>
                         <select
-                        value={majorType}
-                        onChange={(e) => setMajorType(Number(e.target.value))}
+                        value={lecMajor}
+                        onChange={(e) => setLecMajor(Number(e.target.value))}
                         required
                         style={{ width: '100%', padding: '8px' }}
                         >
