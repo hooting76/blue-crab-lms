@@ -208,8 +208,8 @@ function CourseRegister() {
             </form>
 
             
-            <div className='courseRegisterBtn'>
-                <button onClick={submitCourseRegister}>강의 등록</button>
+            <div>
+                <button className='courseRegisterBtn' onClick={submitCourseRegister}>강의 등록</button>
             </div>
         </>
     )

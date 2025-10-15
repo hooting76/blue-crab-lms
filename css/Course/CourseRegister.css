@@ -1,5 +1,16 @@
-.lectureNameCode, .maxStudentsCredit, .lectureYearSemester, .majorRequiredType {
-    display: inline-block;
+.lectureNameCode,
+.maxStudentsCredit,
+.lectureYearSemester,
+.majorRequiredType {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+}
+.lectureNameCode span,
+.maxStudentsCredit span,
+.lectureYearSemester span,
+.majorRequiredType span {
+    flex: 1;
 }
 
 .courseRegisterBtn {
