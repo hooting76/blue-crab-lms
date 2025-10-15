@@ -104,28 +104,35 @@ function CourseRegister() {
                     />
                 
                 <div className='lecManyPointTime'>
-                    <label>최대 수강 인원</label><br/>
-                    <input
-                    type="number"
-                    value={lecMany}
-                    onChange={(e) => setLecMany(Number(e.target.value))}
-                    required
-                    />
-               
-                    <label>학점</label><br/>
-                    <input
-                    type="number"
-                    value={lecPoint}
-                    onChange={(e) => setLecPoint(Number(e.target.value))}
-                    required
-                    />
-                    
-                    <label>강의 시간</label><br/>
-                    <input
-                    type="text"
-                    value={lecTime}
-                    onChange={(e) => setLecTime(e.target.value)}
-                    required                        />
+                    <span>
+                        <label>최대 수강 인원</label><br/>
+                        <input
+                        type="number"
+                        value={lecMany}
+                        onChange={(e) => setLecMany(Number(e.target.value))}
+                        required
+                        />
+                    </span>
+
+                    <span>
+                        <label>학점</label><br/>
+                        <input
+                        type="number"
+                        value={lecPoint}
+                        onChange={(e) => setLecPoint(Number(e.target.value))}
+                        required
+                        />
+                    </span>
+
+                    <span>
+                        <label>강의 시간</label><br/>
+                        <input
+                        type="text"
+                        value={lecTime}
+                        onChange={(e) => setLecTime(e.target.value)}
+                        required
+                        />
+                    </span>
                 </div>
 
                 <div className='lecProfMcodeDep'>
