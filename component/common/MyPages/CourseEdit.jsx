@@ -1,10 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { UseUser } from '../../../hook/UseUser';
+import CourseDetail from './CourseDetail';
 
 function CourseEdit() {
     const { user } = UseUser();
     const [courseList, setCourseList] = useState([]);
+    const [selectedLecture, setSelectedLecture] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
+
+    const openModal = (lectureIdx) => {
+    setSelectedLecture(lectureIdx);
+    setIsModalOpen(true);
+    };
+
+
+    const closeModal = () => {
+        setSelectedLecture(null);
+        setIsModalOpen(false);
+    };
 
     const getAccessToken = () => {
         const storedToken = localStorage.getItem('accessToken');
@@ -38,15 +52,44 @@ function CourseEdit() {
         }
     }, []);
 
+    const handleEdit = () => {
+        alert("수정 준비중");
+    }
+
     return (
+        <>
         <div>
             <h2>강의 목록</h2>
             <ul>
-                {courseList.map((course, idx) => (
-                    <li key={idx}>{course.title}</li>
+                {courseList.map((course) => (
+                    <li key={course.lectureIdx} onClick={() => openModal(course.lectureIdx)}>{course.lectureName}</li>
                 ))}
             </ul>
         </div>
+
+        {isModalOpen && (
+                <div className="modal-overlay" onClick={closeModal}>
+                    <div
+                        className="modal-content"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <button className="modal-close" onClick={closeModal}>
+                            ✖
+                        </button>
+                        <CourseDetail
+                        lectureIdx={selectedLecture}
+                        />
+
+                            <button
+                            className="courseEditButton"
+                            onClick={handleEdit}
+                            >
+                            강의 수정
+                            </button>
+                    </div>
+                </div>
+            )}
+        </>
     );
 }
 
