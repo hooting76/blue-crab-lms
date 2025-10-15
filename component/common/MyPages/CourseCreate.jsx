@@ -1,9 +1,8 @@
 import {useState} from 'react';
 
-function CourseCreate ({currentPage, setCurrentPage}) {
+function CourseCreate() {
 
     const [lectureName, setLectureName] = useState("");
-    const [lectureCode, setLectureCode] = useState("");
     const [lectureDescription, setLectureDescription] = useState("");
     const [maxStudents, setMaxStudents] = useState(0);
     const [credit, setCredit] = useState(0);
@@ -54,7 +53,6 @@ function CourseCreate ({currentPage, setCurrentPage}) {
                 />
             </div>
 
-            
         </form>
     )
 }

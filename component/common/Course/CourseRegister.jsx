@@ -1,6 +1,6 @@
 import {useState} from 'react';
 
-function CourseRegister ({currentPage, setCurrentPage}) {
+function CourseRegister() {
 
     const [lectureName, setLectureName] = useState("");
     const [lectureCode, setLectureCode] = useState("");
