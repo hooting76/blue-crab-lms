@@ -1,5 +1,5 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" version="28.2.7">
-  <diagram id="ERD-Diagram" name="LMS ERD v2.6 (흰 배경 최적화)">
+  <diagram id="ERD-Diagram" name="LMS ERD v2.7 (기능별 구현 상태)">
     <mxGraphModel dx="1426" dy="777" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" background="light-dark(#FFFFFF,#FFFFFF)" math="0" shadow="0">
       <root>
         <mxCell id="0" />
@@ -50,7 +50,7 @@
           <mxGeometry y="270" width="280" height="30" as="geometry" />
         </mxCell>
         <mxCell id="enroll-table" value="&lt;b&gt;ENROLLMENT_EXTENDED_TBL&lt;/b&gt;&lt;br&gt;&lt;i&gt;(수강/출결/성적 통합 신규)&lt;/i&gt;&lt;br&gt;&lt;span style=&quot;color:#4A148C;font-weight:bold;&quot;&gt;⭐ DTO 패턴 적용&lt;/span&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=60;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#4A148C;strokeWidth=2;labelBackgroundColor=none;fontColor=#000000;" parent="1" vertex="1">
-          <mxGeometry x="770" y="420" width="320" height="180" as="geometry" />
+          <mxGeometry x="760" y="400" width="320" height="180" as="geometry" />
         </mxCell>
         <mxCell id="enroll-1" value="🔑 ENROLLMENT_IDX (PK)" style="text;strokeColor=#4A148C;strokeWidth=1;fillColor=#F3E5F5;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontStyle=1;labelBackgroundColor=none;fontColor=#000000;" parent="enroll-table" vertex="1">
           <mxGeometry y="60" width="320" height="30" as="geometry" />
@@ -65,7 +65,7 @@
           <mxGeometry y="150" width="320" height="30" as="geometry" />
         </mxCell>
         <mxCell id="assign-table" value="&lt;b&gt;ASSIGNMENT_EXTENDED_TBL&lt;/b&gt;&lt;br&gt;&lt;i&gt;(과제/제출 통합 신규)&lt;/i&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#E65100;strokeWidth=2;labelBackgroundColor=none;fontColor=#000000;" parent="1" vertex="1">
-          <mxGeometry x="380" y="450" width="320" height="130" as="geometry" />
+          <mxGeometry x="380" y="520" width="320" height="130" as="geometry" />
         </mxCell>
         <mxCell id="assign-1" value="🔑 ASSIGNMENT_IDX (PK)" style="text;strokeColor=#E65100;strokeWidth=1;fillColor=#FFF3E0;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontStyle=1;labelBackgroundColor=none;fontColor=#000000;" parent="assign-table" vertex="1">
           <mxGeometry y="40" width="320" height="30" as="geometry" />
@@ -77,7 +77,7 @@
           <mxGeometry y="100" width="320" height="30" as="geometry" />
         </mxCell>
         <mxCell id="board-table" value="&lt;b&gt;BOARD_TBL&lt;/b&gt;&lt;br&gt;&lt;i&gt;(게시판 - 기존)&lt;/i&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#F8BBD0;strokeColor=#880E4F;strokeWidth=2;fontColor=#000000;labelBackgroundColor=none;" parent="1" vertex="1">
-          <mxGeometry x="50" y="420" width="280" height="160" as="geometry" />
+          <mxGeometry x="50" y="320" width="280" height="160" as="geometry" />
         </mxCell>
         <mxCell id="board-1" value="🔑 BOARD_IDX (PK)" style="text;strokeColor=#880E4F;strokeWidth=1;fillColor=#FCE4EC;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontStyle=1;labelBackgroundColor=none;fontColor=#000000;" parent="board-table" vertex="1">
           <mxGeometry y="40" width="280" height="30" as="geometry" />
@@ -102,24 +102,29 @@
               <mxPoint x="380" y="175" />
               <mxPoint x="380" y="425" />
               <mxPoint x="710" y="425" />
-              <mxPoint x="710" y="510" />
+              <mxPoint x="710" y="490" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="rel-3" value="1:N" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0.001;entryY=0.114;entryDx=0;entryDy=0;strokeWidth=3;strokeColor=light-dark(#212121,#FF8000);endArrow=classic;endFill=1;edgeStyle=orthogonalEdgeStyle;labelBackgroundColor=#FFFFFF;fontColor=#000000;fontStyle=1;entryPerimeter=0;" parent="1" source="lec-table" target="enroll-table" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="rel-4" value="1:N&lt;br&gt;과제" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;strokeColor=light-dark(#212121,#FF8000);endArrow=classic;endFill=1;labelBackgroundColor=#FFFFFF;fontColor=#000000;fontStyle=1;" parent="1" source="lec-table" target="assign-table" edge="1">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="rel-4" value="1:N&lt;br&gt;과제" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;strokeColor=light-dark(#212121,#FF8000);endArrow=classic;endFill=1;labelBackgroundColor=#FFFFFF;fontColor=#000000;fontStyle=1;edgeStyle=orthogonalEdgeStyle;" parent="1" source="lec-table" target="assign-table" edge="1">
+          <mxGeometry x="0.1429" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
         </mxCell>
         <mxCell id="rel-5" value="1:N&lt;br&gt;작성" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;strokeColor=light-dark(#212121,#FF8000);endArrow=classic;endFill=1;labelBackgroundColor=#FFFFFF;fontColor=#000000;fontStyle=1;" parent="1" source="user-table" target="board-table" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="legend" value="&lt;b&gt;📋 범례 (v2.6 흰 배경 최적화)&lt;/b&gt;&lt;br&gt;🔑 Primary Key&lt;br&gt;🔗 Foreign Key&lt;br&gt;📦 JSON 통합 데이터&lt;br&gt;✨ 신규 추가 필드&lt;br&gt;⭐ DTO 변환 적용&lt;br&gt;❌ 미구현 기능&lt;br&gt;1:N 일대다 관계" style="text;html=1;strokeColor=#212121;strokeWidth=2;fillColor=light-dark(#FFFFFF,#99FF33);align=left;verticalAlign=top;whiteSpace=wrap;rounded=1;fontColor=light-dark(#000000,#000000);labelBackgroundColor=none;" parent="1" vertex="1">
+        <mxCell id="legend" value="&lt;b&gt;📋 범례 (v2.7)&lt;/b&gt;&lt;br&gt;🔑 Primary Key&lt;br&gt;🔗 Foreign Key&lt;br&gt;📦 JSON 통합 데이터&lt;br&gt;✨ 신규 추가 필드&lt;br&gt;⭐ DTO 변환 적용&lt;br&gt;❌ 미구현 기능&lt;br&gt;1:N 일대다 관계" style="text;html=1;strokeColor=#212121;strokeWidth=2;fillColor=light-dark(#FFFFFF,#99FF33);align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontColor=light-dark(#000000,#000000);labelBackgroundColor=none;" parent="1" vertex="1">
           <mxGeometry x="760" y="40" width="180" height="160" as="geometry" />
         </mxCell>
-        <mxCell id="note" value="&lt;b&gt;⚠️ 구현 완료 현황 (v2.6)&lt;/b&gt;&lt;br&gt;✅ 신규 테이블 2개&lt;br&gt;✅ 기존 테이블 2개 확장&lt;br&gt;✅ JSON 기반 유연한 구조&lt;br&gt;✅ 외래키/인덱스 설정&lt;br&gt;✅ DTO 패턴 적용 완료&lt;br&gt;✅ API 엔드포인트 일관성 검토&lt;br&gt;❌ 강의평가/채팅/통계 미구현&lt;br&gt;&lt;br&gt;&lt;i&gt;흰 배경에 최적화된 색상&lt;/i&gt;" style="text;html=1;strokeColor=#212121;strokeWidth=2;fillColor=light-dark(#FFFFFF,#99FF33);align=left;verticalAlign=top;whiteSpace=wrap;rounded=1;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);" parent="1" vertex="1">
+        <mxCell id="note" value="&lt;b&gt;⚠️ 구현 완료 현황 (v2.7)&lt;/b&gt;&lt;br&gt;✅ 신규 테이블 2개 + 확장 2개&lt;br&gt;✅ Entity 3개, DTO 11개&lt;br&gt;✅ Repository 4개, Service 3개&lt;br&gt;✅ Controller 3개 구현&lt;br&gt;✅ DTO 패턴, JOIN FETCH 최적화&lt;br&gt;✅ 강의 검증 로직 강화&lt;br&gt;✅ 10점 만점 채점 시스템&lt;br&gt;&lt;br&gt;❌ 강의평가/채팅/통계/알림 미구현" style="text;html=1;strokeColor=#212121;strokeWidth=2;fillColor=light-dark(#FFFFFF,#99FF33);align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);" parent="1" vertex="1">
           <mxGeometry x="760" y="220" width="220" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="features" value="&lt;b&gt;✅ 기능별 구현 현황&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b style=&quot;color:#C62828;&quot;&gt;👨‍💼 관리자:&lt;/b&gt;&lt;br&gt;• 강의 등록/수정/삭제&lt;br&gt;• 강의 검색/조회&lt;br&gt;&lt;br&gt;&lt;b style=&quot;color:#1B5E20;&quot;&gt;👨‍🏫 교수:&lt;/b&gt;&lt;br&gt;• 과제 등록/수정/삭제&lt;br&gt;• 과제 채점 (10점 만점)&lt;br&gt;• 수강생 조회&lt;br&gt;• 성적 관리&lt;br&gt;&lt;br&gt;&lt;b style=&quot;color:#0D47A1;&quot;&gt;🎓 학생:&lt;/b&gt;&lt;br&gt;• 수강 신청/취소&lt;br&gt;• 강의 조회&lt;br&gt;• 과제 제출&lt;br&gt;• 성적 조회" style="text;html=1;strokeColor=#1565C0;strokeWidth=2;fillColor=light-dark(#FFFFFF,#99FF33);align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);" parent="1" vertex="1">
+          <mxGeometry x="40" y="490" width="200" height="260" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
