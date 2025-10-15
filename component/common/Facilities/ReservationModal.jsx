@@ -174,12 +174,12 @@ export default function ReservationModal({ facility, onClose }) {
           )}
         </section>
 
-        <section className="rm-section">
-          <div className="legend">
-            <span className="chip available">예약 가능</span>
-            <span className="chip selected">선택됨</span>
-            <span className="chip booked">예약 불가</span>
-          </div>
+          <section className="rm-section">
+            <div className="legend">
+              <span className="chip available">예약 가능</span>
+              <span className="chip selected">선택됨</span>
+              <span className="chip booked">예약 불가</span>
+            </div>
 
           <div className="grid">
             {slots.map((s) => {
@@ -262,7 +262,9 @@ export default function ReservationModal({ facility, onClose }) {
           >
             예약 신청하기
           </button>
-          <button onClick={onClose}>취소</button>
+            <button className="secondary" onClick={onClose}>
+              취소
+            </button>
         </footer>
       </div>
     </div>
