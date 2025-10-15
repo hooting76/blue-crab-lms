@@ -1,5 +1,10 @@
 ﻿// ===================================================================
-// 📚 관리자 강의 등록 테스트
+// 📚    const lecMajor = parseInt(prompt('🎯 전공구분 (1:전공강의, 0:교양):', '1')) || 1;
+    const lecMust = parseInt(prompt('✅ 필수구분 (1:필수과목, 0:선택과목):', '1')) || 1;
+    const lecSummary = prompt('📝 강의 개요를 입력하세요:', '') || `${lectureName} 강의입니다.`;
+    const lecTime = prompt('⏰ 강의 시간을 입력하세요 (예: 월1월2수3수4, 화2목2):', '월1월2수3수4');
+    const lecAssign = parseInt(prompt('📋 과제유무 (1:과제있음, 0:과제없음):', '0')) || 0;
+    const lecOpen = parseInt(prompt('🔓 수강신청 상태 (1:열림, 0:닫힘):', '1')) || 1;의 등록 테스트
 // Blue Crab LMS - 관리자 강의 생성 및 관리 테스트
 // 
 // ⚠️ 사전 준비: 먼저 관리자 로그인 테스트 파일을 실행하세요!
@@ -33,44 +38,36 @@ function checkAuth() {
     return true;
 }
 
-// ========== 강의 시간 포맷 변환 유틸리티 ==========
-function convertLectureTimeFormat(input) {
-    // "월1,2 수3,4" 형식을 "월1월2수3수4" 형식으로 변환
-    // 공백, 쉼표 제거하고 교시 번호를 개별적으로 처리
+// ========== 강의 시간 포맷 검증 유틸리티 ==========
+function validateLectureTimeFormat(input) {
+    // "월1월2수3수4" 형식 검증
+    // - 요일명(월/화/수/목/금) + 교시(1~8) 조합의 반복
+    // - 공백, 쉼표 없이 연속된 형식만 허용
     
     if (!input || input.trim() === '') {
-        return '';
+        return { valid: false, message: '강의 시간을 입력해주세요.' };
     }
     
-    let result = '';
+    const trimmed = input.trim();
     
-    // 정규식: 요일명(월/화/수/목/금) 뒤에 숫자들이 오는 패턴
-    // 예: "월1,2,3" → ["월1", "월2", "월3"]
-    const pattern = /([월화수목금])([0-9,\s]+)/g;
-    let match;
+    // 올바른 형식: (요일명+교시) 반복 패턴
+    // 예: 월1, 월1월2, 월1월2수3수4, 화2목2 등
+    const validPattern = /^([월화수목금][1-8])+$/;
     
-    while ((match = pattern.exec(input)) !== null) {
-        const dayName = match[1];  // 요일명 (월/화/수/목/금)
-        const periods = match[2];  // 교시들 (예: "1,2,3" 또는 "1 2 3")
-        
-        // 교시 번호들 추출 (쉼표, 공백 기준으로 분리)
-        const periodNumbers = periods.match(/\d/g);
-        
-        if (periodNumbers) {
-            // 각 교시마다 "요일명+교시" 형태로 추가
-            periodNumbers.forEach(period => {
-                result += dayName + period;
-            });
-        }
+    if (!validPattern.test(trimmed)) {
+        return { 
+            valid: false, 
+            message: '❌ 잘못된 형식입니다.\n✅ 올바른 형식: 월1월2수3수4 (요일+교시 반복)\n   - 요일: 월/화/수/목/금\n   - 교시: 1~8\n   - 공백, 쉼표 사용 금지'
+        };
     }
     
-    return result;
+    return { valid: true, message: '올바른 형식입니다.', value: trimmed };
 }
 
 // 사용 예시:
-// convertLectureTimeFormat('월1,2 수3,4') → '월1월2수3수4'
-// convertLectureTimeFormat('화2,3 목2') → '화2화3목2'
-// convertLectureTimeFormat('월1월2월3월4') → '월1월2월3월4' (이미 올바른 형식)
+// validateLectureTimeFormat('월1월2수3수4') → { valid: true, value: '월1월2수3수4' }
+// validateLectureTimeFormat('월1,2 수3,4') → { valid: false, message: '...' }
+// validateLectureTimeFormat('화2목2') → { valid: true, value: '화2목2' }
 
 // ========== 강의 등록 테스트 ==========
 async function createLecture() {
@@ -83,24 +80,23 @@ async function createLecture() {
     const lectureCode = prompt('📝 강의 코드를 입력하세요:', 'CS101');
     const professorCode = prompt('👨‍🏫 담당교수 번호를 입력하세요 (예: PROF001):', 'PROF001');
     const lecPoint = parseInt(prompt('📊 이수학점을 입력하세요 (0~10):', '3')) || 3;
-    const lecMajor = parseInt(prompt('� 전공구분 (1:전공강의, 0:교양):', '1')) || 1;
+    const lecMajor = parseInt(prompt('🎯 전공구분 (1:전공강의, 0:교양):', '1')) || 1;
     const lecMust = parseInt(prompt('✅ 필수구분 (1:필수과목, 0:선택과목):', '1')) || 1;
     const lecSummary = prompt('📝 강의 개요를 입력하세요:', '') || `${lectureName} 강의입니다.`;
-    const lecTime = prompt('⏰ 강의 시간을 입력하세요 (예: 월1,2 수3,4 또는 월1월2수3수4):', '월1,2 수3,4');
+    const lecTime = prompt('⏰ 강의 시간을 입력하세요 (예: 월1월2수3수4, 화2목2):', '월1월2수3수4');
     const lecAssign = parseInt(prompt('📋 과제유무 (1:과제있음, 0:과제없음):', '0')) || 0;
     const lecOpen = parseInt(prompt('🔓 수강신청 상태 (1:열림, 0:닫힘):', '1')) || 1;
     const maxStudents = parseInt(prompt('👥 최대 정원을 입력하세요:', '30'));
-    const lecMcode = prompt('🏛️ 학부 코드 (선택사항, 공란=모든학과가능, 예: CS):', '') || '';
-    const lecMcodeDep = prompt('🎓 학과 코드 (선택사항, 공란=모든학과가능, 예: CS01):', '') || '';
+    const lecMcode = prompt('🏛️ 학부 코드 (두 자리 숫자, 예: 01, 02):', '01');
+    const lecMcodeDep = prompt('🎓 학과 코드 (두 자리 숫자, 예: 01, 03):', '03');
     const lecMin = parseInt(prompt('📈 최저학년제한 (학기수, 0=제한없음):', '0')) || 0;
     const targetGrade = parseInt(prompt('🎓 대상 학년을 입력하세요 (1~4학년):', '1'));
     const semester = parseInt(prompt('📅 학기를 입력하세요 (1/2):', '1'));
 
-    // 필수 입력값 검증 (학부코드, 학과코드는 선택사항)
-    if (!lectureName || !lectureCode || !professorCode || !lecTime) {
+    // 필수 입력값 검증
+    if (!lectureName || !lectureCode || !professorCode || !lecTime || !lecMcode || !lecMcodeDep) {
         console.log('❌ 필수 입력값이 누락되었습니다.');
-        console.log('필수: 강의명, 강의코드, 담당교수번호, 강의시간');
-        console.log('선택: 학부코드, 학과코드 (공란 시 모든 학과 학생 수강 가능)');
+        console.log('필수: 강의명, 강의코드, 담당교수번호, 강의시간, 학부코드, 학과코드');
         return;
     }
 
@@ -148,16 +144,17 @@ async function createLecture() {
     console.log('\n📚 강의 등록 테스트');
     console.log('═══════════════════════════════════════════════════════');
     
-    // 강의 시간 포맷 변환 (입력받은 형식을 표준 형식으로)
-    const formattedLecTime = convertLectureTimeFormat(lecTime);
-    console.log(`⏰ 원본 입력: "${lecTime}"`);
-    console.log(`⏰ 변환 결과: "${formattedLecTime}"`);
+    // 강의 시간 포맷 검증
+    const timeValidation = validateLectureTimeFormat(lecTime);
+    console.log(`⏰ 입력된 강의 시간: "${lecTime}"`);
     
-    if (!formattedLecTime) {
-        console.log('❌ 강의 시간 형식이 올바르지 않습니다.');
-        console.log('올바른 형식 예시: "월1,2 수3,4" 또는 "월1월2수3수4"');
+    if (!timeValidation.valid) {
+        console.log(timeValidation.message);
         return;
     }
+    
+    console.log(`✅ ${timeValidation.message}`);
+    const formattedLecTime = timeValidation.value;
     
     // LEC_TBL 테이블 구조에 맞춘 데이터 (사용자 입력값 사용)
     const lectureData = {
@@ -168,12 +165,12 @@ async function createLecture() {
         lecMajor: lecMajor,              // 전공강의:1 / 교양:0 (사용자 입력)
         lecMust: lecMust,                // 필수과목:1 / 선택과목:0 (사용자 입력)
         lecSummary: lecSummary,          // 강의 개요 내용 (사용자 입력)
-        lecTime: formattedLecTime,       // 강의 시간 (필수, 변환된 형식)
+        lecTime: formattedLecTime,       // 강의 시간 (필수, 검증된 형식: 월1월2수3수4)
         lecAssign: lecAssign,            // 과제있음:1 / 과제없음:0 (사용자 입력)
         lecOpen: lecOpen,                // 강의열림:1 / 강의닫힘:0 (사용자 입력)
         lecMany: maxStudents,            // 수강가능 인원수 (사용자 입력)
-        lecMcode: lecMcode || 0,         // 학부 코드 (공란 시 0, 모든 학부 허용)
-        lecMcodeDep: lecMcodeDep || 0,   // 학과 코드 (공란 시 0, 모든 학과 허용)
+        lecMcode: lecMcode,              // 학부 코드 (두 자리 숫자, 예: "01")
+        lecMcodeDep: lecMcodeDep,        // 학과 코드 (두 자리 숫자, 예: "03")
         lecMin: lecMin,                  // 수강 가능한 최저 학년 제한 (사용자 입력)
         lecCurrent: 0,                   // 현재 수강 인원 (자동 0)
         lecYear: targetGrade,            // 대상 학년 (1~4학년, 사용자 입력)

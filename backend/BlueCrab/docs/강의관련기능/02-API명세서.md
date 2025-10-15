@@ -1,12 +1,15 @@
 # 02. API 명세서
 
-> **작성일**: 2025-10-10  
-> **최종 수정**: 2025-10-14  
-> **버전**: 2.2 (DTO 패턴 적용 버전)  
+> **작성일**: 2025-10-10
+> **최종 수정**: 2025-10-15
+> **버전**: 2.3 (강의 검증 로직 강화 버전)
 > **변경사항**:
 > - 모든 필드명을 대문자 + 언더스코어 규칙으로 통일
 > - EnrollmentController DTO 패턴 적용 완료
+> - LectureController DTO 패턴 적용 완료
 > - HTTP 400 Hibernate Lazy Loading 이슈 해결
+> - 강의 시간 형식 엄격 검증 적용
+> - 학부/학과 코드 데이터베이스 검증 적용
 > - 수강신청 API 응답 구조 명확화
 
 ---
@@ -190,8 +193,8 @@ Authorization: Bearer {accessToken}
   "lecPoint": 3,
   "lecTime": "월1월2수3수4",
   "lecProf": "PROF001",
-  "lecMcode": "ENGIN",
-  "lecMcodeDep": "COMP",
+  "lecMcode": "01",
+  "lecMcodeDep": "03",
   "lecYear": 2,
   "lecSemester": 1,
   "lecMajor": 1,

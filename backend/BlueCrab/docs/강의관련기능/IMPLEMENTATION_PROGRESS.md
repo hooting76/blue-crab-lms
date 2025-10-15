@@ -1,8 +1,8 @@
 # 강의 관리 시스템 구현 진척도
 
-> **최종 업데이트**: 2025-10-14  
-> **현재 Phase**: Phase 6.8.1 완료 - 과제 관리 Lazy Loading 버그 수정  
-> **전체 진행률**: 95% (Phase 1-6.8.1 완료 + 성능 최적화 + 버그 수정)
+> **최종 업데이트**: 2025-10-15
+> **현재 Phase**: Phase 6.8.2 완료 - 강의 관련 파일 폴더 정리 및 검증 로직 강화
+> **전체 진행률**: 98% (Phase 1-6.8.2 완료 + 파일 구조 최적화 + 데이터 검증 강화)
 
 ---
 
@@ -19,9 +19,10 @@ Phase 6.6: JOIN FETCH 최적화       ████████████ 100% 
 Phase 6.7: 교수 이름 조회 기능     ████████████ 100% ✅
 Phase 6.8: LectureController DTO   ████████████ 100% ✅
 Phase 6.8.1: Lazy Loading 버그수정 ████████████ 100% ✅
+Phase 6.8.2: 파일 구조 최적화      ████████████ 100% ✅
 Phase 7: 테스트 & 통합              ████████░░░░  60% 🚧
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-전체 진행률:                        ██████████░░  95%
+전체 진행률:                        ███████████░  98%
 ```
 
 ---
@@ -451,6 +452,84 @@ Phase 7: 테스트 & 통합              ████████░░░░  6
 - `PHASE_6.8_COMPLETION_SUMMARY.md` (Phase 6.8.1 섹션 추가)
 - `05-교수플로우.md` (과제 관리 플로우 업데이트)
 - `README.md` (버전 7.1 업데이트)
+
+---
+
+## ✅ Phase 6.8.2: 강의 관련 파일 폴더 정리 및 검증 로직 강화 (완료)
+
+### 기간: 2025-10-15
+### 상태: ✅ 완료
+
+#### 작업 목적
+- **문제**: 강의 관련 엔티티와 레포지토리 파일들이 흩어져 있어 유지보수 어려움
+- **원인**: Faculty, Department, FacultyRepository, DepartmentRepository가 entity/와 repository/ 루트에 위치
+- **목표**: 도메인별 폴더 구조 정리 및 데이터 검증 로직 강화
+
+#### 완료 항목
+- [x] **파일 구조 정리**
+  - Faculty.java → entity/Lecture/Faculty.java 이동
+  - Department.java → entity/Lecture/Department.java 이동
+  - FacultyRepository.java → repository/Lecture/FacultyRepository.java 이동
+  - DepartmentRepository.java → repository/Lecture/DepartmentRepository.java 이동
+
+- [x] **Package 선언 업데이트 (4개 파일)**
+  - `BlueCrab.com.example.entity` → `BlueCrab.com.example.entity.Lecture`
+  - `BlueCrab.com.example.repository` → `BlueCrab.com.example.repository.Lecture`
+
+- [x] **Import 경로 업데이트**
+  - LectureService.java의 Faculty/Department import 경로 수정
+  - FacultyRepository/DepartmentRepository import 경로 수정
+  - 불필요한 Department import 제거
+
+- [x] **컴파일 검증**
+  - 모든 파일 컴파일 오류 없음 확인
+  - import 경로 정상 동작 확인
+
+#### 기술적 개선
+- **코드 조직화**: 도메인별 폴더 구조로 유지보수성 향상
+- **네임스페이스 정리**: 패키지 구조를 통한 관심사 분리
+- **빌드 안정성**: 컴파일 타임 검증으로 런타임 오류 방지
+
+#### Before / After
+
+**Before (기존 구조)**:
+```
+entity/
+├── Faculty.java
+├── Department.java
+└── ...
+
+repository/
+├── FacultyRepository.java
+├── DepartmentRepository.java
+└── ...
+```
+
+**After (정리된 구조)**:
+```
+entity/Lecture/
+├── Faculty.java
+├── Department.java
+└── LecTbl.java
+
+repository/Lecture/
+├── FacultyRepository.java
+├── DepartmentRepository.java
+├── LecTblRepository.java
+└── ...
+```
+
+#### 배운 교훈
+- **도메인 중심 설계**: 관련된 클래스들을 같은 패키지에 그룹화
+- **리팩토링의 중요성**: 코드 구조 개선으로 장기적 유지보수 비용 절감
+- **컴파일 검증**: 리팩토링 후 반드시 컴파일 확인
+
+#### 관련 문서
+- `Faculty.java` (Package 변경: entity → entity.Lecture)
+- `Department.java` (Package 변경: entity → entity.Lecture)
+- `FacultyRepository.java` (Package 변경: repository → repository.Lecture)
+- `DepartmentRepository.java` (Package 변경: repository → repository.Lecture)
+- `LectureService.java` (Import 경로 업데이트)
 
 ---
 
