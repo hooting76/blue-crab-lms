@@ -51,19 +51,14 @@ import Admin from './Admin';
 import '../css/App.css';
 
 // window / mobile close logout func
-useEffect(() => {
-  const handleBeforeUnload = () => {
-    localStorage.clear();
-    sessionStorage.clear();
-  };
 
-  window.addEventListener('beforeunload', handleBeforeUnload);
+const handleBeforeUnload = () => {
+  localStorage.clear();
+  sessionStorage.clear();
+};
 
-  // Cleanup
-  return () => {
-    window.removeEventListener('beforeunload', handleBeforeUnload);
-  };
-}, []);
+window.addEventListener('beforeunload', handleBeforeUnload);
+window.removeEventListener('beforeunload', handleBeforeUnload);
 
 // InApp filter function
 function InAppFilter(){
