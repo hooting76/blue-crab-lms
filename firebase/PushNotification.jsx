@@ -1,7 +1,8 @@
-// pushNotificationService.js
+// pushNotificationService
 import { getToken, onMessage } from 'firebase/messaging';
 import { messaging } from './firebase-config';
 import vapid from "./key.json";
+import icon_logo from '../public/favicon/android-icon-144x144.png';
 
 const BACKEND_API_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/';
 const VAPID_KEY = vapid.vapid; // Firebase 콘솔에서 발급받은 VAPID 키
@@ -66,7 +67,7 @@ class PushNotificationService {
         }
     };
 
-    // 4. 백엔드에 토큰 저장
+    // 4. 백엔드에 토큰 저장 => /api/fcm/register
     async saveTokenToBackend(token, userId) {
         // deviceInfo: navigator.userAgent
         const agentSwitch = navigator.userAgent;
@@ -99,6 +100,43 @@ class PushNotificationService {
             if (response.ok) {
                 const data = await response.json();
                 console.log('✅ 백엔드에 토큰 저장 성공:', data);
+                // status : registered/renewed/conflict/temporary/replaced
+                // keepSignedIn : null(default)
+                // console.log(data.data);
+                
+                // resister status cntlr
+                const status = ['registered', 'renewed', 'conflict', 'temporary', 'replaced'];
+
+                if(status.includes(data.data.status)){
+                    let listNum = status.indexOf(data.data.status) + 1;
+                    // console.log(listNum);
+                    switch(listNum){
+                        case 1 : 
+                            console.log('registered');
+                            break;
+                        case 2 :
+                            console.log('renewed');
+                            break;
+                        case 3 :
+                            // 다른 기기 토큰과 충돌 발생 (이미 다른기기가 등록됨)
+                            console.log('conflict');
+                            break;
+                        case 4 :
+                            // 로그인 동안만 알림 수신(임시)temporaryOnly: true 전달 필요
+                            console.log('temporary');
+                            break;
+                        case 5 :
+                            // 기존 토큰 제거 후 현재 기기로 강제 교체
+                            console.log('replaced');
+                            break;
+                        default : 
+                            console.log('비 정상적인 리턴');
+                    } // switch end
+                }else{
+                    alert('웹서버 통신 오류!');
+                    return false;
+                }; // status.includes end
+
                 return true;
             } else {
                 console.error('❌ 백엔드 토큰 저장 실패:', response.status);
@@ -113,24 +151,27 @@ class PushNotificationService {
     // 5. 포그라운드 메시지 리스너 설정
     setupForegroundListener() {
         onMessage(messaging, (payload) => {
-        console.log('📨 포그라운드 메시지 수신:', payload);
-        
-        const { title, body, icon } = payload.notification;
-        
-        // 브라우저 알림 표시
-        if (Notification.permission === 'granted') {
-            new Notification(title, {
-                body: body,
-                icon: icon || '/firebase-logo.png',
-                badge: '/badge-icon.png',
-                tag: 'notification-' + Date.now()
-            });
-        };
+            console.log('📨 포그라운드 메시지 수신:', payload);
+            
+            const notification = payload.notification;
+            const title = notification?.title || '알림';
+            const body = notification?.body || '';
+            const icon = notification?.icon;
 
-        // 커스텀 이벤트 발생 (UI 업데이트용)
-        window.dispatchEvent(new CustomEvent('fcm-message', {
-            detail: payload
-        }));
+            // 브라우저 알림 표시
+            if (Notification.permission === 'granted' && notification) {
+                new Notification(title, {
+                    body: body,
+                    icon: icon || {icon_logo},
+                    badge: {icon_logo},
+                    tag: 'notification-' + Date.now()
+                });
+            };
+
+            // 커스텀 이벤트 발생 (UI 업데이트용)
+            window.dispatchEvent(new CustomEvent('fcm-message', {
+                detail: payload
+            }));
         });
     };
 
@@ -161,6 +202,8 @@ class PushNotificationService {
 
             // Step 5: 포그라운드 메시지 리스너 설정
             this.setupForegroundListener();
+            
+            sessionStorage.setItem('fcm', token);
 
             console.log('✅ 푸시 알림 초기화 완료!');
             return true;

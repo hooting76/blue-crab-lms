@@ -125,8 +125,37 @@ export function UserProvider({ children }) {
     const tokens = GetTokens();
     const { accessToken, refreshToken } = tokens;
 
-    // take a token from localStorage
+  // fcm fetch call function
+    const fcmToken = sessionStorage.getItem('fcm');
+    const agentSwitch = navigator.userAgent;
+
+    // user agent info filter start
+    let platform;
+    if(agentSwitch.includes('Windows')){
+        platform = "WEB";
+    }else if(agentSwitch.includes('Android')){
+        platform = "ANDROID";
+    }else if(agentSwitch.includes('iPhone')){
+        platform = "IOS";
+    }; // user agent info filter end    
+
+  // fcm fetch call function end
+
+  // take a token from localStorage
     try {
+      const fcmReg = await fetch('https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/fcm/unregister',{
+        methode: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+          "fcmToken": {fcmToken},
+          "platform": {platform},
+          "forceDelete": true
+        })
+      });
+
       const response = await fetch('https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/auth/logout', {
         method: 'POST',
         headers: { 
@@ -147,7 +176,6 @@ export function UserProvider({ children }) {
     localStorage.removeItem('user');
     sessionStorage.removeItem('user');
     localStorage.setItem('currentPage', '');
-    // console.log(localStorage.getItem('currentPage'));
     dispatch({ type: LOGOUT });
     location.reload();
   };
