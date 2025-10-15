@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import { UseAdmin } from '../../../hook/UseAdmin';
 
 function CourseRegister() {
 
@@ -7,6 +8,10 @@ function CourseRegister() {
     const [lectureDescription, setLectureDescription] = useState("");
     const [maxStudents, setMaxStudents] = useState(0);
     const [credit, setCredit] = useState(0);
+    const [professorIdx, setProfessorIdx] = useState(0);
+
+    const {admin} = UseAdmin();
+    const accessToken = admin.data.accessToken;
 
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
@@ -93,7 +98,16 @@ function CourseRegister() {
                     />
                 </div>
 
-                
+                <div>
+                    <label>담당 교수</label><br/>
+                    <input
+                    type="number"
+                    value={professorIdx}
+                    onChange={(e) => setProfessorIdx(e.target.value)}
+                    required
+                    style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                    />
+                </div>
             </form>
 
             
