@@ -40,8 +40,8 @@ export default function NoticeList({
         if (storedToken) return storedToken;
 
         // Admin 토큰 확인
-        if (isAdminAuth && admin?.data?.accessToken) {
-            return admin.data.accessToken;
+        if (isAdminAuth && admin.accessToken) {
+            return admin.accessToken;
         }
 
         // User 토큰 확인
