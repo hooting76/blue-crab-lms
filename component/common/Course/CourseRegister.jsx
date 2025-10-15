@@ -16,8 +16,7 @@ function CourseRegister() {
     const [minGrade, setMinGrade] = useState("");
 
     const {admin} = UseAdmin();
-    console.log("admin:", admin);
-    const accessToken = admin.data.accessToken;
+    const accessToken = admin.accessToken;
 
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
