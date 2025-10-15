@@ -159,11 +159,11 @@ Authorization: Bearer {accessToken}
         "lecIdx": 1,
         "lecTit": "자바 프로그래밍",
         "lecSerial": "CS101",
-        "lecProf": "김교수",
+        "lecProf": "PROF001",
         "lecCurrent": 25,
         "lecMany": 30,
         "lecOpen": 1,
-        "lecYear": 2025,
+        "lecYear": 2,
         "lecSemester": 1
       }
     ],
@@ -183,18 +183,22 @@ Content-Type: application/json
 Authorization: Bearer {accessToken}
 
 {
-  "lectureName": "자바 프로그래밍",
-  "lectureCode": "CS101",
-  "lectureDescription": "자바 기초 프로그래밍 강의",
-  "maxStudents": 30,
-  "credit": 3,
-  "lectureTime": "월1월2수3수4",
-  "professorIdx": 1,
-  "year": 2025,
-  "semester": 1,
-  "majorType": 1,
-  "requiredType": 1,
-  "minGrade": 1
+  "lecSerial": "CS101",
+  "lecTit": "자바 프로그래밍",
+  "lecSummary": "자바 기초 프로그래밍 강의",
+  "lecMany": 30,
+  "lecPoint": 3,
+  "lecTime": "월1월2수3수4",
+  "lecProf": "PROF001",
+  "lecMcode": "ENGIN",
+  "lecMcodeDep": "COMP",
+  "lecYear": 2,
+  "lecSemester": 1,
+  "lecMajor": 1,
+  "lecMust": 1,
+  "lecMin": 0,
+  "lecOpen": 1,
+  "lecReg": "2025-10-15 14:30:00"
 }
 ```
 
@@ -356,10 +360,79 @@ Authorization: Bearer {accessToken}
 ```
 
 #### **과제 제출물 조회 및 채점**
+
+**🔍 데이터 저장 구조 설명**
+
+과제 제출 현황은 `ASSIGNMENT_EXTENDED_TBL.ASSIGNMENT_DATA` (LONGTEXT) 컬럼에 JSON 형식으로 저장됩니다.
+
+**JSON 구조:**
+```json
+{
+  "assignment": {
+    "title": "중간고사 대체 레포트",
+    "description": "5000자 이상 작성",
+    "dueDate": "2025-10-30T23:59:59",
+    "maxScore": 100,
+    "createdAt": "2025-10-01T09:00:00"
+  },
+  "submissions": [
+    {
+      "studentIdx": 101,
+      "submitted": true,
+      "submissionMethod": "서면 제출 (2025-10-15)",
+      "submittedAt": "2025-10-15T14:30:00",
+      "score": 95,
+      "feedback": "훌륭합니다",
+      "gradedAt": "2025-10-16T10:00:00"
+    },
+    {
+      "studentIdx": 102,
+      "submitted": true,
+      "submissionMethod": "이메일 제출 (prof@example.com)",
+      "submittedAt": "2025-10-16T09:00:00",
+      "score": 88,
+      "feedback": "양호함",
+      "gradedAt": "2025-10-17T11:00:00"
+    }
+  ]
+}
+```
+
+**📊 데이터 크기 고려사항:**
+- 각 제출 기록 (submission 객체): 약 200-300 bytes
+- 학생 20명: 약 6KB
+- 학생 100명: 약 30KB
+- 학생 500명: 약 150KB
+- LONGTEXT 최대 용량: 4GB → 대형 강의도 문제 없음
+
+**💡 설계 철학:**
+- **오프라인 제출 모델**: 실제 과제 파일은 서면/이메일/드라이브 등으로 제출
+- **유연한 제출 방식**: submissionMethod 필드에 교수가 직접 입력
+- **JSON 기반 확장성**: 스키마 변경 없이 필드 추가 가능
+
+---
+
+**API 엔드포인트:**
+
 ```http
 GET /api/assignments/{assignmentIdx}/submissions
 Authorization: Bearer {accessToken}
 ```
+
+**응답 예시:**
+```json
+{
+  "success": true,
+  "data": {
+    "assignment": { ... },
+    "submissions": [ ... ]
+  }
+}
+```
+
+---
+
+**채점 API:**
 
 ```http
 PUT /api/assignments/submissions/{submissionIdx}
@@ -367,6 +440,9 @@ Content-Type: application/json
 Authorization: Bearer {accessToken}
 
 {
+  "studentIdx": 101,
+  "submitted": true,
+  "submissionMethod": "서면 제출 (2025-10-15)",
   "score": 85.0,
   "feedback": "좋은 구현입니다. 다만 예외 처리를 더 강화해보세요."
 }

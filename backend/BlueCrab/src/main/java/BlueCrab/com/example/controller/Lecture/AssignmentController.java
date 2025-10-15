@@ -136,7 +136,8 @@ public class AssignmentController {
             String title = (String) request.get("title");
             String body = (String) request.get("body");  // ✅ DTO 패턴: body 필드
             String dueDate = (String) request.get("dueDate");
-            Integer maxScore = (Integer) request.get("maxScore");
+            // ✅ maxScore는 항상 10점으로 고정 (요청값 무시)
+            Integer maxScore = 10;
             
             if (lecIdx == null || title == null || dueDate == null) {
                 return ResponseEntity.badRequest()
@@ -192,7 +193,8 @@ public class AssignmentController {
             String title = (String) request.get("title");
             String body = (String) request.get("body");  // ✅ DTO 패턴: body 필드
             String dueDate = (String) request.get("dueDate");
-            Integer maxScore = (Integer) request.get("maxScore");
+            // ✅ maxScore 수정 시에도 10점으로 고정 (요청값 무시)
+            Integer maxScore = request.containsKey("maxScore") ? 10 : null;
             
             AssignmentExtendedTbl updated = assignmentService.updateAssignment(
                     assignmentIdx, title, body, dueDate, maxScore);  // body 전달
@@ -220,6 +222,13 @@ public class AssignmentController {
             if (studentIdx == null || score == null) {
                 return ResponseEntity.badRequest()
                         .body(createErrorResponse("studentIdx와 score는 필수입니다."));
+            }
+            
+            // ✅ 점수가 10점을 초과하면 자동으로 10점으로 변환
+            if (score > 10) {
+                logger.info("점수 {}점이 10점으로 변환됨 (assignmentIdx={}, studentIdx={})", 
+                    score, assignmentIdx, studentIdx);
+                score = 10;
             }
             
             AssignmentExtendedTbl assignment = assignmentService.gradeAssignment(

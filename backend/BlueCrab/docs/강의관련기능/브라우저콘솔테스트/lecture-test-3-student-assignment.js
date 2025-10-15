@@ -127,28 +127,33 @@ async function getAssignmentDetail() {
     }
 }
 
-// ========== 과제 제출 ==========
-async function submitAssignment() {
+// ========== 과제 제출 기록 ==========
+// 📌 실제 제출물은 서면/메일 등 오프라인으로 제출
+// 📌 DB에는 "제출 여부"만 기록 (파일 제출 없음)
+async function markAsSubmitted() {
     if (!checkAuth()) return;
     const token = window.authToken;
     
-    const assignmentIdx = parseInt(prompt('📝 제출할 ASSIGNMENT_IDX:', '1'));
-    const content = prompt('📝 제출 내용을 입력하세요:', '과제 제출 내용입니다.');
+    const assignmentIdx = parseInt(prompt('📝 제출 완료 표시할 ASSIGNMENT_IDX:', '1'));
+    const confirmMessage = '⚠️ 실제 과제는 서면/메일 등으로 교수님께 제출하셨나요?\n제출 완료 상태로 표시합니다. (yes/no):';
+    const confirm = prompt(confirmMessage, 'yes');
 
-    if (!content) {
-        console.log('❌ 제출 내용이 없습니다.');
+    if (confirm.toLowerCase() !== 'yes') {
+        console.log('❌ 제출 표시 취소됨');
         return;
     }
 
-    console.log('\n📝 과제 제출');
+    console.log('\n📝 과제 제출 완료 표시');
     console.log('═══════════════════════════════════════════════════════');
+    console.log('💡 실제 제출물: 서면/메일 등으로 오프라인 제출');
+    console.log('💡 DB 기록: 제출 여부만 표시');
 
     const submissionData = {
-        SUBMISSION_CONTENT: content,
-        SUBMISSION_FILE_PATH: null // 파일 업로드는 별도 구현 필요
+        submitted: true,  // 제출 여부만 표시
+        submittedAt: new Date().toISOString()
     };
 
-try {
+    try {
         const response = await fetch(`${API_BASE_URL}/api/assignments/${assignmentIdx}/submit`, {
             method: 'POST',
             headers: {
@@ -162,75 +167,31 @@ try {
         const result = await response.json();
 
         if (result.success) {
-            console.log('\n✅ 제출 성공!');
-            console.log('📊 제출 정보:', result.data);
+            console.log('\n✅ 제출 완료 표시 성공!');
+            console.log('📊 학생의 과제 제출이 기록되었습니다.');
+            console.log('📌 교수님께 실제 제출물을 전달하세요 (서면/메일 등)');
         } else {
-            console.log('❌ 제출 실패 [' + response.status + ']:', result.message);
+            console.log('❌ 제출 표시 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
     }
 }
 
-// ========== 과제 재제출 ==========
-async function resubmitAssignment() {
-    if (!checkAuth()) return;
-    const token = window.authToken;
-    
-    const assignmentIdx = parseInt(prompt('📝 재제출할 ASSIGNMENT_IDX:', '1'));
-    const content = prompt('📝 재제출 내용을 입력하세요:', '과제 재제출 내용입니다.');
-
-    if (!content) {
-        console.log('❌ 재제출 내용이 없습니다.');
-        return;
-    }
-
-    console.log('\n📝 과제 재제출');
-    console.log('═══════════════════════════════════════════════════════');
-
-    const submissionData = {
-        SUBMISSION_CONTENT: content,
-        SUBMISSION_FILE_PATH: null
-    };
-
-try {
-        const response = await fetch(`${API_BASE_URL}/api/assignments/${assignmentIdx}/resubmit`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(submissionData)
-        });
-
-        console.log(`📡 HTTP 상태: ${response.status}`);
-        const result = await response.json();
-
-        if (result.success) {
-            console.log('\n✅ 재제출 성공!');
-            console.log('📊 재제출 정보:', result.data);
-        } else {
-            console.log('❌ 재제출 실패 [' + response.status + ']:', result.message);
-        }
-    } catch (error) {
-        console.log('❌ 에러 발생:', error.message);
-    }
-}
-
-// ========== 과제 제출 취소 ==========
+// ========== 과제 제출 취소 (미제출로 변경) ==========
 async function cancelSubmission() {
     if (!checkAuth()) return;
     const token = window.authToken;
     
-    const assignmentIdx = parseInt(prompt('🗑️ 제출취소할 ASSIGNMENT_IDX:', '1'));
-    const confirm = prompt('⚠️ 정말 제출을 취소하시겠습니까? (yes/no):', 'no');
+    const assignmentIdx = parseInt(prompt('�️ 제출 취소할 ASSIGNMENT_IDX:', '1'));
+    const confirm = prompt('⚠️ 제출 기록을 미제출 상태로 되돌립니다. (yes/no):', 'no');
 
     if (confirm.toLowerCase() !== 'yes') {
         console.log('❌ 취소 중단됨');
         return;
     }
 
-    console.log('\n🗑️ 과제 제출 취소');
+    console.log('\n�️ 과제 제출 취소');
     console.log('═══════════════════════════════════════════════════════');
 
     try {
@@ -245,10 +206,10 @@ async function cancelSubmission() {
         const result = await response.json();
 
         if (result.success) {
-            console.log('\n✅ 제출취소 성공!');
-            console.log('📊 결과:', result.message);
+            console.log('\n✅ 제출 취소 성공!');
+            console.log('📊 과제가 미제출 상태로 변경되었습니다.');
         } else {
-            console.log('❌ 제출취소 실패 [' + response.status + ']:', result.message);
+            console.log('❌ 제출 취소 실패 [' + response.status + ']:', result.message);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -257,15 +218,20 @@ async function cancelSubmission() {
 
 // ========== 도움말 ==========
 function help() {
-    console.log('\n📄 학생 과제 제출 테스트 함수 목록');
+    console.log('\n� 학생 과제 시스템 테스트 함수 목록');
     console.log('═══════════════════════════════════════════════════════');
     console.log('⚠️ 먼저 로그인하세요!');
-    console.log('📁 docs/일반유저 로그인+게시판/test-1-login.js → await login()');
-    console.log('📋 getMyAssignments()     - 내 과제 목록');
+    console.log('� docs/일반유저 로그인+게시판/test-1-login.js → await login()');
+    console.log('');
+    console.log('� getMyAssignments()     - 내 과제 목록 조회');
     console.log('🔍 getAssignmentDetail()  - 과제 상세 조회');
-    console.log('📝 submitAssignment()     - 과제 제출');
-    console.log('📝 resubmitAssignment()   - 과제 재제출');
-    console.log('🗑️ cancelSubmission()     - 과제 제출 취소');
+    console.log('📝 markAsSubmitted()      - 과제 제출 완료 표시 (제출 여부만 기록)');
+    console.log('🗑️ cancelSubmission()     - 과제 제출 취소 (미제출로 변경)');
+    console.log('');
+    console.log('� 과제 제출 방식:');
+    console.log('   1️⃣ 실제 제출물: 서면/메일 등으로 교수님께 직접 제출');
+    console.log('   2️⃣ DB 기록: 제출 여부만 시스템에 표시 (markAsSubmitted)');
+    console.log('   3️⃣ 채점: 교수님이 제출 여부와 점수 기록');
 }
 
 // 초기 메시지
