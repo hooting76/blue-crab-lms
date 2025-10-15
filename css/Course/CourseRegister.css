@@ -1,17 +1,16 @@
-.lectureNameCode,
-.maxStudentsCreditYearSemester,
-.majorRequiredType {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
+.lecSerialTit, .lecManyPointTime, .lecProfMcodeDep, .lecYearSemesterMajorMust, .lecMinOpen {
+    display: inline-block;
 }
-.lectureNameCode span,
-.maxStudentsCreditYearSemester span,
-.majorRequiredType span {
+
+.lecSerialTit span,
+.lecManyPointTime span,
+.lecProfMcodeDep span,
+.lecYearSemesterMajorMust span,
+.lecMinOpen span {
     flex: 1;
 }
 
-input {
+input, select {
     margin-bottom: 10px;
 }
 
