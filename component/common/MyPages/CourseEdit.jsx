@@ -1,6 +1,6 @@
 import {useState} from 'react';
 
-function CourseCreate() {
+function CourseEdit() {
 
     const [lectureName, setLectureName] = useState("");
     const [lectureDescription, setLectureDescription] = useState("");
@@ -57,4 +57,4 @@ function CourseCreate() {
     )
 }
 
-export default CourseCreate;
+export default CourseEdit;
