@@ -1,9 +1,8 @@
 import {useState} from 'react';
 
-function CourseRegister() {
+function CourseCreate() {
 
     const [lectureName, setLectureName] = useState("");
-    const [lectureCode, setLectureCode] = useState("");
     const [lectureDescription, setLectureDescription] = useState("");
     const [maxStudents, setMaxStudents] = useState(0);
     const [credit, setCredit] = useState(0);
@@ -16,17 +15,6 @@ function CourseRegister() {
                 type="text"
                 value={lectureName}
                 onChange={(e) => setLectureName(e.target.value)}
-                required
-                style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
-                />
-            </div>
-
-            <div>
-                <label>강의 코드</label><br/>
-                <input
-                type="text"
-                value={lectureCode}
-                onChange={(e) => setLectureCode(e.target.value)}
                 required
                 style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
                 />
@@ -65,9 +53,8 @@ function CourseRegister() {
                 />
             </div>
 
-            
         </form>
     )
 }
 
-export default CourseRegister;
+export default CourseCreate;
