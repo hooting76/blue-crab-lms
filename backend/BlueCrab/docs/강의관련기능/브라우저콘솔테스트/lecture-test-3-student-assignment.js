@@ -7,7 +7,7 @@
 // 📝 실행: await login() (학생 계정 사용)
 // ===================================================================
 
-const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
+const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0';
 
 // 전역 변수 (test-1-login.js에서 설정한 토큰 사용)
 if (typeof window.authToken === 'undefined') window.authToken = null;
@@ -38,7 +38,7 @@ async function getMyAssignments() {
     console.log('═══════════════════════════════════════════════════════');
 
     try {
-        let url = `${API_BASE_URL}/assignments?page=${page}&size=${size}`;
+        let url = `${API_BASE_URL}/api/assignments?page=${page}&size=${size}`;
         if (lectureIdx) url += `&lectureIdx=${lectureIdx}`;
 
         console.log('📡 요청 URL:', url);
@@ -50,23 +50,36 @@ async function getMyAssignments() {
         });
 
         console.log(`📡 HTTP 상태: ${response.status}`);
-        const result = await response.json();
+        
+        // 🔍 Phase 6.8.1: 서버 응답 원본 확인
+        const responseText = await response.text();
+        console.log('📦 서버 응답 원본:', responseText);
+        
+        const result = JSON.parse(responseText);
 
-        if (result.success) {
+        // ⚠️ 학생용 API는 ApiResponse 래퍼 없이 직접 Page 객체 반환
+        if (response.status === 200 && result.content) {
             console.log('\n✅ 조회 성공!');
-            console.log(`📊 총 ${result.data.totalElements}개 과제`);
+            console.log(`📊 총 ${result.totalElements}개 과제`);
             console.log('📋 과제 목록:');
-            result.data.content.forEach((assignment, idx) => {
-                console.log(`\n${idx + 1}. ${assignment.ASSIGNMENT_TITLE}`);
-                console.log(`   IDX: ${assignment.ASSIGNMENT_IDX}`);
-                console.log(`   강의: ${assignment.LECTURE_NAME}`);
-                console.log(`   마감일: ${assignment.DUE_DATE}`);
-                console.log(`   배점: ${assignment.MAX_SCORE}점`);
-                console.log(`   제출상태: ${assignment.SUBMISSION_STATUS || '미제출'}`);
-                console.log(`   점수: ${assignment.SCORE || 'N/A'}점`);
+            result.content.forEach((assignment, idx) => {
+                // assignmentData는 JSON 문자열이므로 파싱 필요
+                const data = JSON.parse(assignment.assignmentData);
+                const assignmentInfo = data.assignment;
+                const submissions = data.submissions || [];
+                const mySubmission = submissions.find(s => s.studentIdx === window.currentUser?.id);
+                
+                console.log(`\n${idx + 1}. ${assignmentInfo.title}`);
+                console.log(`   IDX: ${assignment.assignmentIdx}`);
+                console.log(`   LEC_IDX: ${assignment.lecIdx}`);
+                console.log(`   설명: ${assignmentInfo.description || 'N/A'}`);
+                console.log(`   마감일: ${assignmentInfo.dueDate}`);
+                console.log(`   배점: ${assignmentInfo.maxScore}점`);
+                console.log(`   제출상태: ${mySubmission ? mySubmission.status : '미제출'}`);
+                console.log(`   점수: ${mySubmission?.score || 'N/A'}점`);
             });
         } else {
-            console.log('❌ 조회 실패 [' + response.status + ']:', result.message);
+            console.log('❌ 조회 실패 [' + response.status + ']:', result.message || result);
         }
     } catch (error) {
         console.log('❌ 에러 발생:', error.message);
@@ -84,7 +97,7 @@ async function getAssignmentDetail() {
     console.log('═══════════════════════════════════════════════════════');
 
     try {
-        const response = await fetch(`${API_BASE_URL}/assignments/${assignmentIdx}`, {
+        const response = await fetch(`${API_BASE_URL}/api/assignments/${assignmentIdx}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -136,7 +149,7 @@ async function submitAssignment() {
     };
 
 try {
-        const response = await fetch(`${API_BASE_URL}/assignments/${assignmentIdx}/submit`, {
+        const response = await fetch(`${API_BASE_URL}/api/assignments/${assignmentIdx}/submit`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -181,7 +194,7 @@ async function resubmitAssignment() {
     };
 
 try {
-        const response = await fetch(`${API_BASE_URL}/assignments/${assignmentIdx}/resubmit`, {
+        const response = await fetch(`${API_BASE_URL}/api/assignments/${assignmentIdx}/resubmit`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -221,7 +234,7 @@ async function cancelSubmission() {
     console.log('═══════════════════════════════════════════════════════');
 
     try {
-        const response = await fetch(`${API_BASE_URL}/assignments/${assignmentIdx}/cancel`, {
+        const response = await fetch(`${API_BASE_URL}/api/assignments/${assignmentIdx}/cancel`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${token}`

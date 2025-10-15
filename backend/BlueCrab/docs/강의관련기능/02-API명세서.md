@@ -26,6 +26,7 @@
 5. [학생 API](#5-학생-api)
 6. [공통 API](#6-공통-api)
 7. [에러 코드](#7-에러-코드)
+8. [미구현 기능 목록](#-미구현-기능-목록)
 
 ---
 
@@ -35,7 +36,13 @@
 - **HTTP Methods**: GET, POST, PUT, DELETE 적절히 사용
 - **Resource Naming**: 복수형 명사 사용 (`/lectures`, `/enrollments`)
 - **Status Codes**: 표준 HTTP 상태 코드 사용
-- **Versioning**: URL 경로에 버전 포함 (`/api/v1/`)
+- **URL 패턴**: 역할별 구분 (`/api/professor/`, `/api/student/`, `/api/admin/`, `/api/`)
+
+### **엔드포인트 패턴**
+- **공통 리소스**: `/api/{resource}` (예: `/api/lectures`, `/api/enrollments`, `/api/assignments`)
+- **역할별 리소스**: `/api/{role}/{resource}` (예: `/api/professor/attendance`, `/api/student/attendance`)
+- **관리자 전용**: `/api/admin/{resource}` (예: `/api/admin/auth`)
+- **게시판/첨부파일**: `/api/boards`, `/api/board-attachments`
 
 ### **응답 포맷**
 ```json
@@ -97,7 +104,7 @@
 
 #### **로그인**
 ```http
-POST /api/v1/auth/login
+POST /api/auth/login
 Content-Type: application/json
 
 {
@@ -126,7 +133,7 @@ Content-Type: application/json
 
 #### **토큰 갱신**
 ```http
-POST /api/v1/auth/refresh
+POST /api/auth/refresh
 Authorization: Bearer {refreshToken}
 ```
 
@@ -138,7 +145,7 @@ Authorization: Bearer {refreshToken}
 
 #### **강의 목록 조회**
 ```http
-GET /api/v1/admin/lectures?page=0&size=10&year=2025&semester=1
+GET /api/lectures?page=0&size=10&year=2025&semester=1
 Authorization: Bearer {accessToken}
 ```
 
@@ -149,13 +156,15 @@ Authorization: Bearer {accessToken}
   "data": {
     "content": [
       {
-        "lectureIdx": 1,
-        "lectureName": "자바 프로그래밍",
-        "lectureCode": "CS101",
-        "professorName": "김교수",
-        "currentStudents": 25,
-        "maxStudents": 30,
-        "status": "ACTIVE"
+        "lecIdx": 1,
+        "lecTit": "자바 프로그래밍",
+        "lecSerial": "CS101",
+        "lecProf": "김교수",
+        "lecCurrent": 25,
+        "lecMany": 30,
+        "lecOpen": 1,
+        "lecYear": 2025,
+        "lecSemester": 1
       }
     ],
     "pageable": {
@@ -169,7 +178,7 @@ Authorization: Bearer {accessToken}
 
 #### **강의 등록**
 ```http
-POST /api/v1/admin/lectures
+POST /api/lectures
 Content-Type: application/json
 Authorization: Bearer {accessToken}
 
@@ -180,78 +189,32 @@ Authorization: Bearer {accessToken}
   "maxStudents": 30,
   "credit": 3,
   "lectureTime": "월1월2수3수4",
-  "lectureRoom": "공학관 101호",
   "professorIdx": 1,
   "year": 2025,
   "semester": 1,
-  "startDate": "2025-03-01",
-  "endDate": "2025-06-30"
+  "majorType": 1,
+  "requiredType": 1,
+  "minGrade": 1
 }
 ```
 
 #### **강의 수정**
 ```http
-PUT /api/v1/admin/lectures/{lectureIdx}
+PUT /api/lectures/{lectureIdx}
 Content-Type: application/json
 Authorization: Bearer {accessToken}
 
 {
-  "lectureName": "심화 자바 프로그래밍",
-  "maxStudents": 25
+  "lecTit": "심화 자바 프로그래밍",
+  "lecMany": 25,
+  "lecSummary": "자바 심화 과정을 다루는 강의입니다.",
+  "lecOpen": 1
 }
 ```
 
 #### **강의 삭제 (폐강)**
 ```http
-DELETE /api/v1/admin/lectures/{lectureIdx}
-Authorization: Bearer {accessToken}
-```
-
-### **평가 항목 관리**
-
-#### **평가 항목 목록 조회**
-```http
-GET /api/v1/admin/evaluation-items
-Authorization: Bearer {accessToken}
-```
-
-#### **평가 항목 등록**
-```http
-POST /api/v1/admin/evaluation-items
-Content-Type: application/json
-Authorization: Bearer {accessToken}
-
-{
-  "itemName": "강의 내용의 적절성",
-  "itemType": "CONTENT"
-}
-```
-
-### **통계 및 모니터링**
-
-#### **강의 통계 조회**
-```http
-GET /api/v1/admin/statistics/lectures?year=2025&semester=1
-Authorization: Bearer {accessToken}
-```
-
-**응답:**
-```json
-{
-  "success": true,
-  "data": {
-    "totalLectures": 25,
-    "activeLectures": 23,
-    "cancelledLectures": 2,
-    "totalEnrollments": 450,
-    "averageEnrollmentRate": 85.2
-  }
-}
-```
-
-#### **학생별 통계 조회**
-```http
-GET /api/v1/admin/statistics/students/{studentIdx}
+DELETE /api/lectures/{lectureIdx}
 Authorization: Bearer {accessToken}
 ```
 
@@ -259,17 +222,17 @@ Authorization: Bearer {accessToken}
 
 ## 4. 교수 API
 
-### **강의 운영**
+### **출석 관리**
 
-#### **담당 강의 목록 조회**
+#### **출석 인정 요청 목록 조회**
 ```http
-GET /api/v1/professor/lectures
+GET /api/professor/attendance/requests?lectureIdx=1&page=0&size=10
 Authorization: Bearer {accessToken}
 ```
 
 #### **강의 상세 정보 조회**
 ```http
-GET /api/v1/professor/lectures/{lectureIdx}
+GET /api/lectures/{lectureIdx}
 Authorization: Bearer {accessToken}
 ```
 
@@ -277,7 +240,7 @@ Authorization: Bearer {accessToken}
 
 #### **출결 요청 목록 조회**
 ```http
-GET /api/v1/professor/attendance/requests?lectureIdx=1&page=0&size=10
+GET /api/professor/attendance/requests?lectureIdx=1&page=0&size=10
 Authorization: Bearer {accessToken}
 ```
 
@@ -303,12 +266,12 @@ Authorization: Bearer {accessToken}
 
 #### **출결 승인/거부**
 ```http
-PUT /api/v1/professor/attendance/{attendanceIdx}/approve
+PUT /api/professor/attendance/{attendanceIdx}/approve
 Authorization: Bearer {accessToken}
 ```
 
 ```http
-PUT /api/v1/professor/attendance/{attendanceIdx}/reject
+PUT /api/professor/attendance/{attendanceIdx}/reject
 Content-Type: application/json
 Authorization: Bearer {accessToken}
 
@@ -321,7 +284,7 @@ Authorization: Bearer {accessToken}
 
 #### **강의별 학생 목록 및 성적 조회**
 ```http
-GET /api/v1/professor/grades?lectureIdx=1
+GET /api/enrollments?lectureIdx=1
 Authorization: Bearer {accessToken}
 ```
 
@@ -347,7 +310,7 @@ Authorization: Bearer {accessToken}
 
 #### **성적 일괄 입력**
 ```http
-PUT /api/v1/professor/grades/batch
+PUT /api/enrollments/{enrollmentIdx}/grade
 Content-Type: application/json
 Authorization: Bearer {accessToken}
 
@@ -366,7 +329,7 @@ Authorization: Bearer {accessToken}
 
 #### **성적 확정**
 ```http
-PUT /api/v1/professor/grades/finalize?lectureIdx=1
+PUT /api/enrollments/grade/finalize?lectureIdx=1
 Authorization: Bearer {accessToken}
 ```
 
@@ -374,13 +337,13 @@ Authorization: Bearer {accessToken}
 
 #### **과제 목록 조회**
 ```http
-GET /api/v1/professor/assignments?lectureIdx=1
+GET /api/assignments?lectureIdx=1
 Authorization: Bearer {accessToken}
 ```
 
 #### **과제 등록**
 ```http
-POST /api/v1/professor/assignments
+POST /api/assignments
 Content-Type: application/json
 Authorization: Bearer {accessToken}
 
@@ -394,12 +357,12 @@ Authorization: Bearer {accessToken}
 
 #### **과제 제출물 조회 및 채점**
 ```http
-GET /api/v1/professor/assignments/{assignmentIdx}/submissions
+GET /api/assignments/{assignmentIdx}/submissions
 Authorization: Bearer {accessToken}
 ```
 
 ```http
-PUT /api/v1/professor/assignments/submissions/{submissionIdx}
+PUT /api/assignments/submissions/{submissionIdx}
 Content-Type: application/json
 Authorization: Bearer {accessToken}
 
@@ -413,7 +376,7 @@ Authorization: Bearer {accessToken}
 
 #### **공지사항 등록**
 ```http
-POST /api/v1/professor/notices
+POST /api/boards
 Content-Type: application/json
 Authorization: Bearer {accessToken}
 
@@ -432,7 +395,7 @@ Authorization: Bearer {accessToken}
 
 #### **수강 가능 강의 목록 조회**
 ```http
-GET /api/v1/student/lectures/available?year=2025&semester=1&department=CS
+GET /api/lectures?year=2025&semester=1&department=CS
 Authorization: Bearer {accessToken}
 ```
 
@@ -459,7 +422,7 @@ Authorization: Bearer {accessToken}
 
 #### **수강신청**
 ```http
-POST /api/v1/student/enrollments
+POST /api/enrollments
 Content-Type: application/json
 Authorization: Bearer {accessToken}
 
@@ -498,7 +461,7 @@ Authorization: Bearer {accessToken}
 
 #### **수강신청 취소**
 ```http
-DELETE /api/v1/student/enrollments/{enrollmentIdx}
+DELETE /api/enrollments/{enrollmentIdx}
 Content-Type: application/json
 Authorization: Bearer {accessToken}
 
@@ -606,7 +569,7 @@ userTblRepository.findByUserCode(lecture.getLecProf())
 
 #### **강의 상세 정보 조회**
 ```http
-GET /api/v1/student/lectures/{lectureIdx}
+GET /api/lectures/{lectureIdx}
 Authorization: Bearer {accessToken}
 ```
 
@@ -614,7 +577,7 @@ Authorization: Bearer {accessToken}
 
 #### **출결 현황 조회**
 ```http
-GET /api/v1/student/attendance?lectureIdx=1
+GET /api/student/attendance?lectureIdx=1
 Authorization: Bearer {accessToken}
 ```
 
@@ -647,7 +610,7 @@ Authorization: Bearer {accessToken}
 
 #### **출결 사유 신청**
 ```http
-POST /api/v1/student/attendance/request
+POST /api/student/attendance/request
 Content-Type: application/json
 Authorization: Bearer {accessToken}
 
@@ -662,46 +625,19 @@ Authorization: Bearer {accessToken}
 
 #### **과제 목록 조회**
 ```http
-GET /api/v1/student/assignments?lectureIdx=1
+GET /api/assignments?lectureIdx=1
 Authorization: Bearer {accessToken}
 ```
 
 #### **과제 제출**
 ```http
-POST /api/v1/student/assignments/{assignmentIdx}/submit
+POST /api/assignments/{assignmentIdx}/submit
 Content-Type: multipart/form-data
 Authorization: Bearer {accessToken}
 
 {
   "content": "과제 내용 설명",
   "file": {file}
-}
-```
-
-### **강의 평가**
-
-#### **평가 항목 조회**
-```http
-GET /api/v1/student/evaluations/items?lectureIdx=1
-Authorization: Bearer {accessToken}
-```
-
-#### **강의 평가 제출**
-```http
-POST /api/v1/student/evaluations
-Content-Type: application/json
-Authorization: Bearer {accessToken}
-
-{
-  "lectureIdx": 1,
-  "evaluationData": {
-    "content_quality": 4,
-    "material_quality": 5,
-    "pace": 3,
-    "attitude": 4,
-    "overall": 4
-  },
-  "comments": "좋은 강의였습니다."
 }
 ```
 
@@ -713,45 +649,19 @@ Authorization: Bearer {accessToken}
 
 #### **공지사항 목록 조회**
 ```http
-GET /api/v1/common/notices?lectureIdx=1&page=0&size=10
+GET /api/boards?lectureIdx=1&page=0&size=10
 ```
 
 #### **공지사항 상세 조회**
 ```http
-GET /api/v1/common/notices/{noticeIdx}
-```
-
-### **채팅**
-
-#### **채팅방 입장**
-```http
-GET /api/v1/common/chat/rooms/{roomIdx}
-Authorization: Bearer {accessToken}
-```
-
-#### **메시지 전송**
-```http
-POST /api/v1/common/chat/messages
-Content-Type: application/json
-Authorization: Bearer {accessToken}
-
-{
-  "roomIdx": 1,
-  "message": "질문 있습니다.",
-  "messageType": "TEXT"
-}
-```
-
-#### **메시지 목록 조회**
-```http
-GET /api/v1/common/chat/messages?roomIdx=1&before=2025-03-15T10:00:00&page=0&size=50
+GET /api/boards/{noticeIdx}
 ```
 
 ### **파일 업로드**
 
 #### **파일 업로드**
 ```http
-POST /api/v1/common/upload
+POST /api/board-attachments
 Content-Type: multipart/form-data
 Authorization: Bearer {accessToken}
 
@@ -811,6 +721,40 @@ Authorization: Bearer {accessToken}
 | `GRADE_ALREADY_FINALIZED` | 성적 이미 확정됨 |
 | `GRADE_INVALID_SCORE` | 잘못된 점수 범위 |
 | `GRADE_MISSING_DATA` | 필수 성적 데이터 누락 |
+
+---
+
+## 📋 미구현 기능 목록
+
+다음 기능들은 현재 백엔드에 구현되지 않았으므로 API 명세서에서 제외되었습니다.
+
+### **관리자 통계 및 모니터링**
+- `GET /api/admin/evaluation-items` - 평가 항목 관리
+- `POST /api/admin/evaluation-items` - 평가 항목 등록
+- `GET /api/admin/statistics/lectures` - 강의 통계 조회
+- `GET /api/admin/statistics/students/{studentIdx}` - 학생별 통계 조회
+
+**구현 시 필요 사항**: `EvaluationController`, `StatisticsController` 생성 필요
+
+### **강의 평가 시스템**
+- `GET /api/evaluations/items?lectureIdx={id}` - 평가 항목 조회
+- `POST /api/evaluations` - 강의 평가 제출
+
+**구현 시 필요 사항**: `LectureEvaluationController` 및 관련 엔티티 생성 필요
+
+### **실시간 채팅 시스템**
+- `GET /api/chat/rooms/{roomIdx}` - 채팅방 입장
+- `POST /api/chat/messages` - 메시지 전송
+- `GET /api/chat/messages` - 메시지 목록 조회
+
+**구현 시 필요 사항**: `ChatController`, WebSocket 설정, 실시간 메시징 인프라 필요
+
+### **교수 전용 성적 관리**
+- `GET /api/professor/grades?lectureIdx={id}` - 성적 일괄 조회
+- `PUT /api/professor/grades/batch` - 성적 일괄 입력
+- `PUT /api/professor/grades/finalize` - 성적 확정
+
+**현재 상태**: 성적 관리는 `EnrollmentController`를 통해 개별 수강신청별로만 가능
 
 ---
 
