@@ -3,46 +3,56 @@ import { UseAdmin } from '../../../hook/UseAdmin';
 import "../../../css/Course/CourseRegister.css";
 
 function CourseRegister() {
-
-    const [lectureName, setLectureName] = useState("");
-    const [lectureCode, setLectureCode] = useState("");
-    const [lectureDescription, setLectureDescription] = useState("");
-    const [maxStudents, setMaxStudents] = useState(0);
-    const [credit, setCredit] = useState(0);
-    const [professorIdx, setProfessorIdx] = useState(0);
-    const [lecYear, setLecYear] = useState("");
-    const [semester, setSemester] = useState("");
-    const [majorType, setMajorType] = useState("");
-    const [requiredType, setRequiredType] = useState("");
-    const [minGrade, setMinGrade] = useState("");
+    const [lecSerial, setLecSerial] = useState();
+    const [lecTit, setLecTit] = useState();
+    const [lecSummary, setLecSummary] = useState();
+    const [lecMany, setLecMany] = useState();
+    const [lecPoint, setLecPoint] = useState();
+    const [lecTime, setLecTime] = useState();
+    const [lecProf, setLecProf] = useState();
+    const [lecMcode, setLecMcode] = useState();
+    const [lecMcodeDep, setLecMcodeDep] = useState();
+    const [lecYear, setLecYear] = useState();
+    const [lecSemester, setLecSemester] = useState();
+    const [lecMajor, setLecMajor] = useState();
+    const [lecMust, setLecMust] = useState();
+    const [lecMin, setLecMin] = useState();
+    const [lecOpen, setLecOpen] = useState();
 
     const {admin} = UseAdmin();
     const accessToken = admin.accessToken;
 
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
+    
     const submitCourseRegister = async (e) => {
          e.preventDefault();
 
+    const date = new Date().toLocaleString("sv-SE", {
+      timeZone: "Asia/Seoul",
+      hour12: false,
+    });
+    const lecReg = date.slice(0, 16);
+
         const CourseRegisterDetails = {
-            lectureName,
-            lectureCode,
-            lectureDescription,
-            maxStudents,
-            credit,
-            professorIdx,
-            year,
-            semester,
-            majorType,
-            requiredType,
-            minGrade
+            lecSerial,
+            lecTit,
+            lecSummary,
+            lecMany,
+            lecPoint,
+            lecTime,
+            lecProf,
+            lecMcode,
+            lecMcodeDep,
+            lecYear,
+            lecSemester,
+            lecMajor,
+            lecMust,
+            lecMin,
+            lecOpen,
+            lecReg
         }
 
-            if  (lectureName === "" || lectureCode === "" || lectureDescription === "" || maxStudents === 0 ||
-                 credit === 0 || professorIdx === 0 || year === null || semester === "" || 
-                 majorType === "" || requiredType === "" || minGrade === "")
-                 alert("모든 칸을 작성해주세요");
-             else {
                 try {const response = await fetch(`${BASE_URL}/lectures`, {
                 method: 'POST',
                 headers: {
@@ -58,114 +68,90 @@ function CourseRegister() {
         alert(error.message);
         }
     }
-}
+
 
     return (
         <>
             <form>
-                <div className='lectureNameCode'>
-                    <span>
-                        <label>강의 제목</label><br/>
-                        <input
-                        type="text"
-                        value={lectureName}
-                        onChange={(e) => setLectureName(e.target.value)}
-                        required
-                        style={{ width: '70%', padding: '8px' }}
-                        />
-                    </span>
-                
-                    <span>
+                <div>
                         <label>강의 코드</label><br/>
                         <input
                         type="text"
-                        value={lectureCode}
-                        onChange={(e) => setLectureCode(e.target.value)}
+                        value={lecSerial}
+                        onChange={(e) => setLecSerial(e.target.value)}
+                        required
+                        style={{ width: '70%', padding: '8px' }}
+                        />
+                    
+                        <label>강의 제목</label><br/>
+                        <input
+                        type="text"
+                        value={lecTit}
+                        onChange={(e) => setLecTit(e.target.value)}
                         required
                         style={{ width: '30%', padding: '8px' }}
                         />
-                    </span>
-                </div>
-
-                <div>
-                    <label>강의 설명</label><br/>
+               
+                    <label>강의 개요</label><br/>
                     <input
                     type="text"
-                    value={lectureDescription}
-                    onChange={(e) => setLectureDescription(e.target.value)}
-                    required
+                    value={lecSummary}
+                    onChange={(e) => setLecSummary(e.target.value)}
                     style={{ width: '100%', padding: '8px' }}
                     />
-                </div>
-
-                <div>
-                    <label>담당 교수 Idx</label><br/>
+                
+                    <label>최대 수강 인원</label><br/>
                     <input
                     type="number"
-                    value={professorIdx}
-                    onChange={(e) => setProfessorIdx(Number(e.target.value))}
+                    value={lecMany}
+                    onChange={(e) => setLecMany(Number(e.target.value))}
                     required
                     style={{ width: '100%', padding: '8px' }}
                     />
-                </div>
-
-                <div className="maxStudentsCreditYearSemester">
-                    <span>
-                        <label>수강 인원</label><br/>
-                        <input
-                        type="number"
-                        value={maxStudents}
-                        onChange={(e) => setMaxStudents(Number(e.target.value))}
-                        required
-                        style={{ width: '20%', padding: '8px' }}
-                        />
-                    </span>
-                    
-                    <span>
+               
                         <label>학점</label><br/>
                         <input
                         type="number"
-                        value={credit}
-                        onChange={(e) => setCredit(Number(e.target.value))}
+                        value={lecPoint}
+                        onChange={(e) => setLecPoint(Number(e.target.value))}
                         required
                         style={{ width: '20%', padding: '8px' }}
                         />
-                    </span>
-
-                    <span>
-                        <label>수강 최소 학년</label><br/>
-                        <select
-                        value={lecYear}
-                        onChange={(e) => setLecYear(Number(e.target.value))}
+                    
+                        <label>강의 시간</label><br/>
+                        <input
+                        type="text"
+                        value={lecTime}
+                        onChange={(e) => setLecTime(e.target.value)}
                         required
-                        style={{ width: '100%', padding: '8px' }}
-                        >
-                            <option value="">수강에 필요한 최소 학년을 선택하세요</option>
-                            <option value={1}>1학년</option>
-                            <option value={2}>2학년</option>
-                            <option value={3}>3학년</option>
-                            <option value={4}>4학년</option>
-                        </select>
-                    </span>
-
-                    <span>
-                        <label>학기</label><br/>
+                        style={{ width: '20%', padding: '8px' }}
+                        />
+                   
+                        <label>담당 교수</label><br/>
+                        <input
+                        type="text"
+                        value={lecProf}
+                        onChange={(e) => setLecProf(e.target.value)}
+                        required
+                        style={{ width: '20%', padding: '8px' }}
+                        />
+                    
+                        <label>학부</label><br/>
                         <select
-                        value={semester}
-                        onChange={(e) => setSemester(Number(e.target.value))}
+                        value={lecMcode}
+                        onChange={(e) => setLecMcode(`0${Number(e.target.value)}`)}
                         required
                         style={{ width: '30%', padding: '8px' }}
                         >
-                            <option value="">학기를 선택하세요</option>
-                            <option value={1}>1학기</option>
-                            <option value={2}>2학기</option>
+                            <option value="">학부를 선택하세요</option>
+                            <option value={1}>해양학부</option>
+                            <option value={2}>보건학부</option>
+                            <option value={3}>자연과학부</option>
+                            <option value={4}>인문학부</option>
+                            <option value={5}>공학부</option>
                         </select>
-                    </span>
-                </div>
-
-                <div className='majorRequiredType'>
-                    <span>
-                        <label>전공 여부</label><br/>
+                    
+                        <label>학과</label><br/>
                         <select
                         value={majorType}
                         onChange={(e) => setMajorType(Number(e.target.value))}
@@ -176,38 +162,75 @@ function CourseRegister() {
                             <option value={1}>전공</option>
                             <option value={0}>교양</option>
                         </select>
-                    </span>
+                    
+                        <label>대상 학년</label><br/>
+                        <select
+                        value={lecYear}
+                        onChange={(e) => setLecYear(Number(e.target.value))}
+                        style={{ width: '30%', padding: '8px' }}
+                        >
+                            <option value="">학년을 선택하세요</option>
+                            <option value={1}>1학년</option>
+                            <option value={2}>2학년</option>
+                            <option value={3}>3학년</option>
+                            <option value={4}>4학년</option>
+                        </select>
 
-                    <span>
+                        <label>전공 여부</label><br/>
+                        <select
+                        value={lecMajor}
+                        onChange={(e) => setLecMajor(Number(e.target.value))}
+                        required
+                        style={{ width: '30%', padding: '8px' }}
+                        >
+                            <option value="">전공 여부</option>
+                            <option value={1}>전공</option>
+                            <option value={0}>교양</option>
+                        </select>
+
                         <label>필수 여부</label><br/>
                         <select
-                        value={requiredType}
-                        onChange={(e) => setRequiredType(Number(e.target.value))}
+                        value={lecMust}
+                        onChange={(e) => setLecMust(Number(e.target.value))}
                         required
-                        style={{ width: '100%', padding: '8px' }}
+                        style={{ width: '30%', padding: '8px' }}
                         >
-                            <option value="">필수 여부를 선택하세요</option>
+                            <option value="">필수 여부</option>
                             <option value={1}>필수</option>
                             <option value={0}>선택</option>
                         </select>
-                    </span>
+
+                        <label>수강 가능 최저 학년</label><br/>
+                        <select
+                        value={lecMin}
+                        onChange={(e) => setLecMin(Number(e.target.value))}
+                        required
+                        style={{ width: '30%', padding: '8px' }}
+                        >
+                            <option value={0}>제한 없음</option>
+                            <option value={1}>1학기 이상</option>
+                            <option value={2}>2학기 이상</option>
+                            <option value={3}>3학기 이상</option>
+                            <option value={4}>4학기 이상</option>
+                            <option value={5}>5학기 이상</option>
+                            <option value={6}>6학기 이상</option>
+                            <option value={7}>7학기 이상</option>
+                            <option value={8}>8학기 이상</option>
+                        </select>
+
+                        <label>수강신청 가능 여부</label><br/>
+                        <select
+                        value={lecOpen}
+                        onChange={(e) => setLecOpen(Number(e.target.value))}
+                        required
+                        style={{ width: '30%', padding: '8px' }}
+                        >
+                            <option value="">수강신청 가능 여부</option>
+                            <option value={1}>열림</option>
+                            <option value={0}>닫힘</option>
+                        </select>
                 </div>
 
-                <div>
-                    <label>수강 최소 학년</label><br/>
-                    <select
-                    value={minGrade}
-                    onChange={(e) => setMinGrade(Number(e.target.value))}
-                    required
-                    style={{ width: '100%', padding: '8px' }}
-                    >
-                        <option value="">수강에 필요한 최소 학년을 선택하세요</option>
-                        <option value={1}>1학년</option>
-                        <option value={2}>2학년</option>
-                        <option value={3}>3학년</option>
-                        <option value={4}>4학년</option>
-                    </select>
-                </div>
             </form>
 
             
