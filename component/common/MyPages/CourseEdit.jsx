@@ -1,60 +1,53 @@
-import {useState} from 'react';
+import React, { useEffect, useState } from 'react';
+import { UseUser } from '../../../hook/UseUser';
 
 function CourseEdit() {
+    const { user } = UseUser();
+    const [courseList, setCourseList] = useState([]);
+    const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
-    const [lectureName, setLectureName] = useState("");
-    const [lectureDescription, setLectureDescription] = useState("");
-    const [maxStudents, setMaxStudents] = useState(0);
-    const [credit, setCredit] = useState(0);
+    const getAccessToken = () => {
+        const storedToken = localStorage.getItem('accessToken');
+        if (storedToken) return storedToken;
+        if (user && user.data && user.data.accessToken) return user.data.accessToken;
+        return null;
+    };
+
+    const getCourseList = async (accessToken) => {
+        try {
+            const response = await fetch(`${BASE_URL}/v1/professor/lectures`, {
+                method: "POST",
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({}) // 🔄 빈 객체 또는 필요한 데이터 전달
+            });
+            if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
+            const data = await response.json();
+            setCourseList(data); // ✅ 받아온 데이터 저장
+        } catch (error) {
+            console.error('강의 목록 조회 에러:', error);
+        }
+    };
+
+    useEffect(() => {
+        const token = getAccessToken();
+        if (token) {
+            getCourseList(token); // ✅ 실제 호출
+        }
+    }, []);
 
     return (
-        <form>
-            <div>
-                <label>강의 제목</label><br/>
-                <input
-                type="text"
-                value={lectureName}
-                onChange={(e) => setLectureName(e.target.value)}
-                required
-                style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
-                />
-            </div>
-
-            <div>
-                <label>강의 설명</label><br/>
-                <input
-                type="text"
-                value={lectureDescription}
-                onChange={(e) => setLectureDescription(e.target.value)}
-                required
-                style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
-                />
-            </div>
-
-            <div>
-                <label>수강 인원</label><br/>
-                <input
-                type="number"
-                value={maxStudents}
-                onChange={(e) => setMaxStudents(e.target.value)}
-                required
-                style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
-                />
-            </div>
-
-            <div>
-                <label>학점</label><br/>
-                <input
-                type="number"
-                value={credit}
-                onChange={(e) => setCredit(e.target.value)}
-                required
-                style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
-                />
-            </div>
-
-        </form>
-    )
+        <div>
+            <h2>강의 목록</h2>
+            <ul>
+                {courseList.map((course, idx) => (
+                    <li key={idx}>{course.title}</li>
+                ))}
+            </ul>
+        </div>
+    );
 }
 
 export default CourseEdit;
