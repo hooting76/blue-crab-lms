@@ -1,0 +1,20 @@
+.lectureNameCode,
+.maxStudentsCreditYearSemester,
+.majorRequiredType {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+}
+.lectureNameCode span,
+.maxStudentsCreditYearSemester span,
+.majorRequiredType span {
+    flex: 1;
+}
+
+input {
+    margin-bottom: 10px;
+}
+
+.courseRegisterBtn {
+    font-size: var(--font-mid);
+}

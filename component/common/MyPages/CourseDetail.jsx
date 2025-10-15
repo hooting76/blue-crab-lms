@@ -46,17 +46,19 @@ function CourseDetail({lectureIdx}) {
     };
 
     return (
-        <div className="courseDetailContainer">
-            <div className="courseDetailTitleAndCode">
-                <span className="courseDetailTitle">강의 제목 : {course.lectureName}</span>
-                <span className="courseDetailCode">{course.lectureCode}</span>
-            </div>
+        <>
+            <div className="courseDetailContainer">
+                <div className="courseDetailTitleAndCode">
+                    <span className="courseDetailTitle">강의 제목 : {course.lectureName}</span>
+                    <span className="courseDetailCode">강의 코드 : {course.lectureCode}</span>
+                </div>
 
-            <div className="courseDetailProfMax">
-                <span className="courseDetailProf">담당 교수 : {}</span>
-                <span className="courseDetailMax">수강 인원 : {course.maxStudents}</span>
+                <div className="courseDetailProfMax">
+                    <span className="courseDetailProf">담당 교수 : {}</span>
+                    <span className="courseDetailMax">수강 인원 : {course.maxStudents}</span>
+                </div>
             </div>
-        </div>
+        </>
     )
 }
 

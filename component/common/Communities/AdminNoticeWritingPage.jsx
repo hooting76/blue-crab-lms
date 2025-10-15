@@ -32,7 +32,7 @@ function AdminNoticeWritingPage({ notice, accessToken: propToken, currentPage, s
   const getAccessToken = () => {
     const storedToken = localStorage.getItem('accessToken');
     if (storedToken) return storedToken;
-    if (isAdminAuth && admin?.data?.accessToken) return admin.data.accessToken;
+    if (isAdminAuth && admin.accessToken) return admin.accessToken;
     return null;
   };
 
