@@ -242,13 +242,9 @@ function CourseRegister() {
                         required
                         >
                             <option value={0}>제한 없음</option>
-                            <option value={1}>1학기 이상</option>
-                            <option value={2}>2학기 이상</option>
-                            <option value={3}>3학기 이상</option>
-                            <option value={4}>4학기 이상</option>
-                            <option value={5}>5학기 이상</option>
-                            <option value={6}>6학기 이상</option>
-                            <option value={7}>7학기 이상</option>
+                            <option value={1}>2학년 이상</option>
+                            <option value={2}>3학년 이상</option>
+                            <option value={3}>4학년 이상</option>
                         </select>
                     </span>
 
