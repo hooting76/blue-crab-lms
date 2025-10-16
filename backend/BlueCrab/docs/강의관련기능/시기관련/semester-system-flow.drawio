@@ -1,0 +1,88 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" version="28.2.7">
+  <diagram name="학기시스템플로우" id="semester-flow">
+    <mxGraphModel dx="983" dy="536" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" background="light-dark(#FFFFFF,#FFFFFF)" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" style="fillColor:#FFFFFF;" parent="0" />
+        <mxCell id="start" value="서버 현재 시간 확인" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e3c800;strokeColor=#B09500;fontSize=14;fontStyle=1;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="440" y="100" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="period-check" value="시기 판별 로직 실행" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontSize=14;fontStyle=1;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="440" y="200" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="vacation-period" value="🔴 방학 기간" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#F8CECC,#4D9900);strokeColor=#b85450;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="160" y="310" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="enrollment-period" value="🔵 수강신청 기간" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#DAE8FC,#FF8000);strokeColor=#6c8ebf;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="450" y="300" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="semester-period" value="🟢 학기 중" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#D5E8D4,#6600CC);strokeColor=#82b366;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="690" y="300" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="vacation-message" value="방학 메시지 출력&lt;br&gt;&lt;br&gt;• &quot;방학 잘 보내세요 😊&quot;&lt;br&gt;• 다음 수강신청 일정 안내&lt;br&gt;• 대부분 기능 비활성화" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#F8CECC,#4D9900);strokeColor=#b85450;fontSize=12;align=left;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="100" y="400" width="300" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="enrollment-auth" value="1단계: 자격 검증&lt;br&gt;&lt;br&gt;• 로그인 확인&lt;br&gt;• 학생 권한 확인&lt;br&gt;• USER_STUDENT = 0" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#DAE8FC,#FF8000);strokeColor=#9673a6;fontSize=12;align=left;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="440" y="410" width="200" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="enrollment-filter" value="2단계: 강의 필터링&lt;br&gt;&lt;br&gt;• 학부 코드 일치 ✅&lt;br&gt;• 학과 코드 일치 ✅&lt;br&gt;• 최소 학년 이상 ✅&lt;br&gt;• 정원 미달 ❌&lt;br&gt;&lt;br&gt;⚠️ 0값 = 제한없음" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#DAE8FC,#FF8000);strokeColor=#9673a6;fontSize=12;align=left;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="440" y="550" width="200" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="enrollment-action" value="3단계: 수강신청 기능&lt;br&gt;&lt;br&gt;• 수강 가능 강의 조회&lt;br&gt;• 수강신청 처리&lt;br&gt;• 수강신청 취소&lt;br&gt;• 수강신청 현황 확인" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#DAE8FC,#FF8000);strokeColor=#9673a6;fontSize=12;align=left;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="440" y="750" width="200" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="1ke2FE9UgFbiBO1ngujP-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="semester-list" target="semester-detail" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="semester-list" value="1단계: 수강중 강의 목록&lt;br&gt;&lt;br&gt;• ENROLLMENT_EXTENDED_TBL 조회&lt;br&gt;• 강의명, 교수명&lt;br&gt;• 시간, 강의실 정보" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#D5E8D4,#6600CC);strokeColor=#82b366;fontSize=12;align=left;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="680" y="410" width="200" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="semester-detail" value="2단계: 강의 상세정보&lt;br&gt;&lt;br&gt;• 기본 정보 (제목, 교수, 시간)&lt;br&gt;• 수강 정보 (정원, 현재인원)&lt;br&gt;• 학사 정보 (학년, 학기, 학점)&lt;br&gt;• 과제 정보 &amp; 수강생 정보" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#D5E8D4,#6600CC);strokeColor=#82b366;fontSize=12;align=left;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="670" y="580" width="220" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="api-info" value="🛠 주요 API 엔드포인트&lt;br&gt;&lt;br&gt;📍 시기 판별: /api/semester/current-period&lt;br&gt;   🆕 새로 구현 필요 (SemesterController)&lt;br&gt;&lt;br&gt;📍 수강 자격: /api/enrollment/eligible-lectures/{studentId}&lt;br&gt;   � 기존 확장 (LectureController + 0값 규칙)&lt;br&gt;&lt;br&gt;�📍 수강중 강의: /api/enrollments?enrolled=true&amp;studentIdx={id}&lt;br&gt;   ✅ 이미 완료됨 (EnrollmentController)&lt;br&gt;&lt;br&gt;⚙️ 구현 원칙&lt;br&gt;• DB 제약: 최소한 (PK, FK, NOT NULL)&lt;br&gt;• 비즈니스 로직: 애플리케이션 레벨&lt;br&gt;• 0값 규칙: 제한 없음을 의미" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;fontSize=11;align=left;verticalAlign=top;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="20" y="520" width="350" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="period-settings" value="📅 시기 설정 규칙&lt;br&gt;&lt;br&gt;🔴 방학: 메시지 출력, 기능 비활성화&lt;br&gt;🔵 수강신청: 2주간 (14일)&lt;br&gt;🟢 학기: 수강신청 종료일 + 1일 시작&lt;br&gt;&lt;br&gt;⏰ 테스트용 설정&lt;br&gt;• 수강신청 시작일: 관리자 설정&lt;br&gt;• 자동 기간 계산: 시작일 + 14일&lt;br&gt;• 실시간 시기 전환&lt;br&gt;&lt;br&gt;📊 구현 현황&lt;br&gt;🆕 시기 판별 - 새로 구현 필요&lt;br&gt;🔄 자격 검증 - 기존 확장&lt;br&gt;✅ 수강 조회 - 완료됨" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;fontSize=11;align=left;verticalAlign=top;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="20" y="740" width="300" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="zero-rule" value="⚠️ 0값 제한없음 규칙 상세&lt;br&gt;&lt;br&gt;강의 A: 학부=01, 학과=0, 최소학년=2&lt;br&gt;→ 01학부 소속이면서 2학년 이상인 모든 학과&lt;br&gt;&lt;br&gt;강의 B: 학부=0, 학과=0, 최소학년=0&lt;br&gt;→ 전체 학생 수강 가능 (완전 개방)&lt;br&gt;&lt;br&gt;강의 C: 학부=01, 학과=03, 최소학년=3&lt;br&gt;→ 01학부 03학과 3학년 이상만 수강 가능&lt;br&gt;&lt;br&gt;💡 현재 LectureController에 일부 필터링 있음&lt;br&gt;→ 학생별 자격 검증 로직 추가 필요" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontSize=11;align=left;verticalAlign=top;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="20" y="960" width="350" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="edge1" style="strokeColor=#2D7DD2;strokeWidth=2;endArrow=classic;endFill=1;" parent="1" source="start" target="period-check" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge2" style="strokeColor=#CC4125;strokeWidth=2;endArrow=classic;endFill=1;edgeStyle=orthogonalEdgeStyle;" parent="1" source="period-check" target="vacation-period" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge3" style="strokeColor=#1A73E8;strokeWidth=2;endArrow=classic;endFill=1;" parent="1" source="period-check" target="enrollment-period" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge4" style="strokeColor=#0D652D;strokeWidth=2;endArrow=classic;endFill=1;edgeStyle=orthogonalEdgeStyle;" parent="1" source="period-check" target="semester-period" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge5" style="strokeColor=#CC4125;strokeWidth=2;endArrow=classic;endFill=1;" parent="1" source="vacation-period" target="vacation-message" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge6" style="strokeColor=#5B2C87;strokeWidth=2;endArrow=classic;endFill=1;" parent="1" source="enrollment-period" target="enrollment-auth" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge7" style="strokeColor=#5B2C87;strokeWidth=2;endArrow=classic;endFill=1;" parent="1" source="enrollment-auth" target="enrollment-filter" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge8" style="strokeColor=#5B2C87;strokeWidth=2;endArrow=classic;endFill=1;" parent="1" source="enrollment-filter" target="enrollment-action" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge9" style="strokeColor=#0D652D;strokeWidth=2;endArrow=classic;endFill=1;" parent="1" source="semester-period" target="semester-list" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge10" style="strokeColor=#0D652D;strokeWidth=2;endArrow=classic;endFill=1;" parent="1" source="semester-list" target="semester-detail" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="title" value="학기 시스템 및 수강신청 기간 관리 플로우" style="text;html=1;strokeColor=#333333;fillColor=#FFFFFF;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="340" y="60" width="400" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
