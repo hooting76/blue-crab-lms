@@ -121,6 +121,11 @@
 }
 
 @media (max-width:425px){
+    .frm_row > input::placeholder{
+        font-size: 15px;
+        line-height: normal;
+    }
+
     .frm_row > input{
         line-height: normal;
     }
@@ -131,9 +136,20 @@
     }
 }
 
-@media (max-width:375px){
+@media (max-width:375px){    
+    .frm_row{
+        justify-content: start;
+    }
+    .frm_row > input::placeholder{
+        font-size: 13px;
+        line-height: normal;
+    }
+    
     .frm_row > label{
         width: 75px !important;
         font-size: 13px !important;
     }    
+    .frm_row > input{
+        width: 100% !important;
+    }        
 }
