@@ -25,8 +25,7 @@ function CourseList() {
 
     const getCourseList = async (accessToken) => {
         try {
-            const response = await fetch(`${BASE_URL}/v1/professor/lectures`, {
-                method: "POST",
+            const response = await fetch(`${BASE_URL}/professor/lectures`, {
                 headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
