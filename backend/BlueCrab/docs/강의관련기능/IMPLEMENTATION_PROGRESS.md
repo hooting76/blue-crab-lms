@@ -739,7 +739,7 @@ repository/Lecture/
 
 ##### ✨ 최적화 결과
 
-**LectureController (11개 → 6개)**
+**LectureController (11개 → 7개)**
 ```
 ✅ POST /lectures - 통합 조회 엔드포인트
    ├─ Body: {serial}          (강의코드 조회)
@@ -750,9 +750,10 @@ repository/Lecture/
    └─ Body: {page, size}      (전체 목록)
 ✅ POST /lectures/detail - 강의 상세 (Body: {lecIdx})
 ✅ POST /lectures/stats - 강의 통계 (Body: {lecIdx})
+✅ POST /lectures/eligible - 수강 가능 강의 (Body: {studentIdx})
 ✅ POST /lectures/create - 강의 생성
-✅ PUT /lectures/{id} - 강의 수정
-✅ DELETE /lectures/{id} - 강의 삭제
+✅ POST /lectures/update - 강의 수정 (Body: {lecIdx, ...})
+✅ POST /lectures/delete - 강의 삭제 (Body: {lecIdx})
 ```
 
 **EnrollmentController (12개 → 7개)**
@@ -766,29 +767,33 @@ repository/Lecture/
 ✅ POST /enrollments/detail - 수강 상세 (Body: {enrollmentIdx})
 ✅ POST /enrollments/enroll - 수강신청
 ✅ POST /enrollments/drop - 수강취소 (Body: {enrollmentIdx})
-✅ PUT /enrollments/{id}/attendance - 출석 갱신
-✅ PUT /enrollments/{id}/grade - 성적 입력
+✅ POST /enrollments/attendance - 출석 갱신 (Body: {enrollmentIdx, ...})
+✅ POST /enrollments/grade - 성적 입력 (Body: {enrollmentIdx, ...})
+✅ POST /enrollments/data - JSON 데이터 조회 (Body: {enrollmentIdx})
 ```
 
-**AssignmentController (11개 → 8개)**
+**AssignmentController (11개 → 9개)**
 ```
 ✅ POST /api/assignments/list - 통합 조회
    ├─ Body: {lecIdx}          (강의별)
    ├─ Body: {withLecture}     (강의 정보 포함)
    └─ Body: {stats}           (통계)
 ✅ POST /api/assignments/detail - 과제 상세 (Body: {assignmentIdx})
-✅ POST /api/assignments/create - 과제 생성
-✅ POST /api/assignments/submit - 과제 제출
-✅ PUT /api/assignments/{id} - 과제 수정
-✅ PUT /api/assignments/{id}/grade - 과제 채점
-✅ DELETE /api/assignments/{id} - 과제 삭제
+✅ POST /api/assignments/data - JSON 데이터 조회 (Body: {assignmentIdx})
+✅ POST /api/assignments/submissions - 제출 현황 (Body: {assignmentIdx})
+✅ POST /api/assignments - 과제 생성
+✅ POST /api/assignments/{assignmentIdx}/submit - 과제 제출
+✅ POST /api/assignments/{assignmentIdx} - 과제 수정
+✅ POST /api/assignments/{assignmentIdx}/grade - 과제 채점
+✅ POST /api/assignments/{assignmentIdx} - 과제 삭제
 ```
 
 ##### 📊 통합 성과
-- **엔드포인트 수**: 34개 → 21개 (38% 감소)
+- **엔드포인트 수**: 34개 → 23개 (32% 감소)
+- **POST 방식 통일**: 모든 API가 Request Body 기반 통신
 - **코드 중복 제거**: 조회 로직 통합
 - **유지보수성 향상**: 단일 엔드포인트에서 다양한 쿼리 처리
-- **RESTful 설계**: 리소스 중심, HTTP 메서드 활용
+- **RESTful 설계**: 리소스 중심, 일관된 통신 방식
 - **확장성**: 새로운 필터 추가 용이
 
 ---

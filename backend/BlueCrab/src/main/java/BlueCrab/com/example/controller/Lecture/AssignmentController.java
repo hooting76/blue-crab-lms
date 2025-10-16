@@ -1,5 +1,4 @@
 // 작성자: 성태준
-// 과제 관리 컨트롤러
 
 package BlueCrab.com.example.controller.Lecture;
 
@@ -19,18 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/* 과제 관리 REST API 컨트롤러 (통합 버전)
- * 
- * 주요 엔드포인트:
- * - GET /api/assignments - 과제 조회 (쿼리 파라미터로 필터링)
- * - GET /api/assignments/{id} - 과제 상세 조회
- * - GET /api/assignments/{id}/data - JSON 데이터 파싱
- * - POST /api/assignments - 과제 등록
- * - POST /api/assignments/{id}/submit - 과제 제출
- * - PUT /api/assignments/{id} - 과제 수정
- * - PUT /api/assignments/{id}/grade - 과제 채점
- * - DELETE /api/assignments/{id} - 과제 삭제
- */
 @RestController
 @RequestMapping("/api/assignments")
 public class AssignmentController {
