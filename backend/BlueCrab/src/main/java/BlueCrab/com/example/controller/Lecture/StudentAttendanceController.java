@@ -59,8 +59,9 @@ public class StudentAttendanceController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> getMyAttendance(
             @RequestBody Map<String, Object> request) {
         
+        Integer enrollmentIdx = null;
         try {
-            Integer enrollmentIdx = request.get("enrollmentIdx") != null ? 
+            enrollmentIdx = request.get("enrollmentIdx") != null ? 
                     ((Number) request.get("enrollmentIdx")).intValue() : null;
             
             if (enrollmentIdx == null) {
