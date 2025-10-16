@@ -27,6 +27,8 @@ function CourseList() {
         return null;
     };
 
+    console.log("user :", user);
+
     const getCourseList = async (accessToken) => {
         try {
             const response = await fetch(`${BASE_URL}/professor/lectures`, {
