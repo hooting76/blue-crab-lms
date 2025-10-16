@@ -127,6 +127,14 @@ const fetchClassAttendingList = async (accessToken) => {
     return (
         <div className="classAttending_list_container">
             <select value={selectedSemester} onChange={handleSemesterChange} className='selectSemester'>
+                {semesterOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                        {option.label}
+                    </option>
+                ))}
+            </select>
+
+            <select className="lectureName">
                 {lectureList.length > 0 ? (
                     lectureList.map((cls) => (
                         <option key={cls.lecIdx} value={cls.lecIdx}>
@@ -136,14 +144,6 @@ const fetchClassAttendingList = async (accessToken) => {
                 ) : (
                     <option disabled>강의 목록 없음</option>
                 )}
-            </select>
-
-            <select className="lectureName">
-                {lectureList.map((cls) => (
-                    <option key={cls.lecIdx} value={cls.lecIdx}>
-                        {cls.lecTit}
-                    </option>
-                ))}
             </select>
 
             <div className="classAttendingContent">
