@@ -20,7 +20,7 @@ function CourseList() {
         setIsModalOpen(false);
     };
 
-    const accessToken = user.data.accessToken;
+    const accessToken = user?.data?.accessToken;
     console.log("user : ", user);
     console.log("accessToken : ", accessToken);
 
