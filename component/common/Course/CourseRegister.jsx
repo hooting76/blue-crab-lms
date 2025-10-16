@@ -28,11 +28,11 @@ function CourseRegister() {
     const submitCourseRegister = async (e) => {
          e.preventDefault();
 
-    const date = new Date().toLocaleString("sv-SE", {
-      timeZone: "Asia/Seoul",
-      hour12: false,
-    });
-    const lecReg = date.slice(0, 16);
+        const date = new Date().toLocaleString("sv-SE", {
+        timeZone: "Asia/Seoul",
+        hour12: false,
+        });
+        const lecReg = date.slice(0, 16);
 
         const CourseRegisterDetails = {
             lecSerial,
@@ -42,8 +42,8 @@ function CourseRegister() {
             lecPoint,
             lecTime,
             lecProf,
-            lecMcode,
-            lecMcodeDep,
+            lecMcode : String(`0${lecMcode}`),
+            lecMcodeDep: String(`0${lecMcodeDep}`),
             lecYear,
             lecSemester,
             lecMajor,
@@ -52,7 +52,8 @@ function CourseRegister() {
             lecOpen,
             lecReg
         }
-
+        console.log(("CourseRegisterDetails :"), CourseRegisterDetails);
+        
                 try {const response = await fetch(`${BASE_URL}/lectures`, {
                 method: 'POST',
                 headers: {
@@ -68,6 +69,7 @@ function CourseRegister() {
         alert(error.message);
         }
     }
+    console.log("Access Token:", accessToken);
 
 
     return (
@@ -103,7 +105,7 @@ function CourseRegister() {
                     onChange={(e) => setLecSummary(e.target.value)}
                     />
                 
-                <div className='lecManyPointTime'>
+                <div className='lecManyPointTimeProfMcode'>
                     <span>
                         <label>최대 수강 인원</label><br/>
                         <input
@@ -133,9 +135,7 @@ function CourseRegister() {
                         required
                         />
                     </span>
-                </div>
-
-                <div className='lecProfMcodeDep'>
+                
                     <span>
                         <label>담당 교수</label><br/>
                         <input
@@ -150,10 +150,10 @@ function CourseRegister() {
                         <label>학부</label><br/>
                         <select
                         value={lecMcode}
-                        onChange={(e) => setLecMcode(`0${Number(e.target.value)}`)}
+                        onChange={(e) => {setLecMcode(Number(e.target.value)); setLecMcodeDep("");}}
                         required
                         >
-                            <option value="">학부를 선택하세요</option>
+                            <option value="">학부</option>
                             <option value={1}>해양학부</option>
                             <option value={2}>보건학부</option>
                             <option value={3}>자연과학부</option>
@@ -166,27 +166,69 @@ function CourseRegister() {
                         <label>학과</label><br/>
                         <select
                         value={lecMcodeDep}
-                        onChange={(e) => setLecMcodeDep(`0${Number(e.target.value)}`)}
+                        onChange={(e) => setLecMcodeDep(Number(e.target.value))}
                         required
                         >
-                            <option value="">학과를 선택하세요</option>
-                            <option value={1}>해양학부</option>
-                            <option value={2}>보건학부</option>
-                            <option value={3}>자연과학부</option>
-                            <option value={4}>인문학부</option>
-                            <option value={5}>공학부</option>
+                            {lecMcode === 1 &&
+                            <>
+                            <option value="">학과</option>
+                            <option value={1}>항해학과</option>
+                            <option value={2}>해양경찰</option>
+                            <option value={3}>해군사관</option>
+                            <option value={4}>도선학과</option>
+                            <option value={5}>해양수산학</option>
+                            <option value={6}>조선학과</option>
+                            </>}
+
+                            {lecMcode === 2 &&
+                            <>
+                            <option value="">학과</option>
+                            <option value={1}>간호학</option>
+                            <option value={2}>치위생</option>
+                            <option value={3}>약학과</option>
+                            <option value={4}>보건정책학</option>
+                            </>}
+
+                            {lecMcode === 3 &&
+                            <>
+                            <option value="">학과</option>
+                            <option value={1}>물리학</option>
+                            <option value={2}>수학</option>
+                            <option value={3}>분자화학</option>
+                            </>}
+
+                            {lecMcode === 4 &&
+                            <>
+                            <option value="">학과</option>
+                            <option value={1}>철학</option>
+                            <option value={2}>국어국문</option>
+                            <option value={3}>역사학</option>
+                            <option value={4}>경영</option>
+                            <option value={5}>경제</option>
+                            <option value={6}>정치외교</option>
+                            <option value={7}>영어영문</option>
+                            </>}
+
+                            {lecMcode === 5 &&
+                            <>
+                            <option value="">학과</option>
+                            <option value={1}>컴퓨터공학</option>
+                            <option value={2}>기계공학</option>
+                            <option value={3}>전자공학</option>
+                            <option value={4}>ICT융합</option>
+                            </>}
                         </select>
                     </span>
                 </div>
 
-                <div className='lecYearSemesterMajorMust'>
+                <div className='lecYearSemesterMajorMustMinOpen'>
                     <span>
                         <label>대상 학년</label><br/>
                         <select
                         value={lecYear}
                         onChange={(e) => setLecYear(Number(e.target.value))}
                         >
-                            <option value="">학년을 선택하세요</option>
+                            <option value="">학년</option>
                             <option value={1}>1학년</option>
                             <option value={2}>2학년</option>
                             <option value={3}>3학년</option>
@@ -200,7 +242,7 @@ function CourseRegister() {
                         value={lecSemester}
                         onChange={(e) => setLecSemester(Number(e.target.value))}
                         >
-                            <option value="">학기를 선택하세요</option>
+                            <option value="">학기</option>
                             <option value={1}>1학기</option>
                             <option value={2}>2학기</option>
                         </select>
@@ -213,7 +255,7 @@ function CourseRegister() {
                         onChange={(e) => setLecMajor(Number(e.target.value))}
                         required
                         >
-                            <option value="">전공 여부를 선택하세요</option>
+                            <option value="">전공 여부</option>
                             <option value={1}>전공</option>
                             <option value={0}>교양</option>
                         </select>
@@ -231,9 +273,7 @@ function CourseRegister() {
                             <option value={0}>선택</option>
                         </select>
                     </span>
-                </div>
-
-                <div className='lecMinOpen'>
+                
                     <span>
                         <label>수강 가능 최저 학년</label><br/>
                         <select
@@ -241,6 +281,7 @@ function CourseRegister() {
                         onChange={(e) => setLecMin(Number(e.target.value))}
                         required
                         >
+                            <option value="">최저 학년</option>
                             <option value={0}>제한 없음</option>
                             <option value={1}>2학년 이상</option>
                             <option value={2}>3학년 이상</option>
