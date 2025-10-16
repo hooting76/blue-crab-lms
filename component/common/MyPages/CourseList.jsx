@@ -20,21 +20,15 @@ function CourseList() {
         setIsModalOpen(false);
     };
 
-    const getAccessToken = () => {
-        const storedToken = localStorage.getItem('accessToken');
-        if (storedToken) return storedToken;
-        if (user && user.data && user.data.accessToken) return user.data.accessToken;
-        return null;
-    };
-
+    const accessToken = user.data.accessToken;
 
     const getCourseList = async (accessToken) => {
         try {
             const response = await fetch(`${BASE_URL}/professor/lectures`, {
                 method: "POST",
                 headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json'
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({}) // 🔄 빈 객체 또는 필요한 데이터 전달
             });
@@ -47,13 +41,10 @@ function CourseList() {
     };
 
     useEffect(() => {
-        const accessToken = getAccessToken();
         if (accessToken) {
             getCourseList(accessToken); // ✅ 실제 호출
         }
     }, []);
-
-    console.log("Fetching from:", `${BASE_URL}/professor/lectures`);
 
 
     const handleEdit = () => {
