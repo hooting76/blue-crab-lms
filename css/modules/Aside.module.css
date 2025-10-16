@@ -1,34 +1,7 @@
 @charset "utf-8";
 
-.asideWrap{
-    display: flex;
-    justify-content: left;
-    align-items: center;
-    gap: 5px;
-}
-
-.idImg{
-    background: #fff;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.idImg > svg{
-    font-size: 18px;
-}
-
-
-.Info{
-    border-left: 1px solid #999;
-    padding-left: 2px;
-}
-.Info > p{
-    line-height: 15px;
-    text-align: left;
-}
-.Info > p > span{
-    font-size: 15px;
+.wrap{
+    width: 100%;
+    height: 100%;
+    background: #ccc;
 }
