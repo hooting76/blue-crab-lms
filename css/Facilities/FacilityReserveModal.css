@@ -1,0 +1,119 @@
+/* ─────────────────────────────────
+   FacilityReserveModal.css (모달 전용)
+   ※ 색상/라디우스/그림자 등 변수는 :root 에서 공급 (페이지 CSS)
+   ───────────────────────────────── */
+
+/* 오버레이 */
+.resv-modal-backdrop{
+  position:fixed; inset:0; z-index:900; background:rgba(17,24,39,.45);
+}
+.resv-dim{ position:fixed; inset:0 }
+
+/* 모달 박스 */
+.resv-modal{
+  position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+  z-index:901; width:min(860px,92vw); max-height:88vh; overflow:auto;
+  background:var(--panel); border-radius:18px; box-shadow:var(--shadow);
+  padding:18px 20px 16px;
+}
+
+/* 헤더 */
+.rm-head{
+  display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;
+}
+.rm-head h3{ font-size:22px; font-weight:800; margin:6px 0 }
+.rm-head .icon{
+  border:none; background:none; font-size:22px; cursor:pointer; color:#6b7280;
+}
+
+/* 섹션 */
+.rm-section{ margin-top:12px }
+.rm-section label{ display:block; font-weight:700; margin:12px 0 8px }
+.rm-section .muted{ color:var(--muted); font-size:.9rem; margin:6px 0 0 }
+
+/* 안내박스(모달 스코프) */
+.resv-modal .info-box{
+  background:#eef6ff; border:1px solid #cfe1ff; color:#1e3a8a;
+  border-radius:12px; padding:12px; margin-top:12px;
+}
+.resv-modal .warn{
+  margin-top:10px; background:var(--wait-bg); border:1px solid #ffe29d;
+  color:#7a4b00; border-radius:10px; padding:10px 12px; font-weight:600;
+}
+.resv-modal .error{
+  color:#b91c1c; background:#ffecec; border:1px solid #ffc9c9;
+  padding:10px 12px; border-radius:10px; margin-top:10px;
+}
+
+/* Legend (예약 가능/선택됨/예약됨/승인 대기) */
+.resv-modal .legend{
+  display:flex; justify-content:center; align-items:center;
+  flex-wrap:wrap; column-gap:28px; row-gap:6px;
+  margin:10px 0 16px; white-space:nowrap; line-height:1;
+}
+.resv-modal .legend .chip{
+  display:inline-flex; align-items:center; gap:10px;
+  padding:0; border:0; background:none;
+  font-size:14px; font-weight:600; color:#475569; position:static !important;
+}
+.resv-modal .legend .chip::before{
+  content:""; width:14px; height:14px; border-radius:4px; display:inline-block; flex-shrink:0;
+}
+.resv-modal .legend .chip.available::before{ background:#22c55e; } /* 예약 가능(초록) */
+.resv-modal .legend .chip.selected::before { background:#3b82f6; } /* 선택됨(파랑) */
+.resv-modal .legend .chip.booked::before   { background:#fda4af; } /* 예약됨(핑크) */
+.resv-modal .legend .chip.wait::before     { background:#f59e0b; } /* 승인 대기(노랑) */
+/* 과거 dot/아이콘 잔재 차단 */
+.resv-modal .legend :is(.dot,.legend-dot,i,b,span[class*="dot"]){ display:none !important }
+
+/* 시간 그리드 */
+.resv-modal .grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px }
+@media (max-width:720px){ .resv-modal .grid{ grid-template-columns:repeat(2,1fr) } }
+
+/* 슬롯 버튼 */
+.slot{
+  background:#f0f5ff; border:1px solid #dbe5ff; color:#0b3570;
+  border-radius:16px; padding:14px 12px; text-align:center; cursor:pointer;
+  min-height:72px; display:flex; flex-direction:column; justify-content:center; gap:6px;
+  transition:.15s transform,.15s box-shadow,.15s background; align-items:center;
+}
+.slot .h{ font-weight:800; font-size:18px; white-space:nowrap; line-height:1.2 }
+.slot .sub{ font-size:.92rem; color:#1e3a8a; white-space:nowrap; line-height:1.2; word-break:keep-all }
+.slot:hover{ transform:translateY(-1px); box-shadow:var(--shadow) }
+
+/* 상태별 */
+.slot.selected{
+  background:var(--slot-sel); border-color:#1e40af; color:#fff;
+}
+.slot.selected .sub{ color:#eef2ff }
+
+.slot.booked,       /* 예약 불가/예약됨 공통 핑크 */
+.slot.approved{
+  background:var(--slot-busy); border-color:#ffb7b7; color:#991b1b; cursor:not-allowed;
+}
+.slot.booked .sub,
+.slot.approved .sub{ color:#7f1d1d }
+
+.slot.pending{       /* 승인 대기(노랑 톤) */
+  background:var(--wait-bg); border-color:#ffe29d; color:#7a4b00; cursor:not-allowed;
+}
+.slot.pending .sub{ color:#7a4b00 }
+
+/* 액션 영역 */
+.rm-actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:12px }
+
+/* 버튼 (모달 스코프) */
+.resv-modal .primary{
+  background:var(--primary); color:#fff; border:none;
+  padding:12px 16px; border-radius:10px; font-weight:700; cursor:pointer;
+}
+.resv-modal .primary:hover{ background:var(--primary-600) }
+.resv-modal .primary[disabled]{ opacity:.6; cursor:not-allowed }
+
+.resv-modal .secondary{
+  background:#e5e7eb; color:#111827; border:none;
+  padding:12px 16px; border-radius:10px; font-weight:700; cursor:pointer;
+  transition:background .15s ease, transform .05s ease;
+}
+.resv-modal .secondary:hover{ background:#d1d5db }
+.resv-modal .secondary:active{ transform:scale(0.98) }

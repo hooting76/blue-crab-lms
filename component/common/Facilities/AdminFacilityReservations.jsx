@@ -8,7 +8,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   adminPendingList,
-  adminSearchReservations, // ✅ 새 검색 API
+  adminSearchReservations, // 새 검색 API
 } from "../../../src/api/adminReservations";
 import AdminReservationDetailModal from "./AdminReservationDetailModal";
 import "../../../css/Facilities/admin-resv.css";

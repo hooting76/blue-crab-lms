@@ -1,10 +1,12 @@
-// src/utils/timeUtils.js
 // BlueCrab LMS - 시간 유틸 (순수 함수)
 // 서버 형식: "yyyy-MM-dd HH:mm:ss"
-// 영업시간: 09:00 ~ 18:00 (UI 경계 슬롯 18:00 포함 표시 가능)
+// 슬롯: 시작 시각 09~18 (=> 09:00~10:00 ... 18:00~19:00)
+// 접수 가능 창구: 09:00 ~ 18:00
 
-export const BUSINESS_START_HOUR = 9;   // 포함
-export const BUSINESS_END_HOUR   = 18;  // 종료 경계(18:00)
+export const SLOT_START_MIN = 9;   // 포함
+export const SLOT_START_MAX = 18;  // 포함 (18:00~19:00)
+export const SUBMIT_START_HOUR = 9;
+export const SUBMIT_END_HOUR   = 18; // 접수 마감 경계(18:00 미만까지만 허용)
 
 const pad2 = (n) => String(n).padStart(2, "0");
 
@@ -43,17 +45,13 @@ export const isWeekend = (d) => {
  * 슬롯/범위 유틸
  * =========================== */
 
-/** 09..17 */
+/** 시작 시각 09..18 */
 export const genBusinessSlots = () =>
-  Array.from(
-    { length: BUSINESS_END_HOUR - BUSINESS_START_HOUR },
-    (_, i) => BUSINESS_START_HOUR + i
+  Array.from({ length: (SLOT_START_MAX - SLOT_START_MIN + 1) },
+    (_, i) => SLOT_START_MIN + i
   );
 
-/** 09..17 + 18(경계 표시 전용) */
-export const genBusinessSlotsWithBoundary = () => [...genBusinessSlots(), BUSINESS_END_HOUR];
-
-/** [11,12,15] -> [[11,13],[15,16]]  (end는 미포함 경계 의미) */
+/** [11,12,15] -> [[11,13],[15,16]] (end는 미포함 경계 의미) */
 export function packContiguousRanges(hours) {
   const s = [...new Set(hours)].sort((a, b) => a - b);
   if (!s.length) return [];
@@ -82,32 +80,29 @@ export function rangeToServerStrings(dateYMD, startHour, endHour) {
  * =========================== */
 
 /**
- * 같은 날 & 09:00~18:00 & end>start
- * - 시작: 09:00 이상 17:59:59..까지 허용
- * - 종료: 18:00:00 넘지 않음
+ * 같은 날 & 09:00~19:00 & end>start
+ * - 시작: 09:00 이상 18:59:59..까지 허용(시작 시각은 09~18)
+ * - 종료: 19:00:00 넘지 않음 (18시 슬롯은 19:00 종료)
  */
 export function validateBusinessHours(start, end) {
   if (!(start instanceof Date) || !(end instanceof Date)) return false;
   if (toYMD(start) !== toYMD(end)) return false;
 
-  const okStart = start.getHours() >= BUSINESS_START_HOUR && start.getHours() <= (BUSINESS_END_HOUR - 1);
+  const okStart =
+    start.getHours() >= SLOT_START_MIN && start.getHours() <= SLOT_START_MAX;
+
   const okEnd =
-    end.getHours() < BUSINESS_END_HOUR ||
-    (end.getHours() === BUSINESS_END_HOUR && end.getMinutes() === 0 && end.getSeconds() === 0);
+    end.getHours() < 19 ||
+    (end.getHours() === 19 && end.getMinutes() === 0 && end.getSeconds() === 0);
 
   return okStart && okEnd && end.getTime() > start.getTime();
 }
 
-/* ===========================
- * 과거 슬롯 판정
- * =========================== */
-
 /**
  * 오늘(dateYMD가 오늘)인 경우에만,
- * '해당 슬롯의 시작시각(h:00)'이 현재시각을 지났는지 판단
- *  - 시작시각 <= now  => true (과거 → 비활성)
- *  - 시작시각  > now  => false (미래 → 활성)
- *  ※ 18:00 경계 슬롯도 18:00 전까지는 활성, 18:00이 되는 순간 비활성
+ * '해당 슬롯의 종료시각(h+1:00)'이 현재시각을 지났는지 판단
+ *  - 지났으면 true => 비활성
+ *  - 아직이면 false => 활성
  */
 export function isPastHourYMD(dateYMD, startHour) {
   const sel = parseYMD(dateYMD);
@@ -116,21 +111,29 @@ export function isPastHourYMD(dateYMD, startHour) {
   const now = new Date();
   if (toYMD(now) !== toYMD(sel)) return false; // 오늘이 아니면 과거 판정 금지
 
-  const slotStart = new Date(sel);
-  slotStart.setHours(startHour, 0, 0, 0); // 슬롯 시작시각
+  const end = new Date(sel);
+  end.setHours(startHour + 1, 0, 0, 0);  // 슬롯 종료시각 (19:00까지 커버)
 
-  // 분 단위 안전 비교
-  const nowMin = Math.floor(now.getTime() / 60000);
-  const slotStartMin = Math.floor(slotStart.getTime() / 60000);
+  return now.getTime() >= end.getTime();
+}
 
-  return nowMin >= slotStartMin;
+/** 오늘 접수 가능 창구(09:00 <= now < 18:00)? */
+export function isWithinSubmitWindow(now = new Date()) {
+  const h = now.getHours();
+  if (h < SUBMIT_START_HOUR) return false;
+  if (h > SUBMIT_END_HOUR) return false;
+  if (h === SUBMIT_END_HOUR) {
+    // 18:00 이상이면 불가
+    return now.getMinutes() === 0 && now.getSeconds() === 0 ? false : false;
+  }
+  return true;
 }
 
 /* ===========================
  * 서버 응답 매핑
  * =========================== */
 
-/** /daily-schedule timeSlots -> 09..17만 사용 */
+/** /daily-schedule timeSlots -> 시작 시각 09..18만 사용 */
 export function mapDailyScheduleToSlots(timeSlots) {
   const hours = genBusinessSlots();
   const map = new Map(

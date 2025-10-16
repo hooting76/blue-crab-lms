@@ -1,4 +1,4 @@
-// src/component/common/Facilities/ReservationModal.jsx
+// component/common/Facilities/ReservationModal.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import {
   postDailySchedule,
@@ -6,63 +6,135 @@ import {
   postReservation,
 } from "../../../src/api/facility";
 import {
-  genBusinessSlotsWithBoundary, // 09~18(18은 경계 전용)
+  genBusinessSlotsWithBoundary, // 09..17 + 18(경계)
   toYMD,
   toYMDHMS,
   validateBusinessHours,
   packContiguousRanges,
-  isPastHourYMD,              // 오늘의 지난 시간(끝시각 기준) 비활성화
+  isPastHourYMD,              // 오늘의 지난 슬롯(끝시각 기준) 비활성화
+  isAfterBusinessEnd,         // 오늘 18:00 경계가 지났는지
 } from "../../../src/utils/timeUtils";
-import "../../../css/Facilities/FacilityReserve.css";
+import "../../../css/Facilities/FacilityReserveModal.css";
+
+/** 지금이 ‘접수 가능 시간(09:00~18:00)’인지 */
+function isNowInSubmissionWindow() {
+  const now = new Date();
+  const h = now.getHours();
+  // 09:00 <= now < 18:00
+  return h >= 9 && h < 18;
+}
 
 export default function ReservationModal({ facility, onClose }) {
   const [date, setDate] = useState(() => toYMD(new Date()));
-  const [slots, setSlots] = useState([]);       // [{ hour, isAvailable, reason? }]
-  const [selected, setSelected] = useState([]); // number[]
+  const [slots, setSlots] = useState([]);       // [{ hour, isAvailable, reason?, status? }]
+  const [selected, setSelected] = useState([]); // number[] (시작 시각의 '정시' 정수, 9~18)
   const [purpose, setPurpose] = useState("");
   const [equip, setEquip] = useState("");
   const [headcount, setHeadcount] = useState(1);
   const [msg, setMsg] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // 09..18 (18은 경계용 표시만 함)
+  // 09..17 + 18(경계)
   const hours = genBusinessSlotsWithBoundary();
 
-  // 일정 불러오기 + 오늘 날짜의 지난 슬롯 비활성화
+  /** 상단 시설 요약(없으면 생략) */
+  const metaLine = useMemo(() => {
+    const pieces = [];
+    if (facility?.location) pieces.push(facility.location);
+    if (facility?.maxCapacity) pieces.push(`정원 ${facility.maxCapacity}명`);
+    return pieces.join(" · ");
+  }, [facility]);
+
+  /** 접수 가능 시간(09~18) 판단 — 선택 날짜와 무관, 지금 시각 기준 */
+  const canSubmitNow = isNowInSubmissionWindow();
+
+  // 일정 불러오기(+ 오늘의 지난 슬롯 비활성화, 18:00 이전엔 18시 타일 허용)
   useEffect(() => {
-    if (facility.isBlocked) return;
+    if (facility?.isBlocked) return;
 
     (async () => {
       try {
         const res = await postDailySchedule(facility.facilityIdx, date);
-        const arr = res?.data?.timeSlots ?? [];
-        const map = new Map(
-          arr.map((x) => [Number((x.hour || "00").split(":")[0]), !!x.isAvailable])
-        );
+        const arr = Array.isArray(res?.data?.timeSlots) ? res.data.timeSlots : [];
 
-        const v = hours.map((h) => {
-          // 18시는 시작 슬롯이 아니므로 항상 비활성 + 안내 문구
-          if (h === 18) return { hour: h, isAvailable: false, reason: "운영 종료" };
+        // 서버 응답의 시각별 정보 맵 구성
+        // - 기본키: 정시(hh, number)
+        // - 값: { isAvailable?: boolean, status?: 'APPROVED'|'PENDING'|... }
+        const slotMap = new Map();
+        for (const t of arr) {
+          const hh = Number(String(t.hour || "0").split(":")[0]);
+          const status = t?.status ? String(t.status).toUpperCase() : undefined; // 선택적
+          slotMap.set(hh, {
+            isAvailable: t.isAvailable !== false,
+            status,
+          });
+        }
 
-          // 기본: 서버가 false 주면 불가
-          let ok = map.get(h) !== false;
+        const endedToday = isAfterBusinessEnd(date);
 
-          // 오늘이라면, 종료시각(h+1:00)이 현재시각을 지나면 불가
-          if (isPastHourYMD(date, h)) ok = false;
+        const computed = hours.map((h) => {
+          // 18시는 특수 타일
+          if (h === 18) {
+            // 오늘이고 18:00 지났으면 ‘운영 종료’
+            if (endedToday) {
+              return { hour: h, isAvailable: false, reason: "운영 종료" };
+            }
+            // 그 외(오늘이지만 18:00 전 / 다른 날짜) — 항상 클릭가능(예약 가능)
+            return { hour: h, isAvailable: true };
+          }
 
-          return { hour: h, isAvailable: ok };
+          // 기본 상태
+          let ok = true;
+          let reason = "";
+          let status = slotMap.get(h)?.status;
+
+          // 서버가 isAvailable=false 이면 막기
+          if (slotMap.has(h) && slotMap.get(h).isAvailable === false) {
+            ok = false;
+            // 상태가 없다면 일반 예약불가
+            reason = "예약 불가";
+          }
+
+          // 상태 정보가 오면 우선표시
+          if (status === "APPROVED") {
+            ok = false;
+            reason = "예약됨";
+          } else if (status === "PENDING") {
+            ok = false;
+            reason = "승인 대기";
+          }
+
+          // 오늘의 지난 슬롯(끝시각 h+1:00이 지났다면) 막기
+          if (ok && isPastHourYMD(date, h)) {
+            ok = false;
+            reason = "예약 불가";
+          }
+
+          // 오늘이고 18:00 이미 지났다면 모든 타일 막기(안전망)
+          if (endedToday) {
+            ok = false;
+            reason = "운영 종료";
+          }
+
+          return { hour: h, isAvailable: ok, reason, status };
         });
 
-        setSlots(v);
+        setSlots(computed);
         setSelected([]);
       } catch (e) {
         console.error(e);
-        // 장애 시 기본 정책 적용
-        const v = hours.map((h) => {
-          if (h === 18) return { hour: h, isAvailable: false, reason: "운영 종료" };
-          return { hour: h, isAvailable: !isPastHourYMD(date, h) };
+        // 장애 시 기본 정책: 18시는 클릭 가능, 나머지는 ‘오늘 지난 슬롯’만 막기
+        const endedToday = isAfterBusinessEnd(date);
+        const fallback = hours.map((h) => {
+          if (h === 18) {
+            return endedToday
+              ? { hour: h, isAvailable: false, reason: "운영 종료" }
+              : { hour: h, isAvailable: true };
+          }
+          if (endedToday) return { hour: h, isAvailable: false, reason: "운영 종료" };
+          return { hour: h, isAvailable: !isPastHourYMD(date, h), reason: !isPastHourYMD(date, h) ? "" : "예약 불가" };
         });
-        setSlots(v);
+        setSlots(fallback);
         setSelected([]);
       }
     })();
@@ -86,10 +158,24 @@ export default function ReservationModal({ facility, onClose }) {
     return false;
   }, [selected]);
 
+  // 선택 요약(연속 구간 -> 라벨)
+  const packedLabels = useMemo(() => {
+    if (!selected.length) return [];
+    const ranges = packContiguousRanges(selected); // [[start,end), ...]
+    return ranges.map(([a, b]) => {
+      const pad = (n) => String(n).padStart(2, "0");
+      return `${pad(a)}:00 ~ ${pad(b)}:00`;
+    });
+  }, [selected]);
+
   // 제출
   async function submit() {
     if (facility.isBlocked) {
       setMsg(facility.blockReason || "이 시설은 현재 사용이 차단되었습니다.");
+      return;
+    }
+    if (!canSubmitNow) {
+      setMsg("접수 가능 시간(09:00~18:00)이 아닙니다.");
       return;
     }
     if (!selected.length) return setMsg("시간대를 1개 이상 선택해 주세요.");
@@ -149,16 +235,19 @@ export default function ReservationModal({ facility, onClose }) {
   }
 
   return (
-    <div className="resv-modal-backdrop">
+    <div className="resv-modal-backdrop" onClick={onClose}>
       <div className="resv-dim" />
       <div className="resv-modal" onClick={(e) => e.stopPropagation()}>
+        {/* 헤더: 시설명 + 닫기 */}
         <header className="rm-head">
-          <h3>{facility.name}</h3>
-          <button className="icon" onClick={onClose} aria-label="닫기">
-            ✕
-          </button>
+          <div>
+            <h3 style={{ marginBottom: 2 }}>{facility?.name || "시설 예약"}</h3>
+            {metaLine && <div className="muted">{metaLine}</div>}
+          </div>
+          <button className="icon" onClick={onClose} aria-label="닫기">✕</button>
         </header>
 
+        {/* 날짜 + 안내 */}
         <section className="rm-section">
           <label>예약 날짜</label>
           <input
@@ -167,39 +256,54 @@ export default function ReservationModal({ facility, onClose }) {
             onChange={(e) => setDate(e.target.value)}
           />
           <p className="muted">
-            예약 가능 시간: <strong>09:00 ~ 18:00</strong>
+            타임슬롯: <strong>09:00~10:00 … 18:00~19:00</strong> / 접수 가능 시간: <strong>09:00~18:00</strong>
           </p>
+          {!canSubmitNow && (
+            <p className="warn">지금은 접수 시간이 아닙니다. 접수는 매일 09:00~18:00에 가능합니다.</p>
+          )}
           {facility.isBlocked && (
             <p className="error">현재 차단된 시설입니다. {facility.blockReason || ""}</p>
           )}
         </section>
 
-          <section className="rm-section">
-            <div className="legend">
-              <span className="chip available">예약 가능</span>
-              <span className="chip selected">선택됨</span>
-              <span className="chip booked">예약 불가</span>
-            </div>
+        {/* 레전드: 4종 표시 */}
+        <section className="rm-section">
+          <div className="legend">
+            <span className="chip available">예약 가능</span>
+            <span className="chip selected">선택됨</span>
+            <span className="chip booked">예약됨</span>
+            <span className="chip wait">승인 대기</span>
+          </div>
 
+          {/* 시간 그리드 */}
           <div className="grid">
             {slots.map((s) => {
               const isSel = selected.includes(s.hour);
               const disabled = !s.isAvailable;
-              const cls = ["slot", disabled ? "booked" : isSel ? "selected" : ""]
-                .join(" ")
-                .trim();
+              // status 기반으로 클래스 힌트(있으면 색 구분 가능)
+              const stateClass =
+                s.status === "APPROVED"
+                  ? "approved"
+                  : s.status === "PENDING"
+                  ? "pending"
+                  : disabled
+                  ? "booked"
+                  : isSel
+                  ? "selected"
+                  : "";
+
+              const cls = ["slot", stateClass].filter(Boolean).join(" ");
 
               const hourLabel =
                 s.hour === 18 ? "18:00" : `${String(s.hour).padStart(2, "0")}:00`;
 
-              const sub =
-                s.hour === 18
-                  ? "운영 종료"
-                  : disabled
-                  ? "예약 불가"
-                  : isSel
-                  ? "✓ 선택됨"
-                  : "예약 가능";
+              // 라벨
+              let sub = "예약 가능";
+              if (s.hour === 18 && s.reason === "운영 종료") sub = "운영 종료";
+              else if (s.status === "APPROVED") sub = "예약됨";
+              else if (s.status === "PENDING") sub = "승인 대기";
+              else if (disabled && s.reason) sub = s.reason;
+              else if (isSel) sub = "✓ 선택됨";
 
               return (
                 <button
@@ -216,13 +320,29 @@ export default function ReservationModal({ facility, onClose }) {
             })}
           </div>
 
+          {/* 비연속 경고 */}
           {nonContiguous && (
-            <div className="warn">
+            <div className="warn" style={{ marginTop: 10 }}>
               비연속 시간대가 포함되어 있습니다 — 제출 시 여러 건으로 접수됩니다.
             </div>
           )}
         </section>
 
+        {/* 선택 요약 */}
+        <section className="rm-section" style={{ paddingTop: 6 }}>
+          {!!packedLabels.length && (
+            <div className="info-box">
+              <div style={{ fontWeight: 800, marginBottom: 6 }}>선택한 시간</div>
+              <ol style={{ margin: 0, paddingLeft: 18 }}>
+                {packedLabels.map((lab, idx) => (
+                  <li key={idx} style={{ marginBottom: 4 }}>{lab}</li>
+                ))}
+              </ol>
+            </div>
+          )}
+        </section>
+
+        {/* 폼 */}
         <section className="rm-section">
           <label>사용 목적 *</label>
           <textarea
@@ -249,22 +369,23 @@ export default function ReservationModal({ facility, onClose }) {
             value={headcount}
             onChange={(e) => setHeadcount(Number(e.target.value))}
           />
-          <p className="muted">정원 {facility.maxCapacity ?? "-"}명</p>
+          {facility.maxCapacity && <p className="muted">정원 {facility.maxCapacity}명</p>}
         </section>
 
         {msg && <p className="error">{msg}</p>}
 
+        {/* 액션 */}
         <footer className="rm-actions">
           <button
             className="primary"
-            disabled={saving || facility.isBlocked}
+            disabled={saving || facility.isBlocked || !canSubmitNow}
             onClick={submit}
           >
             예약 신청하기
           </button>
-            <button className="secondary" onClick={onClose}>
-              취소
-            </button>
+          <button className="secondary" onClick={onClose}>
+            취소
+          </button>
         </footer>
       </div>
     </div>
