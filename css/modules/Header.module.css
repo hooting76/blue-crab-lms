@@ -90,23 +90,26 @@ header{
     color: #333;
     font-weight: bold;
     cursor: pointer;
+    line-height: normal;
+    font-size: 18px;
 }
 
 .navSubMenu1 {
     position: absolute;
     top: 45px;
+    left: 0px;
 }
 
 .navSubMenu2 {
     position: absolute;
     top: 45px;
-    left: 125px;
+    left: 120px;
 }
 
 .navSubMenu3 {
     position: absolute;
     top: 45px;
-    left: 225px;
+    left: 220px;
 }
 
 .navSubMenu1 td {
@@ -199,7 +202,7 @@ header > div > span:nth-child(3){
 
 .mobMenu > ul{
     width: 100%;
-    padding: 2.5px 0;
+    padding: 0px;
     display: flex;
     flex-wrap: nowrap;
     justify-content: space-around;
@@ -207,14 +210,12 @@ header > div > span:nth-child(3){
 }
 
 .mobMenu > ul > li{
-    width: 33%;
     cursor: pointer;
     display: inline-block;
     width: 100%;
     height: 100%;
     text-align: center;
     font-weight: bold;
-    transition: all .3s;
 }
 
 .mobMenu > ul > li:not(:last-child){
@@ -222,8 +223,33 @@ header > div > span:nth-child(3){
 }
 
 
+
 /* media */
-@media (max-width:834px){
+@media (max-width:945px){
+    .navMenu{
+        padding-left: 0;
+    }
+    .navMenu > ul{
+        gap: 5px;
+    }
+}
+
+@media (max-width:900px){
+    .navMenu{
+        margin-left: 0px;
+        border-left: none;
+    }
+    .navMenu > ul{
+        gap: 0px;
+    }    
+    .logoImg{
+        width: 45px;
+        height: 45px;
+        margin-right: 5px;
+    }
+}
+
+@media (max-width:850px){
     .mobNavBtn{
         display: flex;
     }
@@ -240,6 +266,15 @@ header > div > span:nth-child(3){
 @media (max-width:425px){
     .logoImg{
         margin: 0;
+        width: 30px;
+        height: 30px;
+    }
+    .h1{
+        flex-direction: column;
+    }
+    .h1 > span{
+        line-height: 15px;
+        font-size: 15px;
     }
 }
 @media (max-width:375px){

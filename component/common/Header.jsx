@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeaderCss from '../../css/modules/Header.module.css';
-import SessionTimer from './SessionTimer';
+// import SessionTimer from './SessionTimer';
 import { UseUser } from '../../hook/UseUser';
 
 function FuncAniBtn(){
@@ -24,7 +24,7 @@ function FuncAniBtn(){
     lines[2].style.transform = 'rotate(-45deg)';
     lines[1].style.top = '50%';
     lines[2].style.top = '50%';
-    mobMenu.style.height = '60px';
+    mobMenu.style.height = '50px';
   }
 }
 
@@ -209,8 +209,8 @@ function Header({ currentPage, setCurrentPage }) {
             <li onClick={() => { setCurrentPage("총장 인사"); closeAllSubMenus(); }}>학교소개</li>
             <li onClick={() => { setCurrentPage("학사공지"); closeAllSubMenus(); }}>커뮤니티</li>
             {/* 마이페이지 → 수강중인 과목으로 진입 */}
-            <li onClick={() => { setCurrentPage("시설물 예약"); closeAllSubMenus(); }}>시설&문의</li>
-            <li onClick={() => { setCurrentPage("수강중인 과목"); closeAllSubMenus(); }}>마이페이지</li>
+            <li onClick={() => { setCurrentPage("시설물 예약"); closeAllSubMenus(); }}>시설문의</li>
+            <li onClick={() => { setCurrentPage("수강중인 과목"); closeAllSubMenus(); }}>마이메뉴</li>
             <li onClick={() => { setCurrentPage("수강신청"); closeAllSubMenus(); }}>수강신청</li>
           </ul>
         </div>
