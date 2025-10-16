@@ -1,8 +1,8 @@
 # 강의 관리 시스템 구현 진척도
 
-> **최종 업데이트**: 2025-10-15
-> **현재 Phase**: Phase 6.8.2 완료 - 강의 관련 파일 폴더 정리 및 검증 로직 강화
-> **전체 진행률**: 98% (Phase 1-6.8.2 완료 + 파일 구조 최적화 + 데이터 검증 강화)
+> **최종 업데이트**: 2025-10-16
+> **현재 Phase**: Phase 7.1 완료 - 수강 가능 강의 조회 API 추가 (0값 규칙)
+> **전체 진행률**: 99% (Phase 1-7.1 완료)
 
 ---
 
@@ -20,34 +20,65 @@ Phase 6.7: 교수 이름 조회 기능     ████████████ 
 Phase 6.8: LectureController DTO   ████████████ 100% ✅
 Phase 6.8.1: Lazy Loading 버그수정 ████████████ 100% ✅
 Phase 6.8.2: 파일 구조 최적화      ████████████ 100% ✅
-Phase 7: 테스트 & 통합              ████████░░░░  60% 🚧
+Phase 7: 고급 기능 추가             ████████████ 100% ✅
+Phase 7.1: 수강 가능 강의 조회     ████████████ 100% ✅
+Phase 8: 문서 정리 및 최적화       ████████████ 100% ✅
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-전체 진행률:                        ███████████░  98%
+전체 진행률:                        ███████████░  99%
 ```
 
 ---
 
-## ✅ Phase 1-2: 데이터베이스 구축 (완료)
+## ✅ Phase 7.1: 수강 가능 강의 조회 API (완료)
 
-### 기간: 2025-10-09 ~ 2025-10-10
+### 기간: 2025-10-16
 ### 상태: ✅ 완료
 
 #### 완료 항목
-- [x] **USER_TBL 확장**
-  - LECTURE_EVALUATIONS (LONGTEXT) 추가
-  - 강의 평가 JSON 데이터 저장
+- [x] **LectureController 확장**
+  - `GET /api/lectures/eligible/{studentId}` 엔드포인트 추가
+  - 0값 제한없음 규칙 적용 (학부/학과/학년)
+  - 학생 권한 검증 (USER_STUDENT = 0)
+  - 강의 개설여부 및 정원 확인
 
-- [x] **LEC_TBL 확장**
-  - LEC_CURRENT (INT) 추가 - 현재 수강 인원
-  - LEC_YEAR (INT) 추가 - 대상 학년
-  - LEC_SEMESTER (INT) 추가 - 학기
+- [x] **LectureService 확장**
+  - `getAllLecturesForEligibility()` 메서드 추가
+  - 기존 Repository 메서드 재사용
 
-- [x] **ENROLLMENT_EXTENDED_TBL 생성**
-  - 수강신청 + 출결 + 성적 통합 관리
-  - JSON 데이터 필드 (ENROLLMENT_DATA)
-  - 외래키: LEC_IDX, STUDENT_IDX
+- [x] **브라우저 콘솔 테스트**
+  - `lecture-test-eligible-lectures.js` 테스트 파일 생성
+  - 5가지 테스트 시나리오 구현 (기본조회, 페이징, 잘못된ID, 교수권한, 0값규칙)
 
-- [x] **ASSIGNMENT_EXTENDED_TBL 생성**
+#### 기술적 특징
+- **0값 규칙 구현**: LEC_MCODE="0" → 모든 학부 수강 가능
+- **메모리 내 필터링**: 복잡한 비즈니스 로직을 위한 Stream 기반 필터링
+- **상세 응답**: 수강 자격 사유, 통계 정보, 페이징 지원
+- **확장성**: UserTbl에 학부/학과/학년 정보 추가 시 완전한 0값 규칙 적용 가능
+
+---
+
+## ✅ Phase 8: 문서 정리 및 최적화 (완료)
+
+### 기간: 2025-10-16
+### 상태: ✅ 완료
+
+#### 완료 항목
+- [x] **문서 정리**
+  - 중복 및 구버전 문서 7개 제거
+  - 핵심 문서만 유지 (README, API명세서, 시기관련, 테스트)
+  - API_CONTROLLER_MAPPING.md 업데이트
+
+- [x] **시기관련 시스템 문서화**
+  - 학기 시스템 플로우 완전 문서화
+  - 0값 규칙 상세 명세
+  - 다이어그램 업데이트
+
+#### 제거된 문서들
+- `BACKEND_FIX_*.md` (버그 수정 기록)
+- `PHASE_6.8_COMPLETION_SUMMARY.md` (이전 단계 요약)
+- `FRONTEND_API_CHANGES.md` (중복 정보)
+- `DB_IMPLEMENTATION_*.md` (구현 현황 중복)
+- `REPOSITORY_IMPLEMENTATION_STATUS.md` (중복 정보)
   - 과제 + 제출 통합 관리
   - JSON 데이터 필드 (ASSIGNMENT_DATA)
   - 외래키: LEC_IDX
@@ -852,6 +883,5 @@ repository/Lecture/
 
 ---
 
-**작성자**: 성태준  
 **문서 버전**: 3.0  
-**마지막 수정**: 2025-10-14
+**마지막 수정**: 2025-10-16

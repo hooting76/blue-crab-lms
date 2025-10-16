@@ -1,15 +1,20 @@
-# 🎯 API 컨트롤러 매핑 현황 (v2.5)
+# 🎯 API 컨트롤러 매핑 현황 (v2.6)
 
 ## 📋 구현 완료된 컨트롤러들
 
 ### **✅ 강의 관련 (Lecture 패키지)**
 | 컨트롤러 | 엔드포인트 패턴 | 주요 기능 | 상태 |
 |---------|---------------|---------|------|
-| `LectureController` | `/api/lectures` | 강의 CRUD, 통계 | ✅ 완료 |
+| `LectureController` | `/api/lectures` | 강의 CRUD, 통계, **수강 가능 강의 조회** | ✅ 완료 |
 | `EnrollmentController` | `/api/enrollments` | 수강신청/취소, 성적관리 | ✅ 완료 |
 | `AssignmentController` | `/api/assignments` | 과제 CRUD, 제출/채점 | ✅ 완료 |
 | `ProfessorAttendanceController` | `/api/professor/attendance` | 교수 출석 관리 | ✅ 완료 |
 | `StudentAttendanceController` | `/api/student/attendance` | 학생 출석 요청 | ✅ 완료 |
+
+### **🆕 신규 추가된 엔드포인트**
+| 엔드포인트 | 메서드 | 기능 | 컨트롤러 |
+|-----------|-------|------|---------|
+| `/api/lectures/eligible/{studentId}` | GET | 학생별 수강 가능 강의 조회 (0값 규칙) | LectureController |
 
 ### **✅ 인증 관련**
 | 컨트롤러 | 엔드포인트 패턴 | 주요 기능 | 상태 |
@@ -52,6 +57,7 @@
 /api/auth/*              - 인증 (AuthController)
 /api/admin/*             - 관리자 (AdminController, AdminAuthTokenController)
 /api/lectures/*          - 강의 관리 (LectureController)
+  └─ /api/lectures/eligible/{studentId} - 🆕 수강 가능 강의 조회
 /api/enrollments/*       - 수강신청 (EnrollmentController)
 /api/assignments/*       - 과제 관리 (AssignmentController)
 /api/professor/attendance/* - 교수 출석 (ProfessorAttendanceController)

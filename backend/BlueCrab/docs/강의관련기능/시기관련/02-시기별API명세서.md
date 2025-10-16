@@ -520,5 +520,4 @@ Authorization: Bearer {admin_token}
 
 ---
 
-**작성자**: AI Assistant  
 **검토 필요**: API 경로 최종 확정, 권한 설정 상세화
