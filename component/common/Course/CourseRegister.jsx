@@ -69,6 +69,7 @@ function CourseRegister() {
         alert(error.message);
         }
     }
+    console.log("Access Token:", accessToken);
 
 
     return (
@@ -280,6 +281,7 @@ function CourseRegister() {
                         onChange={(e) => setLecMin(Number(e.target.value))}
                         required
                         >
+                            <option value="">최저 학년</option>
                             <option value={0}>제한 없음</option>
                             <option value={1}>2학년 이상</option>
                             <option value={2}>3학년 이상</option>
