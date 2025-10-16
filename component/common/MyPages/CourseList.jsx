@@ -27,7 +27,6 @@ function CourseList() {
         return null;
     };
 
-    console.log("user :", user);
 
     const getCourseList = async (accessToken) => {
         try {
@@ -48,11 +47,13 @@ function CourseList() {
     };
 
     useEffect(() => {
-        const token = getAccessToken();
-        if (token) {
-            getCourseList(token); // ✅ 실제 호출
+        const accessToken = getAccessToken();
+        if (accessToken) {
+            getCourseList(accessToken); // ✅ 실제 호출
+        console.log("accessToken :", accessToken);
         }
     }, []);
+
 
     const handleEdit = () => {
         alert("수정 준비중");
