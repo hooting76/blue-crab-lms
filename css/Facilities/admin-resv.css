@@ -1,54 +1,158 @@
-/* css/Facilities/admin-resv.css */
+/* css/Facilities/admin-resv.css
+   - Admin 예약 목록/검색/모달 전용 스타일 
+   - 모달 z-index 충돌 해결
+*/
 
-.ar-wrap { max-width: 1120px; margin: 0 auto; padding: 24px; }
-.ar-header { display:flex; justify-content:flex-start; align-items:center; margin-bottom: 12px; }
+/* ========= 토큰 ========= */
+:root{
+  --ar-bg: #f8fafc;
+  --ar-panel: #ffffff;
+  --ar-text: #111827;
+  --ar-muted: #6b7280;
+  --ar-line: #e5e7eb;
 
-.ar-tabs { display:flex; gap:8px; }
-.ar-tab { padding:8px 14px; border-radius:999px; border:1px solid #e5e7eb; background:#fff; }
-.ar-tab.active { background:#0ea5e9; color:#fff; border-color:#0ea5e9; }
+  --ar-primary: #2563eb;
+  --ar-primary-600:#1d4ed8;
+
+  --ar-green:#10b981;
+  --ar-green-bg:#dcfce7;
+
+  --ar-yellow:#f59e0b;
+  --ar-yellow-bg:#fef9c3;
+
+  --ar-red:#ef4444;
+  --ar-red-bg:#fee2e2;
+
+  --ar-shadow: 0 10px 24px rgba(0,0,0,.06);
+  --ar-radius: 14px;
+
+  /* 모달 최상단 보장 */
+  --ar-z-modal: 10000;
+}
+
+/* ========= 공통 레이아웃 ========= */
+.ar-wrap { max-width:1120px; margin:0 auto; padding:16px 16px 28px; }
+
+/* 상단 탭 헤더 (sticky) */
+.ar-header{
+  position: sticky; top: 0; z-index: 20;
+  display:flex; justify-content:space-between; align-items:center; gap:12px;
+  padding:10px 12px; margin-bottom:12px;
+  background: var(--ar-bg);
+  border-bottom: 1px solid var(--ar-line);
+  box-shadow: 0 6px 10px rgba(0,0,0,.03);
+}
 
 .ar-loading { padding:16px; color:#374151; }
-.ar-error { padding:12px; color:#b91c1c; }
-.ar-empty { padding:24px; color:#6b7280; }
+.ar-error   { padding:12px; color:#b91c1c; }
 
-.ar-list { display:flex; flex-direction:column; gap:12px; }
+/* ========= 탭 ========= */
+.ar-tabs { display:flex; gap:8px; }
+.ar-tab{
+  padding:8px 14px; border-radius:999px;
+  border:1px solid var(--ar-line); background:#fff; color:#111827;
+  cursor:pointer;
+}
+.ar-tab:hover{ background:#f8fafc; }
+.ar-tab.active{ background:#0ea5e9; color:#fff; border-color:#0ea5e9; }
 
-.ar-card { background:#fff; border:1px solid #e5e7eb; border-radius:14px; box-shadow:0 6px 20px rgba(0,0,0,.04); padding:16px; }
-.ar-card-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
-.ar-title { font-size:18px; font-weight:700; color:#111827; }
+/* ========= 필터 바 ========= */
+.ar-filter{
+  display:grid; grid-template-columns:240px 260px 1fr 260px; gap:12px;
+  background:#fff; border:1px solid var(--ar-line); border-radius:12px; padding:12px;
+  margin:12px 0 16px;
+}
+@media (max-width: 900px){ .ar-filter{ grid-template-columns:1fr 1fr; } }
+@media (max-width: 560px){ .ar-filter{ grid-template-columns:1fr; } }
 
-.ar-badge { display:inline-block; padding:4px 10px; border-radius:999px; font-size:12px; }
-.ar-badge.yellow { background:#fef9c3; color:#854d0e; }
-.ar-badge.green { background:#dcfce7; color:#065f46; }
-.ar-badge.red { background:#fee2e2; color:#991b1b; }
+.ar-filter .field{ display:flex; flex-direction:column; gap:6px; }
+.ar-filter label{ font-size:12px; color:var(--ar-muted); font-weight:700; }
+.ar-filter select,
+.ar-filter input[type="date"],
+.ar-filter input[type="text"]{
+  width:100%; padding:10px 12px; border:1px solid var(--ar-line);
+  border-radius:10px; background:#fff; outline:none; font-size:14px;
+}
+.ar-filter .range{ display:flex; gap:8px; }
+.ar-filter .range input{ flex:1 1 0; }
 
-.ar-meta { display:grid; grid-template-columns:1fr 1fr; gap:6px 14px; color:#374151; }
-@media (max-width: 640px) { .ar-meta { grid-template-columns:1fr; } }
+/* ========= 상태 배지 ========= */
+.ar-badge{
+  display:inline-block; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700;
+}
+.ar-badge.yellow{ background:var(--ar-yellow-bg); color:#854d0e; }
+.ar-badge.green { background:var(--ar-green-bg);  color:#065f46; }
+.ar-badge.red   { background:var(--ar-red-bg);    color:#991b1b; }
 
-.ar-desc { margin-top:10px; }
-.ar-label { font-size:12px; color:#6b7280; margin-top:6px; }
-.ar-box { background:#f8fafc; border:1px solid #e5e7eb; border-radius:10px; padding:10px; }
-.ar-box.info { background:#eef6ff; border-color:#dbeafe; color:#1e3a8a; }
-.ar-box.danger { background:#fff1f2; border-color:#fecdd3; color:#991b1b; }
+/* ========= 주요 버튼 ========= */
+.ar-primary{
+  background:var(--ar-primary); color:#fff; border:none; padding:10px 14px;
+  border-radius:10px; cursor:pointer; font-weight:700;
+}
+.ar-primary:hover{ background:var(--ar-primary-600); }
 
-.ar-actions { display:flex; justify-content:flex-end; margin-top:12px; }
-.ar-primary { background:#2563eb; color:#fff; border:none; padding:10px 14px; border-radius:10px; cursor:pointer; }
+/* ========= 페이지네이션 ========= */
+.ar-pager{ display:flex; gap:12px; align-items:center; justify-content:center; padding:14px 0; }
+.pg-btn{
+  padding:6px 10px; border:1px solid var(--ar-line); background:#fff; border-radius:8px; cursor:pointer;
+}
+.pg-btn:disabled{ opacity:.5; cursor:not-allowed; }
+.pg-page{ min-width:28px; text-align:center; color:#374151; }
 
-.ar-pager { display:flex; gap:12px; align-items:center; justify-content:center; padding:14px 0; }
-.pg-btn { padding:6px 10px; border:1px solid #e5e7eb; background:#fff; border-radius:8px; }
-.pg-page { min-width:28px; text-align:center; color:#374151; }
+/* ========= 모달 (백드롭/본체/헤더/바디) ========= */
+.modal-backdrop{
+  position: fixed; inset: 0;
+  z-index: var(--ar-z-modal) !important;
+  background: rgba(0,0,0,.45);
+  display:flex; align-items:center; justify-content:center; padding:24px;
+}
+.modal{
+  position: relative; z-index: calc(var(--ar-z-modal) + 1) !important;
+  width:760px; max-width:90vw;
+  background:#fff; border-radius:14px; box-shadow:var(--ar-shadow);
+  max-height:calc(100dvh - 48px);
+  overflow:auto;
+}
+@media (max-width:640px){
+  .modal-backdrop{ padding:12px; }
+  .modal{ width:96vw; max-height:calc(100dvh - 24px); border-radius:12px; }
+}
+.modal-head{
+  position: sticky; top:0; z-index: calc(var(--ar-z-modal) + 2) !important;
+  display:flex; justify-content:space-between; align-items:center; gap:8px;
+  padding:14px 16px; border-bottom:1px solid #f1f5f9; background:#fff;
+}
+.mh-left{ display:flex; align-items:center; gap:6px; }
+.modal-head .icon{ background:none; border:none; font-size:18px; cursor:pointer; color:#6b7280; }
 
-/* Modal */
-.modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; z-index:40; }
-.modal { width:760px; max-width:90vw; background:#fff; border-radius:14px; overflow:hidden; }
-.modal-head { display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-bottom:1px solid #f1f5f9; }
-.modal-head .mh-left { display:flex; align-items:center; gap:6px; }
-.modal-head .icon { background:none; border:none; font-size:18px; cursor:pointer; }
-.modal-body { padding:16px; display:grid; gap:10px; }
-.modal-body .row { display:flex; gap:12px; }
-.modal-body .row b { width:120px; color:#374151; }
-.block { display:block; margin-top:8px; margin-bottom:6px; color:#374151; }
-textarea { width:100%; min-height:72px; padding:10px; border:1px solid #e5e7eb; border-radius:10px; }
-.actions { display:flex; gap:8px; justify-content:flex-end; margin-top:8px; }
-.actions .approve { background:#10b981; color:#fff; border:none; padding:10px 14px; border-radius:10px; }
-.actions .reject { background:#ef4444; color:#fff; border:none; padding:10px 14px; border-radius:10px; }
+.modal-body{ padding:16px; display:grid; gap:10px; }
+.modal-body .row{ display:flex; gap:12px; align-items:flex-start; }
+.modal-body .row b{ width:120px; color:#374151; flex:0 0 120px; }
+.block{ display:block; margin-top:8px; margin-bottom:6px; color:#374151; }
+
+/* 보기용 내용 박스 (목적/장비/메모) */
+.ar-box{
+  background:#f8fafc; border:1px solid var(--ar-line);
+  border-radius:10px; padding:10px; color:#111827;
+}
+.ar-box.info{ background:#eef6ff; border-color:#dbeafe; color:#1e3a8a; }
+.ar-box.danger{ background:#fff1f2; border-color:#fecdd3; color:#991b1b; }
+
+/* 모달 내 액션 버튼 */
+.actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:8px; }
+.actions .approve{
+  background:var(--ar-green); color:#fff; border:none; padding:10px 14px; border-radius:10px; font-weight:700; cursor:pointer;
+}
+.actions .reject{
+  background:var(--ar-red); color:#fff; border:none; padding:10px 14px; border-radius:10px; font-weight:700; cursor:pointer;
+}
+.actions .approve:disabled,
+.actions .reject:disabled{ opacity:.6; cursor:not-allowed; }
+
+/* 입력류 통일 */
+.modal textarea,
+.modal input[type="text"]{
+  width:100%; min-height:72px; padding:10px 12px;
+  border:1px solid var(--ar-line); border-radius:10px; outline:none; font-size:14px;
+  background:#fff;
+}

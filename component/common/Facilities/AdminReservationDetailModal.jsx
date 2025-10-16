@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import {
-  adminFetchReservationDetail,
+  getAdminReservationDetail,  
   adminApprove,
   adminReject,
 } from "../../../src/api/adminReservations";
@@ -21,7 +21,17 @@ export default function AdminReservationDetailModal({
 
   const [adminNote, setAdminNote] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
-  const isPending = mode === "PENDING" || detail?.status === "대기중";
+
+  // 상태 표기(서버가 한글/영문 둘 다 올 수 있어 안전 매핑)
+  const normStatus = (v) => {
+    const s = String(v || "").toUpperCase();
+    if (["PENDING", "대기", "대기중"].includes(s)) return "PENDING";
+    if (["APPROVED", "승인", "승인됨"].includes(s)) return "APPROVED";
+    if (["REJECTED", "반려", "반려됨"].includes(s)) return "REJECTED";
+    return s || "PENDING";
+  };
+
+  const isPending = mode === "PENDING" || normStatus(detail?.status) === "PENDING";
 
   useEffect(() => {
     let mounted = true;
@@ -29,7 +39,7 @@ export default function AdminReservationDetailModal({
       setLoading(true);
       setErr("");
       try {
-        const res = await adminFetchReservationDetail(reservationIdx);
+        const res = await getAdminReservationDetail(reservationIdx);
         if (!mounted) return;
         setDetail(res?.data || null);
       } catch (e) {
@@ -66,12 +76,19 @@ export default function AdminReservationDetailModal({
     }
   };
 
-  const statusBadgeClass =
-    detail?.status === "승인됨"
-      ? "green"
-      : detail?.status === "반려됨"
-      ? "red"
-      : "yellow";
+  const statusForBadge = (() => {
+    const n = normStatus(detail?.status);
+    if (n === "APPROVED") return "green";
+    if (n === "REJECTED") return "red";
+    return "yellow";
+  })();
+
+  const statusForText = (() => {
+    const n = normStatus(detail?.status);
+    if (n === "APPROVED") return "승인됨";
+    if (n === "REJECTED") return "반려됨";
+    return "대기중";
+  })();
 
   return (
     <div className="modal-backdrop">
@@ -79,9 +96,9 @@ export default function AdminReservationDetailModal({
         <div className="modal-head">
           <div className="mh-left">
             <b>예약 상세</b>
-            {detail?.status && (
-              <span className={`ar-badge ${statusBadgeClass}`} style={{ marginLeft: 8 }}>
-                {detail.status}
+            {detail && (
+              <span className={`ar-badge ${statusForBadge}`} style={{ marginLeft: 8 }}>
+                {statusForText}
               </span>
             )}
           </div>
@@ -139,13 +156,13 @@ export default function AdminReservationDetailModal({
               )}
 
               {/* 보기 전용 메모/반려사유 (승인됨/반려됨에서만) */}
-              {detail.status === "승인됨" && detail.adminNote && (
+              {normStatus(detail.status) === "APPROVED" && detail.adminNote && (
                 <>
                   <span className="block">관리자 비고</span>
                   <div className="ar-box info">{detail.adminNote}</div>
                 </>
               )}
-              {detail.status === "반려됨" && detail.rejectionReason && (
+              {normStatus(detail.status) === "REJECTED" && detail.rejectionReason && (
                 <>
                   <span className="block">반려 사유</span>
                   <div className="ar-box danger">{detail.rejectionReason}</div>
