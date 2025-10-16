@@ -1,7 +1,12 @@
 package BlueCrab.com.example.service;
 
-import BlueCrab.com.example.dto.*;
-import BlueCrab.com.example.entity.AdminTbl;
+import BlueCrab.com.example.dto.AdminApproveRequestDto;
+import BlueCrab.com.example.dto.AdminRejectRequestDto;
+import BlueCrab.com.example.dto.AdminReservationDetailDto;
+import BlueCrab.com.example.dto.AdminReservationSearchRequestDto;
+import BlueCrab.com.example.dto.FacilityAvailabilityDto;
+import BlueCrab.com.example.dto.PageResponse;
+import BlueCrab.com.example.dto.ReservationDto;
 import BlueCrab.com.example.entity.FacilityReservationLog;
 import BlueCrab.com.example.entity.FacilityReservationTbl;
 import BlueCrab.com.example.entity.FacilityTbl;
@@ -18,10 +23,17 @@ import BlueCrab.com.example.repository.projection.DashboardStatsProjection;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +47,7 @@ import java.util.stream.Collectors;
 public class AdminFacilityReservationService {
 
     private static final Logger logger = LoggerFactory.getLogger(AdminFacilityReservationService.class);
+    private static final int DEFAULT_MONTH_RANGE = 3;
 
     private final FacilityReservationRepository reservationRepository;
     private final FacilityRepository facilityRepository;
@@ -212,8 +225,90 @@ public class AdminFacilityReservationService {
         return convertToDtoList(reservations);
     }
 
+    public PageResponse<ReservationDto> searchReservations(String adminId, AdminReservationSearchRequestDto request) {
+        validateAdmin(adminId);
+
+        ReservationStatus statusEnum = null;
+        if (StringUtils.hasText(request.getStatus())) {
+            try {
+                statusEnum = ReservationStatus.fromString(request.getStatus());
+            } catch (IllegalArgumentException ex) {
+                throw new RuntimeException("허용되지 않은 예약 상태입니다.");
+            }
+        }
+
+        LocalDateRange range = resolveDateRange(request.getDateFrom(), request.getDateTo());
+
+        String keyword = StringUtils.hasText(request.getQuery()) ? request.getQuery().trim() : null;
+
+        Pageable pageable = PageRequest.of(
+            request.getPage(),
+            request.getSize(),
+            Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+
+        Page<FacilityReservationTbl> resultPage = reservationRepository.searchReservations(
+            statusEnum != null ? statusEnum.toDbValue() : null,
+            request.getFacilityIdx(),
+            range.getStart(),
+            range.getEnd(),
+            keyword,
+            pageable
+        );
+
+        List<ReservationDto> content = convertToDtoList(resultPage.getContent());
+
+        logger.info("Admin {} searched reservations: page={}, size={}, totalElements={}",
+            adminId, request.getPage(), request.getSize(), resultPage.getTotalElements());
+
+        return new PageResponse<>(
+            content,
+            resultPage.getNumber(),
+            resultPage.getSize(),
+            resultPage.getTotalElements(),
+            resultPage.getTotalPages(),
+            resultPage.hasNext()
+        );
+    }
+
+    public AdminReservationDetailDto getReservationDetail(String adminId, Integer reservationIdx) {
+        validateAdmin(adminId);
+
+        FacilityReservationTbl reservation = reservationRepository.findById(reservationIdx)
+            .orElseThrow(() -> ResourceNotFoundException.forId("예약", reservationIdx));
+
+        FacilityTbl facility = facilityRepository.findById(reservation.getFacilityIdx())
+            .orElse(null);
+
+        UserTbl user = userRepository.findByUserCode(reservation.getUserCode())
+            .orElse(null);
+
+        AdminReservationDetailDto dto = new AdminReservationDetailDto();
+        dto.setReservationIdx(reservation.getReservationIdx());
+        dto.setFacilityIdx(reservation.getFacilityIdx());
+        dto.setFacilityName(facility != null ? facility.getFacilityName() : "Unknown");
+        dto.setUserCode(reservation.getUserCode());
+        dto.setUserName(user != null ? user.getUserName() : "Unknown");
+        dto.setUserEmail(user != null ? user.getUserEmail() : null);
+        dto.setStartTime(reservation.getStartTime());
+        dto.setEndTime(reservation.getEndTime());
+        dto.setPartySize(reservation.getPartySize());
+        dto.setPurpose(reservation.getPurpose());
+        dto.setRequestedEquipment(reservation.getRequestedEquipment());
+        dto.setStatus(reservation.getStatusEnum());
+        dto.setAdminNote(reservation.getAdminNote());
+        dto.setRejectionReason(reservation.getRejectionReason());
+        dto.setApprovedBy(reservation.getApprovedBy());
+        dto.setApprovedAt(reservation.getApprovedAt());
+        dto.setCreatedAt(reservation.getCreatedAt());
+
+        logger.info("Admin {} requested reservation detail: reservationIdx={}", adminId, reservationIdx);
+
+        return dto;
+    }
+
     private void validateAdmin(String adminId) {
-        AdminTbl admin = adminRepository.findByAdminId(adminId)
+        adminRepository.findByAdminId(adminId)
             .orElseThrow(() -> UnauthorizedException.forAdmin());
     }
 
@@ -317,6 +412,65 @@ public class AdminFacilityReservationService {
             reservation.getCreatedAt()
         );
 
+    }
+
+    private LocalDateRange resolveDateRange(String rawFrom, String rawTo) {
+        LocalDate from = null;
+        LocalDate to = null;
+
+        if (StringUtils.hasText(rawFrom)) {
+            from = parseDate(rawFrom.trim());
+        }
+
+        if (StringUtils.hasText(rawTo)) {
+            to = parseDate(rawTo.trim());
+        }
+
+        if (from == null && to == null) {
+            to = LocalDate.now();
+            from = to.minusMonths(DEFAULT_MONTH_RANGE);
+        } else if (from == null) {
+            LocalDate safeTo = to != null ? to : LocalDate.now();
+            from = safeTo.minusMonths(DEFAULT_MONTH_RANGE);
+            to = safeTo;
+        } else if (to == null) {
+            to = from;
+        }
+
+        if (from.isAfter(to)) {
+            throw new RuntimeException("dateFrom은 dateTo보다 늦을 수 없습니다.");
+        }
+
+        LocalDateTime start = from.atStartOfDay();
+        LocalDateTime end = to.atTime(LocalTime.MAX);
+
+        return new LocalDateRange(start, end);
+    }
+
+    private LocalDate parseDate(String value) {
+        try {
+            return LocalDate.parse(value);
+        } catch (Exception ex) {
+            throw new RuntimeException("날짜 형식이 올바르지 않습니다. (yyyy-MM-dd)");
+        }
+    }
+
+    private static class LocalDateRange {
+        private final LocalDateTime start;
+        private final LocalDateTime end;
+
+        private LocalDateRange(LocalDateTime start, LocalDateTime end) {
+            this.start = start;
+            this.end = end;
+        }
+
+        public LocalDateTime getStart() {
+            return start;
+        }
+
+        public LocalDateTime getEnd() {
+            return end;
+        }
     }
 
 }

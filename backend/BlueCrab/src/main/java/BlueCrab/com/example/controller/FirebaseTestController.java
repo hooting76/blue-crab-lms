@@ -95,4 +95,58 @@ public class FirebaseTestController {
                     .body(ApiResponse.failure("Failed to send test topic push: " + e.getMessage()));
         }
     }
+
+    /**
+     * 🆕 Data-only 방식 테스트 (중복 방지 확인용)
+     */
+    @PostMapping("/send-data-only")
+    public ResponseEntity<ApiResponse<String>> sendDataOnly(@RequestBody DataOnlyRequest request) {
+        
+        if (!"test123".equals(request.getTestKey())) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.failure("Invalid test key"));
+        }
+        
+        try {
+            String response = pushService.sendDataOnlyNotification(
+                request.getToken(),
+                request.getTitle(),
+                request.getBody(),
+                request.getData()
+            );
+            return ResponseEntity.ok(ApiResponse.success(
+                "✅ Data-only notification sent (no duplicate)", 
+                response
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.failure("Failed to send data-only notification: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Data-only 요청 DTO
+     */
+    public static class DataOnlyRequest {
+        private String token;
+        private String title;
+        private String body;
+        private java.util.Map<String, String> data;
+        private String testKey = "test123";
+
+        public String getToken() { return token; }
+        public void setToken(String token) { this.token = token; }
+        
+        public String getTitle() { return title; }
+        public void setTitle(String title) { this.title = title; }
+        
+        public String getBody() { return body; }
+        public void setBody(String body) { this.body = body; }
+        
+        public java.util.Map<String, String> getData() { return data; }
+        public void setData(java.util.Map<String, String> data) { this.data = data; }
+        
+        public String getTestKey() { return testKey; }
+        public void setTestKey(String testKey) { this.testKey = testKey; }
+    }
 }

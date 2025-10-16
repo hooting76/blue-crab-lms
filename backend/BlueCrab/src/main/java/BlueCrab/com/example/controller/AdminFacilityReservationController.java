@@ -1,6 +1,12 @@
 package BlueCrab.com.example.controller;
 
-import BlueCrab.com.example.dto.*;
+import BlueCrab.com.example.dto.AdminApproveRequestDto;
+import BlueCrab.com.example.dto.AdminRejectRequestDto;
+import BlueCrab.com.example.dto.AdminReservationDetailDto;
+import BlueCrab.com.example.dto.AdminReservationSearchRequestDto;
+import BlueCrab.com.example.dto.ApiResponse;
+import BlueCrab.com.example.dto.PageResponse;
+import BlueCrab.com.example.dto.ReservationDto;
 import BlueCrab.com.example.repository.projection.DashboardStatsProjection;
 import BlueCrab.com.example.service.AdminFacilityReservationService;
 import BlueCrab.com.example.util.JwtUtil;
@@ -84,6 +90,24 @@ public class AdminFacilityReservationController {
         List<ReservationDto> reservations = adminReservationService.getAllReservations(
             adminId, status, facilityIdx, startDate, endDate);
         return ResponseEntity.ok(ApiResponse.success("전체 예약 목록을 조회했습니다.", reservations));
+    }
+
+    @PostMapping("/search")
+    public ResponseEntity<ApiResponse<PageResponse<ReservationDto>>> searchReservations(
+            @Valid @RequestBody AdminReservationSearchRequestDto searchRequest,
+            HttpServletRequest request) {
+        String adminId = getAdminIdFromToken(request);
+        PageResponse<ReservationDto> result = adminReservationService.searchReservations(adminId, searchRequest);
+        return ResponseEntity.ok(ApiResponse.success("예약 목록 조회 성공", result));
+    }
+
+    @PostMapping("/{reservationIdx}")
+    public ResponseEntity<ApiResponse<AdminReservationDetailDto>> getReservationDetail(
+            @PathVariable Integer reservationIdx,
+            HttpServletRequest request) {
+        String adminId = getAdminIdFromToken(request);
+        AdminReservationDetailDto detail = adminReservationService.getReservationDetail(adminId, reservationIdx);
+        return ResponseEntity.ok(ApiResponse.success("예약 상세 조회 성공", detail));
     }
 
     private String getAdminIdFromToken(HttpServletRequest request) {

@@ -2,6 +2,8 @@ package BlueCrab.com.example.repository;
 
 import BlueCrab.com.example.repository.projection.DashboardStatsProjection;
 import BlueCrab.com.example.entity.FacilityReservationTbl;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -61,8 +63,8 @@ public interface FacilityReservationRepository extends JpaRepository<FacilityRes
     );
 
     // 관리자용: 전체 예약 조회
-    @Query("SELECT r FROM FacilityReservationTbl r ORDER BY r.createdAt DESC")
-    List<FacilityReservationTbl> findAllOrderByCreatedAtDesc();
+       @Query("SELECT r FROM FacilityReservationTbl r ORDER BY r.createdAt DESC")
+       List<FacilityReservationTbl> findAllOrderByCreatedAtDesc();
 
     // 관리자용: 시설별 예약 조회
     @Query("SELECT r FROM FacilityReservationTbl r WHERE r.facilityIdx = :facilityIdx " +
@@ -76,6 +78,27 @@ public interface FacilityReservationRepository extends JpaRepository<FacilityRes
         @Param("status") String status,
         @Param("facilityIdx") Integer facilityIdx
     );
+
+       @Query("SELECT r FROM FacilityReservationTbl r " +
+                 "LEFT JOIN FacilityTbl f ON r.facilityIdx = f.facilityIdx " +
+                 "LEFT JOIN UserTbl u ON r.userCode = u.userCode " +
+                 "WHERE (:status IS NULL OR r.status = :status) " +
+                 "AND (:facilityIdx IS NULL OR r.facilityIdx = :facilityIdx) " +
+                 "AND (:startDate IS NULL OR r.startTime >= :startDate) " +
+                 "AND (:endDate IS NULL OR r.endTime <= :endDate) " +
+                 "AND (:keyword IS NULL OR (" +
+                 "LOWER(u.userName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+                 "LOWER(u.userCode) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+                 "LOWER(f.facilityName) LIKE LOWER(CONCAT('%', :keyword, '%'))" +
+                 "))")
+       Page<FacilityReservationTbl> searchReservations(
+              @Param("status") String status,
+              @Param("facilityIdx") Integer facilityIdx,
+              @Param("startDate") LocalDateTime startDate,
+              @Param("endDate") LocalDateTime endDate,
+              @Param("keyword") String keyword,
+              Pageable pageable
+       );
 
     // Phase 2: 사용자별 활성 예약 수 조회
     @Query("SELECT COUNT(r) FROM FacilityReservationTbl r " +

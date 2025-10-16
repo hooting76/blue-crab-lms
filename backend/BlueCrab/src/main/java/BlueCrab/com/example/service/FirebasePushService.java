@@ -92,6 +92,38 @@ public class FirebasePushService {
     }
 
     /**
+     * Data-only 방식 푸시 알림 전송 (중복 방지 테스트용)
+     * Notification 페이로드 없이 Data만 전송
+     */
+    public String sendDataOnlyNotification(String token, String title, String body, Map<String, String> data) {
+        try {
+            // Data 페이로드에 title, body 포함
+            java.util.HashMap<String, String> messageData = new java.util.HashMap<>();
+            messageData.put("title", title);
+            messageData.put("body", body);
+            messageData.put("type", "data-only");
+            messageData.put("timestamp", String.valueOf(System.currentTimeMillis()));
+            
+            if (data != null && !data.isEmpty()) {
+                messageData.putAll(data);
+            }
+
+            // ✅ Data만 전송 (Notification 페이로드 없음)
+            Message message = Message.builder()
+                .setToken(token)
+                .putAllData(messageData)  // Data-only
+                .build();
+
+            String response = FirebaseMessaging.getInstance().send(message);
+            log.info("✅ Data-only notification sent: {}", response);
+            return response;
+        } catch (Exception e) {
+            log.error("❌ Failed to send data-only notification", e);
+            throw new RuntimeException("Data-only notification failed", e);
+        }
+    }
+
+    /**
      * VAPID Public Key 반환 (프론트엔드에서 사용)
      */
     public String getVapidPublicKey() {

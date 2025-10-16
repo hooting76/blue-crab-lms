@@ -130,6 +130,11 @@ public class SecurityConfig {
                 .requestMatchers("/", "/status").permitAll() // 메인 페이지 및 상태 페이지
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/config/**").permitAll() // 정적 리소스
                 
+                // 🔓 Firebase 상태 확인 (인증 불필요)
+                .requestMatchers("/api/test/firebase-status").permitAll() // Firebase 초기화 확인
+                .requestMatchers("/api/test/vapid-key").permitAll() // VAPID 공개키 조회
+                .requestMatchers("/api/push/vapid-key").permitAll() // VAPID 공개키 조회 (레거시)
+                
                 // � 게시판 조회 API (임시로 모두 허용 - 디버깅용)
                 .requestMatchers("/api/boards/**").permitAll() //
                 

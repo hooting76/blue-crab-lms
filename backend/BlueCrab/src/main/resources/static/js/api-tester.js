@@ -1,7 +1,14 @@
 // ==================== API 테스터 메인 모듈 ====================
 
 // 현재 서버의 베이스 URL을 자동으로 설정
-const baseURL = window.location.origin + window.location.pathname.replace(/\/$/, '');
+// pathname에서 /status, /log-monitor 등의 페이지 경로를 제거하고 컨텍스트 경로만 추출
+const baseURL = (() => {
+    const pathname = window.location.pathname;
+    // /BlueCrab-1.0.0/status 또는 /BlueCrab-1.0.0/log-monitor 같은 패턴에서
+    // /BlueCrab-1.0.0 부분만 추출
+    const match = pathname.match(/^(\/[^\/]+)/);
+    return window.location.origin + (match ? match[1] : '');
+})();
 
 // API 템플릿 (JSON에서 로드됨)
 let apiTemplates = {};
@@ -357,7 +364,92 @@ function logout() {
 
 // ==================== 관리자 인증 ====================
 
-// 관리자 인증코드 요청 (Step 1)
+// 임시 세션 토큰 저장 변수 (메모리에만 저장, localStorage 사용 안 함)
+let adminSessionToken = '';
+
+// 관리자 자동 로그인 (ID/PW → 세션토큰 → 인증코드 발송)
+async function adminAutoLogin() {
+    const adminId = document.getElementById('adminId').value.trim();
+    const adminPassword = document.getElementById('adminPassword').value.trim();
+    const step2Section = document.getElementById('adminStep2Section');
+
+    if (!adminId || !adminPassword) {
+        showAdminStatus('관리자 ID와 비밀번호를 입력해주세요.', 'error');
+        return;
+    }
+
+    try {
+        showAdminStatus('🔄 Step 1/2: 관리자 로그인 중...', 'info');
+
+        // Step 1: /api/admin/login (ID/PW → 임시 세션토큰)
+        const loginResponse = await fetch(`${baseURL}/api/admin/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                adminId: adminId,
+                password: adminPassword
+            })
+        });
+
+        const loginParsed = await parseResponseBody(loginResponse);
+        const loginData = loginParsed.isJson ? loginParsed.body : null;
+
+        if (!loginResponse.ok || !loginData || !loginData.success) {
+            const message = loginData && loginData.message ? loginData.message : '로그인 실패';
+            showAdminStatus('❌ 로그인 실패: ' + message, 'error');
+            showResponse(formatResponseDisplay(loginResponse, loginParsed), 'error');
+            return;
+        }
+
+        // 임시 세션 토큰 추출 및 저장 (메모리에만 저장)
+        const responseData = loginData.data || {};
+        adminSessionToken = responseData.sessionToken || responseData.tempToken || '';
+
+        if (!adminSessionToken) {
+            showAdminStatus('⚠️ 세션 토큰을 받지 못했습니다.', 'error');
+            showResponse(formatResponseDisplay(loginResponse, loginParsed), 'error');
+            return;
+        }
+
+        console.log('관리자 1차 인증 성공, 세션 토큰 획득');
+        showAdminStatus('✅ Step 1/2 완료: 로그인 성공', 'success');
+
+        // Step 2: /api/admin/email-auth/request (세션토큰 → 인증코드 발송)
+        showAdminStatus('🔄 Step 2/2: 인증코드 요청 중...', 'info');
+
+        const authCodeResponse = await fetch(`${baseURL}/api/admin/email-auth/request`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${adminSessionToken}`
+            }
+        });
+
+        const authCodeParsed = await parseResponseBody(authCodeResponse);
+        const authCodeData = authCodeParsed.isJson ? authCodeParsed.body : null;
+
+        if (authCodeResponse.ok && authCodeData && authCodeData.success) {
+            showAdminStatus('✅ 인증코드가 이메일로 전송되었습니다! 이메일을 확인하고 인증코드를 입력하세요.', 'success');
+            step2Section.style.display = 'block';
+            showResponse(formatResponseDisplay(authCodeResponse, authCodeParsed), 'success');
+        } else {
+            const message = authCodeData && authCodeData.message ? authCodeData.message : '알 수 없는 오류';
+            showAdminStatus('❌ 인증코드 요청 실패: ' + message, 'error');
+            step2Section.style.display = 'none';
+            adminSessionToken = ''; // 실패 시 세션 토큰 제거
+            showResponse(formatResponseDisplay(authCodeResponse, authCodeParsed), 'error');
+        }
+
+    } catch (error) {
+        showAdminStatus('❌ 네트워크 오류: ' + error.message, 'error');
+        adminSessionToken = ''; // 오류 시 세션 토큰 제거
+        showResponse(`네트워크 오류: ${error.message}`, 'error');
+    }
+}
+
+// 관리자 인증코드 요청 (Step 1) - 수동 모드용
 async function adminRequestAuthCode() {
     const tempToken = document.getElementById('adminTempToken').value.trim();
     const step2Section = document.getElementById('adminStep2Section');
@@ -366,6 +458,9 @@ async function adminRequestAuthCode() {
         showAdminStatus('임시 토큰을 입력해주세요.', 'error');
         return;
     }
+
+    // 수동 모드에서는 직접 입력한 임시 토큰 사용
+    adminSessionToken = tempToken;
 
     try {
         showAdminStatus('인증코드 요청 중...', 'info');
@@ -400,11 +495,12 @@ async function adminRequestAuthCode() {
 
 // 관리자 인증코드 검증 (Step 2)
 async function adminVerifyAuthCode() {
-    const tempToken = document.getElementById('adminTempToken').value.trim();
     const authCode = document.getElementById('adminAuthCode').value.trim().toUpperCase();
 
-    if (!tempToken) {
-        showAdminStatus('임시 토큰을 입력해주세요.', 'error');
+    // 자동 로그인 모드에서는 메모리에 저장된 세션 토큰 사용
+    // 수동 모드에서는 adminRequestAuthCode()가 세션 토큰을 설정함
+    if (!adminSessionToken) {
+        showAdminStatus('세션 토큰이 없습니다. 먼저 로그인하거나 임시 토큰을 입력하세요.', 'error');
         return;
     }
 
@@ -420,7 +516,7 @@ async function adminVerifyAuthCode() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${tempToken}`
+                'Authorization': `Bearer ${adminSessionToken}`
             },
             body: JSON.stringify({
                 authCode: authCode
@@ -445,7 +541,18 @@ async function adminVerifyAuthCode() {
                 showAdminStatus('✅ 관리자 인증 성공! 토큰이 저장되었습니다.', 'success');
                 showResponse(formatResponseDisplay(response, parsed), 'success');
 
-                document.getElementById('adminTempToken').value = '';
+                // 세션 토큰 제거 (보안)
+                adminSessionToken = '';
+
+                // UI 초기화
+                const adminIdField = document.getElementById('adminId');
+                const adminPasswordField = document.getElementById('adminPassword');
+                const adminTempTokenField = document.getElementById('adminTempToken');
+
+                if (adminIdField) adminIdField.value = '';
+                if (adminPasswordField) adminPasswordField.value = '';
+                if (adminTempTokenField) adminTempTokenField.value = '';
+
                 document.getElementById('adminAuthCode').value = '';
                 document.getElementById('adminStep2Section').style.display = 'none';
             } else {
@@ -455,6 +562,58 @@ async function adminVerifyAuthCode() {
         } else {
             const message = data && data.message ? data.message : '알 수 없는 오류';
             showAdminStatus('❌ 인증코드 검증 실패: ' + message, 'error');
+            showResponse(formatResponseDisplay(response, parsed), 'error');
+        }
+    } catch (error) {
+        showAdminStatus('❌ 네트워크 오류: ' + error.message, 'error');
+        showResponse(`네트워크 오류: ${error.message}`, 'error');
+    }
+}
+
+// 관리자 토큰 갱신 함수
+async function adminRefreshToken() {
+    if (!refreshToken) {
+        showAdminStatus('Refresh token이 없습니다. 먼저 관리자 로그인을 완료해주세요.', 'error');
+        return;
+    }
+
+    try {
+        showAdminStatus('관리자 토큰 갱신 중...', 'info');
+
+        const response = await fetch(`${baseURL}/api/admin/auth/refresh`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                refreshToken: refreshToken
+            })
+        });
+
+        const parsed = await parseResponseBody(response);
+        const data = parsed.isJson ? parsed.body : null;
+
+        if (response.ok && data && data.success) {
+            const tokenPayload = extractTokenPayload(data);
+            if (tokenPayload && tokenPayload.accessToken) {
+                accessToken = tokenPayload.accessToken;
+                if (tokenPayload.refreshToken) {
+                    refreshToken = tokenPayload.refreshToken;
+                }
+
+                saveTokensToStorage();
+                updateTokenDisplay();
+                updateAuthStatus();
+
+                showAdminStatus('✅ 관리자 토큰이 성공적으로 갱신되었습니다.', 'success');
+                showResponse(formatResponseDisplay(response, parsed), 'success');
+            } else {
+                showAdminStatus('⚠️ 토큰 갱신 응답에서 토큰을 찾을 수 없습니다.', 'error');
+                showResponse(formatResponseDisplay(response, parsed), 'error');
+            }
+        } else {
+            const message = data && data.message ? data.message : '알 수 없는 오류';
+            showAdminStatus('❌ 관리자 토큰 갱신 실패: ' + message, 'error');
             showResponse(formatResponseDisplay(response, parsed), 'error');
         }
     } catch (error) {
