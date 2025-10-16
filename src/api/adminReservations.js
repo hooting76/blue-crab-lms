@@ -64,7 +64,7 @@ async function handle(res, fallbackMessage = "요청 처리 실패", url = "") {
 }
 
 /* ===========================
- *   관리자 API (구현된 것)
+ *   관리자 API 
  * =========================== */
 
 // 승인 대기 목록: POST /api/admin/reservations/pending
@@ -100,14 +100,42 @@ export async function adminFetchReservationDetail(reservationIdx) {
 }
 
 /* ===========================
- *   추후 추가 예정(백엔드 확정 대기)
+ *   🔻 추가: 백엔드 완료된 두 엔드포인트 붙임 🔻
  * =========================== */
 
-// 전체 예약 조회(필터/페이지)
-// 백엔드에서 /api/admin/reservations/search 열리면 주석 해제해서 사용
-// export async function adminAllList({ page = 0, size = 5, status, facilityIdx } = {}) {
-//   await ensureAccessTokenOrRedirect();
-//   const url = `${ADMIN}/search`;
-//   const res = await postRetry401(url, { page, size, status, facilityIdx });
-//   return handle(res, "전체 예약 조회 실패", url);
-// }
+/**
+ * 관리자 예약 검색: POST /api/admin/reservations/search
+ * @param {Object} filters
+ *   - dateFrom?: 'YYYY-MM-DD'
+ *   - dateTo?: 'YYYY-MM-DD'
+ *   - facilityIdx?: number
+ *   - statusList?: string[]     // 예: ['대기','승인','반려','취소','완료']
+ *   - keyword?: string          // 이름/학번/이메일/목적 등
+ *   - page?: number             // 0-base
+ *   - size?: number
+ */
+export async function adminSearchReservations(filters = {}) {
+  await ensureAccessTokenOrRedirect();
+  const url = `${ADMIN}/search`;
+
+  // undefined/null/빈문자 제거해서 전송 (백엔드 DTO 깔끔)
+  const body = Object.fromEntries(
+    Object.entries(filters).filter(([_, v]) =>
+      Array.isArray(v) ? v.length > 0 : v !== undefined && v !== null && v !== ""
+    )
+  );
+
+  const res = await postRetry401(url, body);
+  return handle(res, "예약 검색 실패", url);
+}
+
+/**
+ * 관리자 예약 상세: POST /api/admin/reservations/{reservationIdx}
+ * (관리자 권한으로 조회, body는 비워서 POST)
+ */
+export async function getAdminReservationDetail(reservationIdx) {
+  await ensureAccessTokenOrRedirect();
+  const url = `${ADMIN}/${reservationIdx}`;
+  const res = await postRetry401(url, {}); // POST
+  return handle(res, "관리자 예약 상세 조회 실패", url);
+}

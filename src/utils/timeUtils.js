@@ -1,9 +1,10 @@
+// src/utils/timeUtils.js
 // BlueCrab LMS - 시간 유틸 (순수 함수)
 // 서버 형식: "yyyy-MM-dd HH:mm:ss"
-// 영업시간: 09:00 ~ 18:00 (예약 시작 가능 슬롯: 09..17, 18:00은 경계 안내용)
+// 영업시간: 09:00 ~ 18:00 (UI 경계 슬롯 18:00 포함 표시 가능)
 
 export const BUSINESS_START_HOUR = 9;   // 포함
-export const BUSINESS_END_HOUR   = 18;  // 종료 경계(18:00까지 이용, 18은 시작 슬롯 아님)
+export const BUSINESS_END_HOUR   = 18;  // 종료 경계(18:00)
 
 const pad2 = (n) => String(n).padStart(2, "0");
 
@@ -97,23 +98,32 @@ export function validateBusinessHours(start, end) {
   return okStart && okEnd && end.getTime() > start.getTime();
 }
 
+/* ===========================
+ * 과거 슬롯 판정
+ * =========================== */
+
 /**
  * 오늘(dateYMD가 오늘)인 경우에만,
- * '해당 슬롯의 종료시각(h+1:00)'이 현재시각을 지났는지 판단
- *  - 지났으면 true => 비활성
- *  - 아직이면 false => 활성
+ * '해당 슬롯의 시작시각(h:00)'이 현재시각을 지났는지 판단
+ *  - 시작시각 <= now  => true (과거 → 비활성)
+ *  - 시작시각  > now  => false (미래 → 활성)
+ *  ※ 18:00 경계 슬롯도 18:00 전까지는 활성, 18:00이 되는 순간 비활성
  */
 export function isPastHourYMD(dateYMD, startHour) {
   const sel = parseYMD(dateYMD);
   if (!sel) return false;
 
   const now = new Date();
-  if (toYMD(now) !== toYMD(sel)) return false; // 오늘이 아니면 과거 슬롯 판정 금지
+  if (toYMD(now) !== toYMD(sel)) return false; // 오늘이 아니면 과거 판정 금지
 
-  const end = new Date(sel);
-  end.setHours(startHour + 1, 0, 0, 0);  // 슬롯 종료시각
+  const slotStart = new Date(sel);
+  slotStart.setHours(startHour, 0, 0, 0); // 슬롯 시작시각
 
-  return now.getTime() >= end.getTime();
+  // 분 단위 안전 비교
+  const nowMin = Math.floor(now.getTime() / 60000);
+  const slotStartMin = Math.floor(slotStart.getTime() / 60000);
+
+  return nowMin >= slotStartMin;
 }
 
 /* ===========================
