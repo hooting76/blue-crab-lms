@@ -20,22 +20,18 @@ function CourseList() {
         setIsModalOpen(false);
     };
 
-    const getAccessToken = () => {
-        const storedToken = localStorage.getItem('accessToken');
-        if (storedToken) return storedToken;
-        if (user && user.data && user.data.accessToken) return user.data.accessToken;
-        return null;
-    };
+    const accessToken = user?.data?.accessToken;
+    console.log("user : ", user);
+    console.log("accessToken : ", accessToken);
 
     const getCourseList = async (accessToken) => {
         try {
-            const response = await fetch(`${BASE_URL}/v1/professor/lectures`, {
-                method: "POST",
+            const response = await fetch(`${BASE_URL}/professor/lectures`, {
+                method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({}) // 🔄 빈 객체 또는 필요한 데이터 전달
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+                }
             });
             if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
             const data = await response.json();
@@ -46,11 +42,12 @@ function CourseList() {
     };
 
     useEffect(() => {
-        const token = getAccessToken();
-        if (token) {
-            getCourseList(token); // ✅ 실제 호출
+        if (accessToken) {
+            getCourseList(accessToken);
         }
-    }, []);
+    }, [accessToken]); // ✅ accessToken이 생겼을 때 호출
+
+
 
     const handleEdit = () => {
         alert("수정 준비중");

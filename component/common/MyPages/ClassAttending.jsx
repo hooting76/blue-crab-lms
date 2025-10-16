@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../../css/MyPages/ClassAttending.css';
 import classAttendingDummy from '../../../src/mock/classAttendingDummy.js'; //더미데이터
 import { UseUser } from '../../../hook/UseUser';
@@ -8,7 +8,13 @@ import AssignmentModal from './AssignmentModal.jsx';
 import ProfNoticeWritingPage from './ProfNoticeWritingPage.jsx';
 
 function ClassAttending({currentPage, setCurrentPage}) {
+    const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
     const { user } = UseUser(); // 유저 정보
+    const accessToken = user.data.accessToken;
+    const [lectureList, setLectureList] = useState([]);
+
+    console.log("user : ", user);
+
     // const [openRow, setOpenRow] = useState(null);
     
     // const totalCredits = classAttendingDummy.reduce(
@@ -96,6 +102,28 @@ const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
     const openAssignmentModal = () => setIsAssignmentModalOpen(true);
     const closeAssignmentModal = () => setIsAssignmentModalOpen(false);
 
+const fetchClassAttendingList = async (accessToken) => {
+    try {
+        const response = await fetch(`${BASE_URL}/enrollments?studentIdx=${user.data.user.id}&page=0&size=10`, {
+            method: "POST",
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            }
+        })
+    if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
+            const data = await response.json();
+            setLectureList(data); // ✅ 받아온 데이터 저장
+        } catch (error) {
+            console.error('강의 목록 조회 에러:', error);
+        }};
+
+    useEffect(() => {
+        if (accessToken) {
+            fetchClassAttendingList(accessToken);
+        }
+        }, [accessToken]); // ✅ accessToken이 생겼을 때 호출
+
     return (
         <div className="classAttending_list_container">
             <select value={selectedSemester} onChange={handleSemesterChange} className='selectSemester'>
@@ -107,11 +135,15 @@ const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
             </select>
 
             <select className="lectureName">
-                {classAttendingDummy.map((cls) => (
-                    <option key={cls.LEC_IDX} value={cls.LEC_IDX}>
-                        {cls.LEC_NAME}
-                    </option>
-                ))}
+                {lectureList.length > 0 ? (
+                    lectureList.map((cls) => (
+                        <option key={cls.lecIdx} value={cls.lecIdx}>
+                            {cls.lecTit}
+                        </option>
+                    ))
+                ) : (
+                    <option disabled>강의 목록 없음</option>
+                )}
             </select>
 
             <div className="classAttendingContent">
