@@ -6,7 +6,7 @@
 .lecMinOpen {
     display: flex;
     gap: 20px; /* 요소 사이 간격 */
-    margin-bottom: 10px;
+    margin-bottom: 5px;
 }
 
 /* 각 항목(span)의 공통 스타일 */
@@ -25,7 +25,7 @@ input[type="text"],
 input[type="number"],
 select {
     padding: 8px;
-    font-size: 14px;
+    font-size: var(--font-mid);
     border: 1px solid #ccc;
     border-radius: 4px;
 }

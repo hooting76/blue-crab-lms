@@ -150,7 +150,7 @@ function CourseRegister() {
                         <label>학부</label><br/>
                         <select
                         value={lecMcode}
-                        onChange={(e) => setLecMcode(Number(e.target.value))}
+                        onChange={(e) => {setLecMcode(Number(e.target.value)); setLecMcodeDep("");}}
                         required
                         >
                             <option value="">학부를 선택하세요</option>
