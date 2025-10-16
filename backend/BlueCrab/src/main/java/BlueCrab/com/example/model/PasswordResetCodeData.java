@@ -5,8 +5,10 @@ package BlueCrab.com.example.model;
 
 // ========== 임포트 구문 ==========
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PasswordResetCodeData {
     // 비밀번호 재설정 코드 데이터 모델 클래스
     
