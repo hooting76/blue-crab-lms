@@ -219,7 +219,7 @@ function CourseRegister() {
                     </span>
                 </div>
 
-                <div className='lecYearSemesterMajorMust'>
+                <div className='lecYearSemesterMajorMustMinOpen'>
                     <span>
                         <label>대상 학년</label><br/>
                         <select
@@ -271,9 +271,7 @@ function CourseRegister() {
                             <option value={0}>선택</option>
                         </select>
                     </span>
-                </div>
-
-                <div className='lecMinOpen'>
+                
                     <span>
                         <label>수강 가능 최저 학년</label><br/>
                         <select

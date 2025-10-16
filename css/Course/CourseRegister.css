@@ -1,8 +1,7 @@
 /* 공통적으로 div 안 span들을 가로 정렬 */
 .lecSerialTit,
 .lecManyPointTimeProfMcode,
-.lecYearSemesterMajorMust,
-.lecMinOpen {
+.lecYearSemesterMajorMustMinOpen {
     display: flex;
     gap: 20px; /* 요소 사이 간격 */
     margin: 0;
@@ -11,8 +10,7 @@
 /* 각 항목(span)의 공통 스타일 */
 .lecSerialTit span,
 .lecManyPointTimeProfMcode span,
-.lecYearSemesterMajorMust span,
-.lecMinOpen span {
+.lecYearSemesterMajorMustMinOpen span {
     flex: 1; /* 모든 항목을 같은 너비로 */
     display: flex;
     flex-direction: column; /* 라벨 위, input 아래로 */
