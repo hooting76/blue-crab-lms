@@ -1,8 +1,7 @@
-// public/firebase-messaging-sw.js
 importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js');
 
-console.log('🔧 Firebase Service Worker 로드됨');
+// console.log('🔧 Firebase Service Worker 로드됨');
 
 const firebaseConfig = {
     apiKey: "AIzaSyDMxR4Xvug2sGmbHGo3fYeJCb9d0WorVSE",
@@ -17,7 +16,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
-console.log('✅ Firebase Messaging 초기화 완료');
+// console.log('✅ Firebase Messaging 초기화 완료');
 
 // 백그라운드 메시지 수신 리스너
 messaging.onBackgroundMessage((payload) => {
@@ -29,7 +28,7 @@ messaging.onBackgroundMessage((payload) => {
     const notificationOptions = {
         body: payload.notification?.body || '새로운 메시지가 도착했습니다.',
         icon: payload.notification?.icon || '/firebase-logo.png',
-        badge: '/badge-icon.png',
+        badge: payload.notification?.icon || '/badge-icon.png',
         tag: 'notification-' + Date.now(),
         data: payload.data,
         requireInteraction: false,

@@ -4,7 +4,7 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="title" value="Blue Crab LMS&#xa;브라우저 콘솔 테스트 사용 가이드 v3.5 (강의 검증 로직 강화)" style="text;html=1;strokeColor=none;fillColor=default;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1" parent="1" vertex="1">
+        <mxCell id="title" value="Blue Crab LMS&#xa;브라우저 콘솔 테스트 사용 가이드 v4.0 (POST 방식 통일)" style="text;html=1;strokeColor=none;fillColor=default;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1" parent="1" vertex="1">
           <mxGeometry x="250" y="10" width="660" height="70" as="geometry" />
         </mxCell>
         <mxCell id="start" value="시작" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;fontStyle=1" parent="1" vertex="1">
@@ -82,13 +82,19 @@
         <mxCell id="arrow-student-features" value="학생" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;fontSize=11;strokeColor=light-dark(#000000,#000000);" parent="1" source="user-role-select" target="student-features" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="student-test2" value="✅ lecture-test-2&#xa;수강신청/취소&#xa;⭐ JWT 자동인식&#xa;⭐ DTO 응답&#xa;⭐ lecProfName 표시" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;fontStyle=1" parent="1" vertex="1">
-          <mxGeometry x="412.5" y="790" width="90" height="90" as="geometry" />
+        <mxCell id="student-test2a" value="✅ lecture-test-2a&#xa;수강 가능 강의 조회&#xa;⭐ Phase 9 필터링&#xa;⭐ 0값 규칙&#xa;⭐ 전공/부전공 매칭" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="380" y="790" width="85" height="90" as="geometry" />
         </mxCell>
-        <mxCell id="student-test3" value="✅ lecture-test-3&#xa;과제 제출&#xa;⭐ 10점 만점 시스템" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10" parent="1" vertex="1">
-          <mxGeometry x="537.5" y="790" width="90" height="50" as="geometry" />
+        <mxCell id="student-test2b" value="✅ lecture-test-2b&#xa;내 수강 목록&#xa;수강 취소" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9" parent="1" vertex="1">
+          <mxGeometry x="475" y="790" width="85" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="arrow-student-test2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;strokeColor=light-dark(#000000,#000000);" parent="1" source="student-features" target="student-test2" edge="1">
+        <mxCell id="student-test3" value="✅ lecture-test-3&#xa;과제 제출&#xa;⭐ 10점 만점 시스템" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9" parent="1" vertex="1">
+          <mxGeometry x="570" y="790" width="85" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-student-test2a" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;strokeColor=light-dark(#000000,#000000);" parent="1" source="student-features" target="student-test2a" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-student-test2b" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;strokeColor=light-dark(#000000,#000000);" parent="1" source="student-features" target="student-test2b" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="arrow-student-test3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;strokeColor=light-dark(#000000,#000000);" parent="1" source="student-features" target="student-test3" edge="1">
@@ -100,83 +106,89 @@
         <mxCell id="arrow-prof-features" value="교수" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;fontSize=11;strokeColor=light-dark(#000000,#000000);" parent="1" source="user-role-select" target="prof-features" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="prof-test4" value="✅ lecture-test-4&#xa;과제 관리/채점&#xa;⭐ 10점 만점 고정&#xa;⭐ 자동 점수 캡핑" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1" parent="1" vertex="1">
-          <mxGeometry x="670" y="800" width="85" height="70" as="geometry" />
+        <mxCell id="prof-test4a" value="✅ lecture-test-4a&#xa;과제 생성&#xa;담당 강의 조회" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="670" y="720" width="85" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="prof-test5" value="✅ lecture-test-5&#xa;학생 관리&#xa;⭐ 수강생/성적 조회" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10" parent="1" vertex="1">
-          <mxGeometry x="785" y="800" width="85" height="50" as="geometry" />
+        <mxCell id="prof-test4b" value="✅ lecture-test-4b&#xa;과제 채점&#xa;⭐ 10점 만점 고정&#xa;⭐ 자동 점수 캡핑" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="670" y="790" width="85" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="arrow-prof-test4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;strokeColor=light-dark(#000000,#000000);" parent="1" source="prof-features" target="prof-test4" edge="1">
+        <mxCell id="prof-test5" value="✅ lecture-test-5&#xa;학생 관리&#xa;⭐ 수강생/성적 조회" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9" parent="1" vertex="1">
+          <mxGeometry x="765" y="720" width="85" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-prof-test4a" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;strokeColor=light-dark(#000000,#000000);" parent="1" source="prof-features" target="prof-test4a" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-prof-test4b" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;strokeColor=light-dark(#000000,#000000);" parent="1" source="prof-features" target="prof-test4b" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="arrow-prof-test5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;strokeColor=light-dark(#000000,#000000);" parent="1" source="prof-features" target="prof-test5" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="legend-box" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=light-dark(#FFFFFF,#555555);strokeColor=#666666;strokeWidth=2;dashed=1;fontColor=light-dark(#000000,#000000);labelBackgroundColor=none;" parent="1" vertex="1">
-          <mxGeometry x="30" y="890" width="280" height="120" as="geometry" />
+          <mxGeometry x="10" y="890" width="280" height="120" as="geometry" />
         </mxCell>
         <mxCell id="legend-title" value="범례" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" parent="1" vertex="1">
-          <mxGeometry x="40" y="900" width="60" height="30" as="geometry" />
+          <mxGeometry x="20" y="900" width="60" height="30" as="geometry" />
         </mxCell>
         <mxCell id="legend-admin" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
-          <mxGeometry x="40" y="935" width="20" height="20" as="geometry" />
+          <mxGeometry x="20" y="935" width="20" height="20" as="geometry" />
         </mxCell>
         <mxCell id="legend-admin-text" value="관리자 영역" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" parent="1" vertex="1">
-          <mxGeometry x="65" y="932" width="80" height="26" as="geometry" />
+          <mxGeometry x="45" y="932" width="80" height="26" as="geometry" />
         </mxCell>
         <mxCell id="legend-student" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
-          <mxGeometry x="40" y="965" width="20" height="20" as="geometry" />
+          <mxGeometry x="20" y="965" width="20" height="20" as="geometry" />
         </mxCell>
         <mxCell id="legend-student-text" value="학생 영역" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" parent="1" vertex="1">
-          <mxGeometry x="65" y="962" width="80" height="26" as="geometry" />
+          <mxGeometry x="45" y="962" width="80" height="26" as="geometry" />
         </mxCell>
         <mxCell id="legend-prof" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
-          <mxGeometry x="150" y="935" width="20" height="20" as="geometry" />
+          <mxGeometry x="130" y="935" width="20" height="20" as="geometry" />
         </mxCell>
         <mxCell id="legend-prof-text" value="교수 영역" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" parent="1" vertex="1">
-          <mxGeometry x="175" y="932" width="80" height="26" as="geometry" />
+          <mxGeometry x="155" y="932" width="80" height="26" as="geometry" />
         </mxCell>
         <mxCell id="legend-common" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
-          <mxGeometry x="150" y="965" width="20" height="20" as="geometry" />
+          <mxGeometry x="130" y="965" width="20" height="20" as="geometry" />
         </mxCell>
         <mxCell id="legend-common-text" value="공통 단계" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" parent="1" vertex="1">
-          <mxGeometry x="175" y="962" width="80" height="26" as="geometry" />
+          <mxGeometry x="155" y="962" width="80" height="26" as="geometry" />
         </mxCell>
         <mxCell id="notice-box" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2" parent="1" vertex="1">
-          <mxGeometry x="330" y="890" width="830" height="140" as="geometry" />
+          <mxGeometry x="300" y="890" width="850" height="140" as="geometry" />
         </mxCell>
         <mxCell id="notice-title" value="⚠️ 주의사항" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#CC0000" parent="1" vertex="1">
-          <mxGeometry x="340" y="895" width="120" height="30" as="geometry" />
+          <mxGeometry x="310" y="895" width="120" height="30" as="geometry" />
         </mxCell>
         <mxCell id="notice-1" value="1. 모든 테스트 파일 실행 전 반드시 로그인 필수!" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1" parent="1" vertex="1">
-          <mxGeometry x="340" y="925" width="350" height="20" as="geometry" />
+          <mxGeometry x="310" y="925" width="350" height="20" as="geometry" />
         </mxCell>
         <mxCell id="notice-2" value="2. 역할에 맞는 로그인 파일 사용 (관리자 vs 일반유저)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" parent="1" vertex="1">
-          <mxGeometry x="340" y="945" width="400" height="20" as="geometry" />
+          <mxGeometry x="310" y="945" width="400" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="notice-3" value="3. API 엔드포인트 일관성 검토 완료: 실제 구현과 문서 100% 일치" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#006600" parent="1" vertex="1">
-          <mxGeometry x="340" y="965" width="450" height="20" as="geometry" />
+        <mxCell id="notice-3" value="3. Phase 9 완료: 백엔드 필터링 (전공/부전공 + 0값 규칙) - lecture-test-2a 반영" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#006600" parent="1" vertex="1">
+          <mxGeometry x="310" y="965" width="450" height="20" as="geometry" />
         </mxCell>
         <mxCell id="notice-4" value="4. lecture-test-6 통계 조회: 현재 미구현 상태 (API 없음)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#cc0000;fontStyle=1" parent="1" vertex="1">
-          <mxGeometry x="340" y="985" width="450" height="20" as="geometry" />
+          <mxGeometry x="310" y="985" width="450" height="20" as="geometry" />
         </mxCell>
         <mxCell id="notice-5" value="5. 브라우저 콘솔에서 파일 내용을 복사하여 실행" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" parent="1" vertex="1">
-          <mxGeometry x="760" y="925" width="330" height="20" as="geometry" />
+          <mxGeometry x="730" y="925" width="330" height="20" as="geometry" />
         </mxCell>
         <mxCell id="notice-6" value="6. help() 함수로 사용 가능한 함수 목록 확인" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" parent="1" vertex="1">
-          <mxGeometry x="760" y="945" width="330" height="20" as="geometry" />
+          <mxGeometry x="730" y="945" width="330" height="20" as="geometry" />
         </mxCell>
         <mxCell id="notice-7" value="7. 미구현 기능: 강의평가, 채팅, 관리자 통계" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#cc0000;fontStyle=1" parent="1" vertex="1">
-          <mxGeometry x="760" y="965" width="340" height="20" as="geometry" />
+          <mxGeometry x="730" y="965" width="340" height="20" as="geometry" />
         </mxCell>
         <mxCell id="notice-8" value="8. 에러 발생 시 백엔드 로그 확인 (상세 정보 포함)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" parent="1" vertex="1">
-          <mxGeometry x="760" y="985" width="340" height="20" as="geometry" />
+          <mxGeometry x="730" y="985" width="340" height="20" as="geometry" />
         </mxCell>
         <mxCell id="notice-9" value="9. 과제 배점: 모든 과제 10점 만점 고정 (입력값 무시, 10점 초과 시 자동 변환)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#006600;fontStyle=1" parent="1" vertex="1">
-          <mxGeometry x="340" y="1005" width="550" height="20" as="geometry" />
+          <mxGeometry x="310" y="1005" width="550" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="notice-10" value="10. 강의 검증: 시간형식(월1월2수3), 학부/학과 코드 자동 검증, 파일 구조 정리 완료" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#006600;fontStyle=1" parent="1" vertex="1">
-          <mxGeometry x="760" y="1005" width="450" height="20" as="geometry" />
+        <mxCell id="notice-10" value="10. 파일 분할 완료: test-2 (2a/2b), test-4 (4a/4b) - 유지보수성 향상 ✅" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#006600;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="730" y="1005" width="450" height="20" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

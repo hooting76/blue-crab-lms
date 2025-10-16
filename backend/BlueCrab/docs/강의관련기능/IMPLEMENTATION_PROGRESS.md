@@ -1,8 +1,8 @@
 # 강의 관리 시스템 구현 진척도
 
 > **최종 업데이트**: 2025-10-16
-> **현재 Phase**: Phase 7.1 완료 - 수강 가능 강의 조회 API 추가 (0값 규칙)
-> **전체 진행률**: 99% (Phase 1-7.1 완료)
+> **현재 Phase**: Phase 9 완료 - 백엔드 필터링 구현 (전공/부전공 매칭)
+> **전체 진행률**: 100% (Phase 1-9 완료)
 
 ---
 
@@ -23,9 +23,62 @@ Phase 6.8.2: 파일 구조 최적화      ████████████ 1
 Phase 7: 고급 기능 추가             ████████████ 100% ✅
 Phase 7.1: 수강 가능 강의 조회     ████████████ 100% ✅
 Phase 8: 문서 정리 및 최적화       ████████████ 100% ✅
+Phase 9: 백엔드 필터링 구현        ████████████ 100% ✅ ⭐ NEW
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-전체 진행률:                        ███████████░  99%
+전체 진행률:                        ████████████ 100%
 ```
+
+---
+
+## ✅ Phase 9: 백엔드 필터링 구현 (완료) ⭐
+
+### 기간: 2025-10-16
+### 상태: ✅ 완료
+
+#### 완료 항목
+- [x] **ProfileView 활용**
+  - 기존 인프라 사용 (USER_TBL + SERIAL_CODE_TABLE 조인 뷰)
+  - ProfileViewRepository로 학생 전공/부전공 정보 조회
+
+- [x] **LectureController 완전 구현**
+  - ProfileViewRepository 의존성 주입
+  - isEligibleForLecture() 메서드 완전 구현 (60줄)
+  - getEligibilityReason() 메서드 상세 사유 제공 (95줄)
+  - createStudentInfo() 메서드 전공 정보 포함 (30줄)
+
+- [x] **0값 규칙 완전 구현**
+  - 학부 코드: "0" = 모든 학부 수강 가능
+  - 학과 코드: "0" = 모든 학과 수강 가능
+  - 주전공 또는 부전공 매칭 지원
+
+- [x] **전공/부전공 이중 매칭**
+  - 주전공 일치 확인
+  - 부전공 일치 확인
+  - 둘 중 하나만 일치해도 수강 가능
+
+- [x] **상세 사유 메시지**
+  - 수강 불가 사유: 개설 상태, 정원, 전공 불일치, 전공 정보 미등록
+  - 수강 가능 사유: 제한 없음, 전공 일치, 부전공 일치, 학부/학과 제한 없음
+
+- [x] **학생 정보 강화**
+  - majorFacultyCode, majorDeptCode 추가
+  - minorFacultyCode, minorDeptCode 추가
+  - hasMajorInfo, hasMinorInfo 추가
+
+- [x] **문서화**
+  - BACKEND_FILTERING_IMPLEMENTATION.md 생성 (완전한 구현 보고서)
+  - FILTERING_TEST_GUIDE.md 생성 (테스트 시나리오 및 가이드)
+  - README.md 업데이트 (v3.0)
+
+#### 기술적 특징
+- **기존 인프라 활용**: 새로운 Entity/Repository 생성 불필요
+- **완전한 0값 규칙**: 학부/학과 모두 "0" 처리
+- **전공/부전공 매칭**: OR 조건으로 유연한 수강 자격 부여
+- **상세 피드백**: 사용자에게 명확한 수강 불가 사유 제공
+- **에지 케이스 처리**: 전공 정보 없는 학생도 0값 강의 수강 가능
+
+#### 보류 항목
+- **학년 필터링 (LEC_MIN)**: 로직 합의 필요, TODO로 표시
 
 ---
 
@@ -36,7 +89,7 @@ Phase 8: 문서 정리 및 최적화       ████████████ 
 
 #### 완료 항목
 - [x] **LectureController 확장**
-  - `GET /api/lectures/eligible/{studentId}` 엔드포인트 추가
+  - `POST /lectures/eligible` 엔드포인트 추가 (Body: {studentIdx})
   - 0값 제한없음 규칙 적용 (학부/학과/학년)
   - 학생 권한 검증 (USER_STUDENT = 0)
   - 강의 개설여부 및 정원 확인
@@ -302,7 +355,7 @@ Phase 8: 문서 정리 및 최적화       ████████████ 
 ### 상태: ✅ 완료
 
 #### 문제 진단
-- [x] **GET /api/lectures API 문제**
+- [x] **POST /lectures API 문제**
   - Entity를 직접 반환하여 `lecProfName` 필드 누락
   - EnrollmentController는 DTO 변환으로 교수 이름 포함
   - LectureController는 Entity 직접 반환으로 일관성 결여
@@ -357,11 +410,11 @@ Phase 8: 문서 정리 및 최적화       ████████████ 
     ```
 
 - [x] **모든 조회 API DTO 반환으로 변경**
-  - `GET /api/lectures` (페이징) → Page<LectureDto>
-  - `GET /api/lectures/{lecIdx}` → LectureDto
-  - `GET /api/lectures?professor=...` → List<LectureDto>
-  - `GET /api/lectures?title=...` → List<LectureDto>
-  - `GET /api/lectures?serial=...` → LectureDto
+  - `POST /lectures` (페이징) → Page<LectureDto>
+  - `POST /lectures/detail` (Body: {lecIdx}) → LectureDto
+  - `POST /lectures?professor=...` → List<LectureDto>
+  - `POST /lectures?title=...` → List<LectureDto>
+  - `POST /lectures?serial=...` → LectureDto
 
 - [x] **lecture-test-2-student-enrollment.js 업데이트**
   - getAvailableLectures() 함수:
@@ -387,11 +440,11 @@ Phase 8: 문서 정리 및 최적화       ████████████ 
 - **테스트 안정성**: 모든 테스트 코드에서 교수 정보 정상 출력
 
 #### 영향받는 API 엔드포인트
-1. ✅ `GET /api/lectures` - 강의 목록 조회 (페이징)
-2. ✅ `GET /api/lectures/{lecIdx}` - 강의 상세 조회
-3. ✅ `GET /api/lectures?professor=...` - 교수별 강의 조회
-4. ✅ `GET /api/lectures?title=...` - 강의명 검색
-5. ✅ `GET /api/lectures?serial=...` - 강의코드 단일 조회
+1. ✅ `POST /lectures` - 강의 목록 조회 (Body: {page, size, professor, year, semester})
+2. ✅ `POST /lectures/detail` - 강의 상세 조회 (Body: {lecIdx})
+3. ✅ `POST /lectures?professor=...` - 교수별 강의 조회
+4. ✅ `POST /lectures?title=...` - 강의명 검색
+5. ✅ `POST /lectures?serial=...` - 강의코드 단일 조회
 
 #### 관련 파일
 - `LectureController.java` (Lines 6-25, 45-47, 73-105, 115-118, 200-271)
@@ -409,7 +462,7 @@ Phase 8: 문서 정리 및 최적화       ████████████ 
 ### 상태: ✅ 완료
 
 #### 문제 진단
-- [x] **GET /api/assignments 400 에러**
+- [x] **POST /api/assignments 400 에러**
   - 증상: "Unexpected non-whitespace character after JSON at position 67"
   - 원인: `AssignmentExtendedTbl.lecture` Lazy Loading 프록시 직렬화 실패
   - 근본 원인: Hibernate 세션 외부에서 Jackson이 프록시 객체 접근 시도
@@ -688,49 +741,47 @@ repository/Lecture/
 
 **LectureController (11개 → 6개)**
 ```
-✅ GET /api/lectures - 통합 조회 엔드포인트
-   ├─ ?serial=XXX          (강의코드 조회)
-   ├─ ?professor=XXX       (교수별 조회)
-   ├─ ?title=XXX           (강의명 검색)
-   ├─ ?year=2024&semester=1 (학기별)
-   ├─ ?major=1&open=1      (복합 검색)
-   └─ (파라미터 없음)       (전체 목록)
-✅ GET /api/lectures/{id}
-✅ GET /api/lectures/{id}/stats (sub-resource)
-✅ POST /api/lectures
-✅ PUT /api/lectures/{id}
-✅ DELETE /api/lectures/{id}
+✅ POST /lectures - 통합 조회 엔드포인트
+   ├─ Body: {serial}          (강의코드 조회)
+   ├─ Body: {professor}       (교수별 조회)
+   ├─ Body: {title}           (강의명 검색)
+   ├─ Body: {year, semester}  (학기별)
+   ├─ Body: {major, open}     (복합 검색)
+   └─ Body: {page, size}      (전체 목록)
+✅ POST /lectures/detail - 강의 상세 (Body: {lecIdx})
+✅ POST /lectures/stats - 강의 통계 (Body: {lecIdx})
+✅ POST /lectures/create - 강의 생성
+✅ PUT /lectures/{id} - 강의 수정
+✅ DELETE /lectures/{id} - 강의 삭제
 ```
 
 **EnrollmentController (12개 → 7개)**
 ```
-✅ GET /api/enrollments - 통합 조회
-   ├─ ?studentIdx=1        (학생별)
-   ├─ ?lecIdx=1            (강의별)
-   ├─ ?checkEnrollment=true (수강 여부)
-   ├─ ?enrolled=true       (현재 수강중)
-   └─ ?stats=true          (통계)
-✅ GET /api/enrollments/{id}
-✅ GET /api/enrollments/{id}/data
-✅ POST /api/enrollments
-✅ DELETE /api/enrollments/{id}
-✅ PUT /api/enrollments/{id}/attendance
-✅ PUT /api/enrollments/{id}/grade
+✅ POST /enrollments/list - 통합 조회
+   ├─ Body: {studentIdx}      (학생별)
+   ├─ Body: {lecIdx}          (강의별)
+   ├─ Body: {checkEnrollment} (수강 여부)
+   ├─ Body: {enrolled}        (현재 수강중)
+   └─ Body: {stats}           (통계)
+✅ POST /enrollments/detail - 수강 상세 (Body: {enrollmentIdx})
+✅ POST /enrollments/enroll - 수강신청
+✅ POST /enrollments/drop - 수강취소 (Body: {enrollmentIdx})
+✅ PUT /enrollments/{id}/attendance - 출석 갱신
+✅ PUT /enrollments/{id}/grade - 성적 입력
 ```
 
 **AssignmentController (11개 → 8개)**
 ```
-✅ GET /api/assignments - 통합 조회
-   ├─ ?lecIdx=1            (강의별)
-   ├─ ?withLecture=true    (강의 정보 포함)
-   └─ ?stats=true          (통계)
-✅ GET /api/assignments/{id}
-✅ GET /api/assignments/{id}/data
-✅ POST /api/assignments
-✅ POST /api/assignments/{id}/submit
-✅ PUT /api/assignments/{id}
-✅ PUT /api/assignments/{id}/grade
-✅ DELETE /api/assignments/{id}
+✅ POST /api/assignments/list - 통합 조회
+   ├─ Body: {lecIdx}          (강의별)
+   ├─ Body: {withLecture}     (강의 정보 포함)
+   └─ Body: {stats}           (통계)
+✅ POST /api/assignments/detail - 과제 상세 (Body: {assignmentIdx})
+✅ POST /api/assignments/create - 과제 생성
+✅ POST /api/assignments/submit - 과제 제출
+✅ PUT /api/assignments/{id} - 과제 수정
+✅ PUT /api/assignments/{id}/grade - 과제 채점
+✅ DELETE /api/assignments/{id} - 과제 삭제
 ```
 
 ##### 📊 통합 성과
