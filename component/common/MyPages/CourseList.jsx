@@ -26,12 +26,12 @@ function CourseList() {
     const getCourseList = async (accessToken) => {
         try {
             const response = await fetch(`${BASE_URL}/professor/lectures`, {
-                method: 'GET',
+                method: 'POST',
                 headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({}) // 🔄 빈 객체 또는 필요한 데이터 전달
+                
             });
             if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
             const data = await response.json();
