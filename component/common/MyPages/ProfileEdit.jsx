@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getMyProfile, getMyProfileImage } from '../../../src/api/profileApi';
+import { FaUser } from 'react-icons/fa';
 import '../../../css/MyPages/ProfileEdit.css';
 
 const phoneMask = (v = '') =>
@@ -125,11 +126,14 @@ export default function ProfileEdit() {
         {/* 헤더: 아바타 | (이름 | 역할) + 학번 */}
         <div className="head-row">
           <div className="avatar-col">
-            <img
-              src={imageUrl || '/assets/default-profile.png'}
+            {imageUrl ?
+            (<img
+              src={imageUrl}
               alt="프로필"
               className="avatar avatar-lg"
-            />
+            />) : (
+              <FaUser />
+            )}
           </div>
           <div className="who">
             <div className="who-name-row">
