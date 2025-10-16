@@ -50,9 +50,10 @@ function CourseList() {
         const accessToken = getAccessToken();
         if (accessToken) {
             getCourseList(accessToken); // ✅ 실제 호출
-        console.log("accessToken :", accessToken);
         }
     }, []);
+
+    console.log("Fetching from:", `${BASE_URL}/professor/lectures`);
 
 
     const handleEdit = () => {
