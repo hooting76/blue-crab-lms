@@ -1,11 +1,4 @@
-﻿// ===================================================================
-// 📚    const lecMajor = parseInt(prompt('🎯 전공구분 (1:전공강의, 0:교양):', '1')) || 1;
-    const lecMust = parseInt(prompt('✅ 필수구분 (1:필수과목, 0:선택과목):', '1')) || 1;
-    const lecSummary = prompt('📝 강의 개요를 입력하세요:', '') || `${lectureName} 강의입니다.`;
-    const lecTime = prompt('⏰ 강의 시간을 입력하세요 (예: 월1월2수3수4, 화2목2):', '월1월2수3수4');
-    const lecAssign = parseInt(prompt('📋 과제유무 (1:과제있음, 0:과제없음):', '0')) || 0;
-    const lecOpen = parseInt(prompt('🔓 수강신청 상태 (1:열림, 0:닫힘):', '1')) || 1;의 등록 테스트
-// Blue Crab LMS - 관리자 강의 생성 및 관리 테스트
+﻿// Blue Crab LMS - 관리자 강의 생성 및 관리 테스트
 // 
 // ⚠️ 사전 준비: 먼저 관리자 로그인 테스트 파일을 실행하세요!
 // 📁 위치: docs/관리자 로그인/admin-login-to-board-test.js
