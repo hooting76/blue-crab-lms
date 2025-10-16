@@ -21,6 +21,7 @@ function CourseList() {
     };
 
     const accessToken = user.data.accessToken;
+    console.log("accessToken : ", accessToken);
 
     const getCourseList = async (accessToken) => {
         try {
