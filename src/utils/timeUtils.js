@@ -1,12 +1,13 @@
+// src/utils/timeUtils.js
 // BlueCrab LMS - 시간 유틸 (순수 함수)
 // 서버 형식: "yyyy-MM-dd HH:mm:ss"
-// 슬롯: 시작 시각 09~18 (=> 09:00~10:00 ... 18:00~19:00)
-// 접수 가능 창구: 09:00 ~ 18:00
+// 접수 가능(Submission) 시간: 09:00 ~ 18:00
+// 타임 슬롯: 09:00~10:00 ... 18:00~19:00  (=> 시작 가능 시각 9..18, 종료 상한 19:00)
 
-export const SLOT_START_MIN = 9;   // 포함
-export const SLOT_START_MAX = 18;  // 포함 (18:00~19:00)
-export const SUBMIT_START_HOUR = 9;
-export const SUBMIT_END_HOUR   = 18; // 접수 마감 경계(18:00 미만까지만 허용)
+export const BUSINESS_START_HOUR = 9;   // 슬롯 시작 최솟값(포함)
+export const LAST_START_HOUR     = 18;  // 슬롯 시작 최댓값(포함) => 18:00~19:00
+export const SLOT_END_CEIL_HOUR  = 19;  // 슬롯 종료 상한(미포함 경계)
+export const SUBMISSION_END_HOUR = 18;  // 접수 종료 경계(18:00 이후 당일 운영 종료 취급)
 
 const pad2 = (n) => String(n).padStart(2, "0");
 
@@ -41,17 +42,17 @@ export const isWeekend = (d) => {
   return w === 0 || w === 6;
 };
 
-/* ===========================
- * 슬롯/범위 유틸
- * =========================== */
-
-/** 시작 시각 09..18 */
+/*슬롯/범위 유틸 */
+/** 시작 가능 슬롯 목록: 9..18 (포함) */
 export const genBusinessSlots = () =>
-  Array.from({ length: (SLOT_START_MAX - SLOT_START_MIN + 1) },
-    (_, i) => SLOT_START_MIN + i
+  Array.from({ length: LAST_START_HOUR - BUSINESS_START_HOUR + 1 },
+    (_, i) => BUSINESS_START_HOUR + i
   );
 
-/** [11,12,15] -> [[11,13],[15,16]] (end는 미포함 경계 의미) */
+/**  genBusinessSlots 동일 반환 */
+export const genBusinessSlotsWithBoundary = () => genBusinessSlots();
+
+/** [11,12,15] -> [[11,13],[15,16]]  (end는 미포함 경계 의미) */
 export function packContiguousRanges(hours) {
   const s = [...new Set(hours)].sort((a, b) => a - b);
   if (!s.length) return [];
@@ -75,25 +76,25 @@ export function rangeToServerStrings(dateYMD, startHour, endHour) {
   return { startTime: toYMDHMS(start), endTime: toYMDHMS(end) };
 }
 
-/* ===========================
- * 검증/클램프
- * =========================== */
-
+/*검증/클램프*/
 /**
  * 같은 날 & 09:00~19:00 & end>start
- * - 시작: 09:00 이상 18:59:59..까지 허용(시작 시각은 09~18)
- * - 종료: 19:00:00 넘지 않음 (18시 슬롯은 19:00 종료)
+ * - 시작: 09:00 이상 18:59:59..까지 허용 (시작 정시는 9..18)
+ * - 종료: 최대 19:00:00
  */
 export function validateBusinessHours(start, end) {
   if (!(start instanceof Date) || !(end instanceof Date)) return false;
   if (toYMD(start) !== toYMD(end)) return false;
 
-  const okStart =
-    start.getHours() >= SLOT_START_MIN && start.getHours() <= SLOT_START_MAX;
+  const sh = start.getHours();
+  const eh = end.getHours();
+  const em = end.getMinutes();
+  const es = end.getSeconds();
 
+  const okStart = sh >= BUSINESS_START_HOUR && sh <= LAST_START_HOUR;
   const okEnd =
-    end.getHours() < 19 ||
-    (end.getHours() === 19 && end.getMinutes() === 0 && end.getSeconds() === 0);
+    eh < SLOT_END_CEIL_HOUR ||
+    (eh === SLOT_END_CEIL_HOUR && em === 0 && es === 0);
 
   return okStart && okEnd && end.getTime() > start.getTime();
 }
@@ -109,33 +110,36 @@ export function isPastHourYMD(dateYMD, startHour) {
   if (!sel) return false;
 
   const now = new Date();
-  if (toYMD(now) !== toYMD(sel)) return false; // 오늘이 아니면 과거 판정 금지
+  if (toYMD(now) !== toYMD(sel)) return false; // 오늘이 아니면 과거 슬롯 판정 금지
 
   const end = new Date(sel);
-  end.setHours(startHour + 1, 0, 0, 0);  // 슬롯 종료시각 (19:00까지 커버)
+  end.setHours(startHour + 1, 0, 0, 0);  // 슬롯 종료시각 (ex: 18시 슬롯 -> 19:00)
 
   return now.getTime() >= end.getTime();
 }
 
-/** 오늘 접수 가능 창구(09:00 <= now < 18:00)? */
-export function isWithinSubmitWindow(now = new Date()) {
-  const h = now.getHours();
-  if (h < SUBMIT_START_HOUR) return false;
-  if (h > SUBMIT_END_HOUR) return false;
-  if (h === SUBMIT_END_HOUR) {
-    // 18:00 이상이면 불가
-    return now.getMinutes() === 0 && now.getSeconds() === 0 ? false : false;
-  }
-  return true;
+/**
+ * 오늘(dateYMD가 오늘) 18:00 경계가 지났는지 여부
+ * - 오늘이 아니면 항상 false
+ * - 같고, 현재시각이 18:00 이상이면 true
+ *   (18:00 이후에는 당일 모든 슬롯을 '운영 종료'로 막는다)
+ */
+export function isAfterBusinessEnd(dateYMD) {
+  const sel = parseYMD(dateYMD);
+  if (!sel) return false;
+
+  const now = new Date();
+  if (toYMD(now) !== toYMD(sel)) return false;
+
+  const boundary = new Date(sel);
+  boundary.setHours(SUBMISSION_END_HOUR, 0, 0, 0); // 18:00
+  return now.getTime() >= boundary.getTime();
 }
 
-/* ===========================
- * 서버 응답 매핑
- * =========================== */
-
-/** /daily-schedule timeSlots -> 시작 시각 09..18만 사용 */
+/*서버 응답 매핑*/
+/** /daily-schedule timeSlots -> 9..18만 사용 */
 export function mapDailyScheduleToSlots(timeSlots) {
-  const hours = genBusinessSlots();
+  const hours = genBusinessSlots(); // 9..18
   const map = new Map(
     (Array.isArray(timeSlots) ? timeSlots : []).map((t) => {
       const hh = Number(String(t.hour || "0").split(":")[0]);
@@ -145,10 +149,7 @@ export function mapDailyScheduleToSlots(timeSlots) {
   return hours.map((h) => ({ hour: h, isAvailable: map.get(h) !== false }));
 }
 
-/* ===========================
- * 라벨/표시
- * =========================== */
-
+/* 라벨/표시 */
 export const formatHourSlotLabel = (startHour) =>
   `${pad2(startHour)}:00–${pad2(startHour + 1)}:00`;
 
