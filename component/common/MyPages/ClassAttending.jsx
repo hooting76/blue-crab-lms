@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import '../../../css/MyPages/ClassAttending.css';
-import classAttendingDummy from '../../../src/mock/classAttendingDummy.js'; //더미데이터
 import { UseUser } from '../../../hook/UseUser';
 import ApproveAttendanceModal from './ApproveAttendanceModal.jsx';
 import TestModal from './TestModal.jsx';
@@ -102,7 +101,8 @@ const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
     const openAssignmentModal = () => setIsAssignmentModalOpen(true);
     const closeAssignmentModal = () => setIsAssignmentModalOpen(false);
 
-const fetchClassAttendingList = async (accessToken) => {
+    
+const fetchClassAttendingList = async (accessToken) => { // 학생의 경우
     try {
         const response = await fetch(`${BASE_URL}/enrollments?studentIdx=${user.data.user.id}&page=0&size=10`, {
             method: "POST",
@@ -118,12 +118,34 @@ const fetchClassAttendingList = async (accessToken) => {
             console.error('강의 목록 조회 에러:', error);
         }};
 
+const fetchClassLecturingList = async (accessToken) => { // 교수의 경우
+        try {
+            const response = await fetch(`${BASE_URL}/professor/lectures`, {
+                method: 'POST',
+                headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+                }
+            });
+    if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
+            const data = await response.json();
+            setLectureList(data); // ✅ 받아온 데이터 저장
+        } catch (error) {
+            console.error('강의 목록 조회 에러:', error);
+        }
+    };
+
     useEffect(() => {
-        if (accessToken) {
+        if (accessToken && user.data.user.userStudent === 0) {
             fetchClassAttendingList(accessToken);
+        }
+        if (accessToken && user.data.user.userStudent === 1) {
+            fetchClassLecturingList(accessToken);
         }
         }, [accessToken]); // ✅ accessToken이 생겼을 때 호출
 
+
+        
     return (
         <div className="classAttending_list_container">
             <select value={selectedSemester} onChange={handleSemesterChange} className='selectSemester'>
