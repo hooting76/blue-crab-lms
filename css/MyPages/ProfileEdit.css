@@ -22,7 +22,7 @@
 /* 헤더 행: 아바타(라벨 영역과 동일 폭) | 텍스트 */
 #bc-profile .head-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
   margin-bottom: 8px;
   min-height: 56px;
@@ -32,8 +32,8 @@
   width: var(--label-w);
   min-width: var(--label-w);
   display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
+  justify-content: center;
+  align-items: center;
 }
 
 #bc-profile .avatar.avatar-lg {
@@ -178,11 +178,15 @@
 #bc-profile .btn.secondary {
   background: #fff;
   color: #475569;
-  border-color: #cbd5e1;
+  border-color: #ccc;
 }
 #bc-profile .btn.secondary:hover {
   background: #f1f5f9;
   border-color: #94a3b8;
+}
+
+.avatar-col > svg {
+  font-size: 32px;
 }
 
 /* 반응형 */

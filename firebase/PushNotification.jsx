@@ -17,11 +17,11 @@ class PushNotificationService {
         try {
             if ('serviceWorker' in navigator) {
                 const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-                console.log('✅ Service Worker 등록 성공:', registration.scope);
+                // console.log('✅ Service Worker 등록 성공:', registration.scope);
                 return registration;
             }
         } catch (error) {
-            console.error('❌ Service Worker 등록 실패:', error);
+            // console.error('❌ Service Worker 등록 실패:', error);
             throw error;
         };
     };
@@ -30,17 +30,17 @@ class PushNotificationService {
     async requestPermission() {
         try {
             const permission = await Notification.requestPermission();
-            console.log('알림 권한 상태:', permission);
+            // console.log('알림 권한 상태:', permission);
             
             if (permission === 'granted') {
-                console.log('✅ 알림 권한 허용됨');
+                // console.log('✅ 알림 권한 허용됨');
                 return true;
             } else {
-                console.log('❌ 알림 권한 거부됨');
+                // console.log('❌ 알림 권한 거부됨');
                 return false;
             }
         } catch (error) {
-            console.error('❌ 권한 요청 실패:', error);
+            // console.error('❌ 권한 요청 실패:', error);
             return false;
         };
     };
@@ -58,11 +58,11 @@ class PushNotificationService {
                 this.currentToken = token;
                 return token;
             } else {
-                console.log('❌ FCM 토큰 발급 실패');
+                // console.log('❌ FCM 토큰 발급 실패');
                 return null;
             }
         } catch (error) {
-            console.error('❌ 토큰 발급 오류:', error);
+            // console.error('❌ 토큰 발급 오류:', error);
             return null;
         }
     };
@@ -95,11 +95,11 @@ class PushNotificationService {
                     platform: platform
                 })
             });
-            console.log(response);
+            // console.log(response);
 
             if (response.ok) {
                 const data = await response.json();
-                console.log('✅ 백엔드에 토큰 저장 성공:', data);
+                // console.log('✅ 백엔드에 토큰 저장 성공:', data);
                 // status : registered/renewed/conflict/temporary/replaced
                 // keepSignedIn : null(default)
                 // console.log(data.data);
@@ -112,73 +112,73 @@ class PushNotificationService {
                     // console.log(listNum);
                     switch(listNum){
                         case 1 : 
-                            console.log('registered');
+                            // console.log('registered');
                             break;
                         case 2 :
-                            console.log('renewed');
+                            // console.log('renewed');
                             break;
                         case 3 :
                             // 다른 기기 토큰과 충돌 발생 (이미 다른기기가 등록됨)
-                            console.log('conflict');
+                            // console.log('conflict');
                             break;
                         case 4 :
                             // 로그인 동안만 알림 수신(임시)temporaryOnly: true 전달 필요
-                            console.log('temporary');
+                            // console.log('temporary');
                             break;
                         case 5 :
                             // 기존 토큰 제거 후 현재 기기로 강제 교체
-                            console.log('replaced');
+                            // console.log('replaced');
                             break;
                         default : 
-                            console.log('비 정상적인 리턴');
+                            // console.log('비 정상적인 리턴');
                     } // switch end
                 }else{
-                    alert('웹서버 통신 오류!');
+                    // alert('웹서버 통신 오류!');
                     return false;
                 }; // status.includes end
 
                 return true;
             } else {
-                console.error('❌ 백엔드 토큰 저장 실패:', response.status);
+                // console.error('❌ 백엔드 토큰 저장 실패:', response.status);
                 return false;
             }
         } catch (error) {
-            console.error('❌ 백엔드 통신 오류:', error);
+            // console.error('❌ 백엔드 통신 오류:', error);
             return false;
         }
     };
 
     // 5. 포그라운드 메시지 리스너 설정
-    setupForegroundListener() {
-        onMessage(messaging, (payload) => {
-            console.log('📨 포그라운드 메시지 수신:', payload);
+    // setupForegroundListener() {
+    //     onMessage(messaging, (payload) => {
+    //         console.log('📨 포그라운드 메시지 수신:', payload);
             
-            const notification = payload.notification;
-            const title = notification?.title || '알림';
-            const body = notification?.body || '';
-            const icon = notification?.icon;
+    //         const notification = payload.notification;
+    //         const title = notification?.title || '알림';
+    //         const body = notification?.body || '';
+    //         const icon = notification?.icon;
 
-            // 브라우저 알림 표시
-            if (Notification.permission === 'granted' && notification) {
-                new Notification(title, {
-                    body: body,
-                    icon: icon || {icon_logo},
-                    badge: {icon_logo},
-                    tag: 'notification-' + Date.now()
-                });
-            };
+    //         // 브라우저 알림 표시
+    //         if (Notification.permission === 'granted' && notification) {
+    //             new Notification(title, {
+    //                 body: body,
+    //                 icon: icon || {icon_logo},
+    //                 badge: {icon_logo},
+    //                 tag: 'notification-' + Date.now()
+    //             });
+    //         };
 
-            // 커스텀 이벤트 발생 (UI 업데이트용)
-            window.dispatchEvent(new CustomEvent('fcm-message', {
-                detail: payload
-            }));
-        });
-    };
+    //         // 커스텀 이벤트 발생 (UI 업데이트용)
+    //         window.dispatchEvent(new CustomEvent('fcm-message', {
+    //             detail: payload
+    //         }));
+    //     });
+    // };
 
     // 6. 전체 초기화 프로세스
     async initialize(userId) {
         try {
-            console.log('🚀 푸시 알림 초기화 시작...');
+            // console.log('🚀 푸시 알림 초기화 시작...');
 
             // Step 1: Service Worker 등록
             await this.registerServiceWorker();
@@ -186,14 +186,14 @@ class PushNotificationService {
             // Step 2: 알림 권한 요청
             const hasPermission = await this.requestPermission();
             if (!hasPermission) {
-                console.log('⚠️ 알림 권한이 없어 초기화를 중단합니다.');
+                // console.log('⚠️ 알림 권한이 없어 초기화를 중단합니다.');
                 return false;
             }
 
             // Step 3: FCM 토큰 발급
             const token = await this.getFCMToken();
             if (!token) {
-                console.log('⚠️ FCM 토큰 발급 실패로 초기화를 중단합니다.');
+                // console.log('⚠️ FCM 토큰 발급 실패로 초기화를 중단합니다.');
                 return false;
             }
 
@@ -201,14 +201,14 @@ class PushNotificationService {
             await this.saveTokenToBackend(token, userId);
 
             // Step 5: 포그라운드 메시지 리스너 설정
-            this.setupForegroundListener();
+            // this.setupForegroundListener();
             
             sessionStorage.setItem('fcm', token);
 
-            console.log('✅ 푸시 알림 초기화 완료!');
+            // console.log('✅ 푸시 알림 초기화 완료!');
             return true;
         } catch (error) {
-            console.error('❌ 푸시 알림 초기화 실패:', error);
+            // console.error('❌ 푸시 알림 초기화 실패:', error);
             return false;
         };
     };

@@ -50,9 +50,9 @@ public class EnrollmentController {
     @Autowired
     private UserTblRepository userTblRepository;
 
-    /* 수강신청 목록 조회 (통합 엔드포인트)
+    /* 수강신청 목록 조회 (통합 엔드포인트) - POST 방식
      * 
-     * 쿼리 파라미터:
+     * Request Body:
      * - studentIdx: 학생 ID로 필터
      * - lecIdx: 강의 ID로 필터
      * - checkEnrollment: 수강 여부 확인 (studentIdx + lecIdx 필요)
@@ -60,15 +60,20 @@ public class EnrollmentController {
      * - stats: 통계 조회 (lecIdx 옵션)
      * - page, size: 페이징
      */
-    @GetMapping
-    public ResponseEntity<?> getEnrollments(
-            @RequestParam(required = false) Integer studentIdx,
-            @RequestParam(required = false) Integer lecIdx,
-            @RequestParam(defaultValue = "false") boolean checkEnrollment,
-            @RequestParam(defaultValue = "false") boolean enrolled,
-            @RequestParam(defaultValue = "false") boolean stats,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+    @PostMapping("/list")
+    public ResponseEntity<?> getEnrollments(@RequestBody(required = false) Map<String, Object> request) {
+        // Request Body에서 파라미터 추출 (null 처리)
+        if (request == null) {
+            request = new HashMap<>();
+        }
+        
+        Integer studentIdx = request.get("studentIdx") != null ? ((Number) request.get("studentIdx")).intValue() : null;
+        Integer lecIdx = request.get("lecIdx") != null ? ((Number) request.get("lecIdx")).intValue() : null;
+        boolean checkEnrollment = request.get("checkEnrollment") != null ? (Boolean) request.get("checkEnrollment") : false;
+        boolean enrolled = request.get("enrolled") != null ? (Boolean) request.get("enrolled") : false;
+        boolean stats = request.get("stats") != null ? (Boolean) request.get("stats") : false;
+        int page = request.get("page") != null ? ((Number) request.get("page")).intValue() : 0;
+        int size = request.get("size") != null ? ((Number) request.get("size")).intValue() : 20;
         try {
             // 1. 수강 여부 확인
             if (checkEnrollment && studentIdx != null && lecIdx != null) {
@@ -142,25 +147,41 @@ public class EnrollmentController {
         }
     }
 
-    /* 수강신청 상세 조회 - DTO 변환 */
-    @GetMapping("/{enrollmentIdx}")
-    public ResponseEntity<?> getEnrollmentById(@PathVariable Integer enrollmentIdx) {
+    /* 수강신청 상세 조회 - POST 방식 */
+    @PostMapping("/detail")
+    public ResponseEntity<?> getEnrollmentById(@RequestBody Map<String, Object> request) {
         try {
+            Integer enrollmentIdx = request.get("enrollmentIdx") != null ? 
+                    ((Number) request.get("enrollmentIdx")).intValue() : null;
+            
+            if (enrollmentIdx == null) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("enrollmentIdx는 필수입니다."));
+            }
+            
             return enrollmentService.getEnrollmentById(enrollmentIdx)
                     .map(this::convertToDto)
                     .map(ResponseEntity::ok)
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
-            logger.error("수강신청 조회 실패: enrollmentIdx={}", enrollmentIdx, e);
+            logger.error("수강신청 조회 실패", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(createErrorResponse("수강신청 조회 중 오류가 발생했습니다."));
         }
     }
 
-    /* enrollmentData JSON 파싱 조회 */
-    @GetMapping("/{enrollmentIdx}/data")
-    public ResponseEntity<?> getEnrollmentData(@PathVariable Integer enrollmentIdx) {
+    /* enrollmentData JSON 파싱 조회 - POST 방식 */
+    @PostMapping("/data")
+    public ResponseEntity<?> getEnrollmentData(@RequestBody Map<String, Object> request) {
         try {
+            Integer enrollmentIdx = request.get("enrollmentIdx") != null ? 
+                    ((Number) request.get("enrollmentIdx")).intValue() : null;
+            
+            if (enrollmentIdx == null) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("enrollmentIdx는 필수입니다."));
+            }
+            
             EnrollmentExtendedTbl enrollment = enrollmentService.getEnrollmentById(enrollmentIdx)
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 수강신청입니다."));
             
@@ -170,14 +191,14 @@ public class EnrollmentController {
             logger.warn("enrollmentData 조회 실패: {}", e.getMessage());
             return ResponseEntity.badRequest().body(createErrorResponse(e.getMessage()));
         } catch (Exception e) {
-            logger.error("enrollmentData 조회 실패: enrollmentIdx={}", enrollmentIdx, e);
+            logger.error("enrollmentData 조회 실패", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(createErrorResponse("데이터 조회 중 오류가 발생했습니다."));
         }
     }
 
     /* 수강신청 */
-    @PostMapping
+    @PostMapping("/enroll")
     public ResponseEntity<?> enrollInLecture(@RequestBody Map<String, Object> request) {
         try {
             Integer studentIdx = (Integer) request.get("studentIdx");

@@ -5,6 +5,7 @@ package BlueCrab.com.example.controller.Lecture;
 
 import BlueCrab.com.example.dto.Lecture.LectureDto;
 import BlueCrab.com.example.entity.Lecture.LecTbl;
+import BlueCrab.com.example.entity.UserTbl;
 import BlueCrab.com.example.repository.UserTblRepository;
 import BlueCrab.com.example.service.Lecture.LectureService;
 import org.slf4j.Logger;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
  * - GET /api/lectures - 강의 조회 (쿼리 파라미터로 검색/필터링 통합)
  * - GET /api/lectures/{id} - 강의 상세 조회
  * - GET /api/lectures/{id}/stats - 강의별 통계
+ * - GET /api/lectures/eligible/{studentId} - 학생별 수강 가능 강의 조회 (0값 규칙 적용)
  * - POST /api/lectures - 강의 등록
  * - PUT /api/lectures/{id} - 강의 수정
  * - DELETE /api/lectures/{id} - 강의 삭제
@@ -45,9 +47,9 @@ public class LectureController {
     @Autowired
     private UserTblRepository userTblRepository;
 
-    /* 강의 목록 조회 및 검색 (통합 엔드포인트)
+    /* 강의 목록 조회 및 검색 (통합 엔드포인트) - POST 방식
      * 
-     * 쿼리 파라미터:
+     * Request Body:
      * - serial: 강의코드로 단일 조회
      * - professor: 교수명 필터
      * - year: 학년 필터
@@ -57,17 +59,22 @@ public class LectureController {
      * - open: 개설 여부 (1/0)
      * - page, size: 페이징
      */
-    @GetMapping
-    public ResponseEntity<?> getLectures(
-            @RequestParam(required = false) String serial,
-            @RequestParam(required = false) String professor,
-            @RequestParam(required = false) Integer year,
-            @RequestParam(required = false) Integer semester,
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) Integer major,
-            @RequestParam(required = false) Integer open,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+    @PostMapping
+    public ResponseEntity<?> getLectures(@RequestBody(required = false) Map<String, Object> request) {
+        // Request Body에서 파라미터 추출 (null 처리)
+        if (request == null) {
+            request = new HashMap<>();
+        }
+        
+        String serial = (String) request.get("serial");
+        String professor = (String) request.get("professor");
+        Integer year = request.get("year") != null ? ((Number) request.get("year")).intValue() : null;
+        Integer semester = request.get("semester") != null ? ((Number) request.get("semester")).intValue() : null;
+        String title = (String) request.get("title");
+        Integer major = request.get("major") != null ? ((Number) request.get("major")).intValue() : null;
+        Integer open = request.get("open") != null ? ((Number) request.get("open")).intValue() : null;
+        int page = request.get("page") != null ? ((Number) request.get("page")).intValue() : 0;
+        int size = request.get("size") != null ? ((Number) request.get("size")).intValue() : 20;
         try {
             // 1. 강의코드로 단일 조회
             if (serial != null) {
@@ -111,39 +118,228 @@ public class LectureController {
         }
     }
 
-    /* 강의 상세 조회 */
-    @GetMapping("/{lecIdx}")
-    public ResponseEntity<?> getLectureById(@PathVariable Integer lecIdx) {
+    /* 강의 상세 조회 - POST 방식 */
+    @PostMapping("/detail")
+    public ResponseEntity<?> getLectureById(@RequestBody Map<String, Object> request) {
         try {
+            Integer lecIdx = request.get("lecIdx") != null ? ((Number) request.get("lecIdx")).intValue() : null;
+            
+            if (lecIdx == null) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("lecIdx는 필수입니다."));
+            }
+            
             return lectureService.getLectureById(lecIdx)
                     .map(this::convertToDto)
                     .map(ResponseEntity::ok)
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
-            logger.error("강의 조회 실패: lecIdx={}", lecIdx, e);
+            logger.error("강의 조회 실패", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(createErrorResponse("강의 조회 중 오류가 발생했습니다."));
         }
     }
 
-    /* 강의별 통계 조회 */
-    @GetMapping("/{lecIdx}/stats")
-    public ResponseEntity<?> getLectureStats(@PathVariable Integer lecIdx) {
+    /* 강의별 통계 조회 - POST 방식 */
+    @PostMapping("/stats")
+    public ResponseEntity<?> getLectureStats(@RequestBody Map<String, Object> request) {
         try {
+            Integer lecIdx = request.get("lecIdx") != null ? ((Number) request.get("lecIdx")).intValue() : null;
+            
+            if (lecIdx == null) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("lecIdx는 필수입니다."));
+            }
+            
             Map<String, Object> stats = lectureService.getLectureStatistics(lecIdx);
             return ResponseEntity.ok(stats);
         } catch (IllegalArgumentException e) {
             logger.warn("강의 통계 조회 실패: {}", e.getMessage());
             return ResponseEntity.badRequest().body(createErrorResponse(e.getMessage()));
         } catch (Exception e) {
-            logger.error("강의 통계 조회 실패: lecIdx={}", lecIdx, e);
+            logger.error("강의 통계 조회 실패", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(createErrorResponse("통계 조회 중 오류가 발생했습니다."));
         }
     }
 
+    /* 학생별 수강 가능 강의 조회 (0값 규칙 적용) - POST 방식 */
+    @PostMapping("/eligible")
+    public ResponseEntity<?> getEligibleLectures(@RequestBody Map<String, Object> request) {
+        Integer studentId = null;
+        try {
+            studentId = request.get("studentId") != null ? ((Number) request.get("studentId")).intValue() : null;
+            int page = request.get("page") != null ? ((Number) request.get("page")).intValue() : 0;
+            int size = request.get("size") != null ? ((Number) request.get("size")).intValue() : 20;
+            
+            if (studentId == null) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("studentId는 필수입니다."));
+            }
+            // 1. 학생 정보 조회
+            UserTbl student = userTblRepository.findById(studentId).orElse(null);
+            if (student == null) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("존재하지 않는 학생입니다."));
+            }
+
+            // 2. 학생 권한 확인 (0: 학생, 1: 교수)
+            if (student.getUserStudent() == null || student.getUserStudent() != 0) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("학생 권한이 필요합니다."));
+            }
+
+            // 3. 수강 가능 강의 필터링 (0값 규칙 적용)
+            List<LecTbl> allLectures = lectureService.getAllLecturesForEligibility();
+            
+            // 4. 수강 자격 검증 및 필터링
+            List<Map<String, Object>> eligibleLectures = allLectures.stream()
+                    .filter(lecture -> isEligibleForLecture(student, lecture))
+                    .map(lecture -> createEligibilityResponse(student, lecture))
+                    .collect(Collectors.toList());
+
+            // 5. 페이징 처리
+            int start = page * size;
+            int end = Math.min(start + size, eligibleLectures.size());
+            List<Map<String, Object>> pagedLectures = eligibleLectures.subList(start, end);
+
+            // 6. 응답 구성
+            Map<String, Object> response = new HashMap<>();
+            response.put("eligibleLectures", pagedLectures);
+            response.put("totalCount", allLectures.size());
+            response.put("eligibleCount", eligibleLectures.size());
+            response.put("ineligibleCount", allLectures.size() - eligibleLectures.size());
+            response.put("pagination", createPaginationInfo(page, size, eligibleLectures.size()));
+            response.put("studentInfo", createStudentInfo(student));
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            logger.error("수강 가능 강의 조회 실패: studentId={}", studentId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("수강 가능 강의 조회 중 오류가 발생했습니다."));
+        }
+    }
+
+    /**
+     * 학생이 특정 강의를 수강할 수 있는지 검증 (0값 규칙 적용)
+     */
+    private boolean isEligibleForLecture(UserTbl student, LecTbl lecture) {
+        // 현재 UserTbl에 학부/학과/학년 정보가 없으므로 기본 검증만 수행
+        // TODO: 향후 UserTbl에 학부/학과/학년 정보 추가 시 확장 필요
+
+        // 1. 개설 여부 확인 (필수)
+        if (lecture.getLecOpen() == null || lecture.getLecOpen() != 1) {
+            return false;
+        }
+
+        // 2. 정원 확인 (필수)
+        if (lecture.getLecCurrent() != null && lecture.getLecMany() != null) {
+            if (lecture.getLecCurrent() >= lecture.getLecMany()) {
+                return false;
+            }
+        }
+
+        // 3. 0값 규칙 적용 (향후 확장 시 사용)
+        /*
+        // 학부 코드 검증 (0이면 제한 없음)
+        if (!"0".equals(lecture.getLecMcode()) && !lecture.getLecMcode().equals(student.getFacultyCode())) {
+            return false;
+        }
+
+        // 학과 코드 검증 (0이면 제한 없음)
+        if (!"0".equals(lecture.getLecMcodeDep()) && !lecture.getLecMcodeDep().equals(student.getDepartmentCode())) {
+            return false;
+        }
+
+        // 최소 학년 검증 (0이면 제한 없음)
+        if (lecture.getLecMin() != null && lecture.getLecMin() > 0) {
+            if (student.getCurrentGrade() == null || student.getCurrentGrade() < lecture.getLecMin()) {
+                return false;
+            }
+        }
+        */
+
+        return true;
+    }
+
+    /**
+     * 수강 자격 검증 결과를 포함한 응답 생성
+     */
+    private Map<String, Object> createEligibilityResponse(UserTbl student, LecTbl lecture) {
+        Map<String, Object> response = new HashMap<>();
+        
+        // 기본 강의 정보
+        response.put("lecIdx", lecture.getLecIdx());
+        response.put("lecSerial", lecture.getLecSerial());
+        response.put("lecTit", lecture.getLecTit());
+        response.put("lecProf", lecture.getLecProf());
+        response.put("lecPoint", lecture.getLecPoint());
+        response.put("lecTime", lecture.getLecTime());
+        response.put("lecCurrent", lecture.getLecCurrent());
+        response.put("lecMany", lecture.getLecMany());
+        response.put("lecMcode", lecture.getLecMcode());
+        response.put("lecMcodeDep", lecture.getLecMcodeDep());
+        response.put("lecMin", lecture.getLecMin());
+
+        // 수강 자격 정보
+        boolean isEligible = isEligibleForLecture(student, lecture);
+        response.put("isEligible", isEligible);
+        response.put("eligibilityReason", getEligibilityReason(student, lecture, isEligible));
+
+        return response;
+    }
+
+    /**
+     * 수강 자격 검증 사유 생성
+     */
+    private String getEligibilityReason(UserTbl student, LecTbl lecture, boolean isEligible) {
+        if (!isEligible) {
+            // 개설 여부 확인
+            if (lecture.getLecOpen() == null || lecture.getLecOpen() != 1) {
+                return "개설되지 않은 강의입니다";
+            }
+            
+            // 정원 확인
+            if (lecture.getLecCurrent() != null && lecture.getLecMany() != null) {
+                if (lecture.getLecCurrent() >= lecture.getLecMany()) {
+                    return "정원이 초과되었습니다";
+                }
+            }
+            
+            return "수강 불가 (기타 사유)";
+        }
+        
+        return "수강 가능";
+    }
+
+    /**
+     * 페이징 정보 생성
+     */
+    private Map<String, Object> createPaginationInfo(int page, int size, int totalElements) {
+        Map<String, Object> pagination = new HashMap<>();
+        pagination.put("currentPage", page);
+        pagination.put("pageSize", size);
+        pagination.put("totalElements", totalElements);
+        pagination.put("totalPages", (int) Math.ceil((double) totalElements / size));
+        return pagination;
+    }
+
+    /**
+     * 학생 정보 생성
+     */
+    private Map<String, Object> createStudentInfo(UserTbl student) {
+        Map<String, Object> studentInfo = new HashMap<>();
+        studentInfo.put("userIdx", student.getUserIdx());
+        studentInfo.put("userName", student.getUserName());
+        studentInfo.put("userEmail", student.getUserEmail());
+        studentInfo.put("userStudent", student.getUserStudent());
+        // TODO: 향후 학부/학과/학년 정보 추가
+        return studentInfo;
+    }
+
     /* 강의 등록 */
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<?> createLecture(@RequestBody LecTbl lecture) {
         try {
             LecTbl created = lectureService.createLecture(lecture);

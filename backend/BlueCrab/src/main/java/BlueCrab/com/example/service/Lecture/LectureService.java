@@ -405,4 +405,9 @@ public class LectureService {
     public boolean existsBySerial(String lecSerial) {
         return lecTblRepository.existsByLecSerial(lecSerial);
     }
+
+    /* 수강 자격 검증을 위한 모든 강의 조회 */
+    public List<LecTbl> getAllLecturesForEligibility() {
+        return lecTblRepository.findAll();
+    }
 }

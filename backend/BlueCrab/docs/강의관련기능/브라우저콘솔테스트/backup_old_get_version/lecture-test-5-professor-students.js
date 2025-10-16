@@ -34,24 +34,17 @@ async function getStudents() {
     const page = parseInt(prompt('📄 페이지 번호 (0부터 시작):', '0'));
     const size = parseInt(prompt('📄 페이지 크기:', '10'));
 
-    console.log('\n👨‍🎓 수강생 목록 조회 - POST');
+    console.log('\n👨‍🎓 수강생 목록 조회');
     console.log('═══════════════════════════════════════════════════════');
 
     try {
-        const requestBody = {
-            lecIdx: lectureIdx,
-            page: page,
-            size: size
-        };
-        console.log('� 요청 데이터:', JSON.stringify(requestBody, null, 2));
+        const url = `${API_BASE_URL}/lectures/${lectureIdx}/students?page=${page}&size=${size}`;
+        console.log('📡 요청 URL:', url);
 
-        const response = await fetch(`${API_BASE_URL}/enrollments/list`, {
-            method: 'POST',
+        const response = await fetch(url, {
             headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(requestBody)
+                'Authorization': `Bearer ${token}`
+            }
         });
 
         console.log(`📡 HTTP 상태: ${response.status}`);
@@ -81,22 +74,17 @@ async function getStudentDetail() {
     if (!checkAuth()) return;
     const token = window.authToken;
     
-    const enrollmentIdx = parseInt(prompt('� ENROLLMENT_IDX:', '1'));
+    const lectureIdx = parseInt(prompt('📚 LECTURE_IDX:', '1'));
+    const studentIdx = parseInt(prompt('👨‍🎓 STUDENT_IDX:', '1'));
 
-    console.log('\n👨‍🎓 수강생 상세 조회 - POST');
+    console.log('\n👨‍🎓 수강생 상세 조회');
     console.log('═══════════════════════════════════════════════════════');
 
     try {
-        const requestBody = { enrollmentIdx: enrollmentIdx };
-        console.log('📤 요청 데이터:', JSON.stringify(requestBody, null, 2));
-
-        const response = await fetch(`${API_BASE_URL}/enrollments/detail`, {
-            method: 'POST',
+        const response = await fetch(`${API_BASE_URL}/lectures/${lectureIdx}/students/${studentIdx}`, {
             headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(requestBody)
+                'Authorization': `Bearer ${token}`
+            }
         });
 
         console.log(`📡 HTTP 상태: ${response.status}`);
@@ -173,20 +161,14 @@ async function getLectureStatistics() {
     
     const lectureIdx = parseInt(prompt('📚 LECTURE_IDX:', '1'));
 
-    console.log('\n📊 강의 통계 조회 - POST');
+    console.log('\n📊 강의 통계 조회');
     console.log('═══════════════════════════════════════════════════════');
 
     try {
-        const requestBody = { lecIdx: lectureIdx };
-        console.log('📤 요청 데이터:', JSON.stringify(requestBody, null, 2));
-
-        const response = await fetch(`${API_BASE_URL}/lectures/stats`, {
-            method: 'POST',
+        const response = await fetch(`${API_BASE_URL}/lectures/${lectureIdx}/statistics`, {
             headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(requestBody)
+                'Authorization': `Bearer ${token}`
+            }
         });
 
         console.log(`📡 HTTP 상태: ${response.status}`);

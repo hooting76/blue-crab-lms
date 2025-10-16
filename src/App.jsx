@@ -71,7 +71,7 @@ function InAppFilter(){
 function AppContent() {
   // user state ctrl
   const { isAuthenticated, isLoading } = UseUser();
-  console.log('[Auth]', { isAuthenticated, isLoading });  // ← 확인용
+  // console.log('[Auth]', { isAuthenticated, isLoading });  // ← 확인용
   //user state ctrl end
   if (isLoading) {
     return <LoadingSpinner/>

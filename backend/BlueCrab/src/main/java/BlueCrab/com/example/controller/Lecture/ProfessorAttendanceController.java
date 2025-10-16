@@ -20,7 +20,7 @@ import java.util.Map;
  * 교수용 출석 관리 컨트롤러
  * 
  * 엔드포인트:
- * - GET /api/professor/attendance/requests?lecIdx={id} - 출석 인정 요청 목록
+ * - POST /api/professor/attendance/requests - 출석 인정 요청 목록
  * - PUT /api/professor/attendance/requests/{id}/approve - 요청 승인
  * - PUT /api/professor/attendance/requests/{id}/reject - 요청 반려
  * - POST /api/professor/attendance/mark - 출석 체크
@@ -34,18 +34,26 @@ public class ProfessorAttendanceController {
     private AttendanceService attendanceService;
 
     /**
-     * 출석 인정 요청 목록 조회
+     * 출석 인정 요청 목록 조회 - POST 방식
      * 
-     * GET /api/professor/attendance/requests?lecIdx=1&page=0&size=20&status=PENDING
+     * POST /api/professor/attendance/requests
+     * Body: { "lecIdx": 1, "page": 0, "size": 20, "status": "PENDING" }
      */
-    @GetMapping("/requests")
+    @PostMapping("/requests")
     public ResponseEntity<ApiResponse<Page<AttendanceRequestDto>>> getRequests(
-            @RequestParam Integer lecIdx,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(required = false) String status) {
+            @RequestBody Map<String, Object> request) {
         
         try {
+            Integer lecIdx = request.get("lecIdx") != null ? ((Number) request.get("lecIdx")).intValue() : null;
+            int page = request.get("page") != null ? ((Number) request.get("page")).intValue() : 0;
+            int size = request.get("size") != null ? ((Number) request.get("size")).intValue() : 20;
+            String status = (String) request.get("status");
+            
+            if (lecIdx == null) {
+                return ResponseEntity.badRequest()
+                        .body(ApiResponse.failure("lecIdx는 필수입니다."));
+            }
+            
             Pageable pageable = PageRequest.of(page, size);
             Page<AttendanceRequestTbl> requestPage;
 
@@ -62,22 +70,30 @@ public class ProfessorAttendanceController {
             return ResponseEntity.ok(ApiResponse.success("출석 인정 요청 목록 조회 성공", dtoPage));
 
         } catch (Exception e) {
-            log.error("출석 인정 요청 목록 조회 실패: lecIdx={}", lecIdx, e);
+            log.error("출석 인정 요청 목록 조회 실패", e);
             return ResponseEntity.badRequest()
                     .body(ApiResponse.failure("출석 인정 요청 목록 조회 실패: " + e.getMessage()));
         }
     }
 
     /**
-     * 대기 중인 요청 개수 조회
+     * 대기 중인 요청 개수 조회 - POST 방식
      * 
-     * GET /api/professor/attendance/requests/count?lecIdx=1
+     * POST /api/professor/attendance/requests/count
+     * Body: { "lecIdx": 1 }
      */
-    @GetMapping("/requests/count")
+    @PostMapping("/requests/count")
     public ResponseEntity<ApiResponse<Map<String, Long>>> getPendingCount(
-            @RequestParam Integer lecIdx) {
+            @RequestBody Map<String, Object> request) {
         
         try {
+            Integer lecIdx = request.get("lecIdx") != null ? ((Number) request.get("lecIdx")).intValue() : null;
+            
+            if (lecIdx == null) {
+                return ResponseEntity.badRequest()
+                        .body(ApiResponse.failure("lecIdx는 필수입니다."));
+            }
+            
             long count = attendanceService.countPendingRequests(lecIdx);
             
             Map<String, Long> result = new HashMap<>();
@@ -86,7 +102,7 @@ public class ProfessorAttendanceController {
             return ResponseEntity.ok(ApiResponse.success("대기 중인 요청 개수 조회 성공", result));
 
         } catch (Exception e) {
-            log.error("대기 중인 요청 개수 조회 실패: lecIdx={}", lecIdx, e);
+            log.error("대기 중인 요청 개수 조회 실패", e);
             return ResponseEntity.badRequest()
                     .body(ApiResponse.failure("요청 개수 조회 실패: " + e.getMessage()));
         }
