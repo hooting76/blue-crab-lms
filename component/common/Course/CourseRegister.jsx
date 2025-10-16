@@ -42,8 +42,8 @@ function CourseRegister() {
             lecPoint,
             lecTime,
             lecProf,
-            lecMcode,
-            lecMcodeDep,
+            lecMcode : Number(`0${lecMcode}`),
+            lecMcodeDep: Number(`0${lecMcodeDep}`),
             lecYear,
             lecSemester,
             lecMajor,
@@ -150,7 +150,7 @@ function CourseRegister() {
                         <label>학부</label><br/>
                         <select
                         value={lecMcode}
-                        onChange={(e) => setLecMcode(`0${Number(e.target.value)}`)}
+                        onChange={(e) => setLecMcode(Number(e.target.value))}
                         required
                         >
                             <option value="">학부를 선택하세요</option>
@@ -166,7 +166,7 @@ function CourseRegister() {
                         <label>학과</label><br/>
                         <select
                         value={lecMcodeDep}
-                        onChange={(e) => setLecMcodeDep(`0${Number(e.target.value)}`)}
+                        onChange={(e) => setLecMcodeDep(Number(e.target.value))}
                         required
                         >
                             {lecMcode === 1 &&
