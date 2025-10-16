@@ -10,19 +10,95 @@ PC와 안드로이드에서 발생하는 **알림 중복 문제**를 테스트�
 
 ## 🆕 추가된 API
 
-### 엔드포인트
+### 1️⃣ 단일 토큰 전송
+
+#### 엔드포인트
 ```
 POST /api/push/send-data-only
 ```
 
-### 인증
+#### 인증
 - **필수**: 관리자 JWT 토큰
 - **방법**: Authorization 헤더에 `Bearer {token}` 포함
 
-### 특징
+#### 요청 Body
+```json
+{
+  "token": "단일_FCM_토큰",
+  "title": "알림 제목",
+  "body": "알림 내용",
+  "data": {
+    "type": "custom",
+    "action": "open_page"
+  }
+}
+```
+
+#### 특징
 - ✅ **Data-only 방식**: Notification 페이로드 없이 Data만 전송
 - ✅ **중복 방지**: 시스템 자동 알림이 생성되지 않음
 - ✅ **앱에서 처리**: 클라이언트가 Data를 받아 직접 알림 생성
+- ⚠️ **제한사항**: 앱 종료 시 전달 보장 안됨
+
+---
+
+### 2️⃣ 배치 전송 (여러 토큰)
+
+#### 엔드포인트
+```
+POST /api/push/send-data-only-batch
+```
+
+#### 인증
+- **필수**: 관리자 JWT 토큰
+- **방법**: Authorization 헤더에 `Bearer {token}` 포함
+
+#### 요청 Body
+```json
+{
+  "tokens": ["token1", "token2", "token3"],
+  "title": "알림 제목",
+  "body": "알림 내용",
+  "data": {
+    "type": "custom",
+    "action": "open_page"
+  }
+}
+```
+
+#### 응답 예시
+```json
+{
+  "success": true,
+  "message": "✅ Batch notification sent: 3 success, 1 failed out of 4 total",
+  "data": {
+    "successCount": 3,
+    "failureCount": 1,
+    "totalCount": 4,
+    "responses": [
+      {
+        "token": "dXpqL...",
+        "success": true,
+        "messageId": "projects/bluecrab/messages/0:1234567890",
+        "error": null
+      },
+      {
+        "token": "eYrpM...",
+        "success": false,
+        "messageId": null,
+        "error": "Invalid registration token"
+      }
+    ]
+  }
+}
+```
+
+#### 특징
+- ✅ **배치 전송**: 최대 500개 토큰까지 한 번에 전송
+- ✅ **중복 제거**: 중복된 토큰 자동 제거
+- ✅ **개별 결과**: 각 토큰의 성공/실패 상태 반환
+- ✅ **부분 성공 처리**: 일부 실패해도 성공한 토큰은 전송됨
+- ✅ **토큰 마스킹**: 로그에서 토큰 일부만 표시 (보안)
 - ⚠️ **제한사항**: 앱 종료 시 전달 보장 안됨
 
 ## 📱 테스트 페이지 사용법
@@ -89,19 +165,23 @@ sessionStorage.getItem('fcm')
 - ✅ **앱 실행 중**: onMessageReceived()에서 Data 처리, 알림 1번 표시
 - ❌ **앱 종료 시**: 알림 안 옴 (Notification 페이로드 없음)
 
-## 📊 일반 API vs Data-only API 비교
+## 📊 API 비교표
 
-| 구분 | 일반 API | Data-only API |
-|------|---------|--------------|
-| **엔드포인트** | `/api/push/send` | `/api/push/send-data-only` |
-| **인증** | ✅ 관리자 JWT | ✅ 관리자 JWT |
-| **Notification** | ✅ 포함 | ❌ 없음 |
-| **Data** | ✅ 포함 | ✅ 포함 (title, body 포함) |
-| **PC 웹** | 알림 2번 (중복) | 알림 1번 or 0번 |
-| **안드로이드 (실행 중)** | 알림 2번 (중복) | 알림 1번 |
-| **안드로이드 (종료 시)** | 알림 1번 | 알림 0번 ❌ |
-| **재부팅 후** | 알림 1번 | 알림 0번 ❌ |
-| **보안** | 🔐 안전 | 🔐 안전 |
+| 구분 | 일반 API | Data-only (단일) | Data-only (배치) |
+|------|---------|-----------------|-----------------|
+| **엔드포인트** | `/api/push/send` | `/api/push/send-data-only` | `/api/push/send-data-only-batch` |
+| **인증** | ✅ 관리자 JWT | ✅ 관리자 JWT | ✅ 관리자 JWT |
+| **토큰 수** | 1개 | 1개 | 1~500개 |
+| **Notification** | ✅ 포함 | ❌ 없음 | ❌ 없음 |
+| **Data** | ✅ 포함 | ✅ 포함 (title, body 포함) | ✅ 포함 (title, body 포함) |
+| **응답 형식** | 단일 결과 | 단일 결과 | 개별 결과 배열 |
+| **PC 웹** | 알림 2번 (중복) | 알림 1번 or 0번 | 알림 1번 or 0번 |
+| **안드로이드 (실행 중)** | 알림 2번 (중복) | 알림 1번 | 알림 1번 |
+| **안드로이드 (종료 시)** | 알림 1번 | 알림 0번 ❌ | 알림 0번 ❌ |
+| **재부팅 후** | 알림 1번 | 알림 0번 ❌ | 알림 0번 ❌ |
+| **중복 토큰 제거** | N/A | N/A | ✅ 자동 제거 |
+| **부분 실패 처리** | N/A | N/A | ✅ 지원 |
+| **보안** | 🔐 안전 | 🔐 안전 | 🔐 안전 |
 
 ## 🔧 프론트엔드 수정 필요
 
@@ -175,6 +255,8 @@ setupForegroundListener() {
 
 ## 📝 cURL 예제
 
+### 단일 토큰 전송
+
 ```bash
 # 1. 먼저 관리자 로그인으로 JWT 토큰 발급
 curl -X POST "https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/admin/login" \
@@ -184,7 +266,7 @@ curl -X POST "https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/admin/login"
     "password": "your_password"
   }'
 
-# 2. 응답에서 accessToken 복사 후 사용
+# 2. 응답에서 accessToken 복사 후 단일 토큰 전송
 curl -X POST "https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/push/send-data-only" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN_HERE" \
@@ -194,6 +276,28 @@ curl -X POST "https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/push/send-da
     "body": "중복 방지 테스트 메시지",
     "data": {
       "type": "test",
+      "timestamp": "2025-10-16"
+    }
+  }'
+```
+
+### 배치 전송 (여러 토큰)
+
+```bash
+# 여러 토큰에 동시 전송
+curl -X POST "https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/push/send-data-only-batch" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN_HERE" \
+  -d '{
+    "tokens": [
+      "FCM_TOKEN_1",
+      "FCM_TOKEN_2",
+      "FCM_TOKEN_3"
+    ],
+    "title": "배치 알림 테스트",
+    "body": "여러 기기에 동시 전송됩니다",
+    "data": {
+      "type": "batch-test",
       "timestamp": "2025-10-16"
     }
   }'

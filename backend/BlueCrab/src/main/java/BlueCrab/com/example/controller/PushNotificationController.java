@@ -1,6 +1,8 @@
 package BlueCrab.com.example.controller;
 
 import BlueCrab.com.example.dto.ApiResponse;
+import BlueCrab.com.example.dto.BatchSendResponse;
+import BlueCrab.com.example.dto.PushNotificationBatchRequest;
 import BlueCrab.com.example.dto.PushNotificationRequest;
 import BlueCrab.com.example.dto.TopicPushNotificationRequest;
 import BlueCrab.com.example.service.FirebasePushService;
@@ -80,7 +82,7 @@ public class PushNotificationController {
     /**
      * 🧪 Data-only 방식 테스트 (관리자 전용)
      * 중복 알림 방지 확인용 - Notification 페이로드 없이 Data만 전송
-     * 
+     *
      * ⚠️ 제한사항:
      * - 앱 실행 중일 때만 알림 표시
      * - 앱 종료 시 알림 전달 안됨
@@ -97,13 +99,59 @@ public class PushNotificationController {
                     request.getBody(),
                     request.getData());
             return ResponseEntity.ok(ApiResponse.success(
-                "✅ Data-only notification sent (중복 방지됨)", 
+                "✅ Data-only notification sent (중복 방지됨)",
                 response
             ));
         } catch (Exception e) {
             log.error("Failed to send data-only notification", e);
             return ResponseEntity.badRequest()
                     .body(ApiResponse.failure("Failed to send data-only notification: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * 🚀 Data-only 방식 배치 전송 (관리자 전용)
+     * 여러 토큰에 동시에 Data-only 메시지를 전송합니다.
+     *
+     * ⚠️ 제한사항:
+     * - 최대 500개 토큰까지 전송 가능
+     * - 앱 실행 중일 때만 알림 표시
+     * - 앱 종료 시 알림 전달 안됨
+     * - 재부팅 후 알림 전달 안됨
+     *
+     * 📊 응답 형식:
+     * {
+     *   "successCount": 3,
+     *   "failureCount": 1,
+     *   "responses": [
+     *     {"token": "...", "success": true, "messageId": "..."},
+     *     {"token": "...", "success": false, "error": "..."}
+     *   ]
+     * }
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/send-data-only-batch")
+    public ResponseEntity<ApiResponse<BatchSendResponse>> sendDataOnlyBatch(
+            @Valid @RequestBody PushNotificationBatchRequest request) {
+        try {
+            BatchSendResponse response = pushService.sendDataOnlyNotificationBatch(
+                    request.getTokens(),
+                    request.getTitle(),
+                    request.getBody(),
+                    request.getData());
+
+            String message = String.format(
+                "✅ Batch notification sent: %d success, %d failed out of %d total",
+                response.getSuccessCount(),
+                response.getFailureCount(),
+                response.getTotalCount()
+            );
+
+            return ResponseEntity.ok(ApiResponse.success(message, response));
+        } catch (Exception e) {
+            log.error("Failed to send data-only batch notification", e);
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.failure("Failed to send data-only batch notification: " + e.getMessage()));
         }
     }
 }
