@@ -11,7 +11,9 @@ function ClassAttending({currentPage, setCurrentPage}) {
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
     const { user } = UseUser(); // 유저 정보
     const accessToken = user.data.accessToken;
-    const [lectureList, setLectureList] = useState();
+    const [lectureList, setLectureList] = useState([]);
+
+    console.log("user : ", user);
 
     // const [openRow, setOpenRow] = useState(null);
     
@@ -125,11 +127,15 @@ const fetchClassAttendingList = async (accessToken) => {
     return (
         <div className="classAttending_list_container">
             <select value={selectedSemester} onChange={handleSemesterChange} className='selectSemester'>
-                {semesterOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                        {option.label}
-                    </option>
-                ))}
+                {lectureList.length > 0 ? (
+                    lectureList.map((cls) => (
+                        <option key={cls.lecIdx} value={cls.lecIdx}>
+                            {cls.lecTit}
+                        </option>
+                    ))
+                ) : (
+                    <option disabled>강의 목록 없음</option>
+                )}
             </select>
 
             <select className="lectureName">
