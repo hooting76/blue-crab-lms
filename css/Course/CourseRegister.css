@@ -6,7 +6,6 @@
 .lecMinOpen {
     display: flex;
     gap: 20px; /* 요소 사이 간격 */
-    margin-bottom: 5px;
 }
 
 /* 각 항목(span)의 공통 스타일 */
@@ -18,6 +17,7 @@
     flex: 1; /* 모든 항목을 같은 너비로 */
     display: flex;
     flex-direction: column; /* 라벨 위, input 아래로 */
+    margin: 10px;
 }
 
 /* input, select 공통 스타일 (선택 사항) */

@@ -153,7 +153,7 @@ function CourseRegister() {
                         onChange={(e) => {setLecMcode(Number(e.target.value)); setLecMcodeDep("");}}
                         required
                         >
-                            <option value="">학부를 선택하세요</option>
+                            <option value="">학부</option>
                             <option value={1}>해양학부</option>
                             <option value={2}>보건학부</option>
                             <option value={3}>자연과학부</option>
@@ -171,7 +171,7 @@ function CourseRegister() {
                         >
                             {lecMcode === 1 &&
                             <>
-                            <option value="">학과를 선택하세요</option>
+                            <option value="">학과</option>
                             <option value={1}>항해학과</option>
                             <option value={2}>해양경찰</option>
                             <option value={3}>해군사관</option>
@@ -182,7 +182,7 @@ function CourseRegister() {
 
                             {lecMcode === 2 &&
                             <>
-                            <option value="">학과를 선택하세요</option>
+                            <option value="">학과</option>
                             <option value={1}>간호학</option>
                             <option value={2}>치위생</option>
                             <option value={3}>약학과</option>
@@ -191,7 +191,7 @@ function CourseRegister() {
 
                             {lecMcode === 3 &&
                             <>
-                            <option value="">학과를 선택하세요</option>
+                            <option value="">학과</option>
                             <option value={1}>물리학</option>
                             <option value={2}>수학</option>
                             <option value={3}>분자화학</option>
@@ -199,7 +199,7 @@ function CourseRegister() {
 
                             {lecMcode === 4 &&
                             <>
-                            <option value="">학과를 선택하세요</option>
+                            <option value="">학과</option>
                             <option value={1}>철학</option>
                             <option value={2}>국어국문</option>
                             <option value={3}>역사학</option>
@@ -211,7 +211,7 @@ function CourseRegister() {
 
                             {lecMcode === 5 &&
                             <>
-                            <option value="">학과를 선택하세요</option>
+                            <option value="">학과</option>
                             <option value={1}>컴퓨터공학</option>
                             <option value={2}>기계공학</option>
                             <option value={3}>전자공학</option>
@@ -228,7 +228,7 @@ function CourseRegister() {
                         value={lecYear}
                         onChange={(e) => setLecYear(Number(e.target.value))}
                         >
-                            <option value="">학년을 선택하세요</option>
+                            <option value="">학년</option>
                             <option value={1}>1학년</option>
                             <option value={2}>2학년</option>
                             <option value={3}>3학년</option>
@@ -242,7 +242,7 @@ function CourseRegister() {
                         value={lecSemester}
                         onChange={(e) => setLecSemester(Number(e.target.value))}
                         >
-                            <option value="">학기를 선택하세요</option>
+                            <option value="">학기</option>
                             <option value={1}>1학기</option>
                             <option value={2}>2학기</option>
                         </select>
@@ -255,7 +255,7 @@ function CourseRegister() {
                         onChange={(e) => setLecMajor(Number(e.target.value))}
                         required
                         >
-                            <option value="">전공 여부를 선택하세요</option>
+                            <option value="">전공 여부</option>
                             <option value={1}>전공</option>
                             <option value={0}>교양</option>
                         </select>
