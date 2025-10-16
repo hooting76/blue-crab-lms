@@ -106,6 +106,7 @@
 .error{
     font-size: var(--font-small);
     margin-top: 7.5px;
+    word-break: keep-all;
 }
 
 .submit{
