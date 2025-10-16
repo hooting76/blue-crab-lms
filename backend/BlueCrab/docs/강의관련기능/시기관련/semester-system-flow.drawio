@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" version="28.2.7">
   <diagram name="학기시스템플로우" id="semester-flow">
-    <mxGraphModel dx="983" dy="536" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" background="light-dark(#FFFFFF,#FFFFFF)" math="0" shadow="0">
+    <mxGraphModel dx="1426" dy="777" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" background="light-dark(#FFFFFF,#FFFFFF)" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" style="fillColor:#FFFFFF;" parent="0" />
@@ -41,13 +41,13 @@
           <mxGeometry x="670" y="580" width="220" height="140" as="geometry" />
         </mxCell>
         <mxCell id="api-info" value="🛠 주요 API 엔드포인트 (POST 방식)&lt;br&gt;&lt;br&gt;📍 시기 판별: POST /api/semester/current-period&lt;br&gt;   🆕 새로 구현 필요 (SemesterController)&lt;br&gt;&lt;br&gt;📍 수강 자격: POST /lectures/eligible&lt;br&gt;   Body: {studentIdx}&lt;br&gt;   ✅ 기존 확장 (LectureController + 0값 규칙)&lt;br&gt;&lt;br&gt;📍 수강중 강의: POST /enrollments/list&lt;br&gt;   Body: {studentIdx, enrolled: true}&lt;br&gt;   ✅ 이미 완료됨 (EnrollmentController)&lt;br&gt;&lt;br&gt;⚙️ 구현 원칙&lt;br&gt;• DB 제약: 최소한 (PK, FK, NOT NULL)&lt;br&gt;• 비즈니스 로직: 애플리케이션 레벨&lt;br&gt;• 0값 규칙: 제한 없음을 의미&lt;br&gt;• API 통신: POST + Request Body" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;fontSize=11;align=left;verticalAlign=top;fontColor=#ffffff;" parent="1" vertex="1">
-          <mxGeometry x="20" y="520" width="350" height="230" as="geometry" />
+          <mxGeometry x="20" y="520" width="350" height="260" as="geometry" />
         </mxCell>
         <mxCell id="period-settings" value="📅 시기 설정 규칙&lt;br&gt;&lt;br&gt;🔴 방학: 메시지 출력, 기능 비활성화&lt;br&gt;🔵 수강신청: 2주간 (14일)&lt;br&gt;🟢 학기: 수강신청 종료일 + 1일 시작&lt;br&gt;&lt;br&gt;⏰ 테스트용 설정&lt;br&gt;• 수강신청 시작일: 관리자 설정&lt;br&gt;• 자동 기간 계산: 시작일 + 14일&lt;br&gt;• 실시간 시기 전환&lt;br&gt;&lt;br&gt;📊 구현 현황 (v4.0 POST 통일)&lt;br&gt;🆕 시기 판별 - 새로 구현 필요&lt;br&gt;🔄 자격 검증 - 기존 확장 완료&lt;br&gt;✅ 수강 조회 - 완료됨 (POST 방식)&lt;br&gt;✅ 문서화 - 완료 (06-학생플로우.md)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;fontSize=11;align=left;verticalAlign=top;fontColor=#ffffff;" parent="1" vertex="1">
-          <mxGeometry x="20" y="740" width="300" height="230" as="geometry" />
+          <mxGeometry x="20" y="800" width="300" height="230" as="geometry" />
         </mxCell>
         <mxCell id="zero-rule" value="⚠️ 0값 제한없음 규칙 상세&lt;br&gt;&lt;br&gt;강의 A: 학부=01, 학과=0, 최소학년=2&lt;br&gt;→ 01학부 소속이면서 2학년 이상인 모든 학과&lt;br&gt;&lt;br&gt;강의 B: 학부=0, 학과=0, 최소학년=0&lt;br&gt;→ 전체 학생 수강 가능 (완전 개방)&lt;br&gt;&lt;br&gt;강의 C: 학부=01, 학과=03, 최소학년=3&lt;br&gt;→ 01학부 03학과 3학년 이상만 수강 가능&lt;br&gt;&lt;br&gt;💡 현재 LectureController에 일부 필터링 있음&lt;br&gt;→ 학생별 자격 검증 로직 추가 필요" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontSize=11;align=left;verticalAlign=top;fontColor=#000000;" parent="1" vertex="1">
-          <mxGeometry x="20" y="960" width="350" height="180" as="geometry" />
+          <mxGeometry x="370" y="890" width="350" height="180" as="geometry" />
         </mxCell>
         <mxCell id="edge1" style="strokeColor=#2D7DD2;strokeWidth=2;endArrow=classic;endFill=1;" parent="1" source="start" target="period-check" edge="1">
           <mxGeometry relative="1" as="geometry" />

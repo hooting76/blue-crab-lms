@@ -6,7 +6,9 @@ package BlueCrab.com.example.controller.Lecture;
 import BlueCrab.com.example.dto.Lecture.LectureDto;
 import BlueCrab.com.example.entity.Lecture.LecTbl;
 import BlueCrab.com.example.entity.UserTbl;
+import BlueCrab.com.example.entity.ProfileView;
 import BlueCrab.com.example.repository.UserTblRepository;
+import BlueCrab.com.example.repository.ProfileViewRepository;
 import BlueCrab.com.example.service.Lecture.LectureService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +48,9 @@ public class LectureController {
 
     @Autowired
     private UserTblRepository userTblRepository;
+
+    @Autowired
+    private ProfileViewRepository profileViewRepository;
 
     /* 강의 목록 조회 및 검색 (통합 엔드포인트) - POST 방식
      * 
@@ -223,11 +228,9 @@ public class LectureController {
 
     /**
      * 학생이 특정 강의를 수강할 수 있는지 검증 (0값 규칙 적용)
+     * SERIAL_CODE_TABLE을 통해 학생의 전공/부전공 정보를 확인하여 필터링
      */
     private boolean isEligibleForLecture(UserTbl student, LecTbl lecture) {
-        // 현재 UserTbl에 학부/학과/학년 정보가 없으므로 기본 검증만 수행
-        // TODO: 향후 UserTbl에 학부/학과/학년 정보 추가 시 확장 필요
-
         // 1. 개설 여부 확인 (필수)
         if (lecture.getLecOpen() == null || lecture.getLecOpen() != 1) {
             return false;
@@ -240,19 +243,37 @@ public class LectureController {
             }
         }
 
-        // 3. 0값 규칙 적용 (향후 확장 시 사용)
+        // 3. 학생의 전공 정보 조회 (PROFILE_VIEW를 통해 SERIAL_CODE_TABLE 데이터 접근)
+        ProfileView studentProfile = profileViewRepository.findByUserEmail(student.getUserEmail()).orElse(null);
+        
+        if (studentProfile == null) {
+            // 프로필 정보가 없는 경우, 0값(제한 없음) 강의만 수강 가능
+            return "0".equals(lecture.getLecMcode()) && "0".equals(lecture.getLecMcodeDep());
+        }
+
+        // 4. 학부 코드 검증 (0이면 제한 없음, 아니면 전공 또는 부전공과 일치해야 함)
+        if (!"0".equals(lecture.getLecMcode())) {
+            boolean majorFacultyMatch = lecture.getLecMcode().equals(studentProfile.getMajorFacultyCode());
+            boolean minorFacultyMatch = lecture.getLecMcode().equals(studentProfile.getMinorFacultyCode());
+            
+            if (!majorFacultyMatch && !minorFacultyMatch) {
+                return false; // 학부 코드 불일치
+            }
+        }
+
+        // 5. 학과 코드 검증 (0이면 제한 없음, 아니면 전공 또는 부전공과 일치해야 함)
+        if (!"0".equals(lecture.getLecMcodeDep())) {
+            boolean majorDeptMatch = lecture.getLecMcodeDep().equals(studentProfile.getMajorDeptCode());
+            boolean minorDeptMatch = lecture.getLecMcodeDep().equals(studentProfile.getMinorDeptCode());
+            
+            if (!majorDeptMatch && !minorDeptMatch) {
+                return false; // 학과 코드 불일치
+            }
+        }
+
+        // 6. 학년 검증 (LEC_MIN: 최소 요구 학년, 0이면 제한 없음)
+        // TODO: UserTbl에 학년 정보 추가 시 구현
         /*
-        // 학부 코드 검증 (0이면 제한 없음)
-        if (!"0".equals(lecture.getLecMcode()) && !lecture.getLecMcode().equals(student.getFacultyCode())) {
-            return false;
-        }
-
-        // 학과 코드 검증 (0이면 제한 없음)
-        if (!"0".equals(lecture.getLecMcodeDep()) && !lecture.getLecMcodeDep().equals(student.getDepartmentCode())) {
-            return false;
-        }
-
-        // 최소 학년 검증 (0이면 제한 없음)
         if (lecture.getLecMin() != null && lecture.getLecMin() > 0) {
             if (student.getCurrentGrade() == null || student.getCurrentGrade() < lecture.getLecMin()) {
                 return false;
@@ -260,7 +281,7 @@ public class LectureController {
         }
         */
 
-        return true;
+        return true; // 모든 조건 통과
     }
 
     /**
@@ -292,6 +313,7 @@ public class LectureController {
 
     /**
      * 수강 자격 검증 사유 생성
+     * 학생이 수강 가능/불가능한 이유를 상세히 설명
      */
     private String getEligibilityReason(UserTbl student, LecTbl lecture, boolean isEligible) {
         if (!isEligible) {
@@ -303,14 +325,81 @@ public class LectureController {
             // 정원 확인
             if (lecture.getLecCurrent() != null && lecture.getLecMany() != null) {
                 if (lecture.getLecCurrent() >= lecture.getLecMany()) {
-                    return "정원이 초과되었습니다";
+                    return "정원이 초과되었습니다 (" + lecture.getLecCurrent() + "/" + lecture.getLecMany() + ")";
+                }
+            }
+
+            // 프로필 정보 확인
+            ProfileView studentProfile = profileViewRepository.findByUserEmail(student.getUserEmail()).orElse(null);
+            
+            if (studentProfile == null) {
+                return "전공 정보가 등록되지 않았습니다 (0값 강의만 수강 가능)";
+            }
+
+            // 학부 코드 불일치
+            if (!"0".equals(lecture.getLecMcode())) {
+                boolean majorFacultyMatch = lecture.getLecMcode().equals(studentProfile.getMajorFacultyCode());
+                boolean minorFacultyMatch = lecture.getLecMcode().equals(studentProfile.getMinorFacultyCode());
+                
+                if (!majorFacultyMatch && !minorFacultyMatch) {
+                    return "학부 코드 불일치 (요구: " + lecture.getLecMcode() + 
+                           ", 보유: " + studentProfile.getMajorFacultyCode() + 
+                           (studentProfile.getMinorFacultyCode() != null ? "/" + studentProfile.getMinorFacultyCode() : "") + ")";
+                }
+            }
+
+            // 학과 코드 불일치
+            if (!"0".equals(lecture.getLecMcodeDep())) {
+                boolean majorDeptMatch = lecture.getLecMcodeDep().equals(studentProfile.getMajorDeptCode());
+                boolean minorDeptMatch = lecture.getLecMcodeDep().equals(studentProfile.getMinorDeptCode());
+                
+                if (!majorDeptMatch && !minorDeptMatch) {
+                    return "학과 코드 불일치 (요구: " + lecture.getLecMcodeDep() + 
+                           ", 보유: " + studentProfile.getMajorDeptCode() + 
+                           (studentProfile.getMinorDeptCode() != null ? "/" + studentProfile.getMinorDeptCode() : "") + ")";
                 }
             }
             
             return "수강 불가 (기타 사유)";
         }
         
-        return "수강 가능";
+        // 수강 가능 사유 상세화
+        StringBuilder reason = new StringBuilder("수강 가능");
+        
+        // 0값 강의인 경우
+        if ("0".equals(lecture.getLecMcode()) && "0".equals(lecture.getLecMcodeDep())) {
+            reason.append(" (제한 없음 - 전체 학생 대상)");
+            return reason.toString();
+        }
+
+        // 프로필 정보 조회
+        ProfileView studentProfile = profileViewRepository.findByUserEmail(student.getUserEmail()).orElse(null);
+        if (studentProfile == null) {
+            return reason.toString();
+        }
+
+        // 전공/부전공 구분
+        boolean isMajorMatch = lecture.getLecMcode().equals(studentProfile.getMajorFacultyCode()) &&
+                              lecture.getLecMcodeDep().equals(studentProfile.getMajorDeptCode());
+        boolean isMinorMatch = lecture.getLecMcode().equals(studentProfile.getMinorFacultyCode()) &&
+                              lecture.getLecMcodeDep().equals(studentProfile.getMinorDeptCode());
+
+        if (isMajorMatch) {
+            reason.append(" (전공 일치: ").append(studentProfile.getMajorFacultyCode())
+                  .append("-").append(studentProfile.getMajorDeptCode()).append(")");
+        } else if (isMinorMatch) {
+            reason.append(" (부전공 일치: ").append(studentProfile.getMinorFacultyCode())
+                  .append("-").append(studentProfile.getMinorDeptCode()).append(")");
+        } else {
+            // 학부만 일치하거나 학과만 일치하는 경우
+            if ("0".equals(lecture.getLecMcode())) {
+                reason.append(" (학부 제한 없음)");
+            } else if ("0".equals(lecture.getLecMcodeDep())) {
+                reason.append(" (학과 제한 없음)");
+            }
+        }
+        
+        return reason.toString();
     }
 
     /**
@@ -326,7 +415,7 @@ public class LectureController {
     }
 
     /**
-     * 학생 정보 생성
+     * 학생 정보 생성 (전공/부전공 정보 포함)
      */
     private Map<String, Object> createStudentInfo(UserTbl student) {
         Map<String, Object> studentInfo = new HashMap<>();
@@ -334,7 +423,25 @@ public class LectureController {
         studentInfo.put("userName", student.getUserName());
         studentInfo.put("userEmail", student.getUserEmail());
         studentInfo.put("userStudent", student.getUserStudent());
-        // TODO: 향후 학부/학과/학년 정보 추가
+        
+        // 전공/부전공 정보 추가
+        ProfileView profile = profileViewRepository.findByUserEmail(student.getUserEmail()).orElse(null);
+        if (profile != null) {
+            studentInfo.put("majorFacultyCode", profile.getMajorFacultyCode());
+            studentInfo.put("majorDeptCode", profile.getMajorDeptCode());
+            studentInfo.put("minorFacultyCode", profile.getMinorFacultyCode());
+            studentInfo.put("minorDeptCode", profile.getMinorDeptCode());
+            studentInfo.put("hasMajorInfo", profile.hasMajorInfo());
+            studentInfo.put("hasMinorInfo", profile.hasMinorInfo());
+        } else {
+            studentInfo.put("majorFacultyCode", null);
+            studentInfo.put("majorDeptCode", null);
+            studentInfo.put("minorFacultyCode", null);
+            studentInfo.put("minorDeptCode", null);
+            studentInfo.put("hasMajorInfo", false);
+            studentInfo.put("hasMinorInfo", false);
+        }
+        
         return studentInfo;
     }
 

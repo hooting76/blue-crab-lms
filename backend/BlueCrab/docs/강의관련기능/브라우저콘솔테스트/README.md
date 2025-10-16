@@ -1,13 +1,15 @@
 # 📚 강의 관리 시스템 브라우저 콘솔 테스트 가이드
 
 > **작성일**: 2025-10-12  
-> **최종 업데이트**: 2025-10-14  
-> **버전**: 3.0 (DTO 패턴 적용)  
+> **최종 업데이트**: 2025-10-16  
+> **버전**: 4.0 (Phase 9 + 파일 분할 완료)  
 > **목적**: 브라우저 콘솔에서 API 테스트하기  
-> **변경사항**:
-> - lecture-test-2-student-enrollment.js JWT 자동 인식 추가
-> - DTO 응답 구조에 맞게 출력 형식 업데이트
-> - HTTP 400 Hibernate Lazy Loading 이슈 해결 완료
+> **변경사항 (v4.0)**:
+> - ✅ Phase 9 백엔드 필터링 구현 반영 (학부/학과 코드 + 0값 규칙)
+> - ✅ 테스트 파일 분할: 과도하게 긴 파일들을 기능별로 분리
+>   * lecture-test-2 → 2a (수강신청), 2b (내 수강목록)
+>   * lecture-test-4 → 4a (과제생성), 4b (과제채점)
+> - ✅ 모든 테스트 파일 최신화 완료
 
 ---
 
@@ -32,7 +34,7 @@ checkLoginStatus()
 ```
 
 **로그인 후 실행 가능:**
-- ✅ `lecture-test-1-admin-create.js` - 관리자 강의 등록/관리
+- ✅ `lecture-test-1-admin-create.js` - 관리자 강의 등록/관리 (Phase 9 반영)
 - ✅ `lecture-test-6-admin-statistics.js` - 관리자 통계 조회
 
 #### 2️⃣ 학생 (Student)
@@ -48,15 +50,16 @@ checkAuth()
 ```
 
 **로그인 후 실행 가능:**
-- ✅ `lecture-test-2-student-enrollment.js` - 학생 수강신청
+- ✅ `lecture-test-2a-student-enrollment.js` - 학생 수강 가능 강의 조회 및 신청 (Phase 9 백엔드 필터링)
+- ✅ `lecture-test-2b-student-my-courses.js` - 학생 내 수강 목록 조회 및 취소
 - ✅ `lecture-test-3-student-assignment.js` - 학생 과제 제출
 
 #### 3️⃣ 교수 (Professor)
-**로그인 파일**: 교수용 로그인 파일 필요 (현재 미구현)
-
+**로그인 파일**: `docs/일반유저 로그인+게시판/test-1-login.js` (교수 계정 사용)
 **로그인 후 실행 가능:**
-- ⏳ `lecture-test-4-professor-assignment.js` - 교수 과제 관리
-- ⏳ `lecture-test-5-professor-students.js` - 교수 수강생 관리
+- ✅ `lecture-test-4a-professor-assignment-create.js` - 교수 과제 생성 및 목록 조회
+- ✅ `lecture-test-4b-professor-assignment-grade.js` - 교수 과제 채점 및 관리
+- ✅ `lecture-test-5-professor-students.js` - 교수 수강생 관리
 
 ---
 
@@ -134,101 +137,50 @@ createLecture()
 
 ## 테스트 파일 목록
 
-### 1. 관리자 - 강의 생성 및 관리
+### 1. 관리자 - 강의 생성 및 관리 (Phase 9 반영)
 **파일**: `lecture-test-1-admin-create.js`
 
 #### 제공 함수
-- `setToken()` - JWT 토큰 설정
-- `createLecture()` - 강의 등록
-- `getLectures()` - 강의 목록 조회
-- `getLectureDetail()` - 강의 상세 조회
-- `updateLecture()` - 강의 수정
-- `deleteLecture()` - 강의 삭제
+- `checkAuth()` - 로그인 상태 확인
+- `getLectures()` - 강의 목록 조회 (필터링 정보 포함)
+- `getLectureDetail()` - 강의 상세 조회 (수강 자격 정보)
+- `getLectureStats()` - 강의 통계 조회
 
-#### 테스트 순서
-```javascript
-// 1. 토큰 설정
-setToken()
-
-// 2. 강의 등록
-createLecture()
-
-// 3. 강의 목록 조회
-getLectures()
-
-// 4. 강의 상세 조회
-getLectureDetail()
-
-// 5. 강의 수정
-updateLecture()
-
-// 6. 강의 삭제 (선택)
-deleteLecture()
-```
+#### Phase 9 새 기능
+- ✅ 학부/학과 코드 정보 표시
+- ✅ 0값 규칙 설명
+- ✅ 수강 자격 조건 안내
 
 ---
 
-### 2. 학생 - 수강 신청 (⭐ DTO 패턴 적용)
-**파일**: `lecture-test-2-student-enrollment.js`
+### 2. 학생 - 수강 신청 (🆕 Phase 9 백엔드 필터링 + 파일 분할)
 
-#### 🆕 주요 업데이트
-- ✅ **JWT 자동 인식**: 로그인 토큰에서 studentIdx 자동 추출
-- ✅ **DTO 응답 구조**: lecTit, lecSerial, lecProf, studentName 등 포함
-- ✅ **HTTP 400 해결**: Hibernate Lazy Loading 이슈 해결 완료
-- ✅ **디버그 기능**: debugTokenInfo() 함수로 토큰 정보 확인
+#### 2A. 수강 가능 강의 조회 및 신청
+**파일**: `lecture-test-2a-student-enrollment.js`
 
-#### 제공 함수
+##### 제공 함수
 - `checkAuth()` - JWT 토큰 및 사용자 정보 자동 확인 ⭐
-- `getUserFromToken()` - JWT에서 사용자 IDX 추출 (신규)
-- `debugTokenInfo()` - JWT 디버깅 (신규)
-- `getAvailableLectures()` - 수강 가능 강의 목록
+- `getUserFromToken()` - JWT에서 사용자 IDX 추출
+- `debugTokenInfo()` - JWT 디버깅
+- `getAvailableLectures()` - 수강 가능 강의 목록 (Phase 9 백엔드 필터링) ⭐
 - `enrollLecture()` - 수강 신청 (JWT 자동 studentIdx)
+
+##### Phase 9 백엔드 필터링 기능
+- ✅ 학부/학과 코드 기반 자격 확인
+- ✅ 0값 규칙: "0" = 모든 학생 수강 가능
+- ✅ 전공 OR 부전공 매칭 지원
+- ✅ 상세한 eligibilityReason 메시지
+- ✅ 학생 전공/부전공 정보 표시
+
+#### 2B. 내 수강 목록 조회 및 취소
+**파일**: `lecture-test-2b-student-my-courses.js`
+
+##### 제공 함수
+- `checkAuth()` - 로그인 상태 확인
 - `getMyEnrollments()` - 내 수강 목록 (DTO 응답)
 - `cancelEnrollment()` - 수강 취소
 - `getLectureDetail()` - 강의 상세 조회
-
-#### DTO 응답 예시
-```json
-{
-  "content": [
-    {
-      "enrollmentIdx": 1,
-      "lecIdx": 101,
-      "lecSerial": "CS101",
-      "lecTit": "자바 프로그래밍",
-      "lecProf": "김교수",
-      "lecPoint": 3,
-      "lecTime": "월수 10:00-11:30",
-      "studentIdx": 6,
-      "studentCode": "2024001",
-      "studentName": "홍길동",
-      "enrollmentStatus": "ENROLLED",
-      "enrollmentDate": "2024-09-01"
-    }
-  ]
-}
-```
-
-#### 테스트 순서
-```javascript
-// 1. JWT 토큰 자동 확인 (로그인 후)
-checkAuth()  // studentIdx 자동 추출 확인
-
-// 2. 수강 가능 강의 조회
-getAvailableLectures()
-
-// 3. 수강 신청 (studentIdx 자동)
-enrollLecture()
-
-// 4. 내 수강 목록 확인 (DTO 응답)
-await getMyEnrollments()
-
-// 5. JWT 디버깅 (선택)
-debugTokenInfo()
-
-// 6. 수강 취소 (선택)
-cancelEnrollment()
-```
+- `debugTokenInfo()` - JWT 디버깅
 
 ---
 
@@ -263,36 +215,38 @@ resubmitAssignment()
 
 ---
 
-### 4. 교수 - 과제 관리
-**파일**: `lecture-test-4-professor-assignment.js`
+### 4. 교수 - 과제 관리 (🆕 파일 분할)
 
-#### 제공 함수
-- `setToken()` - JWT 토큰 설정
+#### 4A. 과제 생성 및 목록 조회
+**파일**: `lecture-test-4a-professor-assignment-create.js`
+
+##### 제공 함수
+- `checkAuth()` - 로그인 상태 확인
+- `getProfessorFromToken()` - JWT에서 교수 정보 추출
+- `debugTokenInfo()` - JWT 디버깅
 - `getMyLectures()` - 담당 강의 목록
-- `createAssignment()` - 과제 생성
+- `createAssignment()` - 과제 생성 (10점 고정)
 - `getAssignments()` - 과제 목록 조회
-- `getSubmissions()` - 제출된 과제 목록
-- `gradeAssignment()` - 과제 채점
+
+##### 특징
+- ✅ JWT 토큰 자동 인식
+- ✅ 교수번호 자동 추출
+- ✅ 10점 만점 고정
+
+#### 4B. 과제 채점 및 관리
+**파일**: `lecture-test-4b-professor-assignment-grade.js`
+
+##### 제공 함수
+- `checkAuth()` - 로그인 상태 확인
+- `getSubmissions()` - 학생별 제출 현황 조회
+- `gradeAssignment()` - 과제 채점 (제출 방식 + 점수)
 - `updateAssignment()` - 과제 수정
 - `deleteAssignment()` - 과제 삭제
 
-#### 테스트 순서
-```javascript
-// 1. 토큰 설정 (교수 토큰)
-setToken()
-
-// 2. 담당 강의 확인
-getMyLectures()
-
-// 3. 과제 생성
-createAssignment()
-
-// 4. 제출된 과제 확인
-getSubmissions()
-
-// 5. 과제 채점
-gradeAssignment()
-```
+##### 특징
+- ✅ 오프라인 제출 방식 기록
+- ✅ 10점 초과 시 자동 변환
+- ✅ 제출 방식과 피드백 분리
 
 ---
 
@@ -381,19 +335,22 @@ createAssignment() // LECTURE_IDX 입력, 과제 생성
 
 #### 3단계: 학생 - 수강신청 및 과제 제출
 ```javascript
-// lecture-test-2-student-enrollment.js 로드
-setToken() // 학생 토큰 입력
-getAvailableLectures() // 수강 가능 강의 확인
+// lecture-test-2a-student-enrollment.js 로드 (수강신청)
+checkAuth() // JWT 토큰 확인
+getAvailableLectures() // 수강 가능 강의 확인 (Phase 9 백엔드 필터링)
 enrollLecture() // LECTURE_IDX 입력, 수강신청
 
-// lecture-test-3-student-assignment.js 로드
+// lecture-test-2b-student-my-courses.js 로드 (수강목록)
+getMyEnrollments() // 내 수강 목록 확인
+
+// lecture-test-3-student-assignment.js 로드 (과제)
 getMyAssignments() // 내 과제 확인
 submitAssignment() // ASSIGNMENT_IDX 입력, 과제 제출
 ```
 
 #### 4단계: 교수 - 과제 채점
 ```javascript
-// lecture-test-4-professor-assignment.js 로드
+// lecture-test-4b-professor-assignment-grade.js 로드
 getSubmissions() // 제출된 과제 확인
 gradeAssignment() // STUDENT_IDX 입력, 채점
 ```
@@ -495,6 +452,24 @@ const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 # 백엔드 로그 확인
 tail -f logs/application.log
 ```
+
+## 📝 파일 분할 정보 (v4.0)
+
+과도하게 긴 테스트 파일들을 기능별로 분할하여 가독성과 유지보수성을 향상했습니다.
+
+### 분할된 파일
+
+| 원본 파일 | 라인 수 | 분할 후 | 상태 |
+|-----------|---------|---------|------|
+| `lecture-test-2-student-enrollment.js` | 538줄 | → `2a-student-enrollment.js` (328줄)<br>→ `2b-student-my-courses.js` (335줄) | ✅ 완료 |
+| `lecture-test-4-professor-assignment.js` | 643줄 | → `4a-professor-assignment-create.js` (404줄)<br>→ `4b-professor-assignment-grade.js` (396줄) | ✅ 완료 |
+
+### 분할 기준
+
+- **Part A**: 생성 및 조회 기능
+- **Part B**: 관리 및 수정 기능
+
+각 파일은 독립적으로 실행 가능하며, Part A에서 저장된 `window.lastXxxIdx` 값을 Part B에서 활용할 수 있습니다.
 
 ---
 
