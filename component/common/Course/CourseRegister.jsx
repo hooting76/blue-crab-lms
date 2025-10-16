@@ -28,11 +28,11 @@ function CourseRegister() {
     const submitCourseRegister = async (e) => {
          e.preventDefault();
 
-    const date = new Date().toLocaleString("sv-SE", {
-      timeZone: "Asia/Seoul",
-      hour12: false,
-    });
-    const lecReg = date.slice(0, 16);
+        const date = new Date().toLocaleString("sv-SE", {
+        timeZone: "Asia/Seoul",
+        hour12: false,
+        });
+        const lecReg = date.slice(0, 16);
 
         const CourseRegisterDetails = {
             lecSerial,
@@ -52,7 +52,8 @@ function CourseRegister() {
             lecOpen,
             lecReg
         }
-
+        console.log(("CourseRegisterDetails :"), CourseRegisterDetails);
+        
                 try {const response = await fetch(`${BASE_URL}/lectures`, {
                 method: 'POST',
                 headers: {
