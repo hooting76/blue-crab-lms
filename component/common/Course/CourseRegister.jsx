@@ -103,7 +103,7 @@ function CourseRegister() {
                     onChange={(e) => setLecSummary(e.target.value)}
                     />
                 
-                <div className='lecManyPointTime'>
+                <div className='lecManyPointTimeProfMcode'>
                     <span>
                         <label>최대 수강 인원</label><br/>
                         <input
@@ -133,9 +133,7 @@ function CourseRegister() {
                         required
                         />
                     </span>
-                </div>
-
-                <div className='lecProfMcodeDep'>
+                
                     <span>
                         <label>담당 교수</label><br/>
                         <input
