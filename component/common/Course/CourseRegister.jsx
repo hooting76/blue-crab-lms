@@ -169,12 +169,54 @@ function CourseRegister() {
                         onChange={(e) => setLecMcodeDep(`0${Number(e.target.value)}`)}
                         required
                         >
+                            {lecMcode === 1 &&
+                            <>
                             <option value="">학과를 선택하세요</option>
-                            <option value={1}>해양학부</option>
-                            <option value={2}>보건학부</option>
-                            <option value={3}>자연과학부</option>
-                            <option value={4}>인문학부</option>
-                            <option value={5}>공학부</option>
+                            <option value={1}>항해학과</option>
+                            <option value={2}>해양경찰</option>
+                            <option value={3}>해군사관</option>
+                            <option value={4}>도선학과</option>
+                            <option value={5}>해양수산학</option>
+                            <option value={6}>조선학과</option>
+                            </>}
+
+                            {lecMcode === 2 &&
+                            <>
+                            <option value="">학과를 선택하세요</option>
+                            <option value={1}>간호학</option>
+                            <option value={2}>치위생</option>
+                            <option value={3}>약학과</option>
+                            <option value={4}>보건정책학</option>
+                            </>}
+
+                            {lecMcode === 3 &&
+                            <>
+                            <option value="">학과를 선택하세요</option>
+                            <option value={1}>물리학</option>
+                            <option value={2}>수학</option>
+                            <option value={3}>분자화학</option>
+                            </>}
+
+                            {lecMcode === 4 &&
+                            <>
+                            <option value="">학과를 선택하세요</option>
+                            <option value={1}>철학</option>
+                            <option value={2}>국어국문</option>
+                            <option value={3}>역사학</option>
+                            <option value={4}>경영</option>
+                            <option value={5}>경제</option>
+                            <option value={6}>정치외교</option>
+                            <option value={7}>영어영문</option>
+                            </>}
+
+                            {lecMcode === 5 &&
+                            <>
+                            <option value="">학과를 선택하세요</option>
+                            <option value={1}>컴퓨터공학</option>
+                            <option value={2}>기계공학</option>
+                            <option value={3}>전자공학</option>
+                            <option value={4}>ICT융합</option>
+                            </>}
                         </select>
                     </span>
                 </div>
