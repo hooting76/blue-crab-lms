@@ -21,6 +21,7 @@ function CourseList() {
     };
 
     const accessToken = user.data.accessToken;
+    console.log("user : ", user);
     console.log("accessToken : ", accessToken);
 
     const getCourseList = async (accessToken) => {
@@ -43,9 +44,10 @@ function CourseList() {
 
     useEffect(() => {
         if (accessToken) {
-            getCourseList(accessToken); // ✅ 실제 호출
+            getCourseList(accessToken);
         }
-    }, []);
+    }, [accessToken]); // ✅ accessToken이 생겼을 때 호출
+
 
 
     const handleEdit = () => {
