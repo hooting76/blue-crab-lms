@@ -40,21 +40,27 @@ public class AssignmentController {
     @Autowired
     private AssignmentService assignmentService;
 
-    /* 과제 목록 조회 (통합 엔드포인트)
+    /* 과제 목록 조회 (통합 엔드포인트) - POST 방식
      * 
-     * 쿼리 파라미터:
+     * Request Body:
      * - lecIdx: 강의 ID로 필터
      * - withLecture: 강의 정보 포함 여부 (lecIdx 필요)
      * - stats: 통계 조회
+     * - action: "list" (목록 조회 액션)
      * - page, size: 페이징
      */
-    @GetMapping
-    public ResponseEntity<?> getAssignments(
-            @RequestParam(required = false) Integer lecIdx,
-            @RequestParam(defaultValue = "false") boolean withLecture,
-            @RequestParam(defaultValue = "false") boolean stats,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+    @PostMapping("/list")
+    public ResponseEntity<?> getAssignments(@RequestBody(required = false) Map<String, Object> request) {
+        // Request Body에서 파라미터 추출 (null 처리)
+        if (request == null) {
+            request = new HashMap<>();
+        }
+        
+        Integer lecIdx = request.get("lecIdx") != null ? ((Number) request.get("lecIdx")).intValue() : null;
+        boolean withLecture = request.get("withLecture") != null ? (Boolean) request.get("withLecture") : false;
+        boolean stats = request.get("stats") != null ? (Boolean) request.get("stats") : false;
+        int page = request.get("page") != null ? ((Number) request.get("page")).intValue() : 0;
+        int size = request.get("size") != null ? ((Number) request.get("size")).intValue() : 20;
         try {
             // 1. 통계 조회
             if (stats) {
@@ -95,24 +101,40 @@ public class AssignmentController {
         }
     }
 
-    /* 과제 상세 조회 */
-    @GetMapping("/{assignmentIdx}")
-    public ResponseEntity<?> getAssignmentById(@PathVariable Integer assignmentIdx) {
+    /* 과제 상세 조회 - POST 방식 */
+    @PostMapping("/detail")
+    public ResponseEntity<?> getAssignmentById(@RequestBody Map<String, Object> request) {
         try {
+            Integer assignmentIdx = request.get("assignmentIdx") != null ? 
+                    ((Number) request.get("assignmentIdx")).intValue() : null;
+            
+            if (assignmentIdx == null) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("assignmentIdx는 필수입니다."));
+            }
+            
             return assignmentService.getAssignmentById(assignmentIdx)
                     .map(ResponseEntity::ok)
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
-            logger.error("과제 조회 실패: assignmentIdx={}", assignmentIdx, e);
+            logger.error("과제 조회 실패", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(createErrorResponse("과제 조회 중 오류가 발생했습니다."));
         }
     }
 
-    /* assignmentData JSON 파싱 조회 */
-    @GetMapping("/{assignmentIdx}/data")
-    public ResponseEntity<?> getAssignmentData(@PathVariable Integer assignmentIdx) {
+    /* assignmentData JSON 파싱 조회 - POST 방식 */
+    @PostMapping("/data")
+    public ResponseEntity<?> getAssignmentData(@RequestBody Map<String, Object> request) {
         try {
+            Integer assignmentIdx = request.get("assignmentIdx") != null ? 
+                    ((Number) request.get("assignmentIdx")).intValue() : null;
+            
+            if (assignmentIdx == null) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("assignmentIdx는 필수입니다."));
+            }
+            
             AssignmentExtendedTbl assignment = assignmentService.getAssignmentById(assignmentIdx)
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 과제입니다."));
             
@@ -122,9 +144,36 @@ public class AssignmentController {
             logger.warn("assignmentData 조회 실패: {}", e.getMessage());
             return ResponseEntity.badRequest().body(createErrorResponse(e.getMessage()));
         } catch (Exception e) {
-            logger.error("assignmentData 조회 실패: assignmentIdx={}", assignmentIdx, e);
+            logger.error("assignmentData 조회 실패", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(createErrorResponse("데이터 조회 중 오류가 발생했습니다."));
+        }
+    }
+
+    /* 학생별 제출 현황 조회 - POST 방식 */
+    @PostMapping("/submissions")
+    public ResponseEntity<?> getSubmissions(@RequestBody Map<String, Object> request) {
+        try {
+            Integer assignmentIdx = request.get("assignmentIdx") != null ? 
+                    ((Number) request.get("assignmentIdx")).intValue() : null;
+            
+            if (assignmentIdx == null) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("assignmentIdx는 필수입니다."));
+            }
+            
+            AssignmentExtendedTbl assignment = assignmentService.getAssignmentById(assignmentIdx)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 과제입니다."));
+            
+            Map<String, Object> parsedData = assignmentService.parseAssignmentData(assignment.getAssignmentData());
+            return ResponseEntity.ok(parsedData);
+        } catch (IllegalArgumentException e) {
+            logger.warn("제출 현황 조회 실패: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(createErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            logger.error("제출 현황 조회 실패", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("제출 현황 조회 중 오류가 발생했습니다."));
         }
     }
 

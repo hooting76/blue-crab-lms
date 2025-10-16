@@ -1,85 +1,85 @@
-# ğŸ¯ API ì»¨íŠ¸ë¡¤ëŸ¬ ë§¤í•‘ í˜„í™© (v2.6)
+# ğŸ¯ API E¨ú¦¸E¤E¬ E¤ú±Eú´E™© (v4.0 - POST ?? ??)
 
-## ğŸ“‹ êµ¬í˜„ ì™„ë£Œëœ ì»¨íŠ¸ë¡¤ëŸ¬ë“¤
+## ğŸ“‹ E¬ú´EEE£Œëœ E¨ú¦¸E¤E¬E¤
 
-### **âœ… ê°•ì˜ ê´€ë ¨ (Lecture íŒ¨í‚¤ì§€)**
-| ì»¨íŠ¸ë¡¤ëŸ¬ | ì—”ë“œí¬ì¸íŠ¸ íŒ¨í„´ | ì£¼ìš” ê¸°ëŠ¥ | ìƒíƒœ |
+### **âœEE•ì˜ E€E¨ (Lecture ú¨¨ú¤E€)**
+| E¨ú¦¸E¤E¬ | E”ë“œú«¬E¸ú¦¸ ú¨¨ú ´ | E¼EEE°E¥ | EEE |
 |---------|---------------|---------|------|
-| `LectureController` | `/api/lectures` | ê°•ì˜ CRUD, í†µê³„, **ìˆ˜ê°• ê°€ëŠ¥ ê°•ì˜ ì¡°íšŒ** | âœ… ì™„ë£Œ |
-| `EnrollmentController` | `/api/enrollments` | ìˆ˜ê°•ì‹ ì²­/ì·¨ì†Œ, ì„±ì ê´€ë¦¬ | âœ… ì™„ë£Œ |
-| `AssignmentController` | `/api/assignments` | ê³¼ì œ CRUD, ì œì¶œ/ì±„ì  | âœ… ì™„ë£Œ |
-| `ProfessorAttendanceController` | `/api/professor/attendance` | êµìˆ˜ ì¶œì„ ê´€ë¦¬ | âœ… ì™„ë£Œ |
-| `StudentAttendanceController` | `/api/student/attendance` | í•™ìƒ ì¶œì„ ìš”ì²­ | âœ… ì™„ë£Œ |
+| `LectureController` | `/api/lectures` | E•ì˜ CRUD, ú¢µEE **E˜ê°EE€E¥ E•ì˜ E°ú¶E* | âœEEE£E|
+| `EnrollmentController` | `/api/enrollments` | E˜ê°•ì‹ E­/E¨EE E±EE´€E¬ | âœEEE£E|
+| `AssignmentController` | `/api/assignments` | E¼EECRUD, Eœì¶EEE E| âœEEE£E|
+| `ProfessorAttendanceController` | `/api/professor/attendance` | EìE EœìE E€E¬ | âœEEE£E|
+| `StudentAttendanceController` | `/api/student/attendance` | ú±™ìE EœìE E”ì²­ | âœEEE£E|
 
-### **ğŸ†• ì‹ ê·œ ì¶”ê°€ëœ ì—”ë“œí¬ì¸íŠ¸**
-| ì—”ë“œí¬ì¸íŠ¸ | ë©”ì„œë“œ | ê¸°ëŠ¥ | ì»¨íŠ¸ë¡¤ëŸ¬ |
+### **ğŸE E EEE”ê°€EEE”ë“œú«¬E¸ú¦¸**
+| E”ë“œú«¬E¸ú¦¸ | E”ìEEE| E°E¥ | E¨ú¦¸E¤E¬ |
 |-----------|-------|------|---------|
-| `/api/lectures/eligible/{studentId}` | GET | í•™ìƒë³„ ìˆ˜ê°• ê°€ëŠ¥ ê°•ì˜ ì¡°íšŒ (0ê°’ ê·œì¹™) | LectureController |
+| `/lectures/eligible` | POST (Body: {studentIdx}) | ú±™ìEEEE˜ê°EE€E¥ E•ì˜ E°ú¶E(0EEEœì¹E | LectureController |
 
-### **âœ… ì¸ì¦ ê´€ë ¨**
-| ì»¨íŠ¸ë¡¤ëŸ¬ | ì—”ë“œí¬ì¸íŠ¸ íŒ¨í„´ | ì£¼ìš” ê¸°ëŠ¥ | ìƒíƒœ |
+### **âœEE¸EEE€E¨**
+| E¨ú¦¸E¤E¬ | E”ë“œú«¬E¸ú¦¸ ú¨¨ú ´ | E¼EEE°E¥ | EEE |
 |---------|---------------|---------|------|
-| `AuthController` | `/api/auth` | ë¡œê·¸ì¸/í† í°ê°±ì‹  | âœ… ì™„ë£Œ |
-| `AdminController` | `/api/admin` | ê´€ë¦¬ì 2ì°¨ ì¸ì¦ | âœ… ì™„ë£Œ |
-| `AdminAuthTokenController` | `/api/admin/auth` | ê´€ë¦¬ì í† í° ê´€ë¦¬ | âœ… ì™„ë£Œ |
+| `AuthController` | `/api/auth` | Eœê·¸E¸/ú¢ ú°E±E  | âœEEE£E|
+| `AdminController` | `/api/admin` | E€E¬EE2E¨ E¸EE| âœEEE£E|
+| `AdminAuthTokenController` | `/api/admin/auth` | E€E¬EEú¢ ú° E€E¬ | âœEEE£E|
 
-### **âœ… ê²Œì‹œíŒ ê´€ë ¨**
-| ì»¨íŠ¸ë¡¤ëŸ¬ | ì—”ë“œí¬ì¸íŠ¸ íŒ¨í„´ | ì£¼ìš” ê¸°ëŠ¥ | ìƒíƒœ |
+### **âœEEŒì‹œú¨EE€E¨**
+| E¨ú¦¸E¤E¬ | E”ë“œú«¬E¸ú¦¸ ú¨¨ú ´ | E¼EEE°E¥ | EEE |
 |---------|---------------|---------|------|
-| `BoardController` | `/api/boards` | ê²Œì‹œíŒ ì¡°íšŒ | âœ… ì™„ë£Œ |
-| `BoardCreateController` | `/api/boards` | ê²Œì‹œê¸€ ì‘ì„± | âœ… ì™„ë£Œ |
-| `BoardUpdateController` | `/api/boards` | ê²Œì‹œê¸€ ìˆ˜ì • | âœ… ì™„ë£Œ |
-| `BoardAttachmentUploadController` | `/api/board-attachments` | íŒŒì¼ ì—…ë¡œë“œ | âœ… ì™„ë£Œ |
-| `BoardAttachmentDownloadController` | `/api/board-attachments` | íŒŒì¼ ë‹¤ìš´ë¡œë“œ | âœ… ì™„ë£Œ |
+| `BoardController` | `/api/boards` | EŒì‹œú¨EE°ú¶E| âœEEE£E|
+| `BoardCreateController` | `/api/boards` | EŒì‹œE€ E‘ì„± | âœEEE£E|
+| `BoardUpdateController` | `/api/boards` | EŒì‹œE€ E˜ì E| âœEEE£E|
+| `BoardAttachmentUploadController` | `/api/board-attachments` | ú¨Œì¼ EE¡œë“œ | âœEEE£E|
+| `BoardAttachmentDownloadController` | `/api/board-attachments` | ú¨Œì¼ E¤E´Eœë“œ | âœEEE£E|
 
-## âŒ ë¯¸êµ¬í˜„ ê¸°ëŠ¥ë“¤
+## âEE¸E¬ú´EE°E¥E¤
 
-### **ê°•ì˜ í‰ê°€ ì‹œìŠ¤í…œ**
-- `EvaluationController` - ì¡´ì¬í•˜ì§€ ì•ŠìŒ
-- `LectureEvaluationController` - ì¡´ì¬í•˜ì§€ ì•ŠìŒ
-- **í•„ìš” ì—”ë“œí¬ì¸íŠ¸**: `/api/evaluations/*`
-- **ë°ì´í„°ë² ì´ìŠ¤**: `UserTbl.lectureEvaluations` í•„ë“œë§Œ ì¡´ì¬
+### **E•ì˜ ú«‰ê°€ EœìŠ¤ú¡E*
+- `EvaluationController` - E´E¬ú±˜ì§€ EŠìŒ
+- `LectureEvaluationController` - E´E¬ú±˜ì§€ EŠìŒ
+- **ú±Eš” E”ë“œú«¬E¸ú¦¸**: `/api/evaluations/*`
+- **E°E´ú °E E´E¤**: `UserTbl.lectureEvaluations` ú±E“œEEE´E¬
 
-### **ì‹¤ì‹œê°„ ì±„íŒ… ì‹œìŠ¤í…œ**
-- `ChatController` - ì¡´ì¬í•˜ì§€ ì•ŠìŒ
-- **í•„ìš” ì—”ë“œí¬ì¸íŠ¸**: `/api/chat/*`
-- **ì¸í”„ë¼**: WebSocket ì„¤ì • í•„ìš”
+### **E¤Eœê°EEEŒ… EœìŠ¤ú¡E*
+- `ChatController` - E´E¬ú±˜ì§€ EŠìŒ
+- **ú±Eš” E”ë“œú«¬E¸ú¦¸**: `/api/chat/*`
+- **E¸ú°E¼**: WebSocket E¤EEú±Eš”
 
-### **ê´€ë¦¬ì í†µê³„ ë° ëª¨ë‹ˆí„°ë§**
-- `StatisticsController` - ì¡´ì¬í•˜ì§€ ì•ŠìŒ
-- **í•„ìš” ì—”ë“œí¬ì¸íŠ¸**: `/api/admin/statistics/*`
-- **í˜„ì¬**: ê°œë³„ ì»¨íŠ¸ë¡¤ëŸ¬ì—ì„œ ê¸°ë³¸ í†µê³„ë§Œ ì œê³µ
+### **E€E¬EEú¢µEEEEE¨Eˆí„°EE*
+- `StatisticsController` - E´E¬ú±˜ì§€ EŠìŒ
+- **ú±Eš” E”ë“œú«¬E¸ú¦¸**: `/api/admin/statistics/*`
+- **ú´E¬**: Eœë³EE¨ú¦¸E¤E¬EìE E°E¸ ú¢µEE§EEœê³µ
 
-## ğŸ”§ ì—”ë“œí¬ì¸íŠ¸ íŒ¨í„´ ìš”ì•½
+## ğŸ”§ E”ë“œú«¬E¸ú¦¸ ú¨¨ú ´ E”ì•½
 
-### **ì‹¤ì œ êµ¬í˜„ëœ íŒ¨í„´**
+### **E¤EEE¬ú´Eœ ú¨¨ú ´**
 ```
-/api/auth/*              - ì¸ì¦ (AuthController)
-/api/admin/*             - ê´€ë¦¬ì (AdminController, AdminAuthTokenController)
-/api/lectures/*          - ê°•ì˜ ê´€ë¦¬ (LectureController)
-  â””â”€ /api/lectures/eligible/{studentId} - ğŸ†• ìˆ˜ê°• ê°€ëŠ¥ ê°•ì˜ ì¡°íšŒ
-/api/enrollments/*       - ìˆ˜ê°•ì‹ ì²­ (EnrollmentController)
-/api/assignments/*       - ê³¼ì œ ê´€ë¦¬ (AssignmentController)
-/api/professor/attendance/* - êµìˆ˜ ì¶œì„ (ProfessorAttendanceController)
-/api/student/attendance/*   - í•™ìƒ ì¶œì„ (StudentAttendanceController)
-/api/boards/*            - ê²Œì‹œíŒ (Board*Controllerë“¤)
-/api/board-attachments/* - íŒŒì¼ ì²¨ë¶€ (BoardAttachment*Controllerë“¤)
-```
-
-### **ë¬¸ì„œì—ì„œ ì œê±°ëœ íŒ¨í„´ (ë¯¸êµ¬í˜„)**
-```
-/api/evaluations/*       - ê°•ì˜ í‰ê°€ (ë¯¸êµ¬í˜„)
-/api/chat/*              - ì±„íŒ… (ë¯¸êµ¬í˜„)
-/api/admin/statistics/*  - ê´€ë¦¬ì í†µê³„ (ë¯¸êµ¬í˜„)
+/api/auth/*              - E¸EE(AuthController)
+/api/admin/*             - E€E¬EE(AdminController, AdminAuthTokenController)
+/api/lectures/*          - E•ì˜ E€E¬ (LectureController)
+  â””â”€ /api/lectures/eligible/{studentId} - ğŸE E˜ê°EE€E¥ E•ì˜ E°ú¶E
+/api/enrollments/*       - E˜ê°•ì‹ E­ (EnrollmentController)
+/api/assignments/*       - E¼EEE€E¬ (AssignmentController)
+/api/professor/attendance/* - EìE EœìE (ProfessorAttendanceController)
+/api/student/attendance/*   - ú±™ìE EœìE (StudentAttendanceController)
+/api/boards/*            - EŒì‹œú¨E(Board*ControllerE¤)
+/api/board-attachments/* - ú¨Œì¼ E¨E€ (BoardAttachment*ControllerE¤)
 ```
 
-## ğŸ“Š êµ¬í˜„ í˜„í™© í†µê³„
+### **E¸Eœì—EEEœê±°EEú¨¨ú ´ (E¸E¬ú´E**
+```
+/api/evaluations/*       - E•ì˜ ú«‰ê°€ (E¸E¬ú´E
+/api/chat/*              - EEŒ… (E¸E¬ú´E
+/api/admin/statistics/*  - E€E¬EEú¢µEE(E¸E¬ú´E
+```
 
-- **êµ¬í˜„ ì™„ë£Œ**: 13ê°œ ì»¨íŠ¸ë¡¤ëŸ¬
-- **ë¯¸êµ¬í˜„**: 3ê°œ ì£¼ìš” ê¸°ëŠ¥ ì˜ì—­
-- **API ë¬¸ì„œ ì¼ì¹˜ìœ¨**: 100% (ì‹¤ì œ êµ¬í˜„ê³¼ ì™„ì „ ì¼ì¹˜)
-- **ì—”ë“œí¬ì¸íŠ¸ íŒ¨í„´ í†µì¼ì„±**: âœ… ì™„ë£Œ
+## ğŸ“Š E¬ú´Eú´E™© ú¢µEE
+
+- **E¬ú´EEE£E*: 13EEE¨ú¦¸E¤E¬
+- **E¸E¬ú´E*: 3EEE¼EEE°E¥ EE—­
+- **API E¸EEE¼E˜ìœ¨**: 100% (E¤EEE¬ú´E³¼ EE EE¼EE
+- **E”ë“œú«¬E¸ú¦¸ ú¨¨ú ´ ú¢µE¼E±**: âœEEE£E
 
 ---
 
-*ì´ ë¬¸ì„œëŠ” API ëª…ì„¸ì„œ ì¼ê´€ì„± ê²€í†  ê³¼ì •ì—ì„œ ìƒì„±ë˜ì—ˆìŠµë‹ˆë‹¤.*
+*E´ E¸EœëŠ” API EE„¸EEE¼E€E± E€ú¢  E¼E•ì—EEEì„±E˜ì—ˆEµEˆë‹¤.*

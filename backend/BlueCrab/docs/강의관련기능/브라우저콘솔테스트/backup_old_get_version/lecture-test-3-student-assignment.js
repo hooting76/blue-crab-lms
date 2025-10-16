@@ -34,25 +34,19 @@ async function getMyAssignments() {
     const page = parseInt(prompt('📄 페이지 번호 (0부터 시작):', '0'));
     const size = parseInt(prompt('📄 페이지 크기:', '10'));
 
-    console.log('\n📄 내 과제 목록 조회 - POST');
+    console.log('\n📄 내 과제 목록 조회');
     console.log('═══════════════════════════════════════════════════════');
 
     try {
-        const requestBody = {
-            page: page,
-            size: size
-        };
-        if (lectureIdx) requestBody.lecIdx = parseInt(lectureIdx);
+        let url = `${API_BASE_URL}/api/assignments?page=${page}&size=${size}`;
+        if (lectureIdx) url += `&lectureIdx=${lectureIdx}`;
 
-        console.log('� 요청 데이터:', JSON.stringify(requestBody, null, 2));
+        console.log('📡 요청 URL:', url);
 
-        const response = await fetch(`${API_BASE_URL}/api/assignments/list`, {
-            method: 'POST',
+        const response = await fetch(url, {
             headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(requestBody)
+                'Authorization': `Bearer ${token}`
+            }
         });
 
         console.log(`📡 HTTP 상태: ${response.status}`);
@@ -99,20 +93,14 @@ async function getAssignmentDetail() {
     
     const assignmentIdx = parseInt(prompt('🔍 조회할 ASSIGNMENT_IDX:', '1'));
 
-    console.log('\n📄 과제 상세 조회 - POST');
+    console.log('\n📄 과제 상세 조회');
     console.log('═══════════════════════════════════════════════════════');
 
     try {
-        const requestBody = { assignmentIdx: assignmentIdx };
-        console.log('📤 요청 데이터:', JSON.stringify(requestBody, null, 2));
-
-        const response = await fetch(`${API_BASE_URL}/api/assignments/detail`, {
-            method: 'POST',
+        const response = await fetch(`${API_BASE_URL}/api/assignments/${assignmentIdx}`, {
             headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(requestBody)
+                'Authorization': `Bearer ${token}`
+            }
         });
 
         console.log(`📡 HTTP 상태: ${response.status}`);

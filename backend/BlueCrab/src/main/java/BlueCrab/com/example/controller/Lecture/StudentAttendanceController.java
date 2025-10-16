@@ -21,9 +21,9 @@ import java.util.stream.Collectors;
  * 학생용 출석 관리 컨트롤러
  * 
  * 엔드포인트:
- * - GET /api/student/attendance/{enrollmentIdx} - 내 출석 조회
+ * - POST /api/student/attendance/detail - 내 출석 조회
  * - POST /api/student/attendance/request - 출석 인정 신청
- * - GET /api/student/attendance/requests/{enrollmentIdx} - 내 신청 목록
+ * - POST /api/student/attendance/requests - 내 신청 목록
  */
 @RestController
 @RequestMapping("/api/student/attendance")
@@ -40,9 +40,10 @@ public class StudentAttendanceController {
     private ObjectMapper objectMapper;
 
     /**
-     * 내 출석 조회
+     * 내 출석 조회 - POST 방식
      * 
-     * GET /api/student/attendance/{enrollmentIdx}
+     * POST /api/student/attendance/detail
+     * Body: { "enrollmentIdx": 1 }
      * 
      * Response: {
      *   "attendanceStr": "1출2출3결4지...",
@@ -54,11 +55,19 @@ public class StudentAttendanceController {
      *   ]
      * }
      */
-    @GetMapping("/{enrollmentIdx}")
+    @PostMapping("/detail")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getMyAttendance(
-            @PathVariable Integer enrollmentIdx) {
+            @RequestBody Map<String, Object> request) {
         
         try {
+            Integer enrollmentIdx = request.get("enrollmentIdx") != null ? 
+                    ((Number) request.get("enrollmentIdx")).intValue() : null;
+            
+            if (enrollmentIdx == null) {
+                return ResponseEntity.badRequest()
+                        .body(ApiResponse.failure("enrollmentIdx는 필수입니다."));
+            }
+            
             EnrollmentExtendedTbl enrollment = enrollmentRepository.findById(enrollmentIdx)
                     .orElseThrow(() -> new RuntimeException("수강신청을 찾을 수 없습니다."));
 
@@ -148,15 +157,24 @@ public class StudentAttendanceController {
     }
 
     /**
-     * 내 출석 인정 신청 목록 조회
+     * 내 출석 인정 신청 목록 조회 - POST 방식
      * 
-     * GET /api/student/attendance/requests/{enrollmentIdx}
+     * POST /api/student/attendance/requests
+     * Body: { "enrollmentIdx": 1 }
      */
-    @GetMapping("/requests/{enrollmentIdx}")
+    @PostMapping("/requests")
     public ResponseEntity<ApiResponse<List<AttendanceRequestDto>>> getMyRequests(
-            @PathVariable Integer enrollmentIdx) {
+            @RequestBody Map<String, Object> request) {
         
         try {
+            Integer enrollmentIdx = request.get("enrollmentIdx") != null ? 
+                    ((Number) request.get("enrollmentIdx")).intValue() : null;
+            
+            if (enrollmentIdx == null) {
+                return ResponseEntity.badRequest()
+                        .body(ApiResponse.failure("enrollmentIdx는 필수입니다."));
+            }
+            
             List<AttendanceRequestTbl> requests = attendanceService.getStudentRequests(enrollmentIdx);
 
             // Entity → DTO 변환
@@ -167,7 +185,7 @@ public class StudentAttendanceController {
             return ResponseEntity.ok(ApiResponse.success("출석 인정 신청 목록 조회 성공", dtoList));
 
         } catch (Exception e) {
-            log.error("출석 인정 신청 목록 조회 실패: enrollmentIdx={}", enrollmentIdx, e);
+            log.error("출석 인정 신청 목록 조회 실패", e);
             return ResponseEntity.badRequest()
                     .body(ApiResponse.failure("신청 목록 조회 실패: " + e.getMessage()));
         }

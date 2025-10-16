@@ -47,9 +47,9 @@ public class LectureController {
     @Autowired
     private UserTblRepository userTblRepository;
 
-    /* 강의 목록 조회 및 검색 (통합 엔드포인트)
+    /* 강의 목록 조회 및 검색 (통합 엔드포인트) - POST 방식
      * 
-     * 쿼리 파라미터:
+     * Request Body:
      * - serial: 강의코드로 단일 조회
      * - professor: 교수명 필터
      * - year: 학년 필터
@@ -59,17 +59,22 @@ public class LectureController {
      * - open: 개설 여부 (1/0)
      * - page, size: 페이징
      */
-    @GetMapping
-    public ResponseEntity<?> getLectures(
-            @RequestParam(required = false) String serial,
-            @RequestParam(required = false) String professor,
-            @RequestParam(required = false) Integer year,
-            @RequestParam(required = false) Integer semester,
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) Integer major,
-            @RequestParam(required = false) Integer open,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+    @PostMapping
+    public ResponseEntity<?> getLectures(@RequestBody(required = false) Map<String, Object> request) {
+        // Request Body에서 파라미터 추출 (null 처리)
+        if (request == null) {
+            request = new HashMap<>();
+        }
+        
+        String serial = (String) request.get("serial");
+        String professor = (String) request.get("professor");
+        Integer year = request.get("year") != null ? ((Number) request.get("year")).intValue() : null;
+        Integer semester = request.get("semester") != null ? ((Number) request.get("semester")).intValue() : null;
+        String title = (String) request.get("title");
+        Integer major = request.get("major") != null ? ((Number) request.get("major")).intValue() : null;
+        Integer open = request.get("open") != null ? ((Number) request.get("open")).intValue() : null;
+        int page = request.get("page") != null ? ((Number) request.get("page")).intValue() : 0;
+        int size = request.get("size") != null ? ((Number) request.get("size")).intValue() : 20;
         try {
             // 1. 강의코드로 단일 조회
             if (serial != null) {
@@ -113,44 +118,64 @@ public class LectureController {
         }
     }
 
-    /* 강의 상세 조회 */
-    @GetMapping("/{lecIdx}")
-    public ResponseEntity<?> getLectureById(@PathVariable Integer lecIdx) {
+    /* 강의 상세 조회 - POST 방식 */
+    @PostMapping("/detail")
+    public ResponseEntity<?> getLectureById(@RequestBody Map<String, Object> request) {
         try {
+            Integer lecIdx = request.get("lecIdx") != null ? ((Number) request.get("lecIdx")).intValue() : null;
+            
+            if (lecIdx == null) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("lecIdx는 필수입니다."));
+            }
+            
             return lectureService.getLectureById(lecIdx)
                     .map(this::convertToDto)
                     .map(ResponseEntity::ok)
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
-            logger.error("강의 조회 실패: lecIdx={}", lecIdx, e);
+            logger.error("강의 조회 실패", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(createErrorResponse("강의 조회 중 오류가 발생했습니다."));
         }
     }
 
-    /* 강의별 통계 조회 */
-    @GetMapping("/{lecIdx}/stats")
-    public ResponseEntity<?> getLectureStats(@PathVariable Integer lecIdx) {
+    /* 강의별 통계 조회 - POST 방식 */
+    @PostMapping("/stats")
+    public ResponseEntity<?> getLectureStats(@RequestBody Map<String, Object> request) {
         try {
+            Integer lecIdx = request.get("lecIdx") != null ? ((Number) request.get("lecIdx")).intValue() : null;
+            
+            if (lecIdx == null) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("lecIdx는 필수입니다."));
+            }
+            
             Map<String, Object> stats = lectureService.getLectureStatistics(lecIdx);
             return ResponseEntity.ok(stats);
         } catch (IllegalArgumentException e) {
             logger.warn("강의 통계 조회 실패: {}", e.getMessage());
             return ResponseEntity.badRequest().body(createErrorResponse(e.getMessage()));
         } catch (Exception e) {
-            logger.error("강의 통계 조회 실패: lecIdx={}", lecIdx, e);
+            logger.error("강의 통계 조회 실패", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(createErrorResponse("통계 조회 중 오류가 발생했습니다."));
         }
     }
 
-    /* 학생별 수강 가능 강의 조회 (0값 규칙 적용) */
-    @GetMapping("/eligible/{studentId}")
-    public ResponseEntity<?> getEligibleLectures(
-            @PathVariable Integer studentId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+    /* 학생별 수강 가능 강의 조회 (0값 규칙 적용) - POST 방식 */
+    @PostMapping("/eligible")
+    public ResponseEntity<?> getEligibleLectures(@RequestBody Map<String, Object> request) {
+        Integer studentId = null;
         try {
+            studentId = request.get("studentId") != null ? ((Number) request.get("studentId")).intValue() : null;
+            int page = request.get("page") != null ? ((Number) request.get("page")).intValue() : 0;
+            int size = request.get("size") != null ? ((Number) request.get("size")).intValue() : 20;
+            
+            if (studentId == null) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("studentId는 필수입니다."));
+            }
             // 1. 학생 정보 조회
             UserTbl student = userTblRepository.findById(studentId).orElse(null);
             if (student == null) {
@@ -314,7 +339,7 @@ public class LectureController {
     }
 
     /* 강의 등록 */
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<?> createLecture(@RequestBody LecTbl lecture) {
         try {
             LecTbl created = lectureService.createLecture(lecture);
