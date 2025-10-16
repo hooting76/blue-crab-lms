@@ -17,16 +17,6 @@
     margin: 0;
 }
 
-/* input, select 공통 스타일 (선택 사항) */
-input[type="text"],
-input[type="number"],
-select {
-    padding: 8px;
-    font-size: var(--font-mid);
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
 /* 강의 등록 버튼 스타일 */
 .courseRegisterBtn {
     margin-top: 30px;

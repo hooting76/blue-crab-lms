@@ -116,17 +116,18 @@ const fetchClassAttendingList = async (accessToken) => { // 학생의 경우
             setLectureList(data); // ✅ 받아온 데이터 저장
         } catch (error) {
             console.error('강의 목록 조회 에러:', error);
-        }};
+        }
+    };
 
 const fetchClassLecturingList = async (accessToken) => { // 교수의 경우
-        try {
-            const response = await fetch(`${BASE_URL}/professor/lectures`, {
-                method: 'POST',
-                headers: {
+    try {
+        const response = await fetch(`${BASE_URL}/professor/lectures`, {
+            method: 'POST',
+            headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
-                }
-            });
+            }
+        });
     if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
             const data = await response.json();
             setLectureList(data); // ✅ 받아온 데이터 저장
