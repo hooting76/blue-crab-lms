@@ -153,7 +153,7 @@ async function getAvailableLectures() {
                     console.log(`   📚 학점: ${lecture.lecPoint}점`);
                     console.log(`   👥 정원: ${lecture.lecCurrent || 0}/${lecture.lecMany}명`);
                     console.log(`   🕐 시간: ${lecture.lecTime || 'N/A'}`);
-                    console.log(`   🎓 대상: ${lecture.lecYear}학년 ${lecture.lecSemester}학기`);
+                    console.log(`   � 대상학년/학기: ${lecture.lecYear}학년 ${lecture.lecSemester}학기`);
                     
                     // Phase 9: 백엔드 필터링 정보
                     console.log(`   🎓 수강 자격 (Phase 9):`);

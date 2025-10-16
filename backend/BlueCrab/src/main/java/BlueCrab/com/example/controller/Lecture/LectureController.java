@@ -1,5 +1,4 @@
 // 작성자: 성태준
-// 강의 관리 컨트롤러
 
 package BlueCrab.com.example.controller.Lecture;
 
@@ -26,17 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/* 강의 관리 REST API 컨트롤러 (통합 버전)
- * 
- * 주요 엔드포인트:
- * - GET /api/lectures - 강의 조회 (쿼리 파라미터로 검색/필터링 통합)
- * - GET /api/lectures/{id} - 강의 상세 조회
- * - GET /api/lectures/{id}/stats - 강의별 통계
- * - GET /api/lectures/eligible/{studentId} - 학생별 수강 가능 강의 조회 (0값 규칙 적용)
- * - POST /api/lectures - 강의 등록
- * - PUT /api/lectures/{id} - 강의 수정
- * - DELETE /api/lectures/{id} - 강의 삭제
- */
 @RestController
 @RequestMapping("/api/lectures")
 public class LectureController {
@@ -462,37 +450,100 @@ public class LectureController {
     }
 
     /* 강의 수정 */
-    @PutMapping("/{lecIdx}")
-    public ResponseEntity<?> updateLecture(
-            @PathVariable Integer lecIdx,
-            @RequestBody LecTbl lecture) {
+    @PostMapping("/update")
+    public ResponseEntity<?> updateLecture(@RequestBody Map<String, Object> request) {
         try {
-            lecture.setLecIdx(lecIdx);
+            // lecIdx 필수 확인
+            if (!request.containsKey("lecIdx")) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("강의 ID(lecIdx)는 필수입니다."));
+            }
+
+            Integer lecIdx = (Integer) request.get("lecIdx");
+            
+            // 기존 강의 조회
+            LecTbl lecture = lectureService.getLectureById(lecIdx)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 강의입니다."));
+
+            // 수정 가능한 필드만 업데이트 (null이 아닌 경우에만)
+            if (request.containsKey("lecSerial")) {
+                lecture.setLecSerial((String) request.get("lecSerial"));
+            }
+            if (request.containsKey("lecTit")) {
+                lecture.setLecTit((String) request.get("lecTit"));
+            }
+            if (request.containsKey("lecProf")) {
+                lecture.setLecProf((String) request.get("lecProf"));
+            }
+            if (request.containsKey("lecPoint")) {
+                lecture.setLecPoint((Integer) request.get("lecPoint"));
+            }
+            if (request.containsKey("lecMajor")) {
+                lecture.setLecMajor((Integer) request.get("lecMajor"));
+            }
+            if (request.containsKey("lecMust")) {
+                lecture.setLecMust((Integer) request.get("lecMust"));
+            }
+            if (request.containsKey("lecSummary")) {
+                lecture.setLecSummary((String) request.get("lecSummary"));
+            }
+            if (request.containsKey("lecTime")) {
+                lecture.setLecTime((String) request.get("lecTime"));
+            }
+            if (request.containsKey("lecAssign")) {
+                lecture.setLecAssign((Integer) request.get("lecAssign"));
+            }
+            if (request.containsKey("lecOpen")) {
+                lecture.setLecOpen((Integer) request.get("lecOpen"));
+            }
+            if (request.containsKey("lecMany")) {
+                lecture.setLecMany((Integer) request.get("lecMany"));
+            }
+            if (request.containsKey("lecMcode")) {
+                lecture.setLecMcode((String) request.get("lecMcode"));
+            }
+            if (request.containsKey("lecMcodeDep")) {
+                lecture.setLecMcodeDep((String) request.get("lecMcodeDep"));
+            }
+            if (request.containsKey("lecMin")) {
+                lecture.setLecMin((Integer) request.get("lecMin"));
+            }
+            if (request.containsKey("lecYear")) {
+                lecture.setLecYear((Integer) request.get("lecYear"));
+            }
+            if (request.containsKey("lecSemester")) {
+                lecture.setLecSemester((Integer) request.get("lecSemester"));
+            }
+
             LecTbl updated = lectureService.updateLecture(lecture);
             return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException e) {
             logger.warn("강의 수정 실패: {}", e.getMessage());
             return ResponseEntity.badRequest().body(createErrorResponse(e.getMessage()));
         } catch (Exception e) {
-            logger.error("강의 수정 실패: lecIdx={}", lecIdx, e);
+            logger.error("강의 수정 실패", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(createErrorResponse("강의 수정 중 오류가 발생했습니다."));
+                    .body(createErrorResponse("시스템 오류가 발생했습니다. 잠시 후 다시 시도해주세요."));
         }
     }
 
-    /* 강의 삭제 */
-    @DeleteMapping("/{lecIdx}")
-    public ResponseEntity<?> deleteLecture(@PathVariable Integer lecIdx) {
+    @PostMapping("/delete")
+    public ResponseEntity<?> deleteLecture(@RequestBody Map<String, Object> request) {
         try {
+            if (!request.containsKey("lecIdx")) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("강의 ID(lecIdx)는 필수입니다."));
+            }
+            Integer lecIdx = (Integer) request.get("lecIdx");
             lectureService.deleteLecture(lecIdx);
             return ResponseEntity.ok(createSuccessResponse("강의가 삭제되었습니다."));
         } catch (IllegalArgumentException e) {
             logger.warn("강의 삭제 실패: {}", e.getMessage());
             return ResponseEntity.badRequest().body(createErrorResponse(e.getMessage()));
         } catch (Exception e) {
-            logger.error("강의 삭제 실패: lecIdx={}", lecIdx, e);
+            logger.error("강의 삭제 실패", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(createErrorResponse("강의 삭제 중 오류가 발생했습니다."));
+                    .body(createErrorResponse("시스템 오류가 발생했습니다. 잠시 후 다시 시도해주세요."));
         }
     }
 

@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UseUser } from '../../../hook/UseUser';
-import classAttendingDummy from '../../../src/mock/classAttendingDummy.js'; //더미데이터
 import ProfNoticeWritingPage from './ProfNoticeWritingPage.jsx';
 
 function ClassAttendingNotice({currentPage, setCurrentPage}) {
+    const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
     const {user} = UseUser();
+    const accessToken = user.data.accessToken;
+    const [lectureList, setLectureList] = useState([]);
 
         // select 변경 핸들러
         const handleSemesterChange = (e) => {
@@ -55,6 +57,53 @@ function ClassAttendingNotice({currentPage, setCurrentPage}) {
     const currentSemesterValue = `${currentYear}_${currentSemester}`; // 현재 학기 value
     const [selectedSemester, setSelectedSemester] = useState(currentSemesterValue); // 학기 선택 상태
 
+
+
+const fetchClassAttendingList = async (accessToken) => { // 학생의 경우
+    try {
+        const response = await fetch(`${BASE_URL}/enrollments?studentIdx=${user.data.user.id}&page=0&size=10`, {
+            method: "POST",
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            }
+        })
+    if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
+            const data = await response.json();
+            setLectureList(data); // ✅ 받아온 데이터 저장
+        } catch (error) {
+            console.error('강의 목록 조회 에러:', error);
+        }
+    };
+
+const fetchClassLecturingList = async (accessToken) => { // 교수의 경우
+    try {
+        const response = await fetch(`${BASE_URL}/professor/lectures`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+    if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
+            const data = await response.json();
+            setLectureList(data); // ✅ 받아온 데이터 저장
+        } catch (error) {
+            console.error('강의 목록 조회 에러:', error);
+        }
+    };
+
+    useEffect(() => {
+        if (accessToken && user.data.user.userStudent === 0) {
+            fetchClassAttendingList(accessToken);
+        }
+        if (accessToken && user.data.user.userStudent === 1) {
+            fetchClassLecturingList(accessToken);
+        }
+        }, [accessToken]); // ✅ accessToken이 생겼을 때 호출
+
+
+
     const profNoticeWrite = () => {
     setCurrentPage("과목별 공지 작성");
     }
@@ -64,6 +113,8 @@ function ClassAttendingNotice({currentPage, setCurrentPage}) {
             <ProfNoticeWritingPage currentPage={currentPage} setCurrentPage={setCurrentPage}/>
         );
     }
+
+
 
     return(
         <>
@@ -76,11 +127,15 @@ function ClassAttendingNotice({currentPage, setCurrentPage}) {
             </select>
 
             <select className="lectureName">
-                {classAttendingDummy.map((cls) => (
-                    <option key={cls.LEC_IDX} value={cls.LEC_IDX}>
-                        {cls.LEC_NAME}
-                    </option>
-                ))}
+                {lectureList.length > 0 ? (
+                    lectureList.map((cls) => (
+                        <option key={cls.lecIdx} value={cls.lecIdx}>
+                            {cls.lecTit}
+                        </option>
+                    ))
+                ) : (
+                    <option disabled>강의 목록 없음</option>
+                )}
             </select>
 
             {user.data.user.userStudent === 1 && // 교수일 경우 공지 작성 버튼 표시

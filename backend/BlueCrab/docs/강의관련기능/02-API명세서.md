@@ -1,9 +1,16 @@
 # 02. API 명세서
 
 > **작성일**: 2025-10-10
-> **최종 수정**: 2025-10-15
-> **버전**: 2.3 (강의 검증 로직 강화 버전)
+> **최종 수정**: 2025-01-XX
+> **버전**: 4.0 (POST 방식 통일 완료)
 > **변경사항**:
+> - ✅ **Phase 10: 100% POST 방식 통일** (2025-01-XX)
+>   - 모든 GET, PUT, DELETE 엔드포인트를 POST로 변경
+>   - Request Body를 통한 파라미터 전달로 통일
+>   - 일관된 API 설계 패턴 확립
+> - ✅ **Phase 9: 백엔드 필터링** (2025-01-XX)
+>   - 전공/부전공 필터링 로직 추가
+>   - 0값 규칙 적용 (0 = 전체)
 > - 모든 필드명을 대문자 + 언더스코어 규칙으로 통일
 > - EnrollmentController DTO 패턴 적용 완료
 > - LectureController DTO 패턴 적용 완료
@@ -35,17 +42,25 @@
 
 ## 1. API 설계 원칙
 
-### **RESTful 설계**
-- **HTTP Methods**: GET, POST, PUT, DELETE 적절히 사용
+### **POST 방식 통일 (Phase 10)**
+- **HTTP Method**: 모든 엔드포인트는 POST 방식 사용
+- **파라미터 전달**: Request Body를 통한 JSON 파라미터 전달
+- **일관성**: 통일된 API 패턴으로 프론트엔드 개발 단순화
+- **장점**: 
+  - 복잡한 필터링 조건을 Request Body로 깔끔하게 전달
+  - URL 길이 제한 문제 해결
+  - 일관된 에러 처리 및 로깅
+
+### **RESTful 설계 기반**
 - **Resource Naming**: 복수형 명사 사용 (`/lectures`, `/enrollments`)
 - **Status Codes**: 표준 HTTP 상태 코드 사용
 - **URL 패턴**: 역할별 구분 (`/api/professor/`, `/api/student/`, `/api/admin/`, `/api/`)
 
 ### **엔드포인트 패턴**
-- **공통 리소스**: `/api/{resource}` (예: `/api/lectures`, `/api/enrollments`, `/api/assignments`)
-- **역할별 리소스**: `/api/{role}/{resource}` (예: `/api/professor/attendance`, `/api/student/attendance`)
-- **관리자 전용**: `/api/admin/{resource}` (예: `/api/admin/auth`)
-- **게시판/첨부파일**: `/api/boards`, `/api/board-attachments`
+- **공통 리소스**: `POST /api/{resource}/{action}` (예: `/api/lectures/list`, `/api/lectures/create`)
+- **역할별 리소스**: `POST /api/{role}/{resource}/{action}` (예: `/api/professor/attendance/requests`)
+- **관리자 전용**: `POST /api/admin/{resource}/{action}` (예: `/api/admin/auth`)
+- **게시판/첨부파일**: `POST /api/boards/{action}`, `POST /api/board-attachments/{action}`
 
 ### **응답 포맷**
 ```json
@@ -143,6 +158,18 @@ Authorization: Bearer {refreshToken}
 ---
 
 ## 3. 관리자 API
+
+> ⚠️ **중요**: 아래 명세서의 일부 엔드포인트는 구버전(GET, PUT, DELETE)으로 표시되어 있으나,  
+> **실제 구현은 100% POST 방식으로 통일**되었습니다. (Phase 10 완료)  
+> 
+> **실제 사용 시 참고 문서**: 
+> - `API_CONTROLLER_MAPPING.md` (v5.0) - 최신 POST 엔드포인트 전체 목록
+> - `POST방식통일-작업완료보고서.md` - POST 통일 완료 보고서
+> - `PHASE9_COMPLETION_SUMMARY.md` - Phase 9-10 완료 요약
+>
+> **예시**:
+> - ❌ 구버전: `GET /api/lectures?page=0&size=10`
+> - ✅ 신버전: `POST /api/lectures/list` + Request Body `{"page": 0, "size": 10}`
 
 ### **강의 관리**
 

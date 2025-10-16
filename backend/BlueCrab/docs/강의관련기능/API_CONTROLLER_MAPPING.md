@@ -1,4 +1,4 @@
-#  API 엔드포인트컨트롤러 매핑 (v4.0 - POST 방식 통일)
+#  API 엔드포인트 컨트롤러 매핑 (v5.0 - POST 방식 완전 통일)
 
 ## 강의 관련 핵심 API
 
@@ -14,7 +14,7 @@
 ### **특별 엔드포인트**
 | 엔드포인트 | 메서드 | 설명 | 컨트롤러 |
 |-----------|-------|------|---------|
-| `/lectures/eligible` | POST (Body: {studentIdx}) | 학생이 수강 가능한 강의 조회 (0값 규칙) | LectureController |
+| `/lectures/eligible` | POST (Body: {studentIdx}) | 학생이 수강 가능한 강의 조회 (0값 규칙 + 전공 필터링) | LectureController |
 
 ### **공통 시스템 API**
 | 컨트롤러 | 엔드포인트 prefix | 주요 기능 | 상태 |
@@ -56,12 +56,34 @@
 ```
 /api/auth/*              - 인증 (AuthController)
 /api/admin/*             - 관리자 (AdminController, AdminAuthTokenController)
-/lectures/*              - 강의 관리 (LectureController)
-  특히: /lectures/eligible - 수강 가능 강의 조회
-/enrollments/*           - 수강신청 (EnrollmentController)
-/api/assignments/*       - 과제 관리 (AssignmentController)
-/api/professor/attendance/* - 교수 출석 (ProfessorAttendanceController)
-/api/student/attendance/*   - 학생 출석 (StudentAttendanceController)
+/lectures/*              - 강의 관리 (LectureController) - 100% POST
+  ├─ POST /lectures              - 강의 목록 조회
+  ├─ POST /lectures/detail       - 강의 상세 조회
+  ├─ POST /lectures/stats        - 강의 통계
+  ├─ POST /lectures/eligible     - 수강 가능 강의 (전공 필터링)
+  ├─ POST /lectures/create       - 강의 생성
+  ├─ POST /lectures/update       - 강의 수정
+  └─ POST /lectures/delete       - 강의 삭제
+/enrollments/*           - 수강신청 (EnrollmentController) - 100% POST
+  ├─ POST /enrollments/list      - 수강 목록
+  ├─ POST /enrollments/detail    - 수강 상세
+  ├─ POST /enrollments/data      - JSON 데이터
+  ├─ POST /enrollments/enroll    - 수강신청
+  ├─ POST /enrollments/drop      - 수강취소
+  ├─ POST /enrollments/attendance - 출석 갱신
+  └─ POST /enrollments/grade     - 성적 입력
+/api/assignments/*       - 과제 관리 (AssignmentController) - 100% POST
+  ├─ POST /list                  - 과제 목록
+  ├─ POST /detail                - 과제 상세
+  ├─ POST /data                  - JSON 데이터
+  ├─ POST /submissions           - 제출 현황
+  ├─ POST /                      - 과제 생성
+  ├─ POST /{id}/submit           - 과제 제출
+  ├─ POST /{id}                  - 과제 수정
+  ├─ POST /{id}/grade            - 과제 채점
+  └─ POST /{id}                  - 과제 삭제
+/api/professor/attendance/* - 교수 출석 (ProfessorAttendanceController) - 100% POST
+/api/student/attendance/*   - 학생 출석 (StudentAttendanceController) - 100% POST
 /api/boards/*            - 게시판 (Board*Controller들)
 /api/board-attachments/* - 첨부파일 (BoardAttachment*Controller들)
 ```
@@ -77,9 +99,10 @@
 
 - **구현 완료**: 13개 컨트롤러
 - **미구현**: 3개 기능 예정
-- **API 엔드포인트**: 100% (구현 완료 기능)
-- **엔드포인트 prefix 표준화**: 완료 
+- **API 통신 방식**: 100% POST (Request Body 기반)
+- **엔드포인트 prefix 표준화**: 완료
+- **백엔드 필터링**: 전공/부전공 기반 수강 가능 강의 자동 필터링 구현 
 
 ---
 
-*이 문서는 API 매핑 현황을 추적하기 위한 문서입니다.*
+*최종 업데이트: 2025-10-16 - POST 방식 완전 통일 및 백엔드 필터링 구현*

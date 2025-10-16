@@ -1,5 +1,4 @@
 // 작성자: 성태준
-// 수강신청 관리 컨트롤러
 
 package BlueCrab.com.example.controller.Lecture;
 
@@ -27,17 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/* 수강신청 관리 REST API 컨트롤러 (통합 버전)
- * 
- * 주요 엔드포인트:
- * - GET /api/enrollments - 수강신청 조회 (쿼리 파라미터로 필터링)
- * - GET /api/enrollments/{id} - 수강신청 상세 조회
- * - GET /api/enrollments/{id}/data - JSON 데이터 파싱
- * - POST /api/enrollments - 수강신청
- * - DELETE /api/enrollments/{id} - 수강 취소
- * - PUT /api/enrollments/{id}/attendance - 출석 업데이트
- * - PUT /api/enrollments/{id}/grade - 성적 업데이트
- */
 @RestController
 @RequestMapping("/api/enrollments")
 public class EnrollmentController {

@@ -32,11 +32,12 @@ function checkAuth() {
 async function getLectureStatistics() {
     if (!checkAuth()) return;
     const token = window.authToken;
-    const targetGrade = prompt('🎓 대상 학년 (1-4학년, 공란=전체):', ''); // LEC_YEAR = 강의 대상 학년
+    const targetGrade = prompt('� 대상 학년 (1-4학년, 공란=전체):', ''); // LEC_YEAR = 강의 대상 학년
     const semester = parseInt(prompt('📅 학기 (1/2):', '1'));
 
     console.log('\n📊 전체 강의 통계 조회');
     console.log('═══════════════════════════════════════════════════════');
+    console.log('💡 LEC_YEAR = 대상 학년 (1~4학년)');
 
     try {
         const url = `${API_BASE_URL}/admin/statistics/lectures?year=${targetGrade}&semester=${semester}`;
