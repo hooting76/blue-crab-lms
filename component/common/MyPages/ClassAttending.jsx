@@ -104,7 +104,7 @@ const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
 
 const fetchClassAttendingList = async (accessToken) => {
     try {
-        const response = await fetch(`${BASE_URL}/enrollments?studentIdx=${studentIdx}&page=0&size=10`, {
+        const response = await fetch(`${BASE_URL}/enrollments?studentIdx=${user.data.user.id}&page=0&size=10`, {
             method: "POST",
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
