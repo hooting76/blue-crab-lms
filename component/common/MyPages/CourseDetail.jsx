@@ -28,7 +28,7 @@ function CourseDetail({lectureIdx, onFetchComplete}) {
 
     const getCourseDetail = async (accessToken, lectureIdx) => {
       try {
-        const url = `${BASE_URL}/v1/professor/lectures/${lectureIdx}`;
+        const url = `${BASE_URL}/professor/lectures/detail/${lectureIdx}`;
         
         const response = await fetch(url, {
           method: 'POST', // POST 방식 명시

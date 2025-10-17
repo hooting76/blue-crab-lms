@@ -39,7 +39,7 @@ function CourseDetailEdit({lecture, currentPage, setCurrentPage}) {
             }
             console.log(("EditedCourseRegisterDetails :"), EditedCourseRegisterDetails);
 
-            try {const response = await fetch(`${BASE_URL}/lectures/${lecture.lectureIdx}`, {
+            try {const response = await fetch(`${BASE_URL}/lectures/update/${lecture.lectureIdx}`, {
                 method: 'POST',
                 headers: {
                 'Content-Type': 'application/json',
