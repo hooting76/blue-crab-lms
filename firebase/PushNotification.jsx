@@ -1,8 +1,7 @@
 // pushNotificationService
-import { getToken, onMessage } from 'firebase/messaging';
+import { getToken, onMessage, getMessaging } from 'firebase/messaging';
 import { messaging } from './firebase-config';
 import vapid from "./key.json";
-import icon_logo from '../public/favicon/android-icon-144x144.png';
 
 const BACKEND_API_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/';
 const VAPID_KEY = vapid.vapid; // Firebase 콘솔에서 발급받은 VAPID 키
@@ -149,31 +148,30 @@ class PushNotificationService {
     };
 
     // 5. 포그라운드 메시지 리스너 설정
-    // setupForegroundListener() {
-    //     onMessage(messaging, (payload) => {
-    //         console.log('📨 포그라운드 메시지 수신:', payload);
+    setupForegroundListener() {
+        onMessage(messaging, (payload) => {
+            console.log('📨 포그라운드 메시지 수신:', payload);
             
-    //         const notification = payload.notification;
-    //         const title = notification?.title || '알림';
-    //         const body = notification?.body || '';
-    //         const icon = notification?.icon;
+            const dataType = payload.data;
 
-    //         // 브라우저 알림 표시
-    //         if (Notification.permission === 'granted' && notification) {
-    //             new Notification(title, {
-    //                 body: body,
-    //                 icon: icon || {icon_logo},
-    //                 badge: {icon_logo},
-    //                 tag: 'notification-' + Date.now()
-    //             });
-    //         };
+            const notificationTit = dataType?.title || '새 알림';
+            const notificationOpt = {
+                body: dataType?.body || '새로운 포그라운드 메시지가 도착했습니다.',
+                icon: '/favicon/android-icon-96x96.png',
+                badge: '/favicon/android-icon-96x96.png',
+                tag: 'foreground-' + Date.now(),
+                data: {dataType},
+                requireInteraction: true,
+                vibrate: [200, 100, 200]
+            };
 
-    //         // 커스텀 이벤트 발생 (UI 업데이트용)
-    //         window.dispatchEvent(new CustomEvent('fcm-message', {
-    //             detail: payload
-    //         }));
-    //     });
-    // };
+            if(Notification.permission === "granted"){
+                navigator.serviceWorker.ready.then((registration) => {
+                    registration.showNotification(notificationTit,notificationOpt);
+                });
+            };
+        });
+    };
 
     // 6. 전체 초기화 프로세스
     async initialize(userId) {
@@ -201,7 +199,7 @@ class PushNotificationService {
             await this.saveTokenToBackend(token, userId);
 
             // Step 5: 포그라운드 메시지 리스너 설정
-            // this.setupForegroundListener();
+            this.setupForegroundListener();
             
             sessionStorage.setItem('fcm', token);
 

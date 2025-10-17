@@ -21,23 +21,24 @@ const messaging = firebase.messaging();
 // 백그라운드 메시지 수신 리스너
 messaging.onBackgroundMessage((payload) => {
     console.log('📨 [백그라운드] 메시지 수신:', payload);
-    console.log('  - 제목:', payload.notification?.title);
-    console.log('  - 본문:', payload.notification?.body);
+    console.log('  - 제목:', payload.data?.title);
+    console.log('  - 본문:', payload.data?.body);
 
-    const notificationTitle = payload.notification?.title || '새 알림';
+    const notificationTitle = payload.data?.title || '새 알림';
     const notificationOptions = {
-        body: payload.notification?.body || '새로운 메시지가 도착했습니다.',
-        icon: payload.notification?.icon || '/firebase-logo.png',
-        badge: payload.notification?.icon || '/badge-icon.png',
-        tag: 'notification-' + Date.now(),
+        body: payload.data?.body || '새로운 메시지가 도착했습니다.',
+        icon: '/favicon/android-icon-96x96.png',
+        badge: '/favicon/android-icon-96x96.png',
+        tag: 'notification-' + Date.now() + '-background-data',
         data: payload.data,
-        requireInteraction: false,
+        requireInteraction: true,
         vibrate: [200, 100, 200]
     };
 
     console.log('🔔 알림 표시 중...');
     return self.registration.showNotification(notificationTitle, notificationOptions);
 });
+// 백그라운드 메시지 수신 리스너 end
 
 // 알림 클릭 이벤트
 self.addEventListener('notificationclick', (event) => {
