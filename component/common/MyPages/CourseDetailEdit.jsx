@@ -3,11 +3,21 @@ import {UseUser} from "../../../hook/UseUser";
 import CourseList from "./CourseList";
 
 function CourseDetailEdit({lecture, currentPage, setCurrentPage}) {
+    const [lecSerial, setLecSerial] = useState();
     const [lecTit, setLecTit] = useState();
     const [lecSummary, setLecSummary] = useState();
     const [lecMany, setLecMany] = useState();
+    const [lecPoint, setLecPoint] = useState();
+    const [lecTime, setLecTime] = useState();
+    const [lecProf, setLecProf] = useState();
+    const [lecMcode, setLecMcode] = useState();
+    const [lecMcodeDep, setLecMcodeDep] = useState();
+    const [lecYear, setLecYear] = useState();
+    const [lecSemester, setLecSemester] = useState();
+    const [lecMajor, setLecMajor] = useState();
+    const [lecMust, setLecMust] = useState();
+    const [lecMin, setLecMin] = useState();
     const [lecOpen, setLecOpen] = useState();
-
     const {user} = UseUser();
     const accessToken = user.data.accessToken;
 
@@ -15,18 +25,12 @@ function CourseDetailEdit({lecture, currentPage, setCurrentPage}) {
 
 
       useEffect(() => {
-        if (lecture?.lecTit) {
-          setLecTit(lecture.lecTit);
-        }
-        if (lecture?.lecSummary) {
-          setLecSummary(lecture.lecSummary);
-        }
-        if (typeof lecture?.lecMany === 'number') {
-          setLecMany(lecture.lecMany);
-        }
-        if (lecture?.lecOpen) {
-          setLecOpen(lecture.lecOpen);
-        }
+        setLecSerial(lecture.lecSerial);
+        setLecTit(lecture.lecTit);
+        setLecSummary(lecture.lecSummary);
+        setLecMany(lecture.lecMany);
+        setLecPoint(lecture.lecPoint);
+        setLecTime(lecture.lecTime);
       }, [lecture]);
 
 
