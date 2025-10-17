@@ -241,13 +241,18 @@ async function getLectureDetail() {
     
     const token = window.authToken;
     
-    const lectureIdx = parseInt(prompt('🔍 조회할 LECTURE_IDX:', '1'));
+    const lecSerial = prompt('🔍 조회할 강의 코드 (예: CS101):', 'CS101');
+    
+    if (!lecSerial || lecSerial.trim() === '') {
+        console.log('❌ 강의 코드를 입력해주세요.');
+        return;
+    }
 
     console.log('\n📚 강의 상세 조회 - POST');
     console.log('═══════════════════════════════════════════════════════');
 
     try {
-        const requestBody = { lecIdx: lectureIdx };
+        const requestBody = { lecSerial: lecSerial };  // ✅ lecIdx 대신 lecSerial 사용
         console.log('📤 요청 데이터:', JSON.stringify(requestBody, null, 2));
 
         const response = await fetch(`${API_BASE_URL}/lectures/detail`, {
@@ -265,9 +270,8 @@ async function getLectureDetail() {
             const lecture = await response.json();
             console.log('\n✅ 조회 성공!');
             console.log('📊 강의 정보:');
-            console.log(`   LECTURE_IDX: ${lecture.lecIdx}`);
+            console.log(`   강의 코드: ${lecture.lecSerial}`);
             console.log(`   강의명: ${lecture.lecTit}`);
-            console.log(`   강의코드: ${lecture.lecSerial}`);
             console.log(`   교수코드: ${lecture.lecProf || 'N/A'}`);
             console.log(`   교수명: ${lecture.lecProfName || 'N/A'}`);
             console.log(`   학점: ${lecture.lecPoint}점`);

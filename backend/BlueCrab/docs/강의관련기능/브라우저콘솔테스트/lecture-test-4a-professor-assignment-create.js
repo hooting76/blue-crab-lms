@@ -194,16 +194,16 @@ async function getMyLectures() {
             console.log('📋 강의 목록:');
             result.forEach((lecture, idx) => {
                 console.log(`\n${idx + 1}. ${lecture.lecTit || lecture.LEC_TIT} (${lecture.lecSerial || lecture.LEC_SERIAL})`);
-                console.log(`   강의 IDX: ${lecture.lecIdx || lecture.LEC_IDX}`);
+                console.log(`   강의 코드: ${lecture.lecSerial || lecture.LEC_SERIAL}`);
                 console.log(`   교수코드: ${lecture.lecProf || lecture.LEC_PROF}`);
                 console.log(`   교수명: ${lecture.lecProfName || lecture.LEC_PROF_NAME || 'N/A'}`);
                 console.log(`   학기: ${lecture.lecYear || lecture.LEC_YEAR}-${lecture.lecSemester || lecture.LEC_SEMESTER}`);
                 console.log(`   정원: ${lecture.lecCurrent || 0}/${lecture.lecMany || lecture.LEC_MANY}명`);
                 
-                // 첫 번째 강의 IDX 저장
+                // 첫 번째 강의 코드 저장
                 if (idx === 0) {
-                    window.lastLectureIdx = lecture.lecIdx || lecture.LEC_IDX;
-                    console.log(`   💾 저장됨: window.lastLectureIdx = ${window.lastLectureIdx}`);
+                    window.lastLectureSerial = lecture.lecSerial || lecture.LEC_SERIAL;
+                    console.log(`   💾 저장됨: window.lastLectureSerial = ${window.lastLectureSerial}`);
                 }
             });
         } else if (result.success) {
@@ -213,16 +213,16 @@ async function getMyLectures() {
             console.log('📋 강의 목록:');
             result.data.content.forEach((lecture, idx) => {
                 console.log(`\n${idx + 1}. ${lecture.lecTit || lecture.LEC_TIT} (${lecture.lecSerial || lecture.LEC_SERIAL})`);
-                console.log(`   강의 IDX: ${lecture.lecIdx || lecture.LEC_IDX}`);
+                console.log(`   강의 코드: ${lecture.lecSerial || lecture.LEC_SERIAL}`);
                 console.log(`   교수코드: ${lecture.lecProf || lecture.LEC_PROF}`);
                 console.log(`   교수명: ${lecture.lecProfName || lecture.LEC_PROF_NAME || 'N/A'}`);
                 console.log(`   학기: ${lecture.lecYear || lecture.LEC_YEAR}-${lecture.lecSemester || lecture.LEC_SEMESTER}`);
                 console.log(`   정원: ${lecture.lecCurrent || 0}/${lecture.lecMany || lecture.LEC_MANY}명`);
                 
-                // 첫 번째 강의 IDX 저장
+                // 첫 번째 강의 코드 저장
                 if (idx === 0) {
-                    window.lastLectureIdx = lecture.lecIdx || lecture.LEC_IDX;
-                    console.log(`   💾 저장됨: window.lastLectureIdx = ${window.lastLectureIdx}`);
+                    window.lastLectureSerial = lecture.lecSerial || lecture.LEC_SERIAL;
+                    console.log(`   💾 저장됨: window.lastLectureSerial = ${window.lastLectureSerial}`);
                 }
             });
         } else {
@@ -238,27 +238,27 @@ async function createAssignment() {
     if (!checkAuth()) return;
     const token = window.authToken;
     
-    const lectureIdx = window.lastLectureIdx || parseInt(prompt('📚 강의 IDX:', '1'));
+    const lecSerial = window.lastLectureSerial || prompt('📚 강의 코드 (예: CS101):', 'CS101');
     const title = prompt('📝 과제 제목:', '1주차 과제');
     const description = prompt('📝 과제 설명:', '자바 프로그래밍 기초 과제입니다.');
     const maxScore = 10;  // ✅ 항상 10점으로 고정
     const dueDate = prompt('📅 마감일 (YYYY-MM-DD):', '2025-12-31');
 
-    if (!title || !lectureIdx) {
+    if (!title || !lecSerial) {
         console.log('❌ 필수 입력값이 없습니다.');
         return;
     }
 
     console.log('\n📄 과제 생성');
     console.log('═══════════════════════════════════════════════════════');
-    console.log(`📚 강의 IDX: ${lectureIdx}`);
+    console.log(`📚 강의 코드: ${lecSerial}`);
     console.log(`📝 제목: ${title}`);
     console.log(`📅 마감일: ${dueDate}`);
     console.log(`💯 배점: 10점 (고정)`);
 
     // ✅ DTO 패턴 - camelCase 필드명 사용
     const assignmentData = {
-        lecIdx: lectureIdx,
+        lecSerial: lecSerial,
         title: title,
         body: description,
         maxScore: maxScore,
@@ -309,13 +309,13 @@ async function getAssignments() {
     if (!checkAuth()) return;
     const token = window.authToken;
     
-    const lectureIdx = window.lastLectureIdx || parseInt(prompt('📚 강의 IDX:', '1'));
+    const lecSerial = window.lastLectureSerial || prompt('📚 강의 코드 (예: CS101):', 'CS101');
     const page = parseInt(prompt('📄 페이지 번호 (0부터 시작):', '0'));
     const size = parseInt(prompt('📄 페이지 크기:', '10'));
 
     console.log('\n📄 과제 목록 조회');
     console.log('═══════════════════════════════════════════════════════');
-    console.log(`📚 강의 IDX: ${lectureIdx}`);
+    console.log(`📚 강의 코드: ${lecSerial}`);
 
     try {
         // ✅ DTO 패턴: POST 방식으로 변경
@@ -329,7 +329,7 @@ async function getAssignments() {
                 'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
-                lecIdx: lectureIdx,
+                lecSerial: lecSerial,
                 page: page,
                 size: size,
                 action: 'list'  // 목록 조회 액션

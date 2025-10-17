@@ -67,7 +67,7 @@ async function getLectures() {
             console.log(`\n✅ 총 ${data.totalElements}개 강의 (${data.totalPages}페이지)\n`);
             
             data.content.forEach((lec, i) => {
-                console.log(`${i+1}. ${lec.lecTit} (IDX:${lec.lecIdx})`);
+                console.log(`${i+1}. ${lec.lecTit} (코드:${lec.lecSerial})`);
                 console.log(`   📋 코드: ${lec.lecSerial || 'N/A'}`);
                 console.log(`   👨‍🏫 교수: ${lec.lecProfName || lec.lecProf || 'N/A'}`);
                 console.log(`   🎯 대상학년/학기: ${lec.lecYear || 'N/A'}학년 ${lec.lecSemester || 'N/A'}학기`);
@@ -95,7 +95,7 @@ async function getLectures() {
                 console.log('');
             });
             
-            if (data.content.length > 0) window.lastLectureIdx = data.content[0].lecIdx;
+            if (data.content.length > 0) window.lastLectureSerial = data.content[0].lecSerial;
             
         } else if (data.success) {
             // 래핑된 응답 구조 처리
@@ -126,7 +126,7 @@ async function getLectures() {
                 }
                 console.log('');
             });
-            if (data.data.content.length > 0) window.lastLectureIdx = data.data.content[0].lecIdx;
+            if (data.data.content.length > 0) window.lastLectureSerial = data.data.content[0].lecSerial;
         } else {
             console.log('❌ 조회 실패');
             console.log('   - 응답 구조를 인식할 수 없습니다');
@@ -142,7 +142,7 @@ async function getLectures() {
 async function getLectureDetail() {
     if (!checkAuth()) return;
     const token = window.authToken || localStorage.getItem('jwtAccessToken');
-    const lecIdx = parseInt(prompt('🔍 조회할 LECTURE_IDX:', window.lastLectureIdx || '1'));
+    const lecSerial = prompt('🔍 조회할 강의 코드 (예: CS101):', window.lastLectureSerial || 'CS101');
 
     console.log('\n📚 강의 상세 조회 - POST');
     console.log('═══════════════════════════════════════════════════════');
@@ -154,7 +154,7 @@ async function getLectureDetail() {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ lecIdx })
+            body: JSON.stringify({ lecSerial })
         });
 
         console.log(`📡 응답 상태: ${response.status} ${response.statusText}`);
@@ -241,7 +241,7 @@ async function getLectureDetail() {
 async function getLectureStats() {
     if (!checkAuth()) return;
     const token = window.authToken || localStorage.getItem('jwtAccessToken');
-    const lecIdx = parseInt(prompt('📊 통계 조회할 LECTURE_IDX:', window.lastLectureIdx || '1'));
+    const lecSerial = prompt('📊 통계 조회할 강의 코드 (예: CS101):', window.lastLectureSerial || 'CS101');
 
     console.log('\n📊 강의 통계 조회 - POST');
     console.log('═══════════════════════════════════════════════════════');
@@ -253,7 +253,7 @@ async function getLectureStats() {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ lecIdx })
+            body: JSON.stringify({ lecSerial })
         });
 
         console.log(`📡 응답 상태: ${response.status} ${response.statusText}`);
@@ -365,16 +365,16 @@ async function createLecture() {
         console.log('📋 전체 응답 데이터:', JSON.stringify(data, null, 2));
         
         // 직접 엔티티 반환 또는 래핑된 응답 처리
-        if (data.lecIdx) {
+        if (data.lecSerial) {
             console.log('\n✅ 강의 생성 성공!');
-            console.log(`생성된 강의 IDX: ${data.lecIdx}`);
+            console.log(`생성된 강의 코드: ${data.lecSerial}`);
             console.log(`강의명: ${data.lecTit}`);
-            window.lastLectureIdx = data.lecIdx;
+            window.lastLectureSerial = data.lecSerial;
         } else if (data.success) {
             console.log('\n✅ 강의 생성 성공!');
-            console.log(`생성된 강의 IDX: ${data.data.lecIdx}`);
+            console.log(`생성된 강의 코드: ${data.data.lecSerial}`);
             console.log(`강의명: ${data.data.lecTit || data.data.lecName || 'N/A'}`);
-            window.lastLectureIdx = data.data.lecIdx;
+            window.lastLectureSerial = data.data.lecSerial;
         } else {
             console.log('❌ 생성 실패:', data.message || '알 수 없는 오류');
         }
@@ -388,13 +388,12 @@ async function updateLecture() {
     if (!checkAuth()) return;
     const token = window.authToken || localStorage.getItem('jwtAccessToken');
     
-    const lecIdx = parseInt(prompt('🔍 수정할 LECTURE_IDX:', window.lastLectureIdx || '1'));
+    const lecSerial = prompt('🔍 수정할 강의 코드 (예: CS101):', window.lastLectureSerial || 'CS101');
     
     console.log('\n✏️ 강의 수정 - POST');
     console.log('═══════════════════════════════════════════════════════');
     
     const lecTit = prompt('📚 강의명 (공백=유지):', '');
-    const lecSerial = prompt('📋 강의 코드 (공백=유지):', '');
     const lecMany = prompt('👥 최대 수강 인원 (공백=유지):', '');
     const lecTime = prompt('⏰ 강의 시간 (공백=유지):', '');
     const lecPoint = prompt('🎓 학점 (공백=유지):', '');
@@ -402,9 +401,8 @@ async function updateLecture() {
     const lecSummary = prompt('📚 강의 요약 (공백=유지):', '');
     
     try {
-        const requestBody = { lecIdx };
+        const requestBody = { lecSerial };
         if (lecTit) requestBody.lecTit = lecTit;
-        if (lecSerial) requestBody.lecSerial = lecSerial;
         if (lecMany) requestBody.lecMany = parseInt(lecMany);
         if (lecTime) requestBody.lecTime = lecTime;
         if (lecPoint) requestBody.lecPoint = parseInt(lecPoint);
@@ -450,9 +448,9 @@ async function deleteLecture() {
     if (!checkAuth()) return;
     const token = window.authToken || localStorage.getItem('jwtAccessToken');
     
-    const lecIdx = parseInt(prompt('🗑️ 삭제할 LECTURE_IDX:', window.lastLectureIdx || '1'));
+    const lecSerial = prompt('🗑️ 삭제할 강의 코드 (예: CS101):', window.lastLectureSerial || 'CS101');
     
-    if (!confirm(`정말로 강의 IDX ${lecIdx}를 삭제하시겠습니까?`)) {
+    if (!confirm(`정말로 강의 코드 ${lecSerial}를 삭제하시겠습니까?`)) {
         console.log('❌ 삭제 취소됨');
         return;
     }
@@ -467,7 +465,7 @@ async function deleteLecture() {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ lecIdx })
+            body: JSON.stringify({ lecSerial })
         });
 
         console.log(`📡 응답 상태: ${response.status} ${response.statusText}`);

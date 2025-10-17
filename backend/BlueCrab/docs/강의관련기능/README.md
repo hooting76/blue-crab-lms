@@ -1,7 +1,7 @@
 # 강의 관리 시스템 가이드
 
-> **최종 업데이트**: 2025-10-16  
-> **현재 버전**: v4.0 (POST 방식 완전 통일 + 백엔드 필터링)  
+> **최종 업데이트**: 2025-10-17  
+> **현재 버전**: v5.0 (lecIdx → lecSerial 마이그레이션 완료)  
 > **프로젝트 현황**: Blue Crab LMS - 강의 관리 및 시기 관리 시스템 완료
 
 ---
@@ -13,6 +13,7 @@
 3. [빠른 시작](#-빠른-시작)
 4. [주요 기능](#-주요-기능)
 5. [최신 업데이트](#-최신-업데이트)
+   - [v5.0 - lecIdx → lecSerial 마이그레이션](#-v50---lecidx--lecserial-마이그레이션-2025-10-17)
    - [v4.0 - POST 방식 완전 통일](#-v40---post-방식-완전-통일-2025-10-16)
    - [v3.0 - 백엔드 필터링 완전 구현](#-v30---백엔드-필터링-완전-구현-2025-10-16)
 6. [개발 진행 상황](#-개발-진행-상황)
@@ -28,6 +29,8 @@ Blue Crab LMS의 강의 관리 시스템은 대학교 LMS에서 강의와 관련
 ### 핵심 특징
 - ✅ **3단계 시기 관리**: 방학/수강신청/개강 자동 전환
 - ✅ **0값 규칙**: 제한없음 표시 (학부=0, 학과=0, 학년=0)
+- ✅ **lecSerial 기반 API**: 프론트엔드에서 lecIdx 완전 숨김 ⭐ NEW
+- ✅ **백엔드 변환 레이어**: lecSerial ↔ lecIdx 자동 변환 ⭐ NEW
 - ✅ **백엔드 필터링**: 학생 전공/부전공 기반 자동 필터링 ⭐
 - ✅ **수강 가능성 검증**: 실시간 자격 요건 확인 + 상세 사유 제공
 - ✅ **POST 방식 통일**: 모든 API가 Request Body 기반 통신 ⭐ NEW
@@ -57,15 +60,16 @@ Blue Crab LMS의 강의 관리 시스템은 대학교 LMS에서 강의와 관련
 │   ├── 📄 IMPLEMENTATION_PROGRESS.md            ← 개발 진척도 및 로드맵
 │   ├── 📄 API_CONTROLLER_MAPPING.md             ← API 엔드포인트 전체 명세 (v5.0)
 │   ├── 📄 PHASE9_COMPLETION_SUMMARY.md          ← Phase 9-10 완료 요약
-│   └── 📄 POST방식통일-작업완료보고서.md        ← POST 방식 통일 보고서 ⭐
+│   └── 📄 POST방식통일-작업완료보고서.md        ← POST 방식 통일 보고서
 │
-├── 📄 백엔드 필터링 (Phase 9)
-│   ├── 📄 BACKEND_FILTERING_IMPLEMENTATION.md   ← 백엔드 필터링 구현 보고서 ⭐
-│   └── 📄 FILTERING_TEST_GUIDE.md               ← 필터링 테스트 가이드 ⭐
+├── 📄 백엔드 필터링 및 마이그레이션
+│   ├── 📄 BACKEND_FILTERING_IMPLEMENTATION.md   ← 백엔드 필터링 구현 보고서
+│   ├── 📄 FILTERING_TEST_GUIDE.md               ← 필터링 테스트 가이드
+│   └── 📄 MIGRATION_COMPLETE_SUMMARY.md         ← lecIdx→lecSerial 마이그레이션 보고서 ⭐ NEW
 │
 ├── 📊 다이어그램
 │   ├── 📄 ERD_Diagram.drawio                    ← ERD 다이어그램 (v4.0)
-│   └── 📄 ERD_Diagram.jpg                       ← ERD 이미지
+│   └── 📄 ERD_Diagram.drawio.png                ← ERD 이미지
 │
 ├── 📁 시기관련/                                  ← 학기 시스템 관련 문서
 │   ├── 📄 01-학기시스템플로우.md                ← 시기 관리 상세 명세
@@ -77,7 +81,8 @@ Blue Crab LMS의 강의 관리 시스템은 대학교 LMS에서 강의와 관련
 └── 📁 브라우저콘솔테스트/                        ← 테스트 파일 및 가이드
     ├── 📄 README.md                             ← 테스트 가이드
     ├── 📄 usage-diagram.drawio                  ← 테스트 플로우 다이어그램 (v5.0)
-    ├── � usage-diagram.drawio.png              ← 테스트 플로우 이미지
+    ├── 📄 usage-diagram.drawio.png              ← 테스트 플로우 이미지
+    ├── 📄 MIGRATION_COMPLETE_SUMMARY.md         ← lecSerial 마이그레이션 완료 보고서 ⭐
     ├── 📄 lecture-test-1-admin-create.js        ← 관리자: 강의 생성 테스트
     ├── 📄 lecture-test-2a-student-enrollment.js ← 학생: 수강신청 테스트
     ├── 📄 lecture-test-2b-student-my-courses.js ← 학생: 내 수강 목록 테스트
@@ -169,6 +174,51 @@ Blue Crab LMS의 강의 관리 시스템은 대학교 LMS에서 강의와 관련
 ---
 
 ## 📋 최신 업데이트
+
+### 🆕 v5.0 - lecIdx → lecSerial 마이그레이션 (2025-10-17)
+
+#### 식별자 마이그레이션 완료
+**핵심 개념**: "백엔드 로직은 기본적으로 IDX로 돌아가지만, 그 IDX를 강의코드(lecSerial)를 이용해서 해당하는 IDX를 추출해서 활용"
+
+```
+프론트엔드 (lecSerial: "CS101")
+    ↓
+Controller: lecSerial 받음
+    ↓
+Service: lectureService.getLectureBySerial(lecSerial) → lecIdx 추출
+    ↓
+Repository/DB: lecIdx로 처리 (기존 로직 유지)
+    ↓
+Response: @JsonIgnore로 lecIdx 숨김, lecSerial만 반환
+```
+
+#### 완료된 작업
+**백엔드 (8개 파일)**:
+- ✅ DTO에 @JsonIgnore 추가 (LectureDto, EnrollmentDto, AssignmentDto)
+- ✅ Controller 변환 로직 (LectureController, EnrollmentController, AssignmentController)
+- ✅ Service 헬퍼 메서드 (EnrollmentService, AssignmentService)
+
+**프론트엔드 (5개 파일)**:
+- ✅ lecture-test-1-admin-create.js (6개 함수 수정)
+- ✅ lecture-test-2a-student-enrollment.js
+- ✅ lecture-test-2b-student-my-courses.js
+- ✅ lecture-test-4a-professor-assignment-create.js (3개 함수 수정)
+- ✅ lecture-test-5-professor-students.js (2개 함수 수정)
+
+**변경 패턴**:
+```javascript
+// BEFORE
+const lecIdx = parseInt(prompt('LECTURE_IDX:', '1'));
+body: JSON.stringify({ lecIdx })
+
+// AFTER
+const lecSerial = prompt('강의 코드 (예: CS101):', 'CS101');
+body: JSON.stringify({ lecSerial })
+```
+
+**상세 문서**: [`브라우저콘솔테스트/MIGRATION_COMPLETE_SUMMARY.md`](./브라우저콘솔테스트/MIGRATION_COMPLETE_SUMMARY.md)
+
+---
 
 ### 🆕 v4.0 - POST 방식 완전 통일 (2025-10-16)
 

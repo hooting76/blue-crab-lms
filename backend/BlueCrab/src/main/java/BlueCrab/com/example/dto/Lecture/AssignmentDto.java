@@ -2,6 +2,7 @@
 
 package BlueCrab.com.example.dto.Lecture;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 
 /* 과제 정보 전송을 위한 DTO 클래스
@@ -10,6 +11,7 @@ import java.util.List;
 public class AssignmentDto {
 
     private Integer assignmentIdx;
+    @JsonIgnore  // 프론트엔드에서 lecIdx 숨기기 - lecSerial 사용
     private Integer lecIdx;
     private String lecSerial;
     private String lecTit;

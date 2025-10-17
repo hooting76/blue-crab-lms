@@ -69,6 +69,13 @@ public class AssignmentService {
 
     // ========== 과제 조회 메서드 ==========
 
+    /* 강의 코드로 강의 IDX 조회 (lecSerial → lecIdx 변환) */
+    public Integer getLectureIdxBySerial(String lecSerial) {
+        return lecTblRepository.findByLecSerial(lecSerial)
+            .map(lec -> lec.getLecIdx())
+            .orElse(null);
+    }
+
     /* 과제 IDX로 단건 조회 */
     public Optional<AssignmentExtendedTbl> getAssignmentById(Integer assignmentIdx) {
         return assignmentRepository.findById(assignmentIdx);

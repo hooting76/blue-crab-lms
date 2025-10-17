@@ -30,8 +30,8 @@ public class AssignmentController {
     /* 과제 목록 조회 (통합 엔드포인트) - POST 방식
      * 
      * Request Body:
-     * - lecIdx: 강의 ID로 필터
-     * - withLecture: 강의 정보 포함 여부 (lecIdx 필요)
+     * - lecSerial: 강의 코드로 필터 (lecIdx 대신 사용)
+     * - withLecture: 강의 정보 포함 여부 (lecSerial 필요)
      * - stats: 통계 조회
      * - action: "list" (목록 조회 액션)
      * - page, size: 페이징
@@ -43,12 +43,22 @@ public class AssignmentController {
             request = new HashMap<>();
         }
         
-        Integer lecIdx = request.get("lecIdx") != null ? ((Number) request.get("lecIdx")).intValue() : null;
+        String lecSerial = request.get("lecSerial") != null ? request.get("lecSerial").toString() : null;
         boolean withLecture = request.get("withLecture") != null ? (Boolean) request.get("withLecture") : false;
         boolean stats = request.get("stats") != null ? (Boolean) request.get("stats") : false;
         int page = request.get("page") != null ? ((Number) request.get("page")).intValue() : 0;
         int size = request.get("size") != null ? ((Number) request.get("size")).intValue() : 20;
         try {
+            // lecSerial → lecIdx 변환 (필요한 경우)
+            Integer lecIdx = null;
+            if (lecSerial != null && !lecSerial.isEmpty()) {
+                lecIdx = assignmentService.getLectureIdxBySerial(lecSerial);
+                if (lecIdx == null) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("success", false, "message", "강의 코드(lecSerial)를 찾을 수 없습니다: " + lecSerial));
+                }
+            }
+            
             // 1. 통계 조회
             if (stats) {
                 Map<String, Object> statistics = new HashMap<>();
@@ -168,16 +178,23 @@ public class AssignmentController {
     @PostMapping
     public ResponseEntity<?> createAssignment(@RequestBody Map<String, Object> request) {
         try {
-            Integer lecIdx = (Integer) request.get("lecIdx");
+            String lecSerial = (String) request.get("lecSerial");
             String title = (String) request.get("title");
             String body = (String) request.get("body");  // ✅ DTO 패턴: body 필드
             String dueDate = (String) request.get("dueDate");
             // ✅ maxScore는 항상 10점으로 고정 (요청값 무시)
             Integer maxScore = 10;
             
-            if (lecIdx == null || title == null || dueDate == null) {
+            if (lecSerial == null || title == null || dueDate == null) {
                 return ResponseEntity.badRequest()
-                        .body(createErrorResponse("lecIdx, title, dueDate는 필수입니다."));
+                        .body(createErrorResponse("lecSerial, title, dueDate는 필수입니다."));
+            }
+            
+            // lecSerial → lecIdx 변환
+            Integer lecIdx = assignmentService.getLectureIdxBySerial(lecSerial);
+            if (lecIdx == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(createErrorResponse("강의 코드(lecSerial)를 찾을 수 없습니다: " + lecSerial));
             }
             
             AssignmentExtendedTbl assignment = assignmentService.createAssignment(
