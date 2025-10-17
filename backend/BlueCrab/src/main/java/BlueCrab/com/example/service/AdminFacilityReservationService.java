@@ -5,6 +5,9 @@ import BlueCrab.com.example.dto.AdminRejectRequestDto;
 import BlueCrab.com.example.dto.AdminReservationDetailDto;
 import BlueCrab.com.example.dto.AdminReservationSearchRequestDto;
 import BlueCrab.com.example.dto.FacilityAvailabilityDto;
+import BlueCrab.com.example.dto.FcmDataOnlySendRequest;
+import BlueCrab.com.example.dto.FcmDataOnlySendResponse;
+import BlueCrab.com.example.dto.FcmDataOnlyUserResult;
 import BlueCrab.com.example.dto.PageResponse;
 import BlueCrab.com.example.dto.ReservationDto;
 import BlueCrab.com.example.entity.FacilityReservationLog;
@@ -34,6 +37,7 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +60,7 @@ public class AdminFacilityReservationService {
     private final FacilityReservationLogRepository logRepository;
     private final FacilityReservationService facilityReservationService;
     private final ObjectMapper objectMapper;
+    private final FcmTokenService fcmTokenService;
 
     public AdminFacilityReservationService(FacilityReservationRepository reservationRepository,
                                             FacilityRepository facilityRepository,
@@ -63,7 +68,8 @@ public class AdminFacilityReservationService {
                                             AdminTblRepository adminRepository,
                                             FacilityReservationLogRepository logRepository,
                                             FacilityReservationService facilityReservationService,
-                                            ObjectMapper objectMapper) {
+                                            ObjectMapper objectMapper,
+                                            FcmTokenService fcmTokenService) {
         this.reservationRepository = reservationRepository;
         this.facilityRepository = facilityRepository;
         this.userRepository = userRepository;
@@ -71,6 +77,7 @@ public class AdminFacilityReservationService {
         this.logRepository = logRepository;
         this.facilityReservationService = facilityReservationService;
         this.objectMapper = objectMapper;
+        this.fcmTokenService = fcmTokenService;
     }
 
     public List<ReservationDto> getPendingReservations(String adminId) {
@@ -132,6 +139,9 @@ public class AdminFacilityReservationService {
 
         createLog(saved.getReservationIdx(), "APPROVED", "ADMIN", adminId, request);
 
+        // FCM 푸시 알림 전송
+        sendFacilityNotification(saved, facility, "APPROVED");
+
         logger.info("Reservation approved: ID={}, Admin={}", saved.getReservationIdx(), adminId);
         return convertToDto(saved);
     }
@@ -146,12 +156,19 @@ public class AdminFacilityReservationService {
             throw new RuntimeException("대기 중인 예약만 반려할 수 있습니다.");
         }
 
+        // 시설 정보 조회 (알림 전송에 필요)
+        FacilityTbl facility = facilityRepository.findById(reservation.getFacilityIdx())
+            .orElseThrow(() -> ResourceNotFoundException.forId("시설", reservation.getFacilityIdx()));
+
         reservation.setStatusEnum(ReservationStatus.REJECTED);
         reservation.setRejectionReason(request.getRejectionReason());
 
         FacilityReservationTbl saved = reservationRepository.save(reservation);
 
         createLog(saved.getReservationIdx(), "REJECTED", "ADMIN", adminId, request);
+
+        // FCM 푸시 알림 전송
+        sendFacilityNotification(saved, facility, "REJECTED");
 
         logger.info("Reservation rejected: ID={}, Admin={}", saved.getReservationIdx(), adminId);
         return convertToDto(saved);
@@ -289,7 +306,7 @@ public class AdminFacilityReservationService {
         dto.setFacilityName(facility != null ? facility.getFacilityName() : "Unknown");
         dto.setUserCode(reservation.getUserCode());
         dto.setUserName(user != null ? user.getUserName() : "Unknown");
-        dto.setUserEmail(user != null ? user.getUserEmail() : null);
+        dto.setUserEmail(user != null ? user.getUserEmail() : reservation.getUserEmail());
         dto.setStartTime(reservation.getStartTime());
         dto.setEndTime(reservation.getEndTime());
         dto.setPartySize(reservation.getPartySize());
@@ -471,6 +488,112 @@ public class AdminFacilityReservationService {
         public LocalDateTime getEnd() {
             return end;
         }
+    }
+
+    /**
+     * 시설 예약 승인/반려 시 사용자에게 FCM 푸시 알림 전송
+     * @param reservation 예약 정보
+     * @param facility 시설 정보
+     * @param action "APPROVED" 또는 "REJECTED"
+     */
+    private void sendFacilityNotification(FacilityReservationTbl reservation,
+                                          FacilityTbl facility,
+                                          String action) {
+        try {
+            // ① 실제 USER_CODE 조회 (이메일이 저장된 경우 대비)
+            String actualUserCode = resolveActualUserCode(reservation.getUserCode());
+            if (actualUserCode == null) {
+                logger.warn("USER_CODE 조회 실패 - 예약ID: {}, 저장된 값: {}",
+                    reservation.getReservationIdx(), reservation.getUserCode());
+                return;
+            }
+
+            String title;
+            String body;
+            Map<String, String> data = new HashMap<>();
+
+            // ② 공통 데이터 설정
+            data.put("type", "FACILITY_RESERVATION");
+            data.put("action", action);
+            data.put("reservationIdx", String.valueOf(reservation.getReservationIdx()));
+            data.put("facilityIdx", String.valueOf(facility.getFacilityIdx()));
+            data.put("facilityName", facility.getFacilityName());
+
+            // ③ 액션에 따른 메시지 구성
+            if ("APPROVED".equals(action)) {
+                title = "시설 예약 승인";
+                body = String.format("%s 예약이 승인되었습니다 (%s ~ %s)",
+                    facility.getFacilityName(),
+                    reservation.getStartTime().toLocalTime().toString(),
+                    reservation.getEndTime().toLocalTime().toString());
+                data.put("startTime", reservation.getStartTime().toString());
+                data.put("endTime", reservation.getEndTime().toString());
+            } else if ("REJECTED".equals(action)) {
+                title = "시설 예약 반려";
+                body = String.format("%s 예약이 반려되었습니다", facility.getFacilityName());
+                if (reservation.getRejectionReason() != null) {
+                    data.put("rejectionReason", reservation.getRejectionReason());
+                }
+            } else {
+                logger.warn("알 수 없는 알림 액션: {}", action);
+                return;
+            }
+            // ④ Data-only FCM 알림 전송 요청 생성 (실제 USER_CODE 사용)
+            FcmDataOnlySendRequest request = new FcmDataOnlySendRequest(
+                Collections.singletonList(actualUserCode),
+                title,
+                body,
+                data,
+                null,
+                null
+            );
+
+            // ⑤ 알림 전송 (Data-only)
+            FcmDataOnlySendResponse response = fcmTokenService.sendDataOnlyByUser(request);
+
+            FcmDataOnlyUserResult userResult = response.getResults() != null && !response.getResults().isEmpty()
+                ? response.getResults().get(0)
+                : null;
+
+            if (response.getTotalTokens() == 0 || userResult == null || userResult.getSuccessCount() == 0) {
+                logger.warn("FCM Data-only 전송 실패 또는 대상 토큰 없음 - USER_CODE: {}, 예약ID: {}, missingPlatforms: {}",
+                    actualUserCode,
+                    reservation.getReservationIdx(),
+                    userResult != null ? userResult.getMissingPlatforms() : "unknown");
+            } else {
+                logger.info("FCM Data-only 전송 성공 - USER_CODE: {}, 예약ID: {}, 성공 토큰 수: {}",
+                    actualUserCode,
+                    reservation.getReservationIdx(),
+                    userResult.getSuccessCount());
+            }
+
+        } catch (Exception e) {
+            // FCM 전송 실패 시 - 에러 로깅만 하고 예외 전파 안 함
+            logger.error("FCM 알림 전송 실패 - 사용자: {}, 예약ID: {}, 에러: {}",
+                reservation.getUserCode(), reservation.getReservationIdx(), e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 예약 테이블에 저장된 값에서 실제 USER_CODE 추출
+     * - USER_CODE가 이메일 형식이면 USER_TBL에서 실제 USER_CODE 조회
+     * - 그렇지 않으면 그대로 반환
+     */
+    private String resolveActualUserCode(String storedValue) {
+        if (storedValue == null || storedValue.trim().isEmpty()) {
+            return null;
+        }
+
+        // 이메일 형식인지 확인 (@ 포함 여부)
+        if (storedValue.contains("@")) {
+            // USER_EMAIL로 USER_CODE 조회
+            return userRepository.findByUserEmail(storedValue)
+                .map(UserTbl::getUserCode)
+                .orElse(null);
+        }
+
+        // 이미 USER_CODE 형식이면 그대로 반환
+        return storedValue;
     }
 
 }
