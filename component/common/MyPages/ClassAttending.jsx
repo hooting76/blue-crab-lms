@@ -102,16 +102,18 @@ const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
     const closeAssignmentModal = () => setIsAssignmentModalOpen(false);
 
     
-const fetchLectureList = async (accessToken) => {
+const fetchLectureList = async (accessToken, selectedSemester) => {
     try {
+        const [year, semester] = selectedSemester.split('_');
+
         const response = await fetch(`${BASE_URL}/lectures`, {
             method: "POST",
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({page: 0, size: 20})
-        })
+            body: JSON.stringify({page: 0, size: 20, year: parseInt(year), semester: parseInt(semester)})
+        });
     if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
             const data = await response.json();
             setLectureList(data); // ✅ 받아온 데이터 저장
@@ -121,8 +123,8 @@ const fetchLectureList = async (accessToken) => {
     };
 
     useEffect(() => {
-            fetchLectureList(accessToken);
-        }, [accessToken]); // ✅ accessToken이 생겼을 때 호출
+            fetchLectureList(accessToken, selectedSemester);
+        }, [accessToken, selectedSemester]); // ✅ accessToken이 생겼을 때, 학기가 선택되었을 때 호출
 
         console.log("lectureList : ", lectureList);
 
