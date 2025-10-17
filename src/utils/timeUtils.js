@@ -1,4 +1,3 @@
-// src/utils/timeUtils.js
 // BlueCrab LMS - 시간 유틸 (순수 함수)
 // 서버 형식: "yyyy-MM-dd HH:mm:ss"
 // 접수 가능(Submission) 시간: 09:00 ~ 18:00
@@ -42,7 +41,8 @@ export const isWeekend = (d) => {
   return w === 0 || w === 6;
 };
 
-/*슬롯/범위 유틸 */
+/* ───────────────── 슬롯/범위 유틸 ───────────────── */
+
 /** 시작 가능 슬롯 목록: 9..18 (포함) */
 export const genBusinessSlots = () =>
   Array.from({ length: LAST_START_HOUR - BUSINESS_START_HOUR + 1 },
@@ -76,7 +76,8 @@ export function rangeToServerStrings(dateYMD, startHour, endHour) {
   return { startTime: toYMDHMS(start), endTime: toYMDHMS(end) };
 }
 
-/*검증/클램프*/
+/* ───────────────── 검증/클램프 ───────────────── */
+
 /**
  * 같은 날 & 09:00~19:00 & end>start
  * - 시작: 09:00 이상 18:59:59..까지 허용 (시작 정시는 9..18)
@@ -136,7 +137,8 @@ export function isAfterBusinessEnd(dateYMD) {
   return now.getTime() >= boundary.getTime();
 }
 
-/*서버 응답 매핑*/
+/* ───────────────── 서버 응답 매핑 ───────────────── */
+
 /** /daily-schedule timeSlots -> 9..18만 사용 */
 export function mapDailyScheduleToSlots(timeSlots) {
   const hours = genBusinessSlots(); // 9..18
@@ -149,11 +151,36 @@ export function mapDailyScheduleToSlots(timeSlots) {
   return hours.map((h) => ({ hour: h, isAvailable: map.get(h) !== false }));
 }
 
-/* 라벨/표시 */
+/* ───────────────── 라벨/표시 ───────────────── */
 export const formatHourSlotLabel = (startHour) =>
   `${pad2(startHour)}:00–${pad2(startHour + 1)}:00`;
 
 export function formatRangeLabel(start, end) {
   const hhmm = (d) => `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
   return `${hhmm(start)}–${hhmm(end)}`;
+}
+
+/* ───────────────── 추가(정책 보조 유틸) ───────────────── */
+
+/** YYYY-MM-DD 두 날짜 비교: 과거:-1, 오늘:0, 미래:1 (로컬 기준) */
+export function compareYMD(aYMD, bYMD = toYMD(new Date())) {
+  const a = parseYMD(aYMD);
+  const b = parseYMD(bYMD);
+  if (!a || !b) return 0;
+  const at = a.setHours(0,0,0,0);
+  const bt = b.setHours(0,0,0,0);
+  if (at < bt) return -1;
+  if (at > bt) return 1;
+  return 0;
+}
+
+export const isPastDateYMD   = (ymd) => compareYMD(ymd) < 0;
+export const isTodayYMD      = (ymd) => compareYMD(ymd) === 0;
+export const isFutureDateYMD = (ymd) => compareYMD(ymd) > 0;
+
+/** 지금이 접수 가능 시간(09:00 <= now < 18:00)인지 */
+export function isNowInSubmissionWindow() {
+  const now = new Date();
+  const h = now.getHours();
+  return h >= BUSINESS_START_HOUR && h < SUBMISSION_END_HOUR;
 }

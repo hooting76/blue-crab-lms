@@ -1,3 +1,4 @@
+// FacilitiesList.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import CommunitySidebar from "../notices/CommunitySidebar";
 import { postFacilities } from "../../../src/api/facility";
@@ -10,20 +11,27 @@ export default function FacilityRequest({ currentPage, setCurrentPage }) {
   const [list, setList] = useState([]);
   const [selFacility, setSelFacility] = useState(null);
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
 
   useEffect(() => {
     setCurrentPage?.("시설물 예약");
     (async () => {
+      setLoading(true);
+      setErr("");
       try {
         const res = await postFacilities();
-        const data = res?.data || [];
-        setList(Array.isArray(data) ? data : []);
-        setPage(1); // 초기 페이지
+        const data = Array.isArray(res?.data) ? res.data : [];
+        setList(data);
+        setPage(1);
       } catch (e) {
         console.error(e);
-        alert("시설 목록을 불러오지 못했습니다.");
+        setErr("시설 목록을 불러오지 못했습니다.");
+      } finally {
+        setLoading(false);
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const total = list.length;
@@ -36,9 +44,24 @@ export default function FacilityRequest({ currentPage, setCurrentPage }) {
 
   const goto = (p) => setPage(Math.min(Math.max(1, p), totalPages));
 
+  function openModalFromCard(f) {
+    if (f?.isBlocked) return;
+    // ReservationModal에서 사용하는 필드 이름으로 정규화
+    setSelFacility({
+      facilityIdx: f.facilityIdx,
+      name: f.facilityName,                 // 모달 헤더 표시용
+      maxCapacity: f.capacity,              // 정원 표시/검증
+      requiresApproval: !!f.requiresApproval,
+      isBlocked: !!f.isBlocked,
+      blockReason: f.blockReason || "",
+      availableEquipText: f.defaultEquipment || "",
+      location: f.location || "",
+    });
+  }
+
   return (
     <div className="facility-page">
-      {/* 상단 타이틀/설명 — 배너 폭 키움 */}
+      {/* 상단 타이틀/설명 */}
       <section className="page-head">
         <h2>시설물 예약</h2>
         <p className="sub">
@@ -46,53 +69,65 @@ export default function FacilityRequest({ currentPage, setCurrentPage }) {
         </p>
       </section>
 
-      {/* 좌: 메인, 우: 사이드 — 배너 폭과 동일 정렬 */}
       <div className="content-grid">
         <main className="main">
-          <div className="card-list">
-            {pageItems.map((f) => (
-              <button
-                key={f.facilityIdx}
-                className="facility-card"
-                onClick={() =>
-                  !f.isBlocked &&
-                  setSelFacility({
-                    facilityIdx: f.facilityIdx,
-                    name: f.facilityName,
-                    maxCapacity: f.capacity,
-                    requiresApproval: f.requiresApproval,
-                    isBlocked: f.isBlocked,
-                    blockReason: f.blockReason,
-                    availableEquipText: f.defaultEquipment,
-                  })
-                }
-                disabled={f.isBlocked}
-              >
-                <div className="fc-title">
-                  <span className="name">{f.facilityName}</span>
-                  {f.isBlocked && <span className="badge danger">차단됨</span>}
-                  {!f.isBlocked && f.requiresApproval && (
-                    <span className="badge warn">승인 필요</span>
+          {loading ? (
+            <p className="muted">불러오는 중…</p>
+          ) : err ? (
+            <p className="error">{err}</p>
+          ) : pageItems.length === 0 ? (
+            <p className="muted">표시할 시설이 없습니다.</p>
+          ) : (
+            <div className="card-list">
+              {pageItems.map((f) => (
+                <button
+                  key={f.facilityIdx}
+                  type="button"                          // ✅ submit 방지
+                  className="facility-card"
+                  onClick={() => openModalFromCard(f)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      openModalFromCard(f);
+                    }
+                  }}
+                  aria-label={`${f.facilityName} 예약 열기`}
+                  aria-disabled={!!f.isBlocked}
+                  disabled={!!f.isBlocked}
+                >
+                  <div className="fc-title">
+                    <span className="name">{f.facilityName}</span>
+                    {f.isBlocked && <span className="badge danger">차단됨</span>}
+                    {!f.isBlocked && f.requiresApproval && (
+                      <span className="badge warn">승인 필요</span>
+                    )}
+                  </div>
+
+                  <div className="fc-meta">
+                    <span>위치: {f.location || "-"}</span>
+                    <span>수용 인원: {typeof f.capacity === "number" ? f.capacity : "-"}</span>
+                  </div>
+
+                  {!!f.isBlocked && f.blockReason && (
+                    <div className="fc-note">{f.blockReason}</div>
                   )}
-                </div>
-                <div className="fc-meta">
-                  <span>위치: {f.location || "-"}</span>
-                  <span>수용 인원: {f.capacity ?? "-"}</span>
-                </div>
-                {!!f.isBlocked && f.blockReason && (
-                  <div className="fc-note">{f.blockReason}</div>
-                )}
-              </button>
-            ))}
-          </div>
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* 페이지네이션 */}
           {totalPages > 1 && (
-            <div className="pager" aria-label="시설 목록 페이지네이션">
-              <button onClick={() => goto(1)} disabled={page === 1}>
+            <nav className="pager" aria-label="시설 목록 페이지네이션">
+              <button type="button" onClick={() => goto(1)} disabled={page === 1} aria-label="처음 페이지">
                 «
               </button>
-              <button onClick={() => goto(page - 1)} disabled={page === 1}>
+              <button
+                type="button"
+                onClick={() => goto(page - 1)}
+                disabled={page === 1}
+                aria-label="이전 페이지"
+              >
                 ‹
               </button>
 
@@ -101,6 +136,7 @@ export default function FacilityRequest({ currentPage, setCurrentPage }) {
                 const active = p === page ? "active" : "";
                 return (
                   <button
+                    type="button"
                     key={p}
                     className={`num ${active}`}
                     onClick={() => goto(p)}
@@ -111,13 +147,23 @@ export default function FacilityRequest({ currentPage, setCurrentPage }) {
                 );
               })}
 
-              <button onClick={() => goto(page + 1)} disabled={page === totalPages}>
+              <button
+                type="button"
+                onClick={() => goto(page + 1)}
+                disabled={page === totalPages}
+                aria-label="다음 페이지"
+              >
                 ›
               </button>
-              <button onClick={() => goto(totalPages)} disabled={page === totalPages}>
+              <button
+                type="button"
+                onClick={() => goto(totalPages)}
+                disabled={page === totalPages}
+                aria-label="마지막 페이지"
+              >
                 »
               </button>
-            </div>
+            </nav>
           )}
         </main>
 
@@ -126,8 +172,12 @@ export default function FacilityRequest({ currentPage, setCurrentPage }) {
         </aside>
       </div>
 
+      {/* 모달 — ReservationModal 내부는 Portal로 띄우는 버전 사용 권장 */}
       {selFacility && (
-        <ReservationModal facility={selFacility} onClose={() => setSelFacility(null)} />
+        <ReservationModal
+          facility={selFacility}
+          onClose={() => setSelFacility(null)}
+        />
       )}
     </div>
   );
