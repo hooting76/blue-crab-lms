@@ -17,53 +17,58 @@ function ClassAttending({currentPage, setCurrentPage}) {
     console.log("user : ", user);
 
     // select 변경 핸들러
-    const handleSemesterChange = (e) => {
-        setSelectedSemester(e.target.value);
-    };
+//     const handleSemesterChange = (e) => {
+//         setSelectedSemester(e.target.value);
+//     };
 
-const today = new Date();
-let currentYear = today.getFullYear();
-const currentMonth = today.getMonth() + 1;
+// const today = new Date();
+// let currentYear = today.getFullYear();
+// const currentMonth = today.getMonth() + 1;
 
-let currentSemester;
+// let currentSemester;
 
-if (currentMonth >= 3 && currentMonth <= 8) {
-    currentSemester = 1;
-} else if (currentMonth >= 9) {
-    currentSemester = 2;
-} else {
-    // 1~2월은 전년도 2학기
-    currentYear -= 1;
-    currentSemester = 2;
-}
+// if (currentMonth >= 3 && currentMonth <= 8) {
+//     currentSemester = 1;
+// } else if (currentMonth >= 9) {
+//     currentSemester = 2;
+// } else {
+//     // 1~2월은 전년도 2학기
+//     currentYear -= 1;
+//     currentSemester = 2;
+// }
 
 
 // 현재 학기를 기준으로 지난 8개 학기 생성
-const generateSemesters = (count = 8) => {
-    const semesters = [];
-    let year = currentYear;
-    let semester = currentSemester;
+// const generateSemesters = (count = 8) => {
+//     const semesters = [];
+//     let year = currentYear;
+//     let semester = currentSemester;
 
-    for (let i = 0; i < count; i++) {
-        const value = `${year}_${semester}`;
-        const label = `${year}년 ${semester}학기`;
-        semesters.push({ value, label });
+//     for (let i = 0; i < count; i++) {
+//         const value = `${year}_${semester}`;
+//         const label = `${year}년 ${semester}학기`;
+//         semesters.push({ value, label });
 
         // 이전 학기로 이동
-        if (semester === 1) {
-            semester = 2;
-            year -= 1;
-        } else {
-            semester = 1;
-        }
-    }
+//         if (semester === 1) {
+//             semester = 2;
+//             year -= 1;
+//         } else {
+//             semester = 1;
+//         }
+//     }
 
-    return semesters;
+//     return semesters;
+// };
+
+// const semesterOptions = generateSemesters(8);
+// const currentSemesterValue = `${currentYear}_${currentSemester}`; // 현재 학기 value
+// const [selectedSemester, setSelectedSemester] = useState(currentSemesterValue); // 학기 선택 상태
+const handleYearChange = (e) => {
+    setSelectedYear(e.target.value);
 };
 
-const semesterOptions = generateSemesters(8);
-const currentSemesterValue = `${currentYear}_${currentSemester}`; // 현재 학기 value
-const [selectedSemester, setSelectedSemester] = useState(currentSemesterValue); // 학기 선택 상태
+const [selectedYear, setSelectedYear] = useState(1);
 
 const attendanceRequestSubmit = (e) => {
     e.preventDefault();
@@ -97,13 +102,14 @@ const [isClassDetailModalOpen, setIsClassDetailModalOpen] = useState(false);
     const closeClassDetailModal = () => setIsClassDetailModalOpen(false);
 
     
-const fetchLectureList = async (accessToken, selectedSemester) => {
+const fetchLectureList = async (accessToken, selectedSemester, selectedYear) => {
     try {
         const [year, semester] = selectedSemester.split('_');
 
         const requestBody = {
             page: 0,
             size: 20,
+            year: selectedYear,
             semester: parseInt(semester)
         };
 
@@ -128,20 +134,27 @@ const fetchLectureList = async (accessToken, selectedSemester) => {
 
 
     useEffect(() => {
-            fetchLectureList(accessToken, selectedSemester);
-        }, [accessToken, selectedSemester]); // ✅ accessToken이 생겼을 때, 학기가 선택되었을 때 호출
+            fetchLectureList(accessToken, selectedSemester, selectedYear);
+        }, [accessToken, selectedSemester, selectedYear]); // ✅ accessToken이 생겼을 때, 학기가 선택되었을 때 호출
 
         console.log("lectureList : ", lectureList);
 
         
     return (
         <div className="classAttending_list_container">
-            <select value={selectedSemester} onChange={handleSemesterChange} className='selectSemester'>
+            {/* <select value={selectedSemester} onChange={handleSemesterChange} className='selectSemester'>
                 {semesterOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                         {option.label}
                     </option>
                 ))}
+            </select> */}
+
+            <select value={selectedYear} onChange={handleYearChange}>
+                <option value={1}>1학년</option>
+                <option value={2}>2학년</option>
+                <option value={3}>3학년</option>
+                <option value={4}>4학년</option>
             </select>
 
             <select className="lectureName">
