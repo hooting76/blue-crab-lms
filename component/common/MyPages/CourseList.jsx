@@ -27,7 +27,7 @@ function CourseList({ currentPage, setCurrentPage }) {
     console.log("user : ", user);
     console.log("accessToken : ", accessToken);
 
-    
+
             // select 변경 핸들러
             const handleSemesterChange = (e) => {
                 setSelectedSemester(e.target.value);
@@ -142,7 +142,7 @@ function CourseList({ currentPage, setCurrentPage }) {
             <div>
                 <h2>강의 목록</h2>
                 <ul>
-                    {lectureList.map((course) => (
+                    {lectureList.content.map((course) => (
                         <li key={course.lectureIdx} onClick={() => openModal(course)}>{course.lectureName}</li>
                     ))}
                 </ul>
