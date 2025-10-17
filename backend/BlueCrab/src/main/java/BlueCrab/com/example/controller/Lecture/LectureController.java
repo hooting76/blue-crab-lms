@@ -608,15 +608,19 @@ public class LectureController {
         dto.setLecYear(entity.getLecYear());
         dto.setLecSemester(entity.getLecSemester());
 
-        // 교수 ID로 교수 정보 조회 (LEC_PROF에는 USER_IDX가 저장됨)
+        // LEC_PROF에는 USER_IDX가 저장되어 있음 (교수 ID)
+        // lecProf: USER_IDX 그대로, lecProfName: USER_TBL에서 교수 이름 조회
         if (entity.getLecProf() != null && !entity.getLecProf().isEmpty()) {
+            dto.setLecProf(entity.getLecProf()); // USER_IDX 설정
+            
             try {
                 Integer professorId = Integer.parseInt(entity.getLecProf());
                 userTblRepository.findById(professorId)
-                    .filter(professor -> professor.getUserStudent() != null && professor.getUserStudent() == 1) // 교수만
-                    .ifPresent(professor -> dto.setLecProfName(professor.getUserName()));
+                    .filter(professor -> professor.getUserStudent() != null && professor.getUserStudent() == 1) // 교수만 (userStudent=1)
+                    .ifPresent(professor -> dto.setLecProfName(professor.getUserName())); // 교수 이름 설정
             } catch (NumberFormatException e) {
                 logger.warn("교수 ID 파싱 실패 (LEC_PROF: {}): {}", entity.getLecProf(), e.getMessage());
+                dto.setLecProfName(entity.getLecProf()); // 파싱 실패 시 원본 값 사용
             } catch (Exception e) {
                 logger.warn("교수 정보 조회 실패 (USER_IDX: {}): {}", entity.getLecProf(), e.getMessage());
             }
