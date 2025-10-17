@@ -101,6 +101,63 @@ POST /api/push/send-data-only-batch
 - ✅ **토큰 마스킹**: 로그에서 토큰 일부만 표시 (보안)
 - ⚠️ **제한사항**: 앱 종료 시 전달 보장 안됨
 
+---
+
+### 3️⃣ 사용자 코드 기반 토큰 조회 (신규)
+
+#### 엔드포인트
+```
+POST /api/fcm/tokens/by-user
+```
+
+#### 요청 Body 예시
+```json
+{
+  "userCodes": ["20240001", "20240002"],
+  "platforms": ["ANDROID", "IOS", "WEB"],
+  "includeTemporary": true
+}
+```
+
+#### 응답 주요 필드
+- `tokensByPlatform`: 플랫폼별 등록 토큰 배열 (`android`, `ios`, `web` 키 사용)
+- `missingPlatforms`: 요청했지만 토큰이 없는 플랫폼 목록
+
+> 🔎 **Tip**: `includeTemporary=true`로 설정하면 Redis 세션에 저장된 임시 토큰까지 함께 내려줘서 기기 교체 직후에도 테스트 가능합니다.
+
+---
+
+### 4️⃣ 사용자 코드 기반 Data-only 발송 (신규)
+
+#### 엔드포인트
+```
+POST /api/fcm/send/data-only
+```
+
+#### 요청 Body 예시
+```json
+{
+  "userCodes": ["20240001"],
+  "title": "Data-only 운영 테스트",
+  "body": "이 알림은 Data-only 방식으로 전송됩니다",
+  "data": {
+    "type": "facility_update",
+    "target": "reading_room"
+  },
+  "platforms": ["ANDROID", "IOS", "WEB"],
+  "includeTemporary": true
+}
+```
+
+#### 응답 주요 필드
+- `totalTokens`: 실제 전송 시도한 고유 토큰 수
+- `successCount` / `failureCount`: Firebase 응답 기준 성공/실패 건수
+- `results[*].succeededTokens` / `failedTokens`: 사용자별 토큰 전송 결과 상세 (토큰·에러 메시지)
+- `results[*].missingPlatforms`: 조회 시점에 토큰이 없던 플랫폼 정보
+
+> ✅ **자동 처리**: 요청된 사용자들의 모든 토큰을 모아서 `send-data-only-batch`로 재사용하므로, 콘솔에서는 유저 코드와 메시지만 입력하면 됩니다.
+> ⚠️ **전송 불가 케이스**: 토큰이 하나도 없으면 Firebase 호출 없이 `missingPlatforms`에만 기록됩니다.
+
 ## 📱 테스트 페이지 사용법
 
 ### 1️⃣ 관리자 로그인
