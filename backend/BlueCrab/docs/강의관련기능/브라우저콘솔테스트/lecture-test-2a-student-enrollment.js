@@ -226,7 +226,12 @@ async function enrollLecture() {
         user = { userIdx: studentIdx };
     }
     
-    const lecIdx = parseInt(prompt('📝 수강신청할 LEC_IDX (강의 ID):', '6'));
+    const lecSerial = prompt('📝 수강신청할 강의 코드 (예: CS101):', 'CS101');
+    
+    if (!lecSerial || lecSerial.trim() === '') {
+        console.log('❌ 강의 코드를 입력해주세요.');
+        return;
+    }
 
     console.log('\n📝 수강 신청');
     console.log('═══════════════════════════════════════════════════════');
@@ -234,12 +239,12 @@ async function enrollLecture() {
     try {
         const requestData = {
             studentIdx: user.userIdx,
-            lecIdx: lecIdx
+            lecSerial: lecSerial  // ✅ lecIdx 대신 lecSerial 사용
         };
         
         console.log('📤 전송 데이터:', requestData);
 
-        const response = await fetch(`${API_BASE_URL}/enrollments`, {
+        const response = await fetch(`${API_BASE_URL}/enrollments/enroll`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -260,9 +265,8 @@ async function enrollLecture() {
             
             console.log('\n📊 수강신청 정보:');
             console.log(`   ENROLLMENT_IDX: ${result.enrollmentIdx}`);
-            console.log(`   강의 ID: ${result.lecIdx}`);
+            console.log(`   강의 코드: ${result.lecSerial || 'N/A'}`);
             console.log(`   강의명: ${result.lecTit || 'N/A'}`);
-            console.log(`   강의코드: ${result.lecSerial || 'N/A'}`);
             console.log(`   학생 ID: ${result.studentIdx}`);
             console.log(`   학생 이름: ${result.studentName || 'N/A'}`);
             console.log(`   등록일: ${result.enrollmentDate || 'N/A'}`);

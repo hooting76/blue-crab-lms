@@ -59,6 +59,13 @@ public class EnrollmentService {
 
     // ========== 수강신청 조회 메서드 ==========
 
+    /* 강의 코드로 강의 IDX 조회 (내부 변환용) */
+    public Integer getLectureIdxBySerial(String lecSerial) {
+        return lectureService.getLectureBySerial(lecSerial)
+                .map(lecture -> lecture.getLecIdx())
+                .orElse(null);
+    }
+
     /* 수강신청 IDX로 단건 조회 */
     public Optional<EnrollmentExtendedTbl> getEnrollmentById(Integer enrollmentIdx) {
         return enrollmentRepository.findById(enrollmentIdx);
@@ -120,6 +127,21 @@ public class EnrollmentService {
      */
     @Transactional
     public EnrollmentExtendedTbl enrollStudent(Integer studentIdx, Integer lecIdx) {
+        return enrollLecture(studentIdx, lecIdx);
+    }
+
+    /* 수강신청 (강의 코드 기반)
+     * ✅ lecSerial (강의 코드)로 수강신청
+     * - lecSerial을 lecIdx로 변환 후 기존 로직 재사용
+     */
+    @Transactional
+    public EnrollmentExtendedTbl enrollStudentBySerial(Integer studentIdx, String lecSerial) {
+        // lecSerial로 강의 조회
+        Integer lecIdx = lectureService.getLectureBySerial(lecSerial)
+                .map(lecture -> lecture.getLecIdx())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 강의 코드입니다: " + lecSerial));
+        
+        // 기존 enrollLecture 로직 재사용
         return enrollLecture(studentIdx, lecIdx);
     }
 

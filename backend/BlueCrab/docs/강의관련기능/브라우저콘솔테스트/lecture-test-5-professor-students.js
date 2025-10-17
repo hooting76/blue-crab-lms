@@ -30,7 +30,7 @@ async function getStudents() {
     if (!checkAuth()) return;
     const token = window.authToken;
     
-    const lectureIdx = parseInt(prompt('📚 LECTURE_IDX:', '1'));
+    const lecSerial = prompt('📚 강의 코드 (예: CS101):', 'CS101');
     const page = parseInt(prompt('📄 페이지 번호 (0부터 시작):', '0'));
     const size = parseInt(prompt('📄 페이지 크기:', '10'));
 
@@ -39,11 +39,11 @@ async function getStudents() {
 
     try {
         const requestBody = {
-            lecIdx: lectureIdx,
+            lecSerial: lecSerial,
             page: page,
             size: size
         };
-        console.log('� 요청 데이터:', JSON.stringify(requestBody, null, 2));
+        console.log('📤 요청 데이터:', JSON.stringify(requestBody, null, 2));
 
         const response = await fetch(`${API_BASE_URL}/enrollments/list`, {
             method: 'POST',
@@ -171,13 +171,13 @@ async function getLectureStatistics() {
     if (!checkAuth()) return;
     const token = window.authToken;
     
-    const lectureIdx = parseInt(prompt('📚 LECTURE_IDX:', '1'));
+    const lecSerial = prompt('📚 강의 코드 (예: CS101):', 'CS101');
 
     console.log('\n📊 강의 통계 조회 - POST');
     console.log('═══════════════════════════════════════════════════════');
 
     try {
-        const requestBody = { lecIdx: lectureIdx };
+        const requestBody = { lecSerial: lecSerial };
         console.log('📤 요청 데이터:', JSON.stringify(requestBody, null, 2));
 
         const response = await fetch(`${API_BASE_URL}/lectures/stats`, {

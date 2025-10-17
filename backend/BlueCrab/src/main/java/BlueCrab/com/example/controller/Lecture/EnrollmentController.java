@@ -42,10 +42,10 @@ public class EnrollmentController {
      * 
      * Request Body:
      * - studentIdx: 학생 ID로 필터
-     * - lecIdx: 강의 ID로 필터
-     * - checkEnrollment: 수강 여부 확인 (studentIdx + lecIdx 필요)
+     * - lecSerial: 강의 코드로 필터 ✅
+     * - checkEnrollment: 수강 여부 확인 (studentIdx + lecSerial 필요) ✅
      * - enrolled: 현재 수강중인 목록만 (studentIdx 필요)
-     * - stats: 통계 조회 (lecIdx 옵션)
+     * - stats: 통계 조회 (lecSerial 옵션) ✅
      * - page, size: 페이징
      */
     @PostMapping("/list")
@@ -56,20 +56,30 @@ public class EnrollmentController {
         }
         
         Integer studentIdx = request.get("studentIdx") != null ? ((Number) request.get("studentIdx")).intValue() : null;
-        Integer lecIdx = request.get("lecIdx") != null ? ((Number) request.get("lecIdx")).intValue() : null;
+        String lecSerial = (String) request.get("lecSerial");
         boolean checkEnrollment = request.get("checkEnrollment") != null ? (Boolean) request.get("checkEnrollment") : false;
         boolean enrolled = request.get("enrolled") != null ? (Boolean) request.get("enrolled") : false;
         boolean stats = request.get("stats") != null ? (Boolean) request.get("stats") : false;
         int page = request.get("page") != null ? ((Number) request.get("page")).intValue() : 0;
         int size = request.get("size") != null ? ((Number) request.get("size")).intValue() : 20;
         try {
+            // lecSerial이 있으면 lecIdx로 변환
+            Integer lecIdx = null;
+            if (lecSerial != null && !lecSerial.trim().isEmpty()) {
+                lecIdx = enrollmentService.getLectureIdxBySerial(lecSerial);
+                if (lecIdx == null) {
+                    return ResponseEntity.badRequest()
+                            .body(createErrorResponse("존재하지 않는 강의 코드입니다: " + lecSerial));
+                }
+            }
+            
             // 1. 수강 여부 확인
             if (checkEnrollment && studentIdx != null && lecIdx != null) {
                 boolean isEnrolled = enrollmentService.isEnrolled(studentIdx, lecIdx);
                 Map<String, Object> result = new HashMap<>();
                 result.put("enrolled", isEnrolled);
                 result.put("studentIdx", studentIdx);
-                result.put("lecIdx", lecIdx);
+                result.put("lecSerial", lecSerial);  // lecIdx 대신 lecSerial 반환
                 return ResponseEntity.ok(result);
             }
             
@@ -78,7 +88,7 @@ public class EnrollmentController {
                 Map<String, Object> statistics = new HashMap<>();
                 if (lecIdx != null) {
                     statistics.put("enrollmentCount", enrollmentService.countEnrollmentsByLecture(lecIdx));
-                    statistics.put("lecIdx", lecIdx);
+                    statistics.put("lecSerial", lecSerial);  // lecIdx 대신 lecSerial 반환
                 } else {
                     statistics.put("totalCount", enrollmentService.countAllEnrollments());
                 }
@@ -185,19 +195,22 @@ public class EnrollmentController {
         }
     }
 
-    /* 수강신청 */
+    /* 수강신청
+     * ✅ lecSerial (강의 코드) 기반으로 수강신청
+     */
     @PostMapping("/enroll")
     public ResponseEntity<?> enrollInLecture(@RequestBody Map<String, Object> request) {
         try {
             Integer studentIdx = (Integer) request.get("studentIdx");
-            Integer lecIdx = (Integer) request.get("lecIdx");
+            String lecSerial = (String) request.get("lecSerial");
             
-            if (studentIdx == null || lecIdx == null) {
+            if (studentIdx == null || lecSerial == null || lecSerial.trim().isEmpty()) {
                 return ResponseEntity.badRequest()
-                        .body(createErrorResponse("studentIdx와 lecIdx는 필수입니다."));
+                        .body(createErrorResponse("studentIdx와 lecSerial(강의 코드)은 필수입니다."));
             }
             
-            EnrollmentExtendedTbl enrollment = enrollmentService.enrollStudent(studentIdx, lecIdx);
+            // lecSerial로 강의 ID 조회는 EnrollmentService에서 처리
+            EnrollmentExtendedTbl enrollment = enrollmentService.enrollStudentBySerial(studentIdx, lecSerial);
             return ResponseEntity.status(HttpStatus.CREATED).body(enrollment);
         } catch (IllegalStateException | IllegalArgumentException e) {
             logger.warn("수강신청 실패: {}", e.getMessage());

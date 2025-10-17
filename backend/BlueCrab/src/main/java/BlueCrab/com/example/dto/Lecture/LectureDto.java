@@ -2,12 +2,18 @@
 
 package BlueCrab.com.example.dto.Lecture;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * 강의 기본 정보 전송을 위한 DTO 클래스
  * 강의 목록 조회, 검색 결과 등에 사용
+ * 
+ * ⚠️ lecIdx는 내부 로직용이며 프론트엔드에 노출되지 않음
+ * ✅ lecSerial(강의 코드)를 주 식별자로 사용
  */
 public class LectureDto {
 
+    @JsonIgnore  // 프론트엔드에 노출하지 않음
     private Integer lecIdx;
     private String lecSerial;
     private String lecTit;

@@ -111,18 +111,20 @@ public class LectureController {
         }
     }
 
-    /* 강의 상세 조회 - POST 방식 */
+    /* 강의 상세 조회 - POST 방식 
+     * ✅ lecSerial (강의 코드) 기반으로 조회
+     */
     @PostMapping("/detail")
     public ResponseEntity<?> getLectureById(@RequestBody Map<String, Object> request) {
         try {
-            Integer lecIdx = request.get("lecIdx") != null ? ((Number) request.get("lecIdx")).intValue() : null;
+            String lecSerial = (String) request.get("lecSerial");
             
-            if (lecIdx == null) {
+            if (lecSerial == null || lecSerial.trim().isEmpty()) {
                 return ResponseEntity.badRequest()
-                        .body(createErrorResponse("lecIdx는 필수입니다."));
+                        .body(createErrorResponse("lecSerial(강의 코드)은 필수입니다."));
             }
             
-            return lectureService.getLectureById(lecIdx)
+            return lectureService.getLectureBySerial(lecSerial)
                     .map(this::convertToDto)
                     .map(ResponseEntity::ok)
                     .orElse(ResponseEntity.notFound().build());
@@ -133,18 +135,24 @@ public class LectureController {
         }
     }
 
-    /* 강의별 통계 조회 - POST 방식 */
+    /* 강의별 통계 조회 - POST 방식 
+     * ✅ lecSerial (강의 코드) 기반으로 조회
+     */
     @PostMapping("/stats")
     public ResponseEntity<?> getLectureStats(@RequestBody Map<String, Object> request) {
         try {
-            Integer lecIdx = request.get("lecIdx") != null ? ((Number) request.get("lecIdx")).intValue() : null;
+            String lecSerial = (String) request.get("lecSerial");
             
-            if (lecIdx == null) {
+            if (lecSerial == null || lecSerial.trim().isEmpty()) {
                 return ResponseEntity.badRequest()
-                        .body(createErrorResponse("lecIdx는 필수입니다."));
+                        .body(createErrorResponse("lecSerial(강의 코드)은 필수입니다."));
             }
             
-            Map<String, Object> stats = lectureService.getLectureStatistics(lecIdx);
+            // lecSerial로 강의 조회 후 lecIdx 획득
+            LecTbl lecture = lectureService.getLectureBySerial(lecSerial)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 강의입니다."));
+            
+            Map<String, Object> stats = lectureService.getLectureStatistics(lecture.getLecIdx());
             return ResponseEntity.ok(stats);
         } catch (IllegalArgumentException e) {
             logger.warn("강의 통계 조회 실패: {}", e.getMessage());
@@ -274,12 +282,12 @@ public class LectureController {
 
     /**
      * 수강 자격 검증 결과를 포함한 응답 생성
+     * ⚠️ lecIdx는 프론트엔드에 노출하지 않음
      */
     private Map<String, Object> createEligibilityResponse(UserTbl student, LecTbl lecture) {
         Map<String, Object> response = new HashMap<>();
         
-        // 기본 강의 정보
-        response.put("lecIdx", lecture.getLecIdx());
+        // 기본 강의 정보 (lecIdx 제외)
         response.put("lecSerial", lecture.getLecSerial());
         response.put("lecTit", lecture.getLecTit());
         response.put("lecProf", lecture.getLecProf());
@@ -449,26 +457,26 @@ public class LectureController {
         }
     }
 
-    /* 강의 수정 */
+    /* 강의 수정
+     * ✅ lecSerial (강의 코드) 기반으로 수정
+     */
     @PostMapping("/update")
     public ResponseEntity<?> updateLecture(@RequestBody Map<String, Object> request) {
         try {
-            // lecIdx 필수 확인
-            if (!request.containsKey("lecIdx")) {
+            // lecSerial 필수 확인
+            if (!request.containsKey("lecSerial")) {
                 return ResponseEntity.badRequest()
-                        .body(createErrorResponse("강의 ID(lecIdx)는 필수입니다."));
+                        .body(createErrorResponse("강의 코드(lecSerial)는 필수입니다."));
             }
 
-            Integer lecIdx = (Integer) request.get("lecIdx");
+            String lecSerial = (String) request.get("lecSerial");
             
             // 기존 강의 조회
-            LecTbl lecture = lectureService.getLectureById(lecIdx)
+            LecTbl lecture = lectureService.getLectureBySerial(lecSerial)
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 강의입니다."));
 
             // 수정 가능한 필드만 업데이트 (null이 아닌 경우에만)
-            if (request.containsKey("lecSerial")) {
-                lecture.setLecSerial((String) request.get("lecSerial"));
-            }
+            // ⚠️ lecSerial은 식별자이므로 수정 불가
             if (request.containsKey("lecTit")) {
                 lecture.setLecTit((String) request.get("lecTit"));
             }
@@ -527,15 +535,24 @@ public class LectureController {
         }
     }
 
+    /* 강의 삭제
+     * ✅ lecSerial (강의 코드) 기반으로 삭제
+     */
     @PostMapping("/delete")
     public ResponseEntity<?> deleteLecture(@RequestBody Map<String, Object> request) {
         try {
-            if (!request.containsKey("lecIdx")) {
+            if (!request.containsKey("lecSerial")) {
                 return ResponseEntity.badRequest()
-                        .body(createErrorResponse("강의 ID(lecIdx)는 필수입니다."));
+                        .body(createErrorResponse("강의 코드(lecSerial)는 필수입니다."));
             }
-            Integer lecIdx = (Integer) request.get("lecIdx");
-            lectureService.deleteLecture(lecIdx);
+            
+            String lecSerial = (String) request.get("lecSerial");
+            
+            // lecSerial로 강의 조회 후 lecIdx 획득
+            LecTbl lecture = lectureService.getLectureBySerial(lecSerial)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 강의입니다."));
+            
+            lectureService.deleteLecture(lecture.getLecIdx());
             return ResponseEntity.ok(createSuccessResponse("강의가 삭제되었습니다."));
         } catch (IllegalArgumentException e) {
             logger.warn("강의 삭제 실패: {}", e.getMessage());
