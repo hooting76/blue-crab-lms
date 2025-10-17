@@ -4,10 +4,18 @@
 // pathname에서 /status, /log-monitor 등의 페이지 경로를 제거하고 컨텍스트 경로만 추출
 const baseURL = (() => {
     const pathname = window.location.pathname;
-    // /BlueCrab-1.0.0/status 또는 /BlueCrab-1.0.0/log-monitor 같은 패턴에서
-    // /BlueCrab-1.0.0 부분만 추출
-    const match = pathname.match(/^(\/[^\/]+)/);
-    return window.location.origin + (match ? match[1] : '');
+    // /BlueCrab-1.0.0/status → /BlueCrab-1.0.0
+    // /status → '' (빈 문자열, 컨텍스트 경로 없음)
+    const knownPages = ['status', 'log-monitor'];
+    const parts = pathname.split('/').filter(p => p);
+
+    // 마지막 부분이 알려진 페이지 이름이면 제거
+    if (parts.length > 0 && knownPages.includes(parts[parts.length - 1])) {
+        parts.pop();
+    }
+
+    const contextPath = parts.length > 0 ? '/' + parts.join('/') : '';
+    return window.location.origin + contextPath;
 })();
 
 // API 템플릿 (JSON에서 로드됨)
