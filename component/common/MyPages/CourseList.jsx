@@ -139,14 +139,13 @@ function CourseList({ currentPage, setCurrentPage }) {
                 ))}
             </select>
 
-            <div>
-                <h2>강의 목록</h2>
-                <ul>
-                    {lectureList.map(lecture => (
-                        <li key={lecture.lectureIdx} onClick={() => openModal(course)}>{lecture.lectureName}</li>
-                    ))}
-                </ul>
-            </div>
+            <h2>강의 목록</h2>
+
+            <table>
+                {lectureList.map((lecture) => (
+                    <tr key={lecture.lectureIdx} onClick={() => openModal(lecture)}>{lecture.lectureName}</tr>
+                ))}
+            </table>
 
             {isModalOpen && (
                 <div className="modal-overlay" onClick={closeModal}>
