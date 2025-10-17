@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -74,15 +76,19 @@ public class FacilityReservationService {
         // ① 기본 검증 (가벼운 작업 우선)
         validateReservationRequest(request);
 
-        // ② 정책 먼저 조회 (락 획득 전에 확인하여 불필요한 락 방지)
+        // ② 사용자 식별자 정규화 (이메일/학번 혼용 대비)
+        ResolvedUser resolvedUser = resolveUserIdentity(userCode);
+        String normalizedUserCode = resolvedUser.getUserCode();
+
+        // ③ 정책 먼저 조회 (락 획득 전에 확인하여 불필요한 락 방지)
         FacilityPolicyTbl policy = policyRepository.findByFacilityIdx(request.getFacilityIdx())
             .orElseThrow(() -> new RuntimeException("시설 정책을 찾을 수 없습니다."));
 
-        // ②-A 시설별 예약 정책 검증
+        // ③-A 시설별 예약 정책 검증
         validateReservationPolicy(policy, request.getStartTime(), request.getEndTime());
 
-        // ②-B 사용자별 예약 수 제한 검증 (Phase 2)
-        validateUserReservationLimit(userCode, request.getFacilityIdx(), policy);
+        // ③-B 사용자별 예약 수 제한 검증 (Phase 2)
+        validateUserReservationLimit(normalizedUserCode, request.getFacilityIdx(), policy);
 
         boolean requiresApproval = Boolean.TRUE.equals(policy.getRequiresApproval());
         FacilityTbl facility;
@@ -152,7 +158,8 @@ public class FacilityReservationService {
 
         FacilityReservationTbl reservation = new FacilityReservationTbl();
         reservation.setFacilityIdx(request.getFacilityIdx());
-        reservation.setUserCode(userCode);
+        reservation.setUserCode(normalizedUserCode);
+        reservation.setUserEmail(resolvedUser.getUserEmail());
         reservation.setStartTime(request.getStartTime());
         reservation.setEndTime(request.getEndTime());
         reservation.setPartySize(request.getPartySize());
@@ -168,10 +175,10 @@ public class FacilityReservationService {
 
         FacilityReservationTbl saved = reservationRepository.save(reservation);
 
-        createLog(saved.getReservationIdx(), logEventType, "USER", userCode, request);
+        createLog(saved.getReservationIdx(), logEventType, "USER", normalizedUserCode, request);
 
         logger.info("Reservation created: ID={}, User={}, Facility={}, Status={}, RequiresApproval={}",
-            saved.getReservationIdx(), userCode, request.getFacilityIdx(),
+            saved.getReservationIdx(), normalizedUserCode, request.getFacilityIdx(),
             initialStatus, policy.getRequiresApproval());
 
         return convertToDto(saved);
@@ -404,30 +411,27 @@ public class FacilityReservationService {
 
 
     public List<ReservationDto> getMyReservations(String userCode) {
-
-        List<FacilityReservationTbl> reservations = reservationRepository.findByUserCodeOrderByCreatedAtDesc(userCode);
-
+        ResolvedUser resolvedUser = resolveUserIdentity(userCode);
+        List<FacilityReservationTbl> reservations = reservationRepository.findByUserCodeOrderByCreatedAtDesc(resolvedUser.getUserCode());
         return convertToDtoList(reservations);
-
     }
 
 
 
     public List<ReservationDto> getMyReservationsByStatus(String userCode, ReservationStatus status) {
-
-        List<FacilityReservationTbl> reservations = reservationRepository.findByUserCodeAndStatusOrderByCreatedAtDesc(userCode, status.toDbValue());
-
+        ResolvedUser resolvedUser = resolveUserIdentity(userCode);
+        List<FacilityReservationTbl> reservations = reservationRepository.findByUserCodeAndStatusOrderByCreatedAtDesc(resolvedUser.getUserCode(), status.toDbValue());
         return convertToDtoList(reservations);
-
     }
 
 
 
     public ReservationDto getReservationById(Integer reservationIdx, String userCode) {
+        ResolvedUser resolvedUser = resolveUserIdentity(userCode);
         FacilityReservationTbl reservation = reservationRepository.findById(reservationIdx)
             .orElseThrow(() -> ResourceNotFoundException.forId("예약", reservationIdx));
 
-        if (!reservation.getUserCode().equals(userCode)) {
+        if (!reservation.getUserCode().equals(resolvedUser.getUserCode())) {
             throw new RuntimeException("본인의 예약만 조회할 수 있습니다.");
         }
 
@@ -435,10 +439,11 @@ public class FacilityReservationService {
     }
 
     public void cancelReservation(Integer reservationIdx, String userCode) {
+        ResolvedUser resolvedUser = resolveUserIdentity(userCode);
         FacilityReservationTbl reservation = reservationRepository.findById(reservationIdx)
             .orElseThrow(() -> ResourceNotFoundException.forId("예약", reservationIdx));
 
-        if (!reservation.getUserCode().equals(userCode)) {
+        if (!reservation.getUserCode().equals(resolvedUser.getUserCode())) {
             throw new RuntimeException("본인의 예약만 취소할 수 있습니다.");
         }
 
@@ -466,9 +471,65 @@ public class FacilityReservationService {
         reservation.setStatusEnum(ReservationStatus.CANCELLED);
         reservationRepository.save(reservation);
 
-        createLog(reservationIdx, "CANCELLED", "USER", userCode, null);
+        createLog(reservationIdx, "CANCELLED", "USER", resolvedUser.getUserCode(), null);
 
-        logger.info("Reservation cancelled: ID={}, User={}", reservationIdx, userCode);
+        logger.info("Reservation cancelled: ID={}, User={}", reservationIdx, resolvedUser.getUserCode());
+    }
+
+    private ResolvedUser resolveUserIdentity(String rawIdentifier) {
+        if (!StringUtils.hasText(rawIdentifier)) {
+            throw new RuntimeException("사용자 정보가 필요합니다.");
+        }
+
+        String trimmed = rawIdentifier.trim();
+        boolean isEmailFormat = trimmed.contains("@");
+
+        Optional<UserTbl> userOptional = isEmailFormat
+            ? userRepository.findByUserEmail(trimmed)
+            : userRepository.findByUserCode(trimmed);
+
+        if (!userOptional.isPresent()) {
+            String fieldName = isEmailFormat ? "userEmail" : "userCode";
+            logger.warn("User identity resolution failed - {}: {}", fieldName, trimmed);
+            throw ResourceNotFoundException.forField("사용자", fieldName, trimmed);
+        }
+
+        UserTbl user = userOptional.get();
+        String resolvedEmail = user.getUserEmail();
+        if (!StringUtils.hasText(resolvedEmail) && isEmailFormat) {
+            resolvedEmail = trimmed;
+        }
+
+        if (isEmailFormat && logger.isDebugEnabled()) {
+            logger.debug("Resolved user email {} to userCode {}", trimmed, user.getUserCode());
+        }
+
+        return new ResolvedUser(user.getUserCode(), resolvedEmail, trimmed);
+    }
+
+    private static final class ResolvedUser {
+        private final String userCode;
+        private final String userEmail;
+        private final String originalInput;
+
+        private ResolvedUser(String userCode, String userEmail, String originalInput) {
+            this.userCode = userCode;
+            this.userEmail = userEmail;
+            this.originalInput = originalInput;
+        }
+
+        public String getUserCode() {
+            return userCode;
+        }
+
+        public String getUserEmail() {
+            return userEmail;
+        }
+
+        @SuppressWarnings("unused")
+        public String getOriginalInput() {
+            return originalInput;
+        }
     }
 
     private void validateReservationRequest(ReservationCreateRequestDto request) {

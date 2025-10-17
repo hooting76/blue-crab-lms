@@ -64,7 +64,7 @@ function updateEndpointInfo() {
             document.getElementById('httpMethod').value = 'POST';
             requestBody.value = JSON.stringify({
                 targetType: 'USER',
-                targeta: ['user@example.com'],
+                targeta: ['20240001'],
                 title: '테스트 알림',
                 body: '테스트 메시지입니다.',
                 data: {
@@ -75,7 +75,7 @@ function updateEndpointInfo() {
         case 'fcmBatch':
             document.getElementById('httpMethod').value = 'POST';
             requestBody.value = JSON.stringify({
-                userCodes: ['user1@example.com', 'user2@example.com'],
+                userCodes: ['20240001', '20240002'],
                 title: '배치 알림',
                 body: '여러 사용자에게 전송되는 테스트 메시지입니다.',
                 data: {
