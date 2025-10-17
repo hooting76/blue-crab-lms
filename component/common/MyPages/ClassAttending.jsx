@@ -5,6 +5,7 @@ import ApproveAttendanceModal from './ApproveAttendanceModal.jsx';
 import TestModal from './TestModal.jsx';
 import AssignmentModal from './AssignmentModal.jsx';
 import ProfNoticeWritingPage from './ProfNoticeWritingPage.jsx';
+import CourseDetail from './CourseDetail';
 
 function ClassAttending({currentPage, setCurrentPage}) {
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
@@ -90,6 +91,10 @@ const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
     const openAssignmentModal = () => setIsAssignmentModalOpen(true);
     const closeAssignmentModal = () => setIsAssignmentModalOpen(false);
 
+const [isClassDetailModalOpen, setIsClassDetailModalOpen] = useState(false);
+    const openClassDetailModal = () => setIsClassDetailModalOpen(true);
+    const closeClassDetailModal = () => setIsClassDetailModalOpen(false);
+
     
 const fetchLectureList = async (accessToken, selectedSemester) => {
     try {
@@ -146,13 +151,41 @@ const fetchLectureList = async (accessToken, selectedSemester) => {
                         과목별 공지사항
                     </div>
 
-                    {user.data.user.userStudent === 1 && // 교수일 경우 공지 작성 버튼 추가
-                        <>
+                    {user.data.user.userStudent === 1 ? // 교수일 경우 공지 작성 버튼 추가
+                        (<>
                             <div className="profNoticeWriteBtnArea">
                                 <button className="profNoticeWriteBtn" onClick={profNoticeWrite}>과목별 공지 작성</button>
                             </div>
-                        </>
+                        </>)
+                        : // 학생일 경우 강의 상세정보 페이지 이동 버튼 추가
+                        (<>
+                            <div className='studentClassDetailBtnArea'>
+                                <button className='studentClassDetailBtn' onClick={openClassDetailModal}>강의 상세 정보</button>
+                            </div>
+                        </>)
                     }
+
+                    {isClassDetailModalOpen && (
+                        <div className="modal-overlay" onClick={closeClassDetailModal}>
+                            <div
+                                className="modal-content"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <button className="modal-close" onClick={closeClassDetailModal}>
+                                    ✖
+                                </button>
+                                <CourseDetail
+                                lecture={selectedLecture}
+                                currentPage={currentPage}
+                                setCurrentPage={setCurrentPage}
+                                onFetchComplete={(lecture) => {
+                                    setFetchedLecture(lecture);        // 업데이트된 강의 상세 정보
+                                    setSelectedLecture(lecture);
+                                }}
+                                />
+                            </div>
+                        </div>
+                    )}
 
                     <div className="lectureChat">
                         실시간 채팅
