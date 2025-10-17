@@ -93,7 +93,7 @@ const [isClassDetailModalOpen, setIsClassDetailModalOpen] = useState(false);
     const closeClassDetailModal = () => setIsClassDetailModalOpen(false);
 
     
-const fetchLectureList = async (accessToken, Semester) => {
+const fetchLectureList = async (accessToken, selectedSemester) => {
     try {
         // const [year, semester] = selectedSemester.split('_');
 
@@ -101,7 +101,7 @@ const fetchLectureList = async (accessToken, Semester) => {
             page: 0,
             size: 20,
             // year: selectedYear,
-            semester: parseInt(Semester)
+            semester: parseInt(selectedSemester)
         };
 
         const response = await fetch(`${BASE_URL}/lectures`, {
@@ -125,8 +125,8 @@ const fetchLectureList = async (accessToken, Semester) => {
 
 
     useEffect(() => {
-            fetchLectureList(accessToken, Semester);
-        }, [accessToken, Semester]); // ✅ accessToken이 생겼을 때, 학기가 선택되었을 때 호출
+            fetchLectureList(accessToken, selectedSemester);
+        }, [accessToken, selectedSemester]); // ✅ accessToken이 생겼을 때, 학기가 선택되었을 때 호출
 
         console.log("lectureList : ", lectureList);
 
