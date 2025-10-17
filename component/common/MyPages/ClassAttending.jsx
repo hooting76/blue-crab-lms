@@ -11,6 +11,7 @@ function ClassAttending({currentPage, setCurrentPage}) {
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
     const { user } = UseUser(); // 유저 정보
     const accessToken = user.data.accessToken;
+    const isProf = user.data.user.userStudent === 1;
     const [lectureList, setLectureList] = useState([]);
 
     console.log("user : ", user);
@@ -100,21 +101,36 @@ const fetchLectureList = async (accessToken, selectedSemester) => {
     try {
         const [year, semester] = selectedSemester.split('_');
 
+        // 기본 요청 body
+        const requestBody = {
+            page: 0,
+            size: 20,
+            year: parseInt(year),
+            semester: parseInt(semester)
+        };
+
+        if (isProf) {
+            requestBody.professor = user.data.user.id;
+        }
+
         const response = await fetch(`${BASE_URL}/lectures`, {
             method: "POST",
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({page: 0, size: 20, year: parseInt(year), semester: parseInt(semester)})
+            body: JSON.stringify(requestBody)
         });
-    if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
-            const data = await response.json();
-            setLectureList(data); // ✅ 받아온 데이터 저장
-        } catch (error) {
-            console.error('강의 목록 조회 에러:', error);
-        }
-    };
+
+        if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
+
+        const data = await response.json();
+        setLectureList(data); // ✅ 받아온 데이터 저장
+    } catch (error) {
+        console.error('강의 목록 조회 에러:', error);
+    }
+};
+
 
     useEffect(() => {
             fetchLectureList(accessToken, selectedSemester);
