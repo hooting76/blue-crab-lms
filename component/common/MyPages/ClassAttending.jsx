@@ -101,7 +101,6 @@ const fetchLectureList = async (accessToken, selectedSemester) => {
     try {
         const [year, semester] = selectedSemester.split('_');
 
-        // 기본 요청 body
         const requestBody = {
             page: 0,
             size: 20,
@@ -121,6 +120,7 @@ const fetchLectureList = async (accessToken, selectedSemester) => {
             },
             body: JSON.stringify(requestBody)
         });
+        console.log("Request body:", requestBody);
 
         if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
 
@@ -167,7 +167,7 @@ const fetchLectureList = async (accessToken, selectedSemester) => {
                         과목별 공지사항
                     </div>
 
-                    {user.data.user.userStudent === 1 ? // 교수일 경우 공지 작성 버튼 추가
+                    {isProf ? // 교수일 경우 공지 작성 버튼 추가
                         (<>
                             <div className="profNoticeWriteBtnArea">
                                 <button className="profNoticeWriteBtn" onClick={profNoticeWrite}>과목별 공지 작성</button>
