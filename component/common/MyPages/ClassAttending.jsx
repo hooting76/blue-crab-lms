@@ -17,25 +17,16 @@ function ClassAttending({currentPage, setCurrentPage}) {
     console.log("user : ", user);
 
     // select 변경 핸들러
-//     const handleSemesterChange = (e) => {
-//         setSelectedSemester(e.target.value);
-//     };
+    const handleSemesterChange = (e) => {
+        setSelectedSemester(e.target.value);
+    };
 
-// const today = new Date();
+ const today = new Date();
 // let currentYear = today.getFullYear();
 // const currentMonth = today.getMonth() + 1;
 
-// let currentSemester;
-
-// if (currentMonth >= 3 && currentMonth <= 8) {
-//     currentSemester = 1;
-// } else if (currentMonth >= 9) {
-//     currentSemester = 2;
-// } else {
-//     // 1~2월은 전년도 2학기
-//     currentYear -= 1;
-//     currentSemester = 2;
-// }
+// const 
+// }}
 
 
 // 현재 학기를 기준으로 지난 8개 학기 생성
@@ -62,8 +53,8 @@ function ClassAttending({currentPage, setCurrentPage}) {
 // };
 
 // const semesterOptions = generateSemesters(8);
-// const currentSemesterValue = `${currentYear}_${currentSemester}`; // 현재 학기 value
-// const [selectedSemester, setSelectedSemester] = useState(currentSemesterValue); // 학기 선택 상태
+const currentSemesterValue = `${currentYear}_${currentSemester}`; // 현재 학기 value
+const [selectedSemester, setSelectedSemester] = useState(currentSemesterValue); // 학기 선택 상태
 const handleYearChange = (e) => {
     setSelectedYear(e.target.value);
 };
@@ -102,15 +93,15 @@ const [isClassDetailModalOpen, setIsClassDetailModalOpen] = useState(false);
     const closeClassDetailModal = () => setIsClassDetailModalOpen(false);
 
     
-const fetchLectureList = async (accessToken, selectedSemester, selectedYear) => {
+const fetchLectureList = async (accessToken, Semester) => {
     try {
-        const [year, semester] = selectedSemester.split('_');
+        // const [year, semester] = selectedSemester.split('_');
 
         const requestBody = {
             page: 0,
             size: 20,
-            year: selectedYear,
-            semester: parseInt(semester)
+            // year: selectedYear,
+            semester: parseInt(Semester)
         };
 
         const response = await fetch(`${BASE_URL}/lectures`, {
@@ -134,8 +125,8 @@ const fetchLectureList = async (accessToken, selectedSemester, selectedYear) => 
 
 
     useEffect(() => {
-            fetchLectureList(accessToken, selectedSemester, selectedYear);
-        }, [accessToken, selectedSemester, selectedYear]); // ✅ accessToken이 생겼을 때, 학기가 선택되었을 때 호출
+            fetchLectureList(accessToken, Semester);
+        }, [accessToken, Semester]); // ✅ accessToken이 생겼을 때, 학기가 선택되었을 때 호출
 
         console.log("lectureList : ", lectureList);
 
@@ -150,11 +141,9 @@ const fetchLectureList = async (accessToken, selectedSemester, selectedYear) => 
                 ))}
             </select> */}
 
-            <select value={selectedYear} onChange={handleYearChange}>
-                <option value={1}>1학년</option>
-                <option value={2}>2학년</option>
-                <option value={3}>3학년</option>
-                <option value={4}>4학년</option>
+            <select value={selectedSemester} onChange={handleSemesterChange}>
+                <option value={1}>1학기</option>
+                <option value={2}>2학기</option>
             </select>
 
             <select className="lectureName">
