@@ -56,7 +56,7 @@ function CourseRegister() {
         }
         console.log(("CourseRegisterDetails :"), CourseRegisterDetails);
         
-                try {const response = await fetch(`${BASE_URL}/lectures`, {
+                try {const response = await fetch(`${BASE_URL}/lectures/create`, {
                 method: 'POST',
                 headers: {
                 'Content-Type': 'application/json',
