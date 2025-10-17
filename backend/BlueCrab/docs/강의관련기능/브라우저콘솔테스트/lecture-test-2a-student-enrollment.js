@@ -12,7 +12,7 @@
 //    - 전공/부전공 매칭: 학생의 전공 OR 부전공이 강의 코드와 일치하면 수강 가능
 // ===================================================================
 
-const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0';
+const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
 // 전역 변수 (test-1-login.js에서 설정한 토큰 사용)
 if (typeof window.authToken === 'undefined') window.authToken = null;
