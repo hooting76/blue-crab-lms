@@ -108,7 +108,7 @@ const fetchLectureList = async (accessToken, selectedSemester) => {
             semester: parseInt(semester)
         };
 
-        const response = await fetch(`${BASE_URL}/lectures`, {
+        const response = await fetch(`${BASE_URL}/lectures/list`, {
             method: "POST",
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
@@ -206,7 +206,7 @@ const fetchLectureList = async (accessToken, selectedSemester) => {
 
                 <div className="attendanceStatus">
                     출결
-                    {user.data.user.userStudent === 0 && // 학생일 경우 출결상황 표시
+                    {!isProf && // 학생일 경우 출결상황 표시
                         <>
                             <div className="attendance">
                                 출석일수<br/>
@@ -221,7 +221,7 @@ const fetchLectureList = async (accessToken, selectedSemester) => {
                         </>
                     }
                     <div className="attendanceCall">
-                        {user.data.user.userStudent === 0 ? ( // 학생
+                        {!isProf ? ( // 학생
                             <button className="attendanceCallBtn" onClick={attendanceRequestSubmit}>출석인정 신청</button>
                         ) : ( // 교수
                             <button className="attendanceCallBtn" onClick={openAttendanceModal}>출석인정 승인</button>
@@ -233,7 +233,7 @@ const fetchLectureList = async (accessToken, selectedSemester) => {
 
                 <div className="testAssignment">
                     시험 및 과제
-                    {user.data.user.userStudent === 0 ? ( // 학생일 경우 개인 성적 표시
+                    {!isProf ? ( // 학생일 경우 개인 성적 표시
                         <>
                             <div className="studentTest">
                                 중간고사 : 점<br/>
