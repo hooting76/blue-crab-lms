@@ -142,9 +142,13 @@ function CourseList({ currentPage, setCurrentPage }) {
             <h2>강의 목록</h2>
 
             <table>
-                {lectureList.map((lecture) => (
-                    <tr key={lecture.lectureIdx} onClick={() => openModal(lecture)}>{lecture.lectureName}</tr>
-                ))}
+                {lectureList.length > 0 ? (
+                    lectureList.map((lecture) => (
+                        <tr key={lecture.lectureIdx} onClick={() => openModal(lecture)}>{lecture.lectureName}</tr>
+                    ))
+                ) : (
+                    <tr>강의 목록 없음</tr>
+                )}
             </table>
 
             {isModalOpen && (
