@@ -11,7 +11,7 @@
 //    Part B: lecture-test-4b-professor-assignment-grade.js (과제 채점 및 관리)
 // ===================================================================
 
-const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0';
+const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
 // 전역 변수 (test-1-login.js에서 설정한 토큰 사용)
 if (typeof window.authToken === 'undefined') window.authToken = null;
@@ -52,7 +52,7 @@ async function getProfessorFromToken() {
     
     // 프로필 API로 USER_CODE 조회 (majorCode가 학번/교번)
     try {
-        const response = await fetch(`${API_BASE_URL}/api/profile/me`, {
+        const response = await fetch(`${API_BASE_URL}/profile/me`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${window.authToken}`,
@@ -269,7 +269,7 @@ async function createAssignment() {
     console.log(JSON.stringify(assignmentData, null, 2));
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/assignments`, {
+        const response = await fetch(`${API_BASE_URL}/assignments`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -319,7 +319,7 @@ async function getAssignments() {
 
     try {
         // ✅ DTO 패턴: POST 방식으로 변경
-        const url = `${API_BASE_URL}/api/assignments/list`;
+        const url = `${API_BASE_URL}/assignments/list`;
         console.log('📡 요청 URL:', url);
 
         const response = await fetch(url, {
