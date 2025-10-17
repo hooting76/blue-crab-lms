@@ -108,7 +108,7 @@ const fetchLectureList = async (accessToken, selectedSemester) => {
             semester: parseInt(semester)
         };
 
-        const response = await fetch(`${BASE_URL}/lectures/list`, {
+        const response = await fetch(`${BASE_URL}/lectures`, {
             method: "POST",
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
