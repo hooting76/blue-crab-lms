@@ -24,7 +24,7 @@ function MyPage({ currentPage, setCurrentPage }) {
     switch (currentPage) {
         case "개인정보":
             return <ProfileEdit />;
-        case "수강중인 과목":
+        case "수강/강의중인 과목":
             return (
         <>
             <ClassAttending currentPage={currentPage} setCurrentPage={setCurrentPage} onSelectCourse={handleSelectCourse} />
@@ -35,7 +35,7 @@ function MyPage({ currentPage, setCurrentPage }) {
             )}
         </>
         );
-        case "수강과목 공지사항":
+        case "수강/강의과목 공지사항":
             return <ClassAttendingNotice currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
         case "과목별 공지 작성":
             return <ProfNoticeWritingPage/>;

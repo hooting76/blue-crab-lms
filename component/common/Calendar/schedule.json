@@ -1,0 +1,453 @@
+[
+    {
+        "title": "신정",
+        "start": "2025, 0, 1",
+        "end": "2025, 0, 1",
+        "details": { 
+            "where": "",
+            "sub": "신정 공휴일"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "복학,휴학신청기간",
+        "start": "2025, 0, 7",
+        "end": "2025, 0, 9",
+        "details": { 
+            "where": "교무처 사무실",
+            "sub": "1학기 복학 및 휴학 신청 기간"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "예비수강신청기간(재학,복학)",
+        "start": "2025, 0, 21",
+        "end": "2025, 0, 23",
+        "details": { 
+            "where": "",
+            "sub": "재학생 및 복학생 예비 수강신청"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "설연휴",
+        "start": "2025, 0, 28",
+        "end": "2025, 0, 30",
+        "details": { 
+            "where": "",
+            "sub": "설날 연휴"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "수강신청기간(재학,복학)",
+        "start": "2025, 1, 4",
+        "end": "2025, 1, 6",
+        "details": { 
+            "where": "",
+            "sub": "재학생 및 복학생 정규 수강신청"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "2024학년도 전기 학위수여식",
+        "start": "2025, 1, 14",
+        "end": "2025, 1, 14",
+        "details": { 
+            "where": "",
+            "sub": "2024학년도 전기 학위수여식"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "신입생 입학식 및 오리엔테이션",
+        "start": "2025, 1, 18",
+        "end": "2025, 1, 18",
+        "details": { 
+            "where": "",
+            "sub": "2025학년도 신입생 입학식 및 오리엔테이션"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "신입생 수강신청기간",
+        "start": "2025, 1, 20",
+        "end": "2025, 1, 21",
+        "details": { 
+            "where": "",
+            "sub": "신입생 및 편입생 수강신청"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "3.1절",
+        "start": "2025, 2, 1",
+        "end": "2025, 2, 1",
+        "details": { 
+            "where": "",
+            "sub": "3.1절 공휴일, 1학기 개강일"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "대체휴일",
+        "start": "2025, 2, 3",
+        "end": "2025, 2, 3",
+        "details": { 
+            "where": "",
+            "sub": "3.1절 대체휴일"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "수강신청변경기간",
+        "start": "2025, 2, 4",
+        "end": "2025, 2, 10",
+        "details": { 
+            "where": "",
+            "sub": "1학기 수강신청 변경 기간"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "수업시작일",
+        "start": "2025, 2, 4",
+        "end": "2025, 2, 4",
+        "details": { 
+            "where": "",
+            "sub": "1학기 수업 시작"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "수강신청취소기간",
+        "start": "2025, 2, 12",
+        "end": "2025, 2, 13",
+        "details": { 
+            "where": "",
+            "sub": "1학기 수강신청 취소 기간"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "개교기념일",
+        "start": "2025, 3, 19",
+        "end": "2025, 3, 19",
+        "details": { 
+            "where": "",
+            "sub": "개교기념일"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "중간고사기간",
+        "start": "2025, 3, 22",
+        "end": "2025, 3, 28",
+        "details": { 
+            "where": "",
+            "sub": "1학기 중간고사 기간"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "근로자의날",
+        "start": "2025, 4, 1",
+        "end": "2025, 4, 1",
+        "details": { 
+            "where": "",
+            "sub": "근로자의날"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "부처님 오신 날, 어린이날",
+        "start": "2025, 4, 5",
+        "end": "2025, 4, 5",
+        "details": { 
+            "where": "",
+            "sub": "부처님 오신 날, 어린이날 공휴일"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "대체휴일",
+        "start": "2025, 4, 6",
+        "end": "2025, 4, 6",
+        "details": { 
+            "where": "",
+            "sub": "어린이날 대체휴일"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "현충일",
+        "start": "2025, 5, 6",
+        "end": "2025, 5, 6",
+        "details": { 
+            "where": "",
+            "sub": "현충일 공휴일"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "기말고사기간",
+        "start": "2025, 5, 10",
+        "end": "2025, 5, 16",
+        "details": { 
+            "where": "",
+            "sub": "1학기 기말고사 기간"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "성적입력기간",
+        "start": "2025, 5, 17",
+        "end": "2025, 5, 25",
+        "details": { 
+            "where": "",
+            "sub": "1학기 성적 입력 기간"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "1학기 강의평가",
+        "start": "2025, 5, 26",
+        "end": "2025, 5, 28",
+        "details": { 
+            "where": "",
+            "sub": "1학기 기말 강의평가 기간"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },    
+    {
+        "title": "성적조회.이의신청 및 정정기간",
+        "start": "2025, 5, 26",
+        "end": "2025, 5, 28",
+        "details": { 
+            "where": "",
+            "sub": "1학기 성적 조회 및 이의신청 기간"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "복학,휴학신청기간",
+        "start": "2025, 6, 8",
+        "end": "2025, 6, 10",
+        "details": { 
+            "where": "교무처 사무실",
+            "sub": "2학기 복학 및 휴학 신청 기간"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "예비수강신청기간(재학,복학)",
+        "start": "2025, 6, 29",
+        "end": "2025, 6, 31",
+        "details": { 
+            "where": "",
+            "sub": "재학생 및 복학생 예비 수강신청"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "수강신청기간(재학,복학)",
+        "start": "2025, 7, 5",
+        "end": "2025, 7, 8",
+        "details": { 
+            "where": "",
+            "sub": "재학생 및 복학생 정규 수강신청"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "후기졸업일",
+        "start": "2025, 7, 14",
+        "end": "2025, 7, 14",
+        "details": { 
+            "where": "",
+            "sub": "후기 졸업일"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "광복절",
+        "start": "2025, 7, 15",
+        "end": "2025, 7, 15",
+        "details": { 
+            "where": "",
+            "sub": "광복절 공휴일"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "2학기 개강일, 수업시작일",
+        "start": "2025, 8, 1",
+        "end": "2025, 8, 1",
+        "details": { 
+            "where": "",
+            "sub": "2학기 개강 및 수업 시작"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "수강신청변경기간",
+        "start": "2025, 8, 1",
+        "end": "2025, 8, 5",
+        "details": { 
+            "where": "",
+            "sub": "2학기 수강신청 변경 기간"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "수강신청취소기간",
+        "start": "2025, 8, 9",
+        "end": "2025, 8, 10",
+        "details": { 
+            "where": "",
+            "sub": "2학기 수강신청 취소 기간"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "개천절",
+        "start": "2025, 9, 3",
+        "end": "2025, 9, 3",
+        "details": { 
+            "where": "",
+            "sub": "개천절 공휴일"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "추석연휴",
+        "start": "2025, 9, 5",
+        "end": "2025, 9, 7",
+        "details": { 
+            "where": "",
+            "sub": "추석 연휴"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "대체휴일",
+        "start": "2025, 9, 8",
+        "end": "2025, 9, 8",
+        "details": { 
+            "where": "",
+            "sub": "추석 대체휴일"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "한글날",
+        "start": "2025, 9, 9",
+        "end": "2025, 9, 9",
+        "details": { 
+            "where": "",
+            "sub": "한글날 공휴일"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "중간고사기간",
+        "start": "2025, 9, 20",
+        "end": "2025, 9, 24",
+        "details": { 
+            "where": "",
+            "sub": "2학기 중간고사 기간"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "기말고사기간",
+        "start": "2025, 11, 8",
+        "end": "2025, 11, 12",
+        "details": { 
+            "where": "",
+            "sub": "2학기 기말고사 기간"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "성적입력기간",
+        "start": "2025, 11, 13",
+        "end": "2025, 11, 22",
+        "details": { 
+            "where": "",
+            "sub": "2학기 성적 입력 기간"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "강의평가",
+        "start": "2025, 11, 23",
+        "end": "2025, 11, 26",
+        "details": { 
+            "where": "",
+            "sub": "2학기 강의평가 기간"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },    
+    {
+        "title": "성적조회.이의신청 및 정정기간",
+        "start": "2025, 11, 23",
+        "end": "2025, 11, 26",
+        "details": { 
+            "where": "",
+            "sub": "2학기 성적 조회 및 이의신청 기간"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    },
+    {
+        "title": "성탄절",
+        "start": "2025, 11, 25",
+        "end": "2025, 11, 25",
+        "details": { 
+            "where": "",
+            "sub": "성탄절 공휴일"
+        },
+        "readOnly": "true",
+        "writer": "학사일정"
+    }
+]

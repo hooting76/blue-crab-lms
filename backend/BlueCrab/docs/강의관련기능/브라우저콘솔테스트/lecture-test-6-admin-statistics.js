@@ -7,7 +7,7 @@
 // 📝 실행: await adminLogin() → await sendAuthCode() → await verifyAuthCode()
 // ===================================================================
 
-const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0';
+const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
 // 전역 변수 (admin-login-to-board-test.js에서 설정한 토큰 사용)
 if (typeof window.authToken === 'undefined') window.authToken = null;

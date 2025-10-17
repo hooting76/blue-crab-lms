@@ -140,7 +140,7 @@ function Header({ currentPage, setCurrentPage }) {
                 <tbody>
                   <tr><td onClick={() => { setCurrentPage("개인정보"); closeAllSubMenus(); }}>개인정보</td></tr>
                   {/* 두 항목(수강중인/공지사항)을 하나로 통합 → '나의강의실' 클릭 시 수강중인 과목으로 진입 */}
-                  <tr><td onClick={() => { Reset(); setCurrentPage("수강중인 과목"); closeAllSubMenus(); }}>나의강의실</td></tr>
+                  <tr><td onClick={() => { Reset(); setCurrentPage("수강/강의중인 과목"); closeAllSubMenus(); }}>나의강의실</td></tr>
                   <tr><td onClick={() => { Reset(); setCurrentPage("실시간 상담"); closeAllSubMenus(); }}>실시간 상담</td></tr>
                 </tbody>
               </table>

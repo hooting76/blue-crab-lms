@@ -102,15 +102,15 @@ const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
     const closeAssignmentModal = () => setIsAssignmentModalOpen(false);
 
     
-const fetchClassAttendingList = async (accessToken) => { // 학생의 경우
+const fetchLectureList = async (accessToken) => {
     try {
-        const response = await fetch(`${BASE_URL}/enrollments?studentIdx=${user.data.user.id}&page=0&size=10`, {
+        const response = await fetch(`${BASE_URL}/lectures`, {
             method: "POST",
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({})
+            body: JSON.stringify({page: 0, size: 20})
         })
     if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
             const data = await response.json();
@@ -120,33 +120,11 @@ const fetchClassAttendingList = async (accessToken) => { // 학생의 경우
         }
     };
 
-const fetchClassLecturingList = async (accessToken) => { // 교수의 경우
-    try {
-        const response = await fetch(`${BASE_URL}/professor/lectures`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({})
-        });
-    if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
-            const data = await response.json();
-            setLectureList(data); // ✅ 받아온 데이터 저장
-        } catch (error) {
-            console.error('강의 목록 조회 에러:', error);
-        }
-    };
-
     useEffect(() => {
-        if (accessToken && user.data.user.userStudent === 0) {
-            fetchClassAttendingList(accessToken);
-        }
-        if (accessToken && user.data.user.userStudent === 1) {
-            fetchClassLecturingList(accessToken);
-        }
-        }, [user, accessToken]); // ✅ accessToken이 생겼을 때 호출
+            fetchLectureList(accessToken);
+        }, [accessToken]); // ✅ accessToken이 생겼을 때 호출
 
+        console.log("lectureList : ", lectureList);
 
         
     return (

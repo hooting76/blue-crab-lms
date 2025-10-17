@@ -116,8 +116,8 @@ function AppContent() {
       
       // 마이페이지
       case "개인정보":
-      case "수강중인 과목":
-      case "수강과목 공지사항":
+      case "수강/강의중인 과목":
+      case "수강/강의과목 공지사항":
       case "과목별 공지 작성":
       case "강의 수정":
       case "강의 수정 상세 페이지":
