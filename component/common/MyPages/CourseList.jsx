@@ -142,8 +142,8 @@ function CourseList({ currentPage, setCurrentPage }) {
             <div>
                 <h2>강의 목록</h2>
                 <ul>
-                    {lectureList.content.map((course) => (
-                        <li key={course.lectureIdx} onClick={() => openModal(course)}>{course.lectureName}</li>
+                    {lectureList.map((lecture) => (
+                        <li key={lecture.lectureIdx} onClick={() => openModal(course)}>{lecture.lectureName}</li>
                     ))}
                 </ul>
             </div>
