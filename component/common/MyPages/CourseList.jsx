@@ -6,6 +6,7 @@ function CourseList() {
     const { user } = UseUser();
     const [courseList, setCourseList] = useState([]);
     const [selectedLecture, setSelectedLecture] = useState(null);
+    const [fetchedLecture, setFetchedLecture] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
@@ -31,7 +32,8 @@ function CourseList() {
                 headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
-                }
+                },
+            body: JSON.stringify({})
             });
             if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
             const data = await response.json();
@@ -50,8 +52,16 @@ function CourseList() {
 
 
     const handleEdit = () => {
-        alert("수정 준비중");
-    }
+        if (!fetchedLecture) {
+        alert("강의 상세 정보 데이터를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+        return;
+        }
+
+    setSelectedLecture(fetchedNotice);
+    setIsModalOpen(false);
+    setCurrentPage("강의 수정 상세 페이지");
+    };
+
 
     return (
         <>
@@ -75,6 +85,12 @@ function CourseList() {
                         </button>
                         <CourseDetail
                         lectureIdx={selectedLecture}
+                        currentPage={currentPage}
+                        setCurrentPage={setCurrentPage}
+                        onFetchComplete={(lecture) => {
+                            setFetchedLecture(lecture);        // 업데이트된 강의 상세 정보
+                            setSelectedLecture(lecture);
+                        }}
                         />
 
                             <button

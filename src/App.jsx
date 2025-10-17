@@ -120,6 +120,7 @@ function AppContent() {
       case "수강과목 공지사항":
       case "과목별 공지 작성":
       case "강의 수정":
+      case "강의 수정 상세 페이지":
       case "실시간 상담":
         return <MyPage currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
       
