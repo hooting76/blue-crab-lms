@@ -7,7 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * FCM 토큰 관리 및 알림 전송 컨트롤러
@@ -74,6 +76,36 @@ public class FcmTokenController {
 
         FcmSendResponse result = fcmTokenService.sendNotification(request);
         ApiResponse<FcmSendResponse> response = ApiResponse.success("알림 전송이 완료되었습니다.", result);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 사용자 코드 기반으로 등록된 FCM 토큰 조회 (관리자용)
+     * POST /api/fcm/tokens/by-user
+     */
+    @PostMapping("/tokens/by-user")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<List<FcmTokenLookupResponse>>> lookupTokens(
+            @Valid @RequestBody FcmTokenLookupRequest request) {
+
+        List<FcmTokenLookupResponse> result = fcmTokenService.lookupTokens(request);
+        ApiResponse<List<FcmTokenLookupResponse>> response =
+                ApiResponse.success("토큰 조회가 완료되었습니다.", result);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 사용자 코드 기반 Data-only 알림 전송 (관리자용)
+     * POST /api/fcm/send/data-only
+     */
+    @PostMapping("/send/data-only")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<FcmDataOnlySendResponse>> sendDataOnlyByUser(
+            @Valid @RequestBody FcmDataOnlySendRequest request) {
+
+        FcmDataOnlySendResponse result = fcmTokenService.sendDataOnlyByUser(request);
+        ApiResponse<FcmDataOnlySendResponse> response =
+                ApiResponse.success("Data-only 알림 전송이 완료되었습니다.", result);
         return ResponseEntity.ok(response);
     }
 

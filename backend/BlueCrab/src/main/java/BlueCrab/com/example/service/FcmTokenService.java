@@ -38,6 +38,7 @@ public class FcmTokenService {
     private final UserTblRepository userTblRepository;
     private final FirebaseMessaging firebaseMessaging;
     private final FcmSessionService fcmSessionService;
+    private final FirebasePushService firebasePushService;
 
     private static final class DeliveryAttemptResult {
         private final boolean success;
@@ -86,11 +87,13 @@ public class FcmTokenService {
     public FcmTokenService(FcmTokenRepository fcmTokenRepository,
                            UserTblRepository userTblRepository,
                            FirebaseMessaging firebaseMessaging,
-                           FcmSessionService fcmSessionService) {
+                           FcmSessionService fcmSessionService,
+                           FirebasePushService firebasePushService) {
         this.fcmTokenRepository = fcmTokenRepository;
         this.userTblRepository = userTblRepository;
         this.firebaseMessaging = firebaseMessaging;
         this.fcmSessionService = fcmSessionService;
+        this.firebasePushService = firebasePushService;
     }
 
     /**
@@ -140,6 +143,266 @@ public class FcmTokenService {
                 .map(this::normalizePlatform)
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    private List<String> normalizeUserCodes(List<String> userCodes) {
+        if (userCodes == null) {
+            return Collections.emptyList();
+        }
+
+        LinkedHashSet<String> normalized = new LinkedHashSet<>();
+        for (String code : userCodes) {
+            if (code == null) {
+                continue;
+            }
+            String trimmed = code.trim();
+            if (!trimmed.isEmpty()) {
+                normalized.add(trimmed);
+            }
+        }
+
+        return new ArrayList<>(normalized);
+    }
+
+    private boolean isValidToken(String token) {
+        return token != null && !token.trim().isEmpty();
+    }
+
+    private String toPlatformKey(String platform) {
+        return platform.toLowerCase(Locale.ROOT);
+    }
+
+    private Map<String, List<String>> copyPlatformMap(Map<String, List<String>> source) {
+        Map<String, List<String>> copy = new LinkedHashMap<>();
+        if (source == null) {
+            return copy;
+        }
+        source.forEach((key, value) -> {
+            if (value != null) {
+                copy.put(key, new ArrayList<>(value));
+            } else {
+                copy.put(key, new ArrayList<>());
+            }
+        });
+        return copy;
+    }
+
+    public List<FcmTokenLookupResponse> lookupTokens(FcmTokenLookupRequest request) {
+        Objects.requireNonNull(request, "요청 객체는 null일 수 없습니다");
+        boolean includeTemporary = request.getIncludeTemporary() == null || request.getIncludeTemporary();
+        return lookupTokensInternal(request.getUserCodes(), request.getPlatforms(), includeTemporary);
+    }
+
+    public FcmDataOnlySendResponse sendDataOnlyByUser(FcmDataOnlySendRequest request) {
+        Objects.requireNonNull(request, "요청 객체는 null일 수 없습니다");
+        boolean includeTemporary = request.getIncludeTemporary() == null || request.getIncludeTemporary();
+
+        List<FcmTokenLookupResponse> lookupResults = lookupTokensInternal(
+                request.getUserCodes(),
+                request.getPlatforms(),
+                includeTemporary
+        );
+
+        Map<String, FcmDataOnlyUserResultBuilder> builderMap = new LinkedHashMap<>();
+        Map<String, TokenReference> tokenRouting = new LinkedHashMap<>();
+
+        for (FcmTokenLookupResponse lookup : lookupResults) {
+            Map<String, List<String>> tokensByPlatform = copyPlatformMap(lookup.getTokensByPlatform());
+            List<String> missingPlatforms = lookup.getMissingPlatforms() != null
+                    ? new ArrayList<>(lookup.getMissingPlatforms())
+                    : new ArrayList<>();
+
+            FcmDataOnlyUserResultBuilder builder = new FcmDataOnlyUserResultBuilder(
+                    lookup.getUserCode(),
+                    tokensByPlatform,
+                    missingPlatforms
+            );
+            builderMap.put(lookup.getUserCode(), builder);
+
+            tokensByPlatform.forEach((platformKey, tokenList) -> {
+                for (String token : tokenList) {
+                    if (!isValidToken(token)) {
+                        continue;
+                    }
+                    tokenRouting.putIfAbsent(token, new TokenReference(lookup.getUserCode(), platformKey));
+                }
+            });
+        }
+
+        int successCount = 0;
+        int failureCount = 0;
+
+        if (!tokenRouting.isEmpty()) {
+            logger.info("Data-only 알림 전송 요청 - 사용자 수: {}, 토큰 수: {}",
+                    builderMap.size(), tokenRouting.size());
+
+            BatchSendResponse batchResponse = firebasePushService.sendDataOnlyNotificationBatch(
+                    new ArrayList<>(tokenRouting.keySet()),
+                    request.getTitle(),
+                    request.getBody(),
+                    request.getData()
+            );
+
+            successCount = batchResponse.getSuccessCount();
+            failureCount = batchResponse.getFailureCount();
+
+            if (batchResponse.getResponses() != null) {
+                for (TokenSendResult result : batchResponse.getResponses()) {
+                    TokenReference reference = tokenRouting.get(result.getToken());
+                    if (reference == null) {
+                        continue;
+                    }
+                    FcmDataOnlyUserResultBuilder builder = builderMap.get(reference.getUserCode());
+                    if (builder == null) {
+                        continue;
+                    }
+                    if (result.isSuccess()) {
+                        builder.addSuccess(result.getToken());
+                    } else {
+                        builder.addFailure(result.getToken(), result.getError());
+                    }
+                }
+            }
+        } else {
+            logger.warn("Data-only 전송 대상 토큰이 없습니다. 사용자 수: {}", builderMap.size());
+        }
+
+        List<FcmDataOnlyUserResult> userResults = new ArrayList<>();
+        for (FcmTokenLookupResponse lookup : lookupResults) {
+            FcmDataOnlyUserResultBuilder builder = builderMap.get(lookup.getUserCode());
+            if (builder != null) {
+                userResults.add(builder.build());
+            }
+        }
+
+        return new FcmDataOnlySendResponse(
+                lookupResults.size(),
+                tokenRouting.size(),
+                successCount,
+                failureCount,
+                userResults
+        );
+    }
+
+    private List<FcmTokenLookupResponse> lookupTokensInternal(List<String> userCodes,
+                                                              List<String> platforms,
+                                                              boolean includeTemporary) {
+        List<String> normalizedUserCodes = normalizeUserCodes(userCodes);
+        if (normalizedUserCodes.isEmpty()) {
+            throw new IllegalArgumentException("조회할 사용자 코드가 필요합니다");
+        }
+
+        List<String> resolvedPlatforms = resolvePlatforms(platforms);
+
+        Map<String, FcmToken> tokensByUser = fcmTokenRepository.findByUserCodeIn(normalizedUserCodes)
+                .stream()
+                .collect(Collectors.toMap(FcmToken::getUserCode, token -> token));
+
+        List<FcmTokenLookupResponse> responses = new ArrayList<>();
+
+        for (String userCode : normalizedUserCodes) {
+            FcmToken entity = tokensByUser.get(userCode);
+            if (entity == null) {
+                logger.warn("FCM 토큰 정보 없음 - 사용자: {}", userCode);
+            }
+
+            Map<String, List<String>> tokensByPlatform = new LinkedHashMap<>();
+            List<String> missingPlatforms = new ArrayList<>();
+
+            for (String platform : resolvedPlatforms) {
+                LinkedHashSet<String> tokenSet = new LinkedHashSet<>();
+
+                if (entity != null) {
+                    String storedToken = entity.getTokenByPlatform(platform);
+                    if (isValidToken(storedToken)) {
+                        tokenSet.add(storedToken);
+                    }
+
+                    if (includeTemporary) {
+                        String temporaryToken = fcmSessionService.getTemporaryToken(entity.getUserIdx(), platform);
+                        if (isValidToken(temporaryToken)) {
+                            tokenSet.add(temporaryToken);
+                        }
+                    }
+                }
+
+                if (!tokenSet.isEmpty()) {
+                    tokensByPlatform.put(toPlatformKey(platform), new ArrayList<>(tokenSet));
+                } else {
+                    missingPlatforms.add(toPlatformKey(platform));
+                }
+            }
+
+            responses.add(new FcmTokenLookupResponse(
+                    userCode,
+                    tokensByPlatform,
+                    missingPlatforms
+            ));
+        }
+
+        return responses;
+    }
+
+    private static final class TokenReference {
+        private final String userCode;
+        private final String platform;
+
+        private TokenReference(String userCode, String platform) {
+            this.userCode = userCode;
+            this.platform = platform;
+        }
+
+        public String getUserCode() {
+            return userCode;
+        }
+
+        @SuppressWarnings("unused")
+        public String getPlatform() {
+            return platform;
+        }
+    }
+
+    private static final class FcmDataOnlyUserResultBuilder {
+        private final String userCode;
+        private final Map<String, List<String>> tokensByPlatform;
+        private final List<String> missingPlatforms;
+        private final List<String> succeededTokens = new ArrayList<>();
+        private final Map<String, String> failedTokens = new LinkedHashMap<>();
+        private int successCount = 0;
+        private int failureCount = 0;
+
+        private FcmDataOnlyUserResultBuilder(String userCode,
+                                             Map<String, List<String>> tokensByPlatform,
+                                             List<String> missingPlatforms) {
+            this.userCode = userCode;
+            this.tokensByPlatform = tokensByPlatform;
+            this.missingPlatforms = missingPlatforms;
+        }
+
+        private void addSuccess(String token) {
+            succeededTokens.add(token);
+            successCount++;
+        }
+
+        private void addFailure(String token, String reason) {
+            failedTokens.put(token, reason == null ? "unknown" : reason);
+            failureCount++;
+        }
+
+        private FcmDataOnlyUserResult build() {
+            Map<String, List<String>> tokensCopy = new LinkedHashMap<>();
+            tokensByPlatform.forEach((key, value) -> tokensCopy.put(key, new ArrayList<>(value)));
+
+            return new FcmDataOnlyUserResult(
+                    userCode,
+                    tokensCopy,
+                    new ArrayList<>(missingPlatforms),
+                    new ArrayList<>(succeededTokens),
+                    new LinkedHashMap<>(failedTokens),
+                    successCount,
+                    failureCount
+            );
+        }
     }
 
     private boolean isInvalidTokenError(String errorCode) {
