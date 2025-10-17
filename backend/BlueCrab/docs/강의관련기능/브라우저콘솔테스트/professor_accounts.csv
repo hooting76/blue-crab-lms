@@ -1,0 +1,6 @@
+﻿교수명,이메일,USER_CODE,소속_학부,소속_학과,USER_STUDENT,비밀번호,비밀번호_해시
+돌고래,prof.dolphin@univ.edu,202510101001,해양학부(01),항해학과(01),1,Bluecrab256@,ebd6b2d1a79d4337f2451d1e0c82a3309d8647a13ffe5fa541f465560d336259
+고래,prof.whale@univ.edu,202510201002,보건학부(02),간호학(01),1,Bluecrab256@,ebd6b2d1a79d4337f2451d1e0c82a3309d8647a13ffe5fa541f465560d336259
+상어,prof.shark@univ.edu,202510301003,자연과학부(03),물리학(01),1,Bluecrab256@,ebd6b2d1a79d4337f2451d1e0c82a3309d8647a13ffe5fa541f465560d336259
+문어,prof.octopus@univ.edu,202510401004,인문학부(04),철학(01),1,Bluecrab256@,ebd6b2d1a79d4337f2451d1e0c82a3309d8647a13ffe5fa541f465560d336259
+해파리,prof.jellyfish@univ.edu,202510501005,공학부(05),컴퓨터공학(01),1,Bluecrab256@,ebd6b2d1a79d4337f2451d1e0c82a3309d8647a13ffe5fa541f465560d336259

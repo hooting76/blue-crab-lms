@@ -1,23 +1,19 @@
 # 02. API 명세서
 
-> **작성일**: 2025-10-10
-> **최종 수정**: 2025-01-XX
-> **버전**: 4.0 (POST 방식 통일 완료)
+> **작성일**: 2025-10-10  
+> **최종 수정**: 2025-10-17  
+> **버전**: 6.0 (100% POST 방식 + lecSerial 기반 API)  
 > **변경사항**:
-> - ✅ **Phase 10: 100% POST 방식 통일** (2025-01-XX)
+> - ✅ **Phase 11: lecIdx → lecSerial 마이그레이션** (2025-10-17)
+>   - 프론트엔드에서 lecIdx 완전 제거
+>   - 모든 API가 lecSerial 기반으로 동작
+>   - 백엔드 변환 레이어 구현
+> - ✅ **Phase 10: 100% POST 방식 통일** (2025-10-16)
 >   - 모든 GET, PUT, DELETE 엔드포인트를 POST로 변경
 >   - Request Body를 통한 파라미터 전달로 통일
->   - 일관된 API 설계 패턴 확립
-> - ✅ **Phase 9: 백엔드 필터링** (2025-01-XX)
+> - ✅ **Phase 9: 백엔드 필터링** (2025-10-16)
 >   - 전공/부전공 필터링 로직 추가
 >   - 0값 규칙 적용 (0 = 전체)
-> - 모든 필드명을 대문자 + 언더스코어 규칙으로 통일
-> - EnrollmentController DTO 패턴 적용 완료
-> - LectureController DTO 패턴 적용 완료
-> - HTTP 400 Hibernate Lazy Loading 이슈 해결
-> - 강의 시간 형식 엄격 검증 적용
-> - 학부/학과 코드 데이터베이스 검증 적용
-> - 수강신청 API 응답 구조 명확화
 
 ---
 
@@ -31,202 +27,28 @@
 
 1. [API 설계 원칙](#1-api-설계-원칙)
 2. [인증 및 인가](#2-인증-및-인가)
-3. [관리자 API](#3-관리자-api)
-4. [교수 API](#4-교수-api)
-5. [학생 API](#5-학생-api)
-6. [공통 API](#6-공통-api)
+3. [강의 관리 API](#3-강의-관리-api)
+4. [수강신청 API](#4-수강신청-api)
+5. [과제 관리 API](#5-과제-관리-api)
+6. [출석 관리 API](#6-출석-관리-api)
 7. [에러 코드](#7-에러-코드)
-8. [미구현 기능 목록](#-미구현-기능-목록)
+8. [미구현 기능](#8-미구현-기능)
 
 ---
 
 ## 1. API 설계 원칙
 
-### **POST 방식 통일 (Phase 10)**
+### **POST 방식 100% 통일 (Phase 10)**
 - **HTTP Method**: 모든 엔드포인트는 POST 방식 사용
 - **파라미터 전달**: Request Body를 통한 JSON 파라미터 전달
 - **일관성**: 통일된 API 패턴으로 프론트엔드 개발 단순화
-- **장점**: 
-  - 복잡한 필터링 조건을 Request Body로 깔끔하게 전달
-  - URL 길이 제한 문제 해결
-  - 일관된 에러 처리 및 로깅
+- **보안**: URL 파라미터 노출 제거
 
-### **RESTful 설계 기반**
-- **Resource Naming**: 복수형 명사 사용 (`/lectures`, `/enrollments`)
-- **Status Codes**: 표준 HTTP 상태 코드 사용
-- **URL 패턴**: 역할별 구분 (`/api/professor/`, `/api/student/`, `/api/admin/`, `/api/`)
+### **lecSerial 기반 API (Phase 11)**
+- **프론트엔드**: lecIdx 완전 숨김, lecSerial만 사용
+- **백엔드**: 변환 레이어에서 lecSerial ↔ lecIdx 자동 변환
+- **응답**: @JsonIgnore로 lecIdx 숨김, lecSerial만 반환
 
-### **엔드포인트 패턴**
-- **공통 리소스**: `POST /api/{resource}/{action}` (예: `/api/lectures/list`, `/api/lectures/create`)
-- **역할별 리소스**: `POST /api/{role}/{resource}/{action}` (예: `/api/professor/attendance/requests`)
-- **관리자 전용**: `POST /api/admin/{resource}/{action}` (예: `/api/admin/auth`)
-- **게시판/첨부파일**: `POST /api/boards/{action}`, `POST /api/board-attachments/{action}`
-
-### **응답 포맷**
-```json
-// 성공 응답
-{
-  "success": true,
-  "data": { ... },
-  "message": "요청이 성공적으로 처리되었습니다."
-}
-
-// 에러 응답
-{
-  "success": false,
-  "error": {
-    "code": "ENROLLMENT_FULL",
-    "message": "강의 정원이 초과되었습니다."
-  }
-}
-
-// 페이지네이션 응답
-{
-  "success": true,
-  "data": {
-    "content": [ ... ],
-    "pageable": {
-      "page": 0,
-      "size": 10,
-      "totalElements": 25,
-      "totalPages": 3
-    }
-  }
-}
-```
-
----
-
-## 2. 인증 및 인가
-
-### **JWT 토큰 구조**
-```javascript
-// 헤더
-{
-  "alg": "HS256",
-  "typ": "JWT"
-}
-
-// 페이로드
-{
-  "userIdx": 123,
-  "username": "student001",
-  "role": "ROLE_STUDENT",
-  "department": "CS",
-  "iat": 1638360000,
-  "exp": 1638363600
-}
-```
-
-### **인증 API**
-
-#### **로그인**
-```http
-POST /api/auth/login
-Content-Type: application/json
-
-{
-  "username": "student001",
-  "password": "password123"
-}
-```
-
-**응답:**
-```json
-{
-  "success": true,
-  "data": {
-    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "user": {
-      "userIdx": 123,
-      "username": "student001",
-      "name": "홍길동",
-      "role": "ROLE_STUDENT",
-      "department": "CS"
-    }
-  }
-}
-```
-
-#### **토큰 갱신**
-```http
-POST /api/auth/refresh
-Authorization: Bearer {refreshToken}
-```
-
----
-
-## 3. 관리자 API
-
-> ⚠️ **중요**: 아래 명세서의 일부 엔드포인트는 구버전(GET, PUT, DELETE)으로 표시되어 있으나,  
-> **실제 구현은 100% POST 방식으로 통일**되었습니다. (Phase 10 완료)  
-> 
-> **실제 사용 시 참고 문서**: 
-> - `API_CONTROLLER_MAPPING.md` (v5.0) - 최신 POST 엔드포인트 전체 목록
-> - `POST방식통일-작업완료보고서.md` - POST 통일 완료 보고서
-> - `PHASE9_COMPLETION_SUMMARY.md` - Phase 9-10 완료 요약
->
-> **예시**:
-> - ❌ 구버전: `GET /api/lectures?page=0&size=10`
-> - ✅ 신버전: `POST /api/lectures/list` + Request Body `{"page": 0, "size": 10}`
-
-### **강의 관리**
-
-#### **강의 목록 조회**
-```http
-GET /api/lectures?page=0&size=10&year=2025&semester=1
-Authorization: Bearer {accessToken}
-```
-
-**응답:**
-```json
-{
-  "success": true,
-  "data": {
-    "content": [
-      {
-        "lecIdx": 1,
-        "lecTit": "자바 프로그래밍",
-        "lecSerial": "CS101",
-        "lecProf": "PROF001",
-        "lecCurrent": 25,
-        "lecMany": 30,
-        "lecOpen": 1,
-        "lecYear": 2,
-        "lecSemester": 1
-      }
-    ],
-    "pageable": {
-      "page": 0,
-      "size": 10,
-      "totalElements": 25
-    }
-  }
-}
-```
-
-#### **강의 등록**
-```http
-POST /api/lectures
-Content-Type: application/json
-Authorization: Bearer {accessToken}
-
-{
-  "lecSerial": "CS101",
-  "lecTit": "자바 프로그래밍",
-  "lecSummary": "자바 기초 프로그래밍 강의",
-  "lecMany": 30,
-  "lecPoint": 3,
-  "lecTime": "월1월2수3수4",
-  "lecProf": "PROF001",
-  "lecMcode": "01",
-  "lecMcodeDep": "03",
-  "lecYear": 2,
-  "lecSemester": 1,
-  "lecMajor": 1,
-  "lecMust": 1,
-  "lecMin": 0,
   "lecOpen": 1,
   "lecReg": "2025-10-15 14:30:00"
 }

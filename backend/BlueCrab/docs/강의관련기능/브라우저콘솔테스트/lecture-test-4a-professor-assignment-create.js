@@ -44,49 +44,28 @@ function checkAuth() {
     return true;
 }
 
-// ========== JWT에서 교수 정보 추출 ==========
-async function getProfessorFromToken() {
-    if (!window.authToken) return null;
+// ========== JWT에서 USER_IDX 추출 ==========
+function getUserIdxFromToken() {
+    if (!window.authToken) {
+        console.log('⚠️ 로그인 토큰이 없습니다.');
+        return null;
+    }
     
-    console.log('🔍 프로필 API로 USER_CODE 조회 중...');
+    const payload = decodeJWT(window.authToken);
+    if (!payload) {
+        console.log('❌ JWT 디코딩 실패');
+        return null;
+    }
     
-    // 프로필 API로 USER_CODE 조회 (majorCode가 학번/교번)
-    try {
-        const response = await fetch(`${API_BASE_URL}/profile/me`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${window.authToken}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (!response.ok) {
-            console.log(`⚠️ 프로필 조회 실패 (${response.status})`);
-            return null;
-        }
-        
-        const result = await response.json();
-        
-        if (!result.success) {
-            console.log('⚠️ 프로필 조회 실패:', result.message);
-            return null;
-        }
-        
-        const userData = result.data;
-        const userCode = userData.majorCode; // majorCode가 학번/교번 (USER_CODE)
-        const userName = userData.userName;
-        const userType = userData.userTypeText;
-        
-        if (userCode) {
-            console.log(`✅ 프로필 조회 성공: ${userName} (${userType}) → userCode="${userCode}"`);
-            return userCode;
-        } else {
-            console.log('⚠️ 프로필에 majorCode(USER_CODE)가 없습니다.');
-            console.log('응답:', userData);
-            return null;
-        }
-    } catch (error) {
-        console.log('❌ 프로필 조회 에러:', error.message);
+    // JWT에서 USER_IDX 추출 (가능한 필드명들 시도)
+    const userIdx = payload.userIdx || payload.USER_IDX || payload.userId || payload.USER_ID || payload.user_id || payload.id;
+    
+    if (userIdx) {
+        console.log(`✅ JWT에서 USER_IDX 추출 성공: ${userIdx}`);
+        return String(userIdx); // 문자열로 변환
+    } else {
+        console.log('❌ JWT에서 USER_IDX를 찾을 수 없습니다.');
+        console.log('📋 JWT Payload:', payload);
         return null;
     }
 }
@@ -115,22 +94,13 @@ async function debugTokenInfo() {
         console.log(`   ${key}: ${JSON.stringify(payload[key])}`);
     });
     
-    console.log('\n🔎 userId 확인:');
+    console.log('\n🔎 USER_IDX 확인:');
     console.log('═══════════════════════════════════════════════════════');
-    const userId = payload.userId || payload.USER_ID || payload.user_id || payload.id;
-    if (userId) {
-        console.log(`   ✅ userId: ${userId}`);
+    const userIdx = getUserIdxFromToken();
+    if (userIdx) {
+        console.log(`   ✅ 최종 USER_IDX: "${userIdx}"`);
     } else {
-        console.log('   ❌ userId를 찾을 수 없음');
-    }
-    
-    console.log('\n👨‍🏫 USER_CODE 조회 시도:');
-    console.log('═══════════════════════════════════════════════════════');
-    const userCode = await getProfessorFromToken();
-    if (userCode) {
-        console.log(`   ✅ 최종 USER_CODE: "${userCode}"`);
-    } else {
-        console.log('   ❌ USER_CODE 조회 실패 - 수동 입력이 필요합니다.');
+        console.log('   ❌ USER_IDX 조회 실패 - 수동 입력이 필요합니다.');
     }
     
     console.log('\n💡 currentUser 정보:');
@@ -147,16 +117,16 @@ async function getMyLectures() {
     if (!checkAuth()) return;
     const token = window.authToken;
     
-    // JWT에서 userId 추출 후 USER_CODE 조회
-    console.log('🔄 교수번호 조회 중...');
-    const professorCode = await getProfessorFromToken();
+    // JWT에서 USER_IDX 자동 추출
+    console.log('🔄 JWT에서 USER_IDX 추출 중...');
+    const userIdx = getUserIdxFromToken();
     
-    if (!professorCode) {
-        console.log('⚠️ 자동으로 교수번호를 조회할 수 없습니다.');
-        console.log('💡 수동으로 교수번호를 입력하세요.');
+    if (!userIdx) {
+        console.log('⚠️ JWT에서 USER_IDX를 추출할 수 없습니다.');
+        console.log('💡 수동으로 USER_IDX를 입력하세요.');
     }
     
-    const professor = professorCode || prompt('👨‍🏫 교수번호 (예: 11, PROF001):', '11');
+    const professor = userIdx || prompt('👨‍🏫 교수 USER_IDX (예: 22, 23, 24...):', '22');
     const page = parseInt(prompt('📄 페이지 번호 (0부터 시작):', '0'));
     const size = parseInt(prompt('📄 페이지 크기:', '10'));
 
@@ -397,9 +367,9 @@ function help() {
     
     console.log('📋 제공 함수:\n');
     console.log('await checkAuth()             - 로그인 상태 확인');
-    console.log('await getProfessorFromToken() - JWT에서 교수 정보 추출');
+    console.log('getUserIdxFromToken()         - JWT에서 USER_IDX 추출');
     console.log('await debugTokenInfo()        - JWT 토큰 디버깅');
-    console.log('await getMyLectures()         - 담당 강의 목록');
+    console.log('await getMyLectures()         - 담당 강의 목록 (자동 USER_IDX)');
     console.log('await createAssignment()      - 과제 생성 (10점 고정)');
     console.log('await getAssignments()        - 과제 목록 조회\n');
     
@@ -411,6 +381,7 @@ function help() {
     console.log('   - 과제 삭제\n');
     
     console.log('═══════════════════════════════════════════════════════\n');
+    console.log('💡 JWT에서 USER_IDX 자동 추출 (LEC_PROF 검색용)');
     console.log('💡 과제 시스템: 오프라인 제출 + DB는 점수만 기록');
     console.log('💡 배점: 모든 과제는 10점 만점으로 고정');
     console.log('💡 window.lastLectureIdx, window.lastAssignmentIdx 자동 저장');
@@ -420,16 +391,28 @@ function help() {
 console.log('✅ 교수 과제 관리 테스트 스크립트 로드 완료! (Part A: 과제 생성 및 목록 조회)');
 console.log('💡 help() 를 입력하면 사용 가능한 함수 목록을 볼 수 있습니다.');
 
-// JWT 디코딩 테스트 (async 함수이므로 즉시 실행하지 않음)
+// JWT에서 USER_IDX 자동 추출 테스트
 if (window.authToken) {
-    console.log('🔄 교수번호 조회 중...');
-    getProfessorFromToken().then(professorCode => {
-        if (professorCode) {
-            console.log(`👨‍🏫 인식된 교수번호: ${professorCode}`);
-        } else {
-            console.log('⚠️ JWT에서 교수번호(USER_CODE)를 자동 추출할 수 없습니다. 수동 입력이 필요합니다.');
-        }
-    }).catch(err => {
-        console.log('⚠️ 교수번호 조회 실패:', err.message);
-    });
+    console.log('🔄 JWT에서 USER_IDX 추출 중...');
+    const userIdx = getUserIdxFromToken();
+    if (userIdx) {
+        console.log(`✅ 인식된 USER_IDX: ${userIdx}`);
+        console.log('💡 이제 getMyLectures() 실행 시 자동으로 사용됩니다.');
+    } else {
+        console.log('⚠️ JWT에서 USER_IDX를 자동 추출할 수 없습니다. 수동 입력이 필요합니다.');
+        console.log('💡 debugTokenInfo()를 실행하여 JWT 구조를 확인하세요.');
+    }
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// 🚀 빠른 실행 명령어 (테스터용)
+// ═══════════════════════════════════════════════════════════════════
+console.log('\n' + '═'.repeat(63));
+console.log('🚀 빠른 실행 명령어');
+console.log('═'.repeat(63));
+console.log('await getMyLectures()      // 내 강의 목록');
+console.log('await createAssignment()   // 과제 생성');
+console.log('await getAssignments()     // 과제 목록');
+console.log('await debugTokenInfo()     // JWT 디버깅');
+console.log('help()                     // 전체 도움말');
+console.log('═'.repeat(63) + '\n');

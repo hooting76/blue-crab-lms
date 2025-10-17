@@ -294,3 +294,18 @@ function help() {
 // 초기 메시지
 console.log('✅ 관리자 통계 테스트 스크립트 로드 완료!');
 console.log('💡 help() 를 입력하면 사용 가능한 함수 목록을 볼 수 있습니다.');
+
+// ═══════════════════════════════════════════════════════════════════
+// 🚀 빠른 실행 명령어 (테스터용)
+// ═══════════════════════════════════════════════════════════════════
+console.log('\n' + '═'.repeat(63));
+console.log('🚀 빠른 실행 명령어');
+console.log('═'.repeat(63));
+console.log('await getLectureStatistics()      // 전체 강의 통계');
+console.log('await getStudentStatistics()      // 학생별 통계');
+console.log('await getProfessorStatistics()    // 교수별 통계');
+console.log('await getSemesterTrends()         // 학기별 트렌드');
+console.log('await getPopularLectures()        // 인기 강의 순위');
+console.log('await getDepartmentStatistics()   // 학과별 통계');
+console.log('help()                            // 전체 도움말');
+console.log('═'.repeat(63) + '\n');

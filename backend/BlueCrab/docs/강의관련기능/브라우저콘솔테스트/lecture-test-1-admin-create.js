@@ -27,7 +27,7 @@ async function getLectures() {
     
     const page = parseInt(prompt('📄 페이지 번호 (0부터 시작):', '0'));
     const size = parseInt(prompt('📄 페이지 크기:', '10'));
-    const professor = prompt('👨‍🏫 교수 코드 (선택, 공백=전체):', '');
+    const professor = prompt('👨‍🏫 교수 USER_IDX (선택, 예: 22, 공백=전체):', '');
     const year = prompt('🎯 대상 학년 (선택, 1-4, 공백=전체):', '');
     const semester = prompt('📅 학기 (선택, 1/2, 공백=전체):', '');
 
@@ -304,7 +304,7 @@ async function createLecture() {
     
     const lecTit = prompt('📚 강의명:', '');
     const lecSerial = prompt('📋 강의 코드:', '');
-    const lecProf = prompt('👨‍🏫 교수 코드:', '');
+    const lecProf = prompt('👨‍🏫 교수 USER_IDX (예: 22, 23, 24...):', '');
     const lecYear = parseInt(prompt('🎯 대상 학년 (1~4):', '1'));
     const lecSemester = parseInt(prompt('📅 학기 (1/2):', '1'));
     const lecMany = parseInt(prompt('👥 최대 수강 인원:', '30'));
@@ -504,3 +504,17 @@ function help() {
 // ========== 초기 메시지 ==========
 console.log('✅ 관리자 강의 관리 테스트 로드 완료 (Phase 9)');
 
+// ═══════════════════════════════════════════════════════════════════
+// 🚀 빠른 실행 명령어 (테스터용)
+// ═══════════════════════════════════════════════════════════════════
+console.log('\n' + '═'.repeat(63));
+console.log('🚀 빠른 실행 명령어');
+console.log('═'.repeat(63));
+console.log('await getLectures()        // 강의 목록 조회');
+console.log('await getLectureDetail()   // 강의 상세 조회');
+console.log('await createLecture()      // 강의 생성');
+console.log('await updateLecture()      // 강의 수정');
+console.log('await deleteLecture()      // 강의 삭제');
+console.log('await getLectureStats()    // 강의 통계');
+console.log('help()                     // 전체 도움말');
+console.log('═'.repeat(63) + '\n');

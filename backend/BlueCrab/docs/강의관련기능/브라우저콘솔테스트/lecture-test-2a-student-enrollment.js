@@ -349,3 +349,16 @@ console.log('💡 help() 를 입력하면 사용 가능한 함수 목록을 볼 
 console.log('🔍 debugTokenInfo() 로 토큰 정보를 확인할 수 있습니다.');
 console.log('⚠️ 먼저 학생 계정으로 로그인하세요! (checkAuth()로 확인 가능)');
 console.log('🆕 Phase 9: 백엔드 필터링 - 학부/학과 코드 기반 수강 자격 확인');
+
+// ═══════════════════════════════════════════════════════════════════
+// 🚀 빠른 실행 명령어 (테스터용)
+// ═══════════════════════════════════════════════════════════════════
+console.log('\n' + '═'.repeat(63));
+console.log('🚀 빠른 실행 명령어');
+console.log('═'.repeat(63));
+console.log('await getAvailableLectures()  // 수강 가능 강의 목록');
+console.log('await enrollLecture()         // 수강 신청');
+console.log('debugTokenInfo()              // JWT 토큰 정보');
+console.log('checkAuth()                   // 로그인 확인');
+console.log('help()                        // 전체 도움말');
+console.log('═'.repeat(63) + '\n');
