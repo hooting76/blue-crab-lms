@@ -53,13 +53,13 @@ function ClassAttending({currentPage, setCurrentPage}) {
 // };
 
 // const semesterOptions = generateSemesters(8);
-const currentSemesterValue = `${currentYear}_${currentSemester}`; // 현재 학기 value
-const [selectedSemester, setSelectedSemester] = useState(currentSemesterValue); // 학기 선택 상태
-const handleYearChange = (e) => {
-    setSelectedYear(e.target.value);
-};
+// const currentSemesterValue = `${currentYear}_${currentSemester}`; // 현재 학기 value
+const [selectedSemester, setSelectedSemester] = useState(1); // 학기 선택 상태
+// const handleYearChange = (e) => {
+//     setSelectedYear(e.target.value);
+// };
 
-const [selectedYear, setSelectedYear] = useState(1);
+// const [selectedYear, setSelectedYear] = useState(1);
 
 const attendanceRequestSubmit = (e) => {
     e.preventDefault();
