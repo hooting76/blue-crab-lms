@@ -280,7 +280,7 @@ function CourseRegister() {
                         <label>과제 유무</label><br/>
                         <select
                         value={lecAssign}
-                        onChange={(e) => setLecMust(Number(e.target.value))}
+                        onChange={(e) => setLecAssign(Number(e.target.value))}
                         required
                         >
                             <option value="">과제 유무</option>
