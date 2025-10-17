@@ -104,7 +104,6 @@ const fetchLectureList = async (accessToken, selectedSemester) => {
         const requestBody = {
             page: 0,
             size: 20,
-            professor: user.data.user.id,
             year: parseInt(year),
             semester: parseInt(semester)
         };
