@@ -104,13 +104,13 @@ const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
     
 const fetchClassAttendingList = async (accessToken) => { // 학생의 경우
     try {
-        const response = await fetch(`${BASE_URL}/enrollments?studentIdx=${user.data.user.id}&page=0&size=10`, {
+        const response = await fetch(`${BASE_URL}/lectures`, {
             method: "POST",
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({})
+            body: JSON.stringify({page: 0, size: 20})
         })
     if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
             const data = await response.json();
@@ -122,13 +122,13 @@ const fetchClassAttendingList = async (accessToken) => { // 학생의 경우
 
 const fetchClassLecturingList = async (accessToken) => { // 교수의 경우
     try {
-        const response = await fetch(`${BASE_URL}/professor/lectures`, {
+        const response = await fetch(`${BASE_URL}/lectures`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({})
+            body: JSON.stringify({page: 0, size: 20})
         });
     if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
             const data = await response.json();
