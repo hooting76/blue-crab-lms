@@ -16,6 +16,7 @@ function CourseRegister() {
     const [lecSemester, setLecSemester] = useState();
     const [lecMajor, setLecMajor] = useState();
     const [lecMust, setLecMust] = useState();
+    const [lecAssign, setLecAssign] = useState();
     const [lecMin, setLecMin] = useState();
     const [lecOpen, setLecOpen] = useState();
 
@@ -48,6 +49,7 @@ function CourseRegister() {
             lecSemester,
             lecMajor,
             lecMust,
+            lecAssign,
             lecMin,
             lecOpen,
             lecReg
@@ -271,6 +273,19 @@ function CourseRegister() {
                             <option value="">필수 여부</option>
                             <option value={1}>필수</option>
                             <option value={0}>선택</option>
+                        </select>
+                    </span>
+
+                    <span>
+                        <label>과제 유무</label><br/>
+                        <select
+                        value={lecAssign}
+                        onChange={(e) => setLecMust(Number(e.target.value))}
+                        required
+                        >
+                            <option value="">과제 유무</option>
+                            <option value={1}>있음</option>
+                            <option value={0}>없음</option>
                         </select>
                     </span>
                 
