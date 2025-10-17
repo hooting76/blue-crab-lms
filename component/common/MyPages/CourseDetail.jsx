@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { UseUser } from '../../../hook/UseUser';
 
-function CourseDetail({lectureIdx}) {
+function CourseDetail({lectureIdx, onFetchComplete}) {
 
     const { user } = UseUser();
     const [course, setCourse] = useState(null);
@@ -20,6 +20,7 @@ function CourseDetail({lectureIdx}) {
         if (token && lectureIdx) {
             getCourseDetail(token, lectureIdx).then((data) => {
                 setCourse(data);
+                onFetchComplete?.(data);
             });
         }
     }, [lectureIdx]);

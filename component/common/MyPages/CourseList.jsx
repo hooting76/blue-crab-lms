@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { UseUser } from '../../../hook/UseUser';
 import CourseDetail from './CourseDetail';
+import CourseDetailEdit from './CourseDetailEdit';
 
-function CourseList() {
+function CourseList({ currentPage, setCurrentPage }) {
+
     const { user } = UseUser();
     const [courseList, setCourseList] = useState([]);
     const [selectedLecture, setSelectedLecture] = useState(null);
@@ -10,8 +12,8 @@ function CourseList() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
-    const openModal = (lectureIdx) => {
-    setSelectedLecture(lectureIdx);
+    const openModal = (lecture) => {
+    setSelectedLecture(lecture);
     setIsModalOpen(true);
     };
 
@@ -57,10 +59,21 @@ function CourseList() {
         return;
         }
 
-    setSelectedLecture(fetchedNotice);
+    setSelectedLecture(fetchedLecture);
     setIsModalOpen(false);
     setCurrentPage("강의 수정 상세 페이지");
     };
+
+    if (currentPage === "강의 수정 상세 페이지") {
+    return (
+        <CourseDetailEdit
+            lecture={selectedLecture}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+        />
+    );
+}
+
 
 
     return (
@@ -69,7 +82,7 @@ function CourseList() {
             <h2>강의 목록</h2>
             <ul>
                 {courseList.map((course) => (
-                    <li key={course.lectureIdx} onClick={() => openModal(course.lectureIdx)}>{course.lectureName}</li>
+                    <li key={course.lectureIdx} onClick={() => openModal(course)}>{course.lectureName}</li>
                 ))}
             </ul>
         </div>
@@ -84,7 +97,7 @@ function CourseList() {
                             ✖
                         </button>
                         <CourseDetail
-                        lectureIdx={selectedLecture}
+                        lecture={selectedLecture}
                         currentPage={currentPage}
                         setCurrentPage={setCurrentPage}
                         onFetchComplete={(lecture) => {
