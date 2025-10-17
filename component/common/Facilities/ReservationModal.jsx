@@ -1,26 +1,62 @@
+// component/common/Facilities/ReservationModal.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import {
   postDailySchedule,
   postAvailability,
   postReservation,
+  postMyReservations,
 } from "../../../src/api/facility";
 import {
-  genBusinessSlotsWithBoundary, // 09..18 시작 슬롯(18:00~19:00 포함)
+  genBusinessSlotsWithBoundary,
   toYMD,
   toYMDHMS,
   validateBusinessHours,
   packContiguousRanges,
-  isPastHourYMD,              // 오늘의 지난 슬롯(끝시각 기준) 비활성화
-  isAfterBusinessEnd,         // 오늘 18:00 경계가 지났는지
+  isPastHourYMD,
+  isAfterBusinessEnd,
+  compareYMD,
+  isNowInSubmissionWindow,
+  parseYMDHMS,
 } from "../../../src/utils/timeUtils";
-import "../../../css/Facilities/FacilityReserve.css";
+import "../../../css/Facilities/FacilityReserveModal.css";
 
-/** 지금이 ‘접수 가능 시간(09:00~18:00)’인지 */
-function isNowInSubmissionWindow() {
-  const now = new Date();
-  const h = now.getHours();
-  // 09:00 <= now < 18:00
-  return h >= 9 && h < 18;
+/* ---------- 상태 표준화(한글/영문) ---------- */
+const normalizeStatus = (v) => {
+  if (v == null) return undefined;
+  const raw = String(v).trim();
+
+  // 한글
+  const KR = {
+    "대기중": "PENDING",
+    "승인대기": "PENDING",
+    "승인됨": "APPROVED",
+    "예약완료": "APPROVED",
+    "반려됨": "REJECTED",
+    "거절됨": "REJECTED",
+    "취소됨": "CANCELLED",
+    "완료됨": "COMPLETED",
+  };
+  if (KR[raw]) return KR[raw];
+
+  // 영문
+  const s = raw.toUpperCase();
+  if (["PENDING", "WAITING", "REQUESTED", "UNDER_REVIEW", "PENDING_APPROVAL", "APPROVAL_PENDING"].includes(s)) return "PENDING";
+  if (["APPROVED", "CONFIRMED", "BOOKED", "RESERVED"].includes(s)) return "APPROVED";
+  if (["REJECTED", "DECLINED", "DENIED"].includes(s)) return "REJECTED";
+  if (["CANCELLED", "CANCELED"].includes(s)) return "CANCELLED";
+  if (["COMPLETED", "DONE", "FINISHED"].includes(s)) return "COMPLETED";
+  return undefined;
+};
+
+// "YYYY-MM-DD HH:mm:ss" 범위를 시작시(hour) 배열로 변환
+function expandHoursOnDate(startStr, endStr, ymd) {
+  const s = parseYMDHMS(startStr);
+  const e = parseYMDHMS(endStr);
+  if (!s || !e) return [];
+  if (toYMD(s) !== ymd || toYMD(e) !== ymd) return [];
+  const out = [];
+  for (let h = s.getHours(); h < e.getHours(); h++) out.push(h);
+  return out;
 }
 
 export default function ReservationModal({ facility, onClose }) {
@@ -32,9 +68,10 @@ export default function ReservationModal({ facility, onClose }) {
   const [headcount, setHeadcount] = useState(1);
   const [msg, setMsg] = useState("");
   const [saving, setSaving] = useState(false);
+  const [myDayReservations, setMyDayReservations] = useState([]);
 
   const hours = genBusinessSlotsWithBoundary();
-  const canSubmitNow = isNowInSubmissionWindow(); // ★ 현재 접수 가능 여부(날짜 무관, 지금 기준)
+  const canSubmitNow = isNowInSubmissionWindow(); // 지금 시각이 09:00~18:00 사이인가?
 
   /** 상단 시설 요약 */
   const metaLine = useMemo(() => {
@@ -49,73 +86,142 @@ export default function ReservationModal({ facility, onClose }) {
 
     (async () => {
       try {
+        // 1) 일일 스케줄
         const res = await postDailySchedule(facility.facilityIdx, date);
         const arr = Array.isArray(res?.data?.timeSlots) ? res.data.timeSlots : [];
 
         const slotMap = new Map();
         for (const t of arr) {
           const hh = Number(String(t.hour || "0").split(":")[0]);
-          const status = t?.status ? String(t.status).toUpperCase() : undefined;
+          const status = normalizeStatus(t?.status);
+          // 서버가 ‘예약 불가’/상태를 주면 반영
           slotMap.set(hh, { isAvailable: t.isAvailable !== false, status });
         }
 
-        const endedToday = isAfterBusinessEnd(date);
-
-        let computed = hours.map((h) => {
-          // 18시는 일반 예약 슬롯(18:00~19:00). 단, 오늘 18:00 지나면 운영 종료.
-          if (h === 18) {
-            if (endedToday) return { hour: h, isAvailable: false, reason: "운영 종료" };
-            return { hour: h, isAvailable: true };
-          }
-
-          let ok = true;
-          let reason = "";
-          let status = slotMap.get(h)?.status;
-
-          if (slotMap.has(h) && slotMap.get(h).isAvailable === false) {
-            ok = false;
-            reason = "예약 불가";
-          }
-
-          if (status === "APPROVED") { ok = false; reason = "예약됨"; }
-          else if (status === "PENDING") { ok = false; reason = "승인 대기"; }
-
-          if (ok && isPastHourYMD(date, h)) { ok = false; reason = "예약 불가"; }
-
-          if (endedToday) { ok = false; reason = "운영 종료"; }
-
-          return { hour: h, isAvailable: ok, reason, status };
+        // 2) 내 예약(해당 날짜 & 시설) → 내 슬롯 상태 오버레이
+        const my = await postMyReservations().catch(() => ({ data: [] }));
+        const mine = (Array.isArray(my?.data) ? my.data : []).filter((rv) => {
+          const s = parseYMDHMS(rv.startTime);
+          const e = parseYMDHMS(rv.endTime);
+          if (!s || !e) return false;
+          const sameDay = toYMD(s) === date && toYMD(e) === date;
+          const sameFacility = String(rv.facilityIdx) === String(facility.facilityIdx);
+          return sameDay && sameFacility;
         });
 
-        // ★ 접수 시간이 아니면(현재 시각 기준), 선택한 날짜가 무엇이든 전부 ‘운영 종료’
+        const myStatusByHour = new Map();
+        mine.forEach((rv) => {
+          const status = normalizeStatus(rv.status);
+          expandHoursOnDate(rv.startTime, rv.endTime, date).forEach((h) => {
+            myStatusByHour.set(h, { status });
+          });
+        });
+
+        const rel = compareYMD(date);                  // 과거:-1, 오늘:0, 미래:1
+        const endedToday = rel === 0 && isAfterBusinessEnd(date);
+
+        let computed;
+
+        /* ====== 전역 정책: 지금 접수 시간이 아니면 (canSubmitNow === false)
+                 → 날짜가 무엇이든 전부 '운영 종료'로 보여준다 ====== */
         if (!canSubmitNow) {
           computed = hours.map((h) => ({ hour: h, isAvailable: false, reason: "운영 종료" }));
+        } else {
+          // 접수 시간 안일 때만, 날짜별 세부 정책 적용
+          if (rel < 0) {
+            // 과거 날짜
+            computed = hours.map((h) => ({ hour: h, isAvailable: false, reason: "예약 불가" }));
+          } else if (rel === 0) {
+            // 오늘
+            computed = hours.map((h) => {
+              if (h === 18) {
+                if (endedToday) return { hour: h, isAvailable: false, reason: "운영 종료" };
+                return { hour: h, isAvailable: true };
+              }
+
+              let ok = true;
+              let reason = "";
+              let status = slotMap.get(h)?.status;
+
+              if (slotMap.has(h) && slotMap.get(h).isAvailable === false) {
+                ok = false; reason = "예약 불가";
+              }
+              if (status === "APPROVED") { ok = false; reason = "예약됨"; }
+              else if (status === "PENDING") { ok = false; reason = "승인 대기"; }
+
+              // 오늘의 지난 시간 비활성
+              if (ok && isPastHourYMD(date, h)) { ok = false; reason = "예약 불가"; }
+              // 오늘 18:00 이후 전부 종료
+              if (endedToday) { ok = false; reason = "운영 종료"; }
+
+              // 내 예약 오버레이(최우선)
+              const mineH = myStatusByHour.get(h);
+              if (mineH?.status) {
+                status = mineH.status;
+                if (status === "APPROVED") { ok = false; reason = "예약됨"; }
+                else if (status === "PENDING") { ok = false; reason = "승인 대기"; }
+              }
+
+              return { hour: h, isAvailable: ok, reason, status };
+            });
+          } else {
+            // 미래 날짜
+            computed = hours.map((h) => {
+              let ok = true;
+              let reason = "";
+              let status = slotMap.get(h)?.status;
+
+              if (slotMap.has(h) && slotMap.get(h).isAvailable === false) {
+                ok = false; reason = "예약 불가";
+              }
+              if (status === "APPROVED") { ok = false; reason = "예약됨"; }
+              else if (status === "PENDING") { ok = false; reason = "승인 대기"; }
+
+              const mineH = myStatusByHour.get(h);
+              if (mineH?.status) {
+                status = mineH.status;
+                if (status === "APPROVED") { ok = false; reason = "예약됨"; }
+                else if (status === "PENDING") { ok = false; reason = "승인 대기"; }
+              }
+
+              return { hour: h, isAvailable: ok, reason, status };
+            });
+          }
         }
 
         setSlots(computed);
         setSelected([]);
+        setMyDayReservations(mine);
       } catch (e) {
         console.error(e);
 
-        const endedToday = isAfterBusinessEnd(date);
-        let fallback = hours.map((h) => {
-          if (h === 18) {
-            return endedToday
-              ? { hour: h, isAvailable: false, reason: "운영 종료" }
-              : { hour: h, isAvailable: true };
-          }
-          if (endedToday) return { hour: h, isAvailable: false, reason: "운영 종료" };
-          const past = isPastHourYMD(date, h);
-          return { hour: h, isAvailable: !past, reason: past ? "예약 불가" : "" };
-        });
-
-        // ★ 접수 시간이 아니면 예외 상황에서도 동일 정책 적용
+        // 실패 시에도 정책 유지: 접수시간 아니면 전부 '운영 종료'
+        let fallback;
         if (!canSubmitNow) {
           fallback = hours.map((h) => ({ hour: h, isAvailable: false, reason: "운영 종료" }));
+        } else {
+          const rel = compareYMD(date);
+          const endedToday = rel === 0 && isAfterBusinessEnd(date);
+          if (rel < 0) {
+            fallback = hours.map((h) => ({ hour: h, isAvailable: false, reason: "예약 불가" }));
+          } else if (rel === 0) {
+            fallback = hours.map((h) => {
+              if (h === 18)
+                return endedToday
+                  ? { hour: h, isAvailable: false, reason: "운영 종료" }
+                  : { hour: h, isAvailable: true };
+              if (endedToday) return { hour: h, isAvailable: false, reason: "운영 종료" };
+              const past = isPastHourYMD(date, h);
+              return { hour: h, isAvailable: !past, reason: past ? "예약 불가" : "" };
+            });
+          } else {
+            fallback = hours.map((h) => ({ hour: h, isAvailable: true }));
+          }
         }
 
         setSlots(fallback);
         setSelected([]);
+        setMyDayReservations([]);
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -149,7 +255,7 @@ export default function ReservationModal({ facility, onClose }) {
       return;
     }
     if (!canSubmitNow) {
-      setMsg("접수 가능 시간(09:00~18:00)이 아닙니다.");
+      setMsg("지금은 접수 시간이 아닙니다. 접수는 매일 09:00~18:00에 가능합니다.");
       return;
     }
     if (!selected.length) return setMsg("시간대를 1개 이상 선택해 주세요.");
@@ -222,9 +328,8 @@ export default function ReservationModal({ facility, onClose }) {
         <section className="rm-section">
           <label>예약 날짜</label>
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-          <p className="muted">
-            접수 가능 시간: <strong>09:00~18:00</strong>
-          </p>
+          <p className="muted">접수 가능 시간: <strong>09:00~18:00</strong></p>
+
           {!canSubmitNow && (
             <p className="warn">지금은 접수 시간이 아닙니다. 접수는 매일 09:00~18:00에 가능합니다.</p>
           )}
@@ -339,7 +444,7 @@ export default function ReservationModal({ facility, onClose }) {
           >
             예약 신청하기
           </button>
-          <button className="secondary" onClick={onClose}>취소</button>
+          <button className="secondary" onClick={onClose}>닫기</button>
         </footer>
       </div>
     </div>

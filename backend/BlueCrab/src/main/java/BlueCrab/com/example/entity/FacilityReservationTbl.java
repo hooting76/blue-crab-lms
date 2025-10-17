@@ -24,6 +24,9 @@ public class FacilityReservationTbl {
     @Column(name = "USER_CODE", nullable = false, length = 50)
     private String userCode;
 
+    @Column(name = "USER_EMAIL", length = 255)
+    private String userEmail;
+
     @Column(name = "START_TIME", nullable = false)
     private LocalDateTime startTime;
 
@@ -95,6 +98,14 @@ public class FacilityReservationTbl {
 
     public void setUserCode(String userCode) {
         this.userCode = userCode;
+    }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 
     public LocalDateTime getStartTime() {

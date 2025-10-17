@@ -43,8 +43,8 @@ function CourseRegister() {
             lecPoint,
             lecTime,
             lecProf,
-            lecMcode : lecMcode.toString().padStart(2, '0'),
-            lecMcodeDep: lecMcodeDep.toString().padStart(2, '0'),
+            lecMcode : lecMcode === 0 ? 0 : lecMcode.toString().padStart(2, '0'),
+            lecMcodeDep: lecMcodeDep === 0 ? 0 : lecMcodeDep.toString().padStart(2, '0'),
             lecYear,
             lecSemester,
             lecMajor,
@@ -155,7 +155,7 @@ function CourseRegister() {
                         onChange={(e) => {setLecMcode(Number(e.target.value)); setLecMcodeDep("");}}
                         required
                         >
-                            <option value="">학부</option>
+                            <option value={0}>학부 제한 없음</option>
                             <option value={1}>해양학부</option>
                             <option value={2}>보건학부</option>
                             <option value={3}>자연과학부</option>
@@ -171,9 +171,14 @@ function CourseRegister() {
                         onChange={(e) => setLecMcodeDep(Number(e.target.value))}
                         required
                         >
+                            {lecMcode === 0 &&
+                            <>
+                            <option value={0}>학과 제한 없음</option>
+                            </>}
+
                             {lecMcode === 1 &&
                             <>
-                            <option value="">학과</option>
+                            <option value={0}>학과 제한 없음</option>
                             <option value={1}>항해학과</option>
                             <option value={2}>해양경찰</option>
                             <option value={3}>해군사관</option>
@@ -184,7 +189,7 @@ function CourseRegister() {
 
                             {lecMcode === 2 &&
                             <>
-                            <option value="">학과</option>
+                            <option value={0}>학과 제한 없음</option>
                             <option value={1}>간호학</option>
                             <option value={2}>치위생</option>
                             <option value={3}>약학과</option>
@@ -193,7 +198,7 @@ function CourseRegister() {
 
                             {lecMcode === 3 &&
                             <>
-                            <option value="">학과</option>
+                            <option value={0}>학과 제한 없음</option>
                             <option value={1}>물리학</option>
                             <option value={2}>수학</option>
                             <option value={3}>분자화학</option>
@@ -201,7 +206,7 @@ function CourseRegister() {
 
                             {lecMcode === 4 &&
                             <>
-                            <option value="">학과</option>
+                            <option value={0}>학과 제한 없음</option>
                             <option value={1}>철학</option>
                             <option value={2}>국어국문</option>
                             <option value={3}>역사학</option>
@@ -213,7 +218,7 @@ function CourseRegister() {
 
                             {lecMcode === 5 &&
                             <>
-                            <option value="">학과</option>
+                            <option value={0}>학과 제한 없음</option>
                             <option value={1}>컴퓨터공학</option>
                             <option value={2}>기계공학</option>
                             <option value={3}>전자공학</option>
