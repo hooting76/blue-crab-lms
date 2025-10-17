@@ -66,7 +66,8 @@ const fetchClassAttendingList = async (accessToken) => { // 학생의 경우
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
-            }
+            },
+            body: JSON.stringify({})
         })
     if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
             const data = await response.json();
@@ -83,7 +84,8 @@ const fetchClassLecturingList = async (accessToken) => { // 교수의 경우
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
-            }
+            },
+            body: JSON.stringify({})
         });
     if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
             const data = await response.json();
@@ -100,7 +102,7 @@ const fetchClassLecturingList = async (accessToken) => { // 교수의 경우
         if (accessToken && user.data.user.userStudent === 1) {
             fetchClassLecturingList(accessToken);
         }
-        }, [accessToken]); // ✅ accessToken이 생겼을 때 호출
+        }, [user, accessToken]); // ✅ accessToken이 생겼을 때 호출
 
 
 

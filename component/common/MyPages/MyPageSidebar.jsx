@@ -73,8 +73,8 @@ export default function MyPageSidebar({ currentPage, setCurrentPage }) {
         </button>
         {open.classroom && (
             <div className="acc-panel">
-            <Item name="수강중인 과목" />
-            <Item name="수강과목 공지사항" />
+            <Item name="수강/강의중인 과목" />
+            <Item name="수강/강의과목 공지사항" />
             {user.data.user.userStudent === 1 && // 교수일 경우 강의 수정 페이지 진입 가능
                 <>
                     <Item name="강의 수정"/>
