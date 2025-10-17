@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +23,11 @@ public interface FcmTokenRepository extends JpaRepository<FcmToken, Integer> {
      * 사용자 코드로 FCM 토큰 정보 조회
      */
     Optional<FcmToken> findByUserCode(String userCode);
+
+    /**
+     * 여러 사용자 코드로 FCM 토큰 정보 조회
+     */
+    List<FcmToken> findByUserCodeIn(Collection<String> userCodes);
 
     /**
      * 특정 FCM 토큰이 등록되어 있는지 확인 (모든 플랫폼 검색)

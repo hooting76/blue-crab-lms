@@ -5,25 +5,16 @@ import ApproveAttendanceModal from './ApproveAttendanceModal.jsx';
 import TestModal from './TestModal.jsx';
 import AssignmentModal from './AssignmentModal.jsx';
 import ProfNoticeWritingPage from './ProfNoticeWritingPage.jsx';
+import CourseDetail from './CourseDetail';
 
 function ClassAttending({currentPage, setCurrentPage}) {
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
     const { user } = UseUser(); // 유저 정보
     const accessToken = user.data.accessToken;
+    const isProf = user.data.user.userStudent === 1;
     const [lectureList, setLectureList] = useState([]);
 
     console.log("user : ", user);
-
-    // const [openRow, setOpenRow] = useState(null);
-    
-    // const totalCredits = classAttendingDummy.reduce(
-    //     (sum, cls) => sum + (Number(cls.LEC_POINT) || 0),
-    //     0
-    // ); // 해당 학기 총 이수 학점
-
-    // const handleRowClick = (index) => {
-    //     setOpenRow(openRow === index ? null : index);
-    // };
 
     // select 변경 핸들러
     const handleSemesterChange = (e) => {
@@ -101,52 +92,47 @@ const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
     const openAssignmentModal = () => setIsAssignmentModalOpen(true);
     const closeAssignmentModal = () => setIsAssignmentModalOpen(false);
 
+const [isClassDetailModalOpen, setIsClassDetailModalOpen] = useState(false);
+    const openClassDetailModal = () => setIsClassDetailModalOpen(true);
+    const closeClassDetailModal = () => setIsClassDetailModalOpen(false);
+
     
-const fetchClassAttendingList = async (accessToken) => { // 학생의 경우
+const fetchLectureList = async (accessToken, selectedSemester) => {
     try {
-        const response = await fetch(`${BASE_URL}/enrollments?studentIdx=${user.data.user.id}&page=0&size=10`, {
+        const [year, semester] = selectedSemester.split('_');
+
+        const requestBody = {
+            page: 0,
+            size: 20,
+            year: parseInt(year),
+            semester: parseInt(semester)
+        };
+
+        const response = await fetch(`${BASE_URL}/lectures`, {
             method: "POST",
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({})
-        })
-    if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
-            const data = await response.json();
-            setLectureList(data); // ✅ 받아온 데이터 저장
-        } catch (error) {
-            console.error('강의 목록 조회 에러:', error);
-        }
-    };
-
-const fetchClassLecturingList = async (accessToken) => { // 교수의 경우
-    try {
-        const response = await fetch(`${BASE_URL}/professor/lectures`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({})
+            body: JSON.stringify(requestBody)
         });
-    if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
-            const data = await response.json();
-            setLectureList(data); // ✅ 받아온 데이터 저장
-        } catch (error) {
-            console.error('강의 목록 조회 에러:', error);
-        }
-    };
+        console.log("Request body:", requestBody);
+
+        if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
+
+        const data = await response.json();
+        setLectureList(data); // ✅ 받아온 데이터 저장
+    } catch (error) {
+        console.error('강의 목록 조회 에러:', error);
+    }
+};
+
 
     useEffect(() => {
-        if (accessToken && user.data.user.userStudent === 0) {
-            fetchClassAttendingList(accessToken);
-        }
-        if (accessToken && user.data.user.userStudent === 1) {
-            fetchClassLecturingList(accessToken);
-        }
-        }, [user, accessToken]); // ✅ accessToken이 생겼을 때 호출
+            fetchLectureList(accessToken, selectedSemester);
+        }, [accessToken, selectedSemester]); // ✅ accessToken이 생겼을 때, 학기가 선택되었을 때 호출
 
+        console.log("lectureList : ", lectureList);
 
         
     return (
@@ -177,13 +163,41 @@ const fetchClassLecturingList = async (accessToken) => { // 교수의 경우
                         과목별 공지사항
                     </div>
 
-                    {user.data.user.userStudent === 1 && // 교수일 경우 공지 작성 버튼 추가
-                        <>
+                    {isProf ? // 교수일 경우 공지 작성 버튼 추가
+                        (<>
                             <div className="profNoticeWriteBtnArea">
                                 <button className="profNoticeWriteBtn" onClick={profNoticeWrite}>과목별 공지 작성</button>
                             </div>
-                        </>
+                        </>)
+                        : // 학생일 경우 강의 상세정보 페이지 이동 버튼 추가
+                        (<>
+                            <div className='studentClassDetailBtnArea'>
+                                <button className='studentClassDetailBtn' onClick={openClassDetailModal}>강의 상세 정보</button>
+                            </div>
+                        </>)
                     }
+
+                    {isClassDetailModalOpen && (
+                        <div className="modal-overlay" onClick={closeClassDetailModal}>
+                            <div
+                                className="modal-content"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <button className="modal-close" onClick={closeClassDetailModal}>
+                                    ✖
+                                </button>
+                                <CourseDetail
+                                lecture={selectedLecture}
+                                currentPage={currentPage}
+                                setCurrentPage={setCurrentPage}
+                                onFetchComplete={(lecture) => {
+                                    setFetchedLecture(lecture);        // 업데이트된 강의 상세 정보
+                                    setSelectedLecture(lecture);
+                                }}
+                                />
+                            </div>
+                        </div>
+                    )}
 
                     <div className="lectureChat">
                         실시간 채팅
@@ -192,7 +206,7 @@ const fetchClassLecturingList = async (accessToken) => { // 교수의 경우
 
                 <div className="attendanceStatus">
                     출결
-                    {user.data.user.userStudent === 0 && // 학생일 경우 출결상황 표시
+                    {!isProf && // 학생일 경우 출결상황 표시
                         <>
                             <div className="attendance">
                                 출석일수<br/>
@@ -207,7 +221,7 @@ const fetchClassLecturingList = async (accessToken) => { // 교수의 경우
                         </>
                     }
                     <div className="attendanceCall">
-                        {user.data.user.userStudent === 0 ? ( // 학생
+                        {!isProf ? ( // 학생
                             <button className="attendanceCallBtn" onClick={attendanceRequestSubmit}>출석인정 신청</button>
                         ) : ( // 교수
                             <button className="attendanceCallBtn" onClick={openAttendanceModal}>출석인정 승인</button>
@@ -219,7 +233,7 @@ const fetchClassLecturingList = async (accessToken) => { // 교수의 경우
 
                 <div className="testAssignment">
                     시험 및 과제
-                    {user.data.user.userStudent === 0 ? ( // 학생일 경우 개인 성적 표시
+                    {!isProf ? ( // 학생일 경우 개인 성적 표시
                         <>
                             <div className="studentTest">
                                 중간고사 : 점<br/>
@@ -245,67 +259,7 @@ const fetchClassLecturingList = async (accessToken) => { // 교수의 경우
                     )}
                 </div>
             </div>
-        {/* <div className='classAttending_text'>
-            수강과목 클릭 시 해당과목 진행사항 표시
-        </div>
 
-        <div className="table-wrap">
-            <table>
-                <thead className='classAttending_list_header'>
-                    <tr>
-                        <th style={{ width: "5%" }}>순번</th>
-                        <th style={{ width: "10%" }}>종별</th>
-                        <th style={{ width: "25%" }}>교과목명</th>
-                        <th style={{ width: "20%" }}>강의시간</th>
-                        <th style={{ width: "15%" }}>수업계획</th>
-                        <th style={{ width: "15%" }}>담당교수</th>
-                        <th style={{ width: "10%" }}>학점</th>
-                    </tr>
-                </thead>
-                <tbody className='classAttending_list_body'>
-                    {classAttendingDummy.map((cls, index) => (
-                        <React.Fragment key={cls.LEC_IDX}>
-                            <tr
-                                className="clickable-row"
-                                onClick={() => handleRowClick(index)}
-                                style={{ cursor: 'pointer' }}
-                            >
-                                <td>{index + 1}</td>
-                                <td>{cls.LEC_BASIC === "1" ? "전공" : "교양"}</td>
-                                <td>{cls.LEC_NAME}</td>
-                                <td>{cls.LEC_TIME}</td>
-                                <td></td>
-                                <td>{cls.LEC_PROF}</td>
-                                <td>{cls.LEC_POINT}</td>
-                            </tr>
-                            {openRow === index && (
-                                <tr className="class_details_row">
-                                    <td colSpan={7}>
-                                        <div className="class-details">
-                                            <strong>{cls.LEC_NAME}</strong> 과목의 {selectedSemester === currentSemesterValue ? "진행사항" : "점수"}<br/><br/>
-                                            출석수 : <br/>
-                                            중간고사 점수 : <br/>
-                                            기말고사 점수 : <br/>
-                                            과제 1 점수 : <br/>
-                                            과제 2 점수 : <br/>
-                                            {selectedSemester !== currentSemesterValue && (<><br/>총합 점수 및 등급 :</>)}
-                                            {/* 지나간 학기에 들었던 강의는 총점 및 등급 표시 */}
-                                        {/* </div>
-                                    </td>
-                                </tr>
-                            )}
-                        </React.Fragment>
-                    ))}
-                </tbody>
-            </table>
-            </div>
-
-
-            <div className='totalpoints'>
-                이수학점: {totalCredits}점
-                {selectedSemester !== currentSemesterValue && "학기 평점: "} */}
-                {/* 지나간 학기는 총 평점 표시 */}
-            {/* </div> */}
         </div>
     );
 }

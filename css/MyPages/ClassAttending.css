@@ -136,22 +136,14 @@
   font-size: var(--font-mid);
 }
 
-.profNoticeWriteBtn, .attendanceCallBtn, .testModalBtn, .assignmentModalBtn {
+.profNoticeWriteBtn, .studentClassDetailBtn, .attendanceCallBtn, .testModalBtn, .assignmentModalBtn {
   font-size: var(--font-mid);
 }
 
-.profNoticeWriteBtn:hover {
-  cursor: pointer;
-}
-
-.attendanceCallBtn:hover {
-  cursor: pointer;
-}
-
-.testModalBtn:hover {
-  cursor: pointer;
-}
-
+.profNoticeWriteBtn:hover,
+.studentClassDetailBtn:hover,
+.attendanceCallBtn:hover,
+.testModalBtn:hover,
 .assignmentModalBtn:hover {
   cursor: pointer;
 }

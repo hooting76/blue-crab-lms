@@ -6,7 +6,7 @@ import { UseUser } from "../../../hook/UseUser";
 const pageToSection = (p) => {
     if (p === "개인정보") return "profile";
     if (p === "실시간 상담") return "consult";
-    if (["수강중인 과목", "과목별 진행사항", "수강과목 공지사항"].includes(p)) return "classroom";
+    if (["수강/강의중인 과목", "과목별 진행사항", "수강/강의과목 공지사항"].includes(p)) return "classroom";
         return "classroom";
 };
 

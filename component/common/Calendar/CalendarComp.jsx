@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 // calendar func&config library
 import { Calendar, momentLocalizer } from 'react-big-calendar';
@@ -22,32 +22,7 @@ const DnDCalendar = withDragAndDrop(Calendar);
 // cal func start
 function CalendarComp () {
     // state //
-    const [eventList, setEvents] = useState([
-        {
-            id: 0,
-            title: '긴 회의',
-            start: new Date(2025, 9, 4, 10, 0), 
-            end: new Date(2025, 9, 4, 12, 0),
-            details:{
-                where: '보람관 대회의실',
-                sub: '제 23회 정기 학위수여식 관련 논문 감사',
-            },
-            readOnly: true,
-            writer: '홍길동',
-        },
-        {
-            id: 1,
-            title: '점심 식사',
-            start: new Date(2025, 9, 11, 12, 0),
-            end: new Date(2025, 9, 11, 13, 0),
-            details:{
-                where: '나눔관 1층 구내식당',
-                sub: '메뉴들',
-            },
-            readOnly: false,
-            writer: '홍길동',
-        },
-    ]);
+    const [eventList, setEvents] = useState();
     Modal.setAppElement("#root"); // 접근 설정    
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [eventTitle, setEventTitle] = useState('');
@@ -66,6 +41,16 @@ function CalendarComp () {
         setEventTitle(tmp);
     };
     // state update end
+    
+
+    // 학사일정 불러오기 + 일정 등록
+    useEffect(() => {
+        fetch('./schedule.json')
+            .then((response) => {response.json})
+            .then((data) => {setEvents(data)})
+    }, []);
+    // 학사일정 불러오기 + 일정 등록 end
+
 
     // 날자별 style/속성 설정
     const dayPropGetter = (date) =>{
@@ -132,23 +117,9 @@ function CalendarComp () {
                 overflow: 'hidden',
             }} 
             selectable={true}
-            resizable={true}
+            resizable={false}
             defaultView='month'
-            readOnly={false}
-
-            onEventDrop={({ event, start, end }) => {
-                // 이벤트 드롭 처리 console.log(event); start/end => 옮겨놓은 위치의 시작/끝
-                event.start = start;
-                event.end = end;
-            }}
-            onEventResize={({ event, start, end }) => {
-                // 이벤트 리사이즈 처리 console.log(event);
-                event.start = start;
-                event.end = end;
-            }}
-
-            // event select call
-            onSelectEvent={handleSelectEvent}
+            readOnly={true}
             dayPropGetter={dayPropGetter}
             components={{toolbar: CustomToolbar}}
         />
@@ -197,10 +168,6 @@ function CalendarComp () {
 
                 {/* modal main */}
                 <div className={calModalCss.modalMain}>
-                    {selectedEvent.readOnly 
-                        ? (<span>!! read only !!</span>)
-                        : null
-                    }
                     <div>
                         <p>
                             시작: {moment(selectedEvent.start).format("YYYY-MM-DD HH:mm")}
@@ -223,16 +190,3 @@ function CalendarComp () {
     </>)
 }
 export default CalendarComp;
-
-
-// {
-//     "id": 0,
-//     "title": "긴 회의",
-//     "start": "2025-10-04T01:00:00.000Z",
-//     "end": "2025-10-04T03:00:00.000Z",
-//     "details": {
-//         "where": "보람관 대강당",
-//         "sub": "제 23회 정기 학위수여식 관련 논문 감사회의"
-//     },
-//     "readOnly": true
-// }
