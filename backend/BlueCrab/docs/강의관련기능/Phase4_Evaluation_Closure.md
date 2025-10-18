@@ -29,19 +29,20 @@
 
 ### 1. 성적 관리: 성적 입력 (교수)
 
-**엔드포인트**: `PUT /api/grades`
+**엔드포인트**: `POST /api/grades/input`
 
 **목적**: 교수님이 학생별 성적을 입력합니다.
 
 **Request Body**:
 ```json
 {
-  "lecSerial": "CS101",  // 강의 코드 (필수)
+  "lecSerial": "CS101",             // 강의 코드 (필수)
   "studentIdx": 100,                // 학생 ID (필수)
   "gradeType": "FINAL",             // 성적 타입: MID/MIDTERM, FINAL/FINAL_EXAM (필수)
   "score": 95,                      // 점수 (0-100, 필수)
   "grade": "A+",                    // 학점 (A+, A, B+, B, C+, C, D+, D, F, 필수)
-  "notes": "우수한 성적"             // 비고 (선택)
+  "notes": "우수한 성적",            // 비고 (선택)
+  "action": "input"                 // 액션 타입 (필수)
 }
 ```
 
@@ -66,8 +67,8 @@
 
 **프론트엔드 호출 예시**:
 ```javascript
-const gradeResponse = await fetch('/api/grades', {
-  method: 'PUT',
+const gradeResponse = await fetch('/api/grades/input', {
+  method: 'POST',
   headers: {
     'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json'
@@ -78,7 +79,8 @@ const gradeResponse = await fetch('/api/grades', {
     gradeType: "FINAL",
     score: 95,
     grade: "A+",
-    notes: "프로젝트 우수"
+    notes: "프로젝트 우수",
+    action: "input"
   })
 });
 ```
@@ -87,13 +89,19 @@ const gradeResponse = await fetch('/api/grades', {
 
 ### 2. 성적 관리: 성적 조회 (학생)
 
-**엔드포인트**: `GET /api/grades/my-grades`
+**엔드포인트**: `POST /api/grades/my-grades`
 
 **목적**: 학생이 자신의 성적을 조회합니다.
 
-**Query Parameter**:
-- `year`: 학년도 필터 (선택)
-- `semester`: 학기 필터 (선택)
+**Request Body**:
+```json
+{
+  "studentIdx": 100,                // 학생 ID (필수, JWT에서 추출 가능)
+  "year": 2025,                     // 학년도 필터 (선택)
+  "semester": 1,                    // 학기 필터 (선택)
+  "action": "list"                  // 액션 타입 (필수)
+}
+```
 
 **Response (성공)**:
 ```json
@@ -116,11 +124,18 @@ const gradeResponse = await fetch('/api/grades', {
 
 **프론트엔드 호출 예시**:
 ```javascript
-const myGradesResponse = await fetch('/api/grades/my-grades?year=2025&semester=1', {
-  method: 'GET',
+const myGradesResponse = await fetch('/api/grades/my-grades', {
+  method: 'POST',
   headers: {
-    'Authorization': `Bearer ${token}`
-  }
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    studentIdx: currentUser.userIdx,
+    year: 2025,
+    semester: 1,
+    action: "list"
+  })
 });
 
 const myGrades = await myGradesResponse.json();
@@ -131,12 +146,18 @@ const myGrades = await myGradesResponse.json();
 
 ### 3. 강의평가: 평가 항목 조회 (학생)
 
-**엔드포인트**: `GET /api/evaluations/items/{lecSerial}`
+**엔드포인트**: `POST /api/evaluations/items`
 
 **목적**: 강의평가 항목을 조회합니다.
 
-**Path Parameter**:
-- `lecSerial`: 강의 코드
+**Request Body**:
+```json
+{
+  "lecSerial": "CS101",             // 강의 코드 (필수)
+  "studentIdx": 100,                // 학생 ID (필수, JWT에서 추출 가능)
+  "action": "get-items"             // 액션 타입 (필수)
+}
+```
 
 **Response (성공)**:
 ```json
@@ -171,15 +192,16 @@ const myGrades = await myGradesResponse.json();
 
 ### 4. 강의평가: 평가 제출 (학생)
 
-**엔드포인트**: `POST /api/evaluations`
+**엔드포인트**: `POST /api/evaluations/submit`
 
 **목적**: 학생이 강의평가를 제출합니다.
 
 **Request Body**:
 ```json
 {
-  "lecSerial": "CS101",  // 강의 코드 (필수)
+  "lecSerial": "CS101",             // 강의 코드 (필수)
   "studentIdx": 100,                // 학생 ID (필수)
+  "action": "submit",               // 액션 타입 (필수)
   "responses": [
     {
       "itemIdx": 1,
@@ -223,12 +245,19 @@ const myGrades = await myGradesResponse.json();
 
 ### 5. 강의평가: 평가 결과 조회 (관리자/교수)
 
-**엔드포인트**: `GET /api/evaluations/results/{lecSerial}`
+**엔드포인트**: `POST /api/evaluations/results`
 
 **목적**: 강의평가 결과를 통계로 조회합니다.
 
-**Path Parameter**:
-- `lecSerial`: 강의 코드
+**Request Body**:
+```json
+{
+  "lecSerial": "CS101",             // 강의 코드 (필수)
+  "professorIdx": 22,               // 교수 ID (교수용 조회 시 필수)
+  "adminIdx": 1,                    // 관리자 ID (관리자용 조회 시 필수)
+  "action": "results"               // 액션 타입 (필수)
+}
+```
 
 **Response (성공)**:
 ```json
@@ -276,13 +305,19 @@ const myGrades = await myGradesResponse.json();
 
 ### 6. 최종 통계: 학기 종합 보고서 (관리자)
 
-**엔드포인트**: `GET /api/reports/semester-summary`
+**엔드포인트**: `POST /api/reports/semester-summary`
 
 **목적**: 학기 종료 후 종합 통계 보고서를 생성합니다.
 
-**Query Parameter**:
-- `year`: 학년도 (필수)
-- `semester`: 학기 (필수)
+**Request Body**:
+```json
+{
+  "year": 2025,                     // 학년도 (필수)
+  "semester": 1,                    // 학기 (필수)
+  "adminIdx": 1,                    // 관리자 ID (필수)
+  "action": "generate-summary"      // 액션 타입 (필수)
+}
+```
 
 **Response (성공)**:
 ```json
