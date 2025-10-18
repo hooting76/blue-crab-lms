@@ -1,0 +1,593 @@
+DROP TABLE IF EXISTS `ADMIN_TBL`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ADMIN_TBL` (
+  `ADMIN_IDX` int(200) NOT NULL AUTO_INCREMENT,
+  `ADMIN_SYS` int(1) NOT NULL DEFAULT 0 COMMENT '1: 시스템 어드민 / 0: 학사 어드민 구분값',
+  `ADMIN_ID` varchar(50) NOT NULL COMMENT '학교에서 발급해주는 계정 ID',
+  `ADMIN_PW` varchar(200) NOT NULL,
+  `ADMIN_NAME` varchar(100) NOT NULL,
+  `ADMIN_PHONE` varchar(11) NOT NULL COMMENT '''-'' 빼고 받기',
+  `ADMIN_OFFICE` varchar(11) NOT NULL COMMENT '관리자 사무실 번호 / ''-'' 빼고 받기',
+  `ADMIN_LATEST` varchar(100) DEFAULT NULL COMMENT '마지막 접속 시간 / 연월일 시분 까지 표기',
+  `ADMIN_LATEST_IP` varchar(50) DEFAULT NULL COMMENT '마지막 접속 IP',
+  `ADMIN_REG` varchar(100) DEFAULT NULL COMMENT '어드민계정 등록일자',
+  `ADMIN_REG_IP` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`ADMIN_IDX`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ASSIGNMENT_EXTENDED_TBL`
+--
+
+DROP TABLE IF EXISTS `ASSIGNMENT_EXTENDED_TBL`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ASSIGNMENT_EXTENDED_TBL` (
+  `ASSIGNMENT_IDX` int(200) NOT NULL AUTO_INCREMENT COMMENT '과제 고유번호',
+  `LEC_IDX` int(200) NOT NULL COMMENT '강의 IDX (FK)',
+  `ASSIGNMENT_DATA` longtext DEFAULT NULL COMMENT 'JSON 데이터 (과제정보/제출목록)',
+  PRIMARY KEY (`ASSIGNMENT_IDX`) USING BTREE,
+  KEY `FK_ASSIGNMENT_LEC` (`LEC_IDX`) USING BTREE,
+  CONSTRAINT `FK_ASSIGNMENT_LEC` FOREIGN KEY (`LEC_IDX`) REFERENCES `LEC_TBL` (`LEC_IDX`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `BOARD_ATTACHMENT_TBL`
+--
+
+DROP TABLE IF EXISTS `BOARD_ATTACHMENT_TBL`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `BOARD_ATTACHMENT_TBL` (
+  `ATTACHMENT_IDX` int(11) NOT NULL AUTO_INCREMENT COMMENT '첨부파일 IDX',
+  `BOARD_IDX` int(11) NOT NULL COMMENT '게시글 IDX',
+  `ORIGINAL_FILE_NAME` varchar(255) NOT NULL COMMENT '원본 파일명',
+  `FILE_PATH` varchar(500) NOT NULL COMMENT '파일 경로 (변환된 파일명 포함)',
+  `FILE_SIZE` bigint(20) NOT NULL COMMENT '파일 크기 (bytes)',
+  `MIME_TYPE` varchar(100) NOT NULL COMMENT '파일 MIME 타입',
+  `UPLOAD_DATE` varchar(50) NOT NULL COMMENT '업로드 일자',
+  `IS_ACTIVE` tinyint(1) NOT NULL DEFAULT 1 COMMENT '활성화 여부',
+  `EXPIRY_DATE` varchar(50) DEFAULT NULL COMMENT '파일 만료일',
+  PRIMARY KEY (`ATTACHMENT_IDX`),
+  KEY `idx_board_attachment_board_idx` (`BOARD_IDX`),
+  KEY `idx_board_attachment_active` (`IS_ACTIVE`),
+  KEY `idx_board_attachment_upload_date` (`UPLOAD_DATE`),
+  KEY `idx_board_attachment_board_active` (`BOARD_IDX`,`IS_ACTIVE`),
+  CONSTRAINT `BOARD_ATTACHMENT_TBL_ibfk_1` FOREIGN KEY (`BOARD_IDX`) REFERENCES `BOARD_TBL` (`BOARD_IDX`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='게시글 첨부파일 테이블';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `BOARD_TBL`
+--
+
+DROP TABLE IF EXISTS `BOARD_TBL`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `BOARD_TBL` (
+  `BOARD_IDX` int(200) NOT NULL AUTO_INCREMENT,
+  `BOARD_CODE` int(10) NOT NULL DEFAULT 0,
+  `BOARD_ON` int(10) NOT NULL DEFAULT 1 COMMENT '게시판 공개: 1 / 비공개: 0',
+  `BOARD_WRITER` varchar(250) NOT NULL COMMENT '게시판 작성자',
+  `BOARD_TIT` text DEFAULT NULL COMMENT '게시글 제목 (base64 인코딩)',
+  `BOARD_CONT` text DEFAULT NULL COMMENT '게시글 본문 (base64 인코딩)',
+  `BOARD_IMG` varchar(250) DEFAULT NULL COMMENT '게시판 내용을 대채하여 이미지로 올라갈 것을 대비/이미지 저장경로',
+  `BOARD_FILE` varchar(500) DEFAULT NULL COMMENT '첨부파일 IDX 목록 (JSON 또는 콤마구분)',
+  `BOARD_VIEW` int(250) NOT NULL DEFAULT 0 COMMENT '조회수',
+  `BOARD_REG` varchar(250) DEFAULT NULL COMMENT '게시판 최초게시일',
+  `BOARD_LATEST` varchar(250) DEFAULT NULL COMMENT '게시판 최근 수정일',
+  `BOARD_IP` varchar(250) DEFAULT NULL,
+  `BOARD_WRITER_IDX` int(11) NOT NULL COMMENT '작성자 IDX (USER_TBL.USER_IDX 또는 ADMIN_TBL.ADMIN_IDX)',
+  `BOARD_WRITER_TYPE` int(11) NOT NULL DEFAULT 0 COMMENT '작성자 유형 (0=일반 사용자, 1=관리자)',
+  PRIMARY KEY (`BOARD_IDX`)
+) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `DEPARTMENT`
+--
+
+DROP TABLE IF EXISTS `DEPARTMENT`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `DEPARTMENT` (
+  `dept_id` int(11) NOT NULL AUTO_INCREMENT,
+  `dept_code` char(2) NOT NULL,
+  `dept_name` varchar(100) NOT NULL,
+  `faculty_id` int(11) NOT NULL,
+  `established_at` year(4) NOT NULL,
+  `capacity` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`dept_id`),
+  UNIQUE KEY `uq_faculty_dept` (`faculty_id`,`dept_code`),
+  KEY `idx_dept_code` (`dept_code`),
+  CONSTRAINT `fk_dept_faculty` FOREIGN KEY (`faculty_id`) REFERENCES `FACULTY` (`faculty_id`) ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='학과 마스터(학부 하위)';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ENROLLMENT_EXTENDED_TBL`
+--
+
+DROP TABLE IF EXISTS `ENROLLMENT_EXTENDED_TBL`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ENROLLMENT_EXTENDED_TBL` (
+  `ENROLLMENT_IDX` int(200) NOT NULL AUTO_INCREMENT COMMENT '수강 고유번호',
+  `LEC_IDX` int(200) NOT NULL COMMENT '강의 IDX (FK)',
+  `STUDENT_IDX` int(200) NOT NULL COMMENT '학생 IDX (FK)',
+  `ENROLLMENT_DATA` longtext DEFAULT NULL COMMENT 'JSON 데이터 (수강/출결/성적)',
+  PRIMARY KEY (`ENROLLMENT_IDX`) USING BTREE,
+  KEY `FK_LEC` (`LEC_IDX`) USING BTREE,
+  KEY `FK_STUDENT` (`STUDENT_IDX`) USING BTREE,
+  CONSTRAINT `FK_ENROLLMENT_LEC` FOREIGN KEY (`LEC_IDX`) REFERENCES `LEC_TBL` (`LEC_IDX`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `FK_ENROLLMENT_STUDENT` FOREIGN KEY (`STUDENT_IDX`) REFERENCES `USER_TBL` (`USER_IDX`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `FACILITY_BLOCK_TBL`
+--
+
+DROP TABLE IF EXISTS `FACILITY_BLOCK_TBL`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `FACILITY_BLOCK_TBL` (
+  `BLOCK_IDX` int(11) NOT NULL AUTO_INCREMENT,
+  `FACILITY_IDX` int(11) NOT NULL,
+  `BLOCK_START` datetime NOT NULL,
+  `BLOCK_END` datetime NOT NULL,
+  `BLOCK_REASON` varchar(200) NOT NULL COMMENT '마감 사유',
+  `BLOCK_TYPE` varchar(20) DEFAULT 'MAINTENANCE' COMMENT 'MAINTENANCE(점검), EMERGENCY(긴급), EVENT(행사)',
+  `CREATED_BY` varchar(50) NOT NULL COMMENT '마감 설정한 관리자 코드',
+  `CREATED_AT` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`BLOCK_IDX`),
+  KEY `idx_block_facility_time` (`FACILITY_IDX`,`BLOCK_START`,`BLOCK_END`),
+  KEY `idx_block_time_range` (`BLOCK_START`,`BLOCK_END`),
+  CONSTRAINT `fk_block_facility` FOREIGN KEY (`FACILITY_IDX`) REFERENCES `FACILITY_TBL` (`FACILITY_IDX`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `FACILITY_POLICY_TBL`
+--
+
+DROP TABLE IF EXISTS `FACILITY_POLICY_TBL`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `FACILITY_POLICY_TBL` (
+  `POLICY_IDX` int(11) NOT NULL AUTO_INCREMENT COMMENT '정책 ID',
+  `FACILITY_IDX` int(11) NOT NULL COMMENT '시설 ID (FK)',
+  `REQUIRES_APPROVAL` tinyint(4) NOT NULL DEFAULT 1 COMMENT '승인 필요(1)/즉시예약(0)',
+  `MIN_DURATION_MINUTES` int(11) DEFAULT NULL COMMENT '최소 예약 시간(분), NULL=전역 정책 사용',
+  `MAX_DURATION_MINUTES` int(11) DEFAULT NULL COMMENT '최대 예약 시간(분), NULL=전역 정책 사용',
+  `MIN_DAYS_IN_ADVANCE` int(11) DEFAULT NULL COMMENT '최소 사전 예약 일수 (NULL=즉시예약, 0=당일가능, 1=최소하루전, 3=최소3일전)',
+  `MAX_DAYS_IN_ADVANCE` int(11) DEFAULT NULL COMMENT '최대 사전 예약 기간(일), NULL=전역 정책 사용',
+  `CANCELLATION_DEADLINE_HOURS` int(11) DEFAULT NULL COMMENT '취소 가능 기한(시간 전), NULL=전역 정책',
+  `MAX_RESERVATIONS_PER_USER` int(11) DEFAULT NULL COMMENT '사용자당 최대 동시 예약 수, NULL=제한없음',
+  `ALLOW_WEEKEND_BOOKING` tinyint(1) DEFAULT NULL COMMENT '주말 예약 가능(1)/불가(0), NULL=가능',
+  `CREATED_AT` datetime NOT NULL DEFAULT current_timestamp() COMMENT '생성일시',
+  `UPDATED_AT` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일시',
+  PRIMARY KEY (`POLICY_IDX`),
+  UNIQUE KEY `FACILITY_IDX` (`FACILITY_IDX`),
+  KEY `idx_policy_facility` (`FACILITY_IDX`),
+  KEY `idx_policy_approval` (`REQUIRES_APPROVAL`),
+  KEY `idx_policy_updated` (`UPDATED_AT`),
+  CONSTRAINT `fk_policy_facility` FOREIGN KEY (`FACILITY_IDX`) REFERENCES `FACILITY_TBL` (`FACILITY_IDX`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='시설별 예약 정책 설정 (승인, 시간제한, 예약제한 등)';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `FACILITY_RESERVATION_LOG`
+--
+
+DROP TABLE IF EXISTS `FACILITY_RESERVATION_LOG`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `FACILITY_RESERVATION_LOG` (
+  `LOG_IDX` int(11) NOT NULL AUTO_INCREMENT,
+  `RESERVATION_IDX` int(11) NOT NULL,
+  `EVENT_TYPE` varchar(50) NOT NULL,
+  `ACTOR_TYPE` varchar(20) DEFAULT NULL,
+  `ACTOR_CODE` varchar(50) DEFAULT NULL,
+  `PAYLOAD` text DEFAULT NULL,
+  `CREATED_AT` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`LOG_IDX`),
+  KEY `idx_reservationlog_reservation` (`RESERVATION_IDX`),
+  KEY `idx_reservationlog_created` (`CREATED_AT`),
+  CONSTRAINT `fk_log_reservation` FOREIGN KEY (`RESERVATION_IDX`) REFERENCES `FACILITY_RESERVATION_TBL` (`RESERVATION_IDX`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `FACILITY_RESERVATION_TBL`
+--
+
+DROP TABLE IF EXISTS `FACILITY_RESERVATION_TBL`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `FACILITY_RESERVATION_TBL` (
+  `RESERVATION_IDX` int(11) NOT NULL AUTO_INCREMENT,
+  `FACILITY_IDX` int(11) NOT NULL,
+  `USER_CODE` varchar(50) NOT NULL,
+  `USER_EMAIL` varchar(255) DEFAULT NULL,
+  `START_TIME` datetime NOT NULL,
+  `END_TIME` datetime NOT NULL,
+  `PARTY_SIZE` int(11) DEFAULT NULL,
+  `PURPOSE` text DEFAULT NULL,
+  `REQUESTED_EQUIPMENT` text DEFAULT NULL,
+  `STATUS` varchar(20) NOT NULL DEFAULT 'PENDING',
+  `ADMIN_NOTE` text DEFAULT NULL,
+  `REJECTION_REASON` text DEFAULT NULL,
+  `APPROVED_BY` varchar(50) DEFAULT NULL,
+  `APPROVED_AT` datetime DEFAULT NULL,
+  `CREATED_AT` datetime NOT NULL DEFAULT current_timestamp(),
+  `UPDATED_AT` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`RESERVATION_IDX`),
+  KEY `idx_reservation_facility_time` (`FACILITY_IDX`,`START_TIME`,`END_TIME`),
+  KEY `idx_reservation_user_status` (`USER_CODE`,`STATUS`),
+  KEY `idx_reservation_status_time` (`STATUS`,`START_TIME`),
+  KEY `idx_reservation_created` (`CREATED_AT`),
+  CONSTRAINT `fk_reservation_facility` FOREIGN KEY (`FACILITY_IDX`) REFERENCES `FACILITY_TBL` (`FACILITY_IDX`) ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `FACILITY_TBL`
+--
+
+DROP TABLE IF EXISTS `FACILITY_TBL`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `FACILITY_TBL` (
+  `FACILITY_IDX` int(11) NOT NULL AUTO_INCREMENT,
+  `FACILITY_NAME` varchar(100) NOT NULL,
+  `FACILITY_TYPE` varchar(20) NOT NULL,
+  `FACILITY_DESC` text DEFAULT NULL,
+  `CAPACITY` int(11) DEFAULT NULL,
+  `LOCATION` varchar(200) DEFAULT NULL,
+  `DEFAULT_EQUIPMENT` text DEFAULT NULL,
+  `IS_ACTIVE` tinyint(4) NOT NULL DEFAULT 1,
+  `CREATED_AT` datetime NOT NULL DEFAULT current_timestamp(),
+  `UPDATED_AT` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`FACILITY_IDX`),
+  KEY `idx_facility_type_active` (`FACILITY_TYPE`,`IS_ACTIVE`),
+  KEY `idx_facility_name` (`FACILITY_NAME`)
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `FACILITY_TBL_BACKUP`
+--
+
+DROP TABLE IF EXISTS `FACILITY_TBL_BACKUP`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `FACILITY_TBL_BACKUP` (
+  `FACILITY_IDX` int(11) NOT NULL DEFAULT 0,
+  `FACILITY_NAME` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `FACILITY_TYPE` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `FACILITY_DESC` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `CAPACITY` int(11) DEFAULT NULL,
+  `LOCATION` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `DEFAULT_EQUIPMENT` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `IS_ACTIVE` tinyint(4) NOT NULL DEFAULT 1,
+  `CREATED_AT` datetime NOT NULL DEFAULT current_timestamp(),
+  `UPDATED_AT` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `REQUIRES_APPROVAL` tinyint(4) NOT NULL DEFAULT 1 COMMENT '승인 필요 여부 (1: 승인 필요, 0: 즉시 예약)'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `FACULTY`
+--
+
+DROP TABLE IF EXISTS `FACULTY`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `FACULTY` (
+  `faculty_id` int(11) NOT NULL AUTO_INCREMENT,
+  `faculty_code` char(2) NOT NULL,
+  `faculty_name` varchar(50) NOT NULL,
+  `established_at` year(4) NOT NULL,
+  `capacity` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`faculty_id`),
+  UNIQUE KEY `uq_faculty_code` (`faculty_code`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `FCM_TOKEN_TABLE`
+--
+
+DROP TABLE IF EXISTS `FCM_TOKEN_TABLE`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `FCM_TOKEN_TABLE` (
+  `FCM_IDX` int(11) NOT NULL AUTO_INCREMENT COMMENT 'FCM 토큰 ID',
+  `USER_IDX` int(11) NOT NULL COMMENT '사용자 ID (FK)',
+  `USER_CODE` varchar(255) NOT NULL COMMENT '학번/교번',
+  `FCM_TOKEN_ANDROID` varchar(255) DEFAULT NULL COMMENT '안드로이드 토큰',
+  `FCM_TOKEN_ANDROID_LAST_USED` datetime DEFAULT NULL COMMENT '안드로이드 토큰 마지막 사용일시',
+  `FCM_TOKEN_IOS` varchar(255) DEFAULT NULL COMMENT 'iOS 토큰',
+  `FCM_TOKEN_IOS_LAST_USED` datetime DEFAULT NULL COMMENT 'iOS 토큰 마지막 사용일시',
+  `FCM_TOKEN_WEB` varchar(255) DEFAULT NULL COMMENT '웹 토큰',
+  `FCM_TOKEN_WEB_LAST_USED` datetime DEFAULT NULL COMMENT '웹 토큰 마지막 사용일시',
+  `UPDATED_AT` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '최종 수정일시',
+  `FCM_TOKEN_ANDROID_KEEP_SIGNED_IN` tinyint(1) DEFAULT NULL,
+  `FCM_TOKEN_IOS_KEEP_SIGNED_IN` tinyint(1) DEFAULT NULL,
+  `FCM_TOKEN_WEB_KEEP_SIGNED_IN` tinyint(1) DEFAULT NULL,
+  PRIMARY KEY (`FCM_IDX`) USING BTREE,
+  UNIQUE KEY `uq_user` (`USER_IDX`) USING BTREE,
+  KEY `idx_user_code` (`USER_CODE`) USING BTREE,
+  CONSTRAINT `fk_fcm_user` FOREIGN KEY (`USER_IDX`) REFERENCES `USER_TBL` (`USER_IDX`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='FCM 토큰 관리';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `LAMP_TBL`
+--
+
+DROP TABLE IF EXISTS `LAMP_TBL`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `LAMP_TBL` (
+  `LAMP_IDX` int(11) NOT NULL COMMENT '좌석 번호 (1~80)',
+  `LAMP_ON` int(11) NOT NULL DEFAULT 0 COMMENT '사용 여부 (0:빈자리, 1:사용중)',
+  `USER_CODE` varchar(255) DEFAULT NULL COMMENT '현재 사용자 학번/교번',
+  `start_time` datetime DEFAULT NULL COMMENT '사용 시작 시간',
+  `end_time` datetime DEFAULT NULL COMMENT '예정 종료 시간 (2시간 후)',
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '최종 업데이트 시간',
+  PRIMARY KEY (`LAMP_IDX`),
+  KEY `idx_user_code` (`USER_CODE`),
+  KEY `idx_lamp_on` (`LAMP_ON`),
+  CONSTRAINT `fk_lamp_user` FOREIGN KEY (`USER_CODE`) REFERENCES `USER_TBL` (`USER_CODE`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci COMMENT='열람실 좌석 현황';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `LAMP_USAGE_LOG`
+--
+
+DROP TABLE IF EXISTS `LAMP_USAGE_LOG`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `LAMP_USAGE_LOG` (
+  `log_id` int(11) NOT NULL AUTO_INCREMENT,
+  `lamp_idx` int(11) NOT NULL COMMENT '좌석 번호',
+  `USER_CODE` varchar(255) NOT NULL COMMENT '사용자 학번/교번',
+  `start_time` datetime NOT NULL COMMENT '입실 시간',
+  `end_time` datetime DEFAULT NULL COMMENT '퇴실 시간 (NULL이면 사용중)',
+  `pre_notice_sent_at` datetime DEFAULT NULL,
+  `pre_notice_token_count` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`log_id`),
+  KEY `idx_user_date` (`USER_CODE`,`start_time`),
+  KEY `idx_seat_date` (`lamp_idx`,`start_time`),
+  KEY `idx_end_time` (`end_time`),
+  CONSTRAINT `fk_log_lamp` FOREIGN KEY (`lamp_idx`) REFERENCES `LAMP_TBL` (`LAMP_IDX`),
+  CONSTRAINT `fk_log_user` FOREIGN KEY (`USER_CODE`) REFERENCES `USER_TBL` (`USER_CODE`)
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci COMMENT='열람실 사용 기록 (백엔드에서 직접 관리)';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `LEC_TBL`
+--
+
+DROP TABLE IF EXISTS `LEC_TBL`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `LEC_TBL` (
+  `LEC_IDX` int(200) NOT NULL AUTO_INCREMENT,
+  `LEC_SERIAL` varchar(50) NOT NULL COMMENT '강의 코드',
+  `LEC_TIT` varchar(50) NOT NULL COMMENT '강의명칭',
+  `LEC_PROF` varchar(50) NOT NULL COMMENT '강의 담당교수',
+  `LEC_POINT` int(10) NOT NULL DEFAULT 0 COMMENT '이수학점',
+  `LEC_MAJOR` int(1) NOT NULL DEFAULT 1 COMMENT '전공 강의: 1/ 그외(교양): 0',
+  `LEC_MUST` int(1) NOT NULL DEFAULT 1 COMMENT '필수과목: 1 / 선택과목: 0',
+  `LEC_SUMMARY` text DEFAULT NULL COMMENT '강의 개요 내용',
+  `LEC_TIME` varchar(50) NOT NULL COMMENT '강의 시간',
+  `LEC_ASSIGN` int(1) NOT NULL DEFAULT 0 COMMENT '과제있음: 1 / 과제없음: 0',
+  `LEC_OPEN` int(1) NOT NULL DEFAULT 0 COMMENT '강의 열림: 1 / 강의 닫힘: 0 <= 수강신청에 대한 상태값',
+  `LEC_MANY` int(10) NOT NULL DEFAULT 0 COMMENT '수강가능 인원수',
+  `LEC_MCODE` varchar(50) NOT NULL COMMENT '학부 코드',
+  `LEC_MCODE_DEP` varchar(50) NOT NULL COMMENT '학과 코드',
+  `LEC_MIN` int(10) NOT NULL DEFAULT 0 COMMENT '수강 가능한 최저 학년 제한 ',
+  `LEC_REG` varchar(100) DEFAULT NULL COMMENT '강의 등록일',
+  `LEC_IP` varchar(100) DEFAULT NULL,
+  `LEC_CURRENT` int(11) DEFAULT 0 COMMENT '현재 수강 인원',
+  `LEC_YEAR` int(11) DEFAULT NULL COMMENT '대상 학년 (1~4학년)',
+  `LEC_SEMESTER` int(1) DEFAULT NULL COMMENT '학기 (1학기:1, 2학기:2)',
+  PRIMARY KEY (`LEC_IDX`)
+) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Temporary table structure for view `PROFILE_VIEW`
+--
+
+DROP TABLE IF EXISTS `PROFILE_VIEW`;
+/*!50001 DROP VIEW IF EXISTS `PROFILE_VIEW`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8mb4;
+/*!50001 CREATE VIEW `PROFILE_VIEW` AS SELECT
+ 1 AS `user_email`,
+  1 AS `user_name`,
+  1 AS `user_phone`,
+  1 AS `user_type`,
+  1 AS `major_code`,
+  1 AS `zip_code`,
+  1 AS `main_address`,
+  1 AS `detail_address`,
+  1 AS `profile_image_key`,
+  1 AS `birth_date`,
+  1 AS `academic_status`,
+  1 AS `admission_route`,
+  1 AS `major_faculty_code`,
+  1 AS `major_dept_code`,
+  1 AS `minor_faculty_code`,
+  1 AS `minor_dept_code` */;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `REGIST_TABLE`
+--
+
+DROP TABLE IF EXISTS `REGIST_TABLE`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `REGIST_TABLE` (
+  `REG_IDX` int(11) NOT NULL AUTO_INCREMENT COMMENT '학적 이력 행 ID(생성순)',
+  `USER_IDX` int(11) NOT NULL COMMENT '학생 ID (USER_TBL.FK)',
+  `USER_CODE` varchar(50) NOT NULL DEFAULT '' COMMENT '학번/교번(조회 보조)',
+  `JOIN_PATH` varchar(100) NOT NULL DEFAULT '신규' COMMENT '입학경로',
+  `STD_STAT` varchar(100) NOT NULL DEFAULT '재학' COMMENT '학적상태',
+  `STD_REST_DATE` varchar(200) DEFAULT NULL COMMENT '휴학기간(문자열)',
+  `CNT_TERM` int(11) NOT NULL DEFAULT 0 COMMENT '이수완료 학기 수',
+  `ADMIN_NAME` varchar(200) DEFAULT NULL COMMENT '처리 관리자명',
+  `ADMIN_REG` datetime DEFAULT NULL COMMENT '처리일시',
+  `ADMIN_IP` varchar(45) DEFAULT NULL COMMENT '처리발생 IP',
+  PRIMARY KEY (`REG_IDX`),
+  KEY `FK_REG_USER` (`USER_IDX`),
+  CONSTRAINT `FK_REG_USER` FOREIGN KEY (`USER_IDX`) REFERENCES `USER_TBL` (`USER_IDX`)
+) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='학생 학적 이력: 생성순 REG_IDX + USER_IDX 별도 관리';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `RENT_TABLE`
+--
+
+DROP TABLE IF EXISTS `RENT_TABLE`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `RENT_TABLE` (
+  `RENT_IDX` int(200) NOT NULL AUTO_INCREMENT,
+  `RENT_USER` int(200) NOT NULL COMMENT '회원 테이블 참조',
+  `RENT_CODE` varchar(200) NOT NULL DEFAULT '' COMMENT '시설물 코드',
+  `RENT_TITLE` varchar(200) NOT NULL DEFAULT '' COMMENT '시설물 대여 이유',
+  `RENT_DETAIL` varchar(200) DEFAULT NULL COMMENT '이유에 대한 디테일',
+  `RENT_DATE` varchar(200) NOT NULL DEFAULT '' COMMENT '시설물 대여시간(09 - 18시)',
+  `RENT_REG` varchar(50) DEFAULT NULL COMMENT '글 등록시간',
+  `RENT_IP` varchar(50) DEFAULT NULL,
+  `RENT_OK` int(5) DEFAULT NULL COMMENT '처리중(NULL) / 사용허가(1) / 사용불가(0)',
+  `RENT_RES` varchar(100) DEFAULT NULL COMMENT '승인여부에 따른 사유 리턴',
+  `RENT_ADMIN` varchar(100) NOT NULL COMMENT '응답 관리자',
+  `RENT_CONFIRM` varchar(100) DEFAULT NULL COMMENT '응답일시',
+  `RENT_CONF_IP` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`RENT_IDX`),
+  KEY `USER_IDX` (`RENT_USER`),
+  CONSTRAINT `USER_IDX` FOREIGN KEY (`RENT_USER`) REFERENCES `USER_TBL` (`USER_IDX`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci COMMENT='시설이용테이블';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `SERIAL_CODE_TABLE`
+--
+
+DROP TABLE IF EXISTS `SERIAL_CODE_TABLE`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `SERIAL_CODE_TABLE` (
+  `SERIAL_IDX` int(11) NOT NULL AUTO_INCREMENT COMMENT '학부 관리 코드 idx',
+  `USER_IDX` int(11) NOT NULL COMMENT '회원 테이블 인덱스',
+  `SERIAL_CODE` char(2) NOT NULL COMMENT '전공 학부 코드',
+  `SERIAL_SUB` char(2) NOT NULL COMMENT '전공 학과 코드',
+  `SERIAL_CODE_ND` char(2) DEFAULT NULL COMMENT '부전공 학부 코드',
+  `SERIAL_SUB_ND` char(2) DEFAULT NULL COMMENT '부전공 학과 코드',
+  `SERIAL_REG` varchar(50) NOT NULL COMMENT '전공 등록일',
+  `SERIAL_REG_ND` varchar(50) DEFAULT NULL COMMENT '부전공 등록일',
+  PRIMARY KEY (`SERIAL_IDX`),
+  UNIQUE KEY `uq_user_major` (`USER_IDX`,`SERIAL_CODE`,`SERIAL_SUB`),
+  KEY `idx_user` (`USER_IDX`),
+  CONSTRAINT `fk_sct_user` FOREIGN KEY (`USER_IDX`) REFERENCES `USER_TBL` (`USER_IDX`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='학생 전공/부전공 정보 테이블';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `USER_TBL`
+--
+
+DROP TABLE IF EXISTS `USER_TBL`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `USER_TBL` (
+  `USER_IDX` int(200) NOT NULL AUTO_INCREMENT,
+  `USER_EMAIL` varchar(200) NOT NULL COMMENT '이메일이 계정임',
+  `USER_PW` varchar(200) NOT NULL,
+  `USER_NAME` varchar(50) NOT NULL,
+  `USER_CODE` varchar(255) NOT NULL DEFAULT '' COMMENT '학번/교수코드',
+  `USER_PHONE` char(11) NOT NULL,
+  `USER_BIRTH` varchar(100) NOT NULL,
+  `USER_STUDENT` int(1) NOT NULL COMMENT '학생/교수 구분값',
+  `USER_LATEST` varchar(100) DEFAULT NULL COMMENT '유저 마지막 접속일',
+  `USER_ZIP` int(5) DEFAULT NULL COMMENT '우편번호',
+  `USER_FIRST_ADD` varchar(200) DEFAULT NULL COMMENT '회원 기본주소',
+  `USER_LAST_ADD` varchar(100) DEFAULT NULL COMMENT '상세주소',
+  `USER_REG` varchar(100) DEFAULT NULL,
+  `USER_REG_IP` varchar(100) DEFAULT NULL,
+  `PROFILE_IMAGE_KEY` varchar(255) DEFAULT NULL COMMENT '프로필 이미지 MinIO 키',
+  `LECTURE_EVALUATIONS` longtext DEFAULT NULL COMMENT '강의 평가 데이터 (JSON 배열)',
+  PRIMARY KEY (`USER_IDX`),
+  KEY `idx_user_code` (`USER_CODE`)
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`KDT_project`@`%`*/ /*!50003 TRIGGER auto_student_regist
+    AFTER INSERT ON USER_TBL
+    FOR EACH ROW
+    INSERT INTO REGIST_TABLE (
+ 		USER_IDX, USER_CODE,
+		 JOIN_PATH,
+		 STD_STAT,
+		 CNT_TERM
+		)
+    SELECT NEW.USER_IDX,
+	 NEW.USER_CODE,
+	 '신규',
+	 '재학',
+	 0
+    WHERE NEW.USER_STUDENT = 0 */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+
+--
+-- Final view structure for view `PROFILE_VIEW`
+--
+
+/*!50001 DROP VIEW IF EXISTS `PROFILE_VIEW`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`KDT_project`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `PROFILE_VIEW` AS select `u`.`USER_EMAIL` AS `user_email`,`u`.`USER_NAME` AS `user_name`,`u`.`USER_PHONE` AS `user_phone`,`u`.`USER_STUDENT` AS `user_type`,`u`.`USER_CODE` AS `major_code`,lpad(coalesce(`u`.`USER_ZIP`,0),5,'0') AS `zip_code`,`u`.`USER_FIRST_ADD` AS `main_address`,`u`.`USER_LAST_ADD` AS `detail_address`,`u`.`PROFILE_IMAGE_KEY` AS `profile_image_key`,`u`.`USER_BIRTH` AS `birth_date`,`r`.`STD_STAT` AS `academic_status`,`r`.`JOIN_PATH` AS `admission_route`,`mf`.`faculty_code` AS `major_faculty_code`,`md`.`dept_code` AS `major_dept_code`,`minf`.`faculty_code` AS `minor_faculty_code`,`mind`.`dept_code` AS `minor_dept_code` from ((((((`USER_TBL` `u` left join `REGIST_TABLE` `r` on(`u`.`USER_IDX` = `r`.`USER_IDX`)) left join `SERIAL_CODE_TABLE` `sc` on(`u`.`USER_IDX` = `sc`.`USER_IDX`)) left join `FACULTY` `mf` on(`sc`.`SERIAL_CODE` collate utf8mb4_general_ci = `mf`.`faculty_code` collate utf8mb4_general_ci)) left join `DEPARTMENT` `md` on(`mf`.`faculty_id` = `md`.`faculty_id` and `sc`.`SERIAL_SUB` collate utf8mb4_general_ci = `md`.`dept_code` collate utf8mb4_general_ci)) left join `FACULTY` `minf` on(`sc`.`SERIAL_CODE_ND` collate utf8mb4_general_ci = `minf`.`faculty_code` collate utf8mb4_general_ci)) left join `DEPARTMENT` `mind` on(`minf`.`faculty_id` = `mind`.`faculty_id` and `sc`.`SERIAL_SUB_ND` collate utf8mb4_general_ci = `mind`.`dept_code` collate utf8mb4_general_ci)) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2025-10-18 17:42:15
