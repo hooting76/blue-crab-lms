@@ -1,0 +1,1037 @@
+{
+  "authLogin": {
+    "controller": "AuthController",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "requiresAuth": false,
+    "description": "User login with JWT token generation",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "authRefresh": {
+    "controller": "AuthController",
+    "method": "POST",
+    "path": "/api/auth/refresh",
+    "requiresAuth": false,
+    "description": "Refresh JWT access token using refresh token",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "authValidate": {
+    "controller": "AuthController",
+    "method": "GET",
+    "path": "/api/auth/validate",
+    "requiresAuth": true,
+    "description": "Validate JWT token",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "authLogout": {
+    "controller": "AuthController",
+    "method": "POST",
+    "path": "/api/auth/logout",
+    "requiresAuth": true,
+    "description": "User logout with token invalidation",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "adminLogin": {
+    "controller": "AdminController",
+    "method": "POST",
+    "path": "/api/admin/login",
+    "requiresAuth": false,
+    "description": "Admin first-stage login (ID/PW verification)",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "adminVerifyEmail": {
+    "controller": "AdminController",
+    "method": "GET",
+    "path": "/api/admin/verify-email",
+    "requiresAuth": false,
+    "description": "Admin second-stage email verification",
+    "pathParams": [],
+    "queryParams": ["token"]
+  },
+  "adminEmailAuthRequest": {
+    "controller": "AdminEmailAuthController",
+    "method": "POST",
+    "path": "/api/admin/email-auth/request",
+    "requiresAuth": true,
+    "description": "Request admin email authentication code",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "adminEmailAuthVerify": {
+    "controller": "AdminEmailAuthController",
+    "method": "POST",
+    "path": "/api/admin/email-auth/verify",
+    "requiresAuth": true,
+    "description": "Verify admin email authentication code",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "adminTokenRefresh": {
+    "controller": "AdminAuthTokenController",
+    "method": "POST",
+    "path": "/api/admin/auth/refresh",
+    "requiresAuth": false,
+    "description": "Refresh admin JWT token",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "adminReservationsPending": {
+    "controller": "AdminFacilityReservationController",
+    "method": "POST",
+    "path": "/api/admin/reservations/pending",
+    "requiresAuth": true,
+    "description": "Get pending reservations list",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "adminReservationsPendingCount": {
+    "controller": "AdminFacilityReservationController",
+    "method": "POST",
+    "path": "/api/admin/reservations/pending/count",
+    "requiresAuth": true,
+    "description": "Get pending reservations count",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "adminReservationsApprove": {
+    "controller": "AdminFacilityReservationController",
+    "method": "POST",
+    "path": "/api/admin/reservations/approve",
+    "requiresAuth": true,
+    "description": "Approve facility reservation",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "adminReservationsReject": {
+    "controller": "AdminFacilityReservationController",
+    "method": "POST",
+    "path": "/api/admin/reservations/reject",
+    "requiresAuth": true,
+    "description": "Reject facility reservation",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "adminReservationsStats": {
+    "controller": "AdminFacilityReservationController",
+    "method": "POST",
+    "path": "/api/admin/reservations/stats",
+    "requiresAuth": true,
+    "description": "Get reservation statistics",
+    "pathParams": [],
+    "queryParams": ["startDate", "endDate"]
+  },
+  "adminReservationsAll": {
+    "controller": "AdminFacilityReservationController",
+    "method": "POST",
+    "path": "/api/admin/reservations/all",
+    "requiresAuth": true,
+    "description": "Get all reservations with filters",
+    "pathParams": [],
+    "queryParams": ["status", "facilityIdx", "startDate", "endDate"]
+  },
+  "usersGetAll": {
+    "controller": "UserController",
+    "method": "GET",
+    "path": "/api/users",
+    "requiresAuth": true,
+    "description": "Get all users",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "usersGetStudents": {
+    "controller": "UserController",
+    "method": "GET",
+    "path": "/api/users/students",
+    "requiresAuth": true,
+    "description": "Get student users only",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "usersGetProfessors": {
+    "controller": "UserController",
+    "method": "GET",
+    "path": "/api/users/professors",
+    "requiresAuth": true,
+    "description": "Get professor users only",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "usersGetById": {
+    "controller": "UserController",
+    "method": "GET",
+    "path": "/api/users/{id}",
+    "requiresAuth": true,
+    "description": "Get user by ID",
+    "pathParams": ["id"],
+    "queryParams": []
+  },
+  "usersCreate": {
+    "controller": "UserController",
+    "method": "POST",
+    "path": "/api/users",
+    "requiresAuth": true,
+    "description": "Create new user",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "usersUpdate": {
+    "controller": "UserController",
+    "method": "PUT",
+    "path": "/api/users/{id}",
+    "requiresAuth": true,
+    "description": "Update user information",
+    "pathParams": ["id"],
+    "queryParams": []
+  },
+  "usersDelete": {
+    "controller": "UserController",
+    "method": "DELETE",
+    "path": "/api/users/{id}",
+    "requiresAuth": true,
+    "description": "Delete user",
+    "pathParams": ["id"],
+    "queryParams": []
+  },
+  "usersToggleRole": {
+    "controller": "UserController",
+    "method": "PATCH",
+    "path": "/api/users/{id}/toggle-role",
+    "requiresAuth": true,
+    "description": "Toggle user role between student and professor",
+    "pathParams": ["id"],
+    "queryParams": []
+  },
+  "usersSearch": {
+    "controller": "UserController",
+    "method": "GET",
+    "path": "/api/users/search",
+    "requiresAuth": true,
+    "description": "Search users by name",
+    "pathParams": [],
+    "queryParams": ["name"]
+  },
+  "usersSearchAll": {
+    "controller": "UserController",
+    "method": "GET",
+    "path": "/api/users/search-all",
+    "requiresAuth": true,
+    "description": "Search users by keyword (name or email)",
+    "pathParams": [],
+    "queryParams": ["keyword"]
+  },
+  "usersSearchByBirth": {
+    "controller": "UserController",
+    "method": "GET",
+    "path": "/api/users/search-birth",
+    "requiresAuth": true,
+    "description": "Search users by birth date range",
+    "pathParams": [],
+    "queryParams": ["startDate", "endDate"]
+  },
+  "usersStats": {
+    "controller": "UserController",
+    "method": "GET",
+    "path": "/api/users/stats",
+    "requiresAuth": true,
+    "description": "Get user statistics",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "profileMe": {
+    "controller": "ProfileController",
+    "method": "POST",
+    "path": "/api/profile/me",
+    "requiresAuth": true,
+    "description": "Get my profile information",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "profileCompleteness": {
+    "controller": "ProfileController",
+    "method": "POST",
+    "path": "/api/profile/me/completeness",
+    "requiresAuth": true,
+    "description": "Check profile completeness",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "profileImage": {
+    "controller": "ProfileController",
+    "method": "POST",
+    "path": "/api/profile/me/image",
+    "requiresAuth": true,
+    "description": "Get profile image URL",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "profileImageFile": {
+    "controller": "ProfileController",
+    "method": "POST",
+    "path": "/api/profile/me/image/file",
+    "requiresAuth": true,
+    "description": "Get profile image file directly (proxy method)",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "boardsList": {
+    "controller": "BoardController",
+    "method": "POST",
+    "path": "/api/boards/list",
+    "requiresAuth": true,
+    "description": "Get all boards list (performance optimized, without content)",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "boardsByCode": {
+    "controller": "BoardController",
+    "method": "POST",
+    "path": "/api/boards/bycode",
+    "requiresAuth": true,
+    "description": "Get boards by code (performance optimized)",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "boardDetail": {
+    "controller": "BoardController",
+    "method": "POST",
+    "path": "/api/boards/detail",
+    "requiresAuth": true,
+    "description": "Get board detail with content and attachments",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "boardLinkAttachments": {
+    "controller": "BoardController",
+    "method": "POST",
+    "path": "/api/boards/link-attachments/{boardIdx}",
+    "requiresAuth": true,
+    "description": "Link attachments to board",
+    "pathParams": ["boardIdx"],
+    "queryParams": []
+  },
+  "boardCreate": {
+    "controller": "BoardCreateController",
+    "method": "POST",
+    "path": "/api/boards/create",
+    "requiresAuth": true,
+    "description": "Create new board post",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "boardUpdate": {
+    "controller": "BoardUpdateController",
+    "method": "POST",
+    "path": "/api/boards/update/{boardIdx}",
+    "requiresAuth": true,
+    "description": "Update board post",
+    "pathParams": ["boardIdx"],
+    "queryParams": []
+  },
+  "boardDelete": {
+    "controller": "BoardUpdateController",
+    "method": "POST",
+    "path": "/api/boards/delete/{boardIdx}",
+    "requiresAuth": true,
+    "description": "Delete board post (soft delete)",
+    "pathParams": ["boardIdx"],
+    "queryParams": []
+  },
+  "boardAttachmentUpload": {
+    "controller": "BoardAttachmentUploadController",
+    "method": "POST",
+    "path": "/api/board-attachments/upload/{boardIdx}",
+    "requiresAuth": true,
+    "description": "Upload board attachments",
+    "pathParams": ["boardIdx"],
+    "queryParams": []
+  },
+  "boardAttachmentDelete": {
+    "controller": "BoardAttachmentDeleteController",
+    "method": "POST",
+    "path": "/api/board-attachments/delete",
+    "requiresAuth": true,
+    "description": "Delete multiple attachments",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "boardAttachmentDeleteAll": {
+    "controller": "BoardAttachmentDeleteController",
+    "method": "POST",
+    "path": "/api/board-attachments/delete-all/{boardIdx}",
+    "requiresAuth": true,
+    "description": "Delete all attachments of a board",
+    "pathParams": ["boardIdx"],
+    "queryParams": []
+  },
+  "boardAttachmentDownload": {
+    "controller": "BoardAttachmentDownloadController",
+    "method": "POST",
+    "path": "/api/board-attachments/download",
+    "requiresAuth": true,
+    "description": "Download attachment file",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "boardAttachmentInfo": {
+    "controller": "BoardAttachmentDownloadController",
+    "method": "POST",
+    "path": "/api/board-attachments/info",
+    "requiresAuth": true,
+    "description": "Get attachment metadata",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "boardAttachmentDownloadHealth": {
+    "controller": "BoardAttachmentDownloadController",
+    "method": "POST",
+    "path": "/api/board-attachments/download/health",
+    "requiresAuth": false,
+    "description": "Download service health check",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "boardCount": {
+    "controller": "BoardStatisticsController",
+    "method": "POST",
+    "path": "/api/boards/count",
+    "requiresAuth": true,
+    "description": "Get active board count",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "boardExists": {
+    "controller": "BoardStatisticsController",
+    "method": "POST",
+    "path": "/api/boards/exists",
+    "requiresAuth": true,
+    "description": "Check if board exists",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "boardCountByCode": {
+    "controller": "BoardStatisticsController",
+    "method": "POST",
+    "path": "/api/boards/count/bycode",
+    "requiresAuth": true,
+    "description": "Get board count by code",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "facilitiesGetAll": {
+    "controller": "FacilityController",
+    "method": "POST",
+    "path": "/api/facilities",
+    "requiresAuth": true,
+    "description": "Get all active facilities",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "facilitiesByType": {
+    "controller": "FacilityController",
+    "method": "POST",
+    "path": "/api/facilities/type/{facilityType}",
+    "requiresAuth": true,
+    "description": "Get facilities by type",
+    "pathParams": ["facilityType"],
+    "queryParams": []
+  },
+  "facilityById": {
+    "controller": "FacilityController",
+    "method": "POST",
+    "path": "/api/facilities/{facilityIdx}",
+    "requiresAuth": true,
+    "description": "Get facility by ID",
+    "pathParams": ["facilityIdx"],
+    "queryParams": []
+  },
+  "facilitiesSearch": {
+    "controller": "FacilityController",
+    "method": "POST",
+    "path": "/api/facilities/search",
+    "requiresAuth": true,
+    "description": "Search facilities by keyword",
+    "pathParams": [],
+    "queryParams": ["keyword"]
+  },
+  "facilityAvailability": {
+    "controller": "FacilityController",
+    "method": "POST",
+    "path": "/api/facilities/{facilityIdx}/availability",
+    "requiresAuth": true,
+    "description": "Check facility availability",
+    "pathParams": ["facilityIdx"],
+    "queryParams": ["startTime", "endTime"]
+  },
+  "facilityDailySchedule": {
+    "controller": "FacilityController",
+    "method": "POST",
+    "path": "/api/facilities/{facilityIdx}/daily-schedule",
+    "requiresAuth": true,
+    "description": "Get daily schedule for facility",
+    "pathParams": ["facilityIdx"],
+    "queryParams": ["date"]
+  },
+  "reservationCreate": {
+    "controller": "FacilityReservationController",
+    "method": "POST",
+    "path": "/api/reservations",
+    "requiresAuth": true,
+    "description": "Create facility reservation",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "reservationsMy": {
+    "controller": "FacilityReservationController",
+    "method": "POST",
+    "path": "/api/reservations/my",
+    "requiresAuth": true,
+    "description": "Get my reservations",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "reservationsMyByStatus": {
+    "controller": "FacilityReservationController",
+    "method": "POST",
+    "path": "/api/reservations/my/status/{status}",
+    "requiresAuth": true,
+    "description": "Get my reservations by status",
+    "pathParams": ["status"],
+    "queryParams": []
+  },
+  "reservationById": {
+    "controller": "FacilityReservationController",
+    "method": "POST",
+    "path": "/api/reservations/{reservationIdx}",
+    "requiresAuth": true,
+    "description": "Get reservation by ID",
+    "pathParams": ["reservationIdx"],
+    "queryParams": []
+  },
+  "reservationCancel": {
+    "controller": "FacilityReservationController",
+    "method": "DELETE",
+    "path": "/api/reservations/{reservationIdx}",
+    "requiresAuth": true,
+    "description": "Cancel reservation",
+    "pathParams": ["reservationIdx"],
+    "queryParams": []
+  },
+  "readingRoomStatus": {
+    "controller": "ReadingRoomController",
+    "method": "POST",
+    "path": "/api/reading-room/status",
+    "requiresAuth": true,
+    "description": "Get reading room status (seats availability)",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "readingRoomReserve": {
+    "controller": "ReadingRoomController",
+    "method": "POST",
+    "path": "/api/reading-room/reserve",
+    "requiresAuth": true,
+    "description": "Reserve reading room seat",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "readingRoomCheckout": {
+    "controller": "ReadingRoomController",
+    "method": "POST",
+    "path": "/api/reading-room/checkout",
+    "requiresAuth": true,
+    "description": "Checkout from reading room seat",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "readingRoomMyReservation": {
+    "controller": "ReadingRoomController",
+    "method": "POST",
+    "path": "/api/reading-room/my-reservation",
+    "requiresAuth": true,
+    "description": "Get my current reading room reservation",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "fcmRegister": {
+    "controller": "FcmTokenController",
+    "method": "POST",
+    "path": "/api/fcm/register",
+    "requiresAuth": true,
+    "description": "Register FCM token with conflict detection",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "fcmRegisterForce": {
+    "controller": "FcmTokenController",
+    "method": "POST",
+    "path": "/api/fcm/register/force",
+    "requiresAuth": true,
+    "description": "Force register FCM token",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "fcmUnregister": {
+    "controller": "FcmTokenController",
+    "method": "DELETE",
+    "path": "/api/fcm/unregister",
+    "requiresAuth": true,
+    "description": "Unregister FCM token (logout)",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "fcmSend": {
+    "controller": "FcmTokenController",
+    "method": "POST",
+    "path": "/api/fcm/send",
+    "requiresAuth": true,
+    "description": "Send notification to specific user (admin only)",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "fcmSendBatch": {
+    "controller": "FcmTokenController",
+    "method": "POST",
+    "path": "/api/fcm/send/batch",
+    "requiresAuth": true,
+    "description": "Send batch notifications (admin only)",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "fcmSendBroadcast": {
+    "controller": "FcmTokenController",
+    "method": "POST",
+    "path": "/api/fcm/send/broadcast",
+    "requiresAuth": true,
+    "description": "Send broadcast notification to all users (admin only)",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "fcmStats": {
+    "controller": "FcmTokenController",
+    "method": "GET",
+    "path": "/api/fcm/stats",
+    "requiresAuth": true,
+    "description": "Get FCM token statistics (admin only)",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "pushVapidKey": {
+    "controller": "PushNotificationController",
+    "method": "GET",
+    "path": "/api/push/vapid-key",
+    "requiresAuth": false,
+    "description": "Get VAPID public key",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "pushSend": {
+    "controller": "PushNotificationController",
+    "method": "POST",
+    "path": "/api/push/send",
+    "requiresAuth": true,
+    "description": "Send push notification to token (admin only)",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "pushSendToTopic": {
+    "controller": "PushNotificationController",
+    "method": "POST",
+    "path": "/api/push/send-to-topic",
+    "requiresAuth": true,
+    "description": "Send push notification to topic (admin only)",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "findId": {
+    "controller": "FindIdController",
+    "method": "POST",
+    "path": "/api/account/FindId",
+    "requiresAuth": false,
+    "description": "Find user ID by user code, name, and phone",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "authConfig": {
+    "controller": "MailAuthCheckController",
+    "method": "GET",
+    "path": "/api/auth/config",
+    "requiresAuth": false,
+    "description": "Get authentication configuration",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "sendMail": {
+    "controller": "MailAuthCheckController",
+    "method": "GET",
+    "path": "/sendMail",
+    "requiresAuth": true,
+    "description": "Send email authentication code",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "verifyCode": {
+    "controller": "MailAuthCheckController",
+    "method": "POST",
+    "path": "/verifyCode",
+    "requiresAuth": true,
+    "description": "Verify email authentication code",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "passwordResetVerifyIdentity": {
+    "controller": "PasswordResetController",
+    "method": "POST",
+    "path": "/api/auth/password-reset/verify-identity",
+    "requiresAuth": false,
+    "description": "Verify user identity for password reset",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "passwordResetRateLimitStatus": {
+    "controller": "PasswordResetController",
+    "method": "GET",
+    "path": "/api/auth/password-reset/rate-limit-status",
+    "requiresAuth": false,
+    "description": "Get rate limit status for debugging",
+    "pathParams": [],
+    "queryParams": ["email"]
+  },
+  "passwordResetSendEmail": {
+    "controller": "PasswordResetController",
+    "method": "POST",
+    "path": "/api/auth/password-reset/send-email",
+    "requiresAuth": false,
+    "description": "Send password reset email with auth code",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "passwordResetVerifyCode": {
+    "controller": "PasswordResetController",
+    "method": "POST",
+    "path": "/api/auth/password-reset/verify-code",
+    "requiresAuth": false,
+    "description": "Verify password reset authentication code",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "passwordResetChangePassword": {
+    "controller": "PasswordResetController",
+    "method": "POST",
+    "path": "/api/auth/password-reset/change-password",
+    "requiresAuth": false,
+    "description": "Change password with reset token",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "registryMe": {
+    "controller": "RegistryController",
+    "method": "POST",
+    "path": "/api/registry/me",
+    "requiresAuth": true,
+    "description": "Get my academic registry information",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "registryCertIssue": {
+    "controller": "RegistryController",
+    "method": "POST",
+    "path": "/api/registry/cert/issue",
+    "requiresAuth": true,
+    "description": "Issue certificate and save history",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "registryExists": {
+    "controller": "RegistryController",
+    "method": "GET",
+    "path": "/api/registry/me/exists",
+    "requiresAuth": true,
+    "description": "Check if registry exists for user",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "apiHealth": {
+    "controller": "ApiController",
+    "method": "GET",
+    "path": "/api/health",
+    "requiresAuth": false,
+    "description": "System health check",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "apiTest": {
+    "controller": "ApiController",
+    "method": "GET",
+    "path": "/api/test",
+    "requiresAuth": false,
+    "description": "API connection test",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "apiSystemInfo": {
+    "controller": "ApiController",
+    "method": "GET",
+    "path": "/api/system-info",
+    "requiresAuth": false,
+    "description": "Get system and JVM information",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "apiTestAuth": {
+    "controller": "ApiController",
+    "method": "GET",
+    "path": "/api/test-auth",
+    "requiresAuth": true,
+    "description": "Test JWT authentication",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "apiPing": {
+    "controller": "ApiController",
+    "method": "GET",
+    "path": "/api/ping",
+    "requiresAuth": false,
+    "description": "Simple connection ping",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "databaseInfo": {
+    "controller": "DatabaseController",
+    "method": "GET",
+    "path": "/api/database/info",
+    "requiresAuth": false,
+    "description": "Get database information",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "databaseTables": {
+    "controller": "DatabaseController",
+    "method": "GET",
+    "path": "/api/database/tables",
+    "requiresAuth": false,
+    "description": "Get database tables list",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "databaseTableColumns": {
+    "controller": "DatabaseController",
+    "method": "GET",
+    "path": "/api/database/tables/{tableName}/columns",
+    "requiresAuth": false,
+    "description": "Get table column information",
+    "pathParams": ["tableName"],
+    "queryParams": []
+  },
+  "databaseTableSample": {
+    "controller": "DatabaseController",
+    "method": "GET",
+    "path": "/api/database/tables/{tableName}/sample",
+    "requiresAuth": false,
+    "description": "Get table sample data (max 10 rows)",
+    "pathParams": ["tableName"],
+    "queryParams": []
+  },
+  "databaseQuery": {
+    "controller": "DatabaseController",
+    "method": "GET",
+    "path": "/api/database/query",
+    "requiresAuth": false,
+    "description": "Execute SQL query (SELECT only)",
+    "pathParams": [],
+    "queryParams": ["sql"]
+  },
+  "lecturesGetAll": {
+    "controller": "LectureController",
+    "method": "GET",
+    "path": "/api/lectures",
+    "requiresAuth": true,
+    "description": "Get lectures list with filters",
+    "pathParams": [],
+    "queryParams": ["serial", "professor", "year", "semester", "title", "major", "open", "page", "size"]
+  },
+  "lectureById": {
+    "controller": "LectureController",
+    "method": "GET",
+    "path": "/api/lectures/{lecIdx}",
+    "requiresAuth": true,
+    "description": "Get lecture detail by ID",
+    "pathParams": ["lecIdx"],
+    "queryParams": []
+  },
+  "lectureStats": {
+    "controller": "LectureController",
+    "method": "GET",
+    "path": "/api/lectures/{lecIdx}/stats",
+    "requiresAuth": true,
+    "description": "Get lecture statistics",
+    "pathParams": ["lecIdx"],
+    "queryParams": []
+  },
+  "lectureCreate": {
+    "controller": "LectureController",
+    "method": "POST",
+    "path": "/api/lectures",
+    "requiresAuth": true,
+    "description": "Create new lecture",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "lectureUpdate": {
+    "controller": "LectureController",
+    "method": "PUT",
+    "path": "/api/lectures/{lecIdx}",
+    "requiresAuth": true,
+    "description": "Update lecture information",
+    "pathParams": ["lecIdx"],
+    "queryParams": []
+  },
+  "lectureDelete": {
+    "controller": "LectureController",
+    "method": "DELETE",
+    "path": "/api/lectures/{lecIdx}",
+    "requiresAuth": true,
+    "description": "Delete lecture",
+    "pathParams": ["lecIdx"],
+    "queryParams": []
+  },
+  "enrollmentsGetAll": {
+    "controller": "EnrollmentController",
+    "method": "GET",
+    "path": "/api/enrollments",
+    "requiresAuth": true,
+    "description": "Get enrollments with filters",
+    "pathParams": [],
+    "queryParams": ["studentIdx", "lecIdx", "checkEnrollment", "enrolled", "stats", "page", "size"]
+  },
+  "enrollmentById": {
+    "controller": "EnrollmentController",
+    "method": "GET",
+    "path": "/api/enrollments/{enrollmentIdx}",
+    "requiresAuth": true,
+    "description": "Get enrollment detail by ID",
+    "pathParams": ["enrollmentIdx"],
+    "queryParams": []
+  },
+  "enrollmentData": {
+    "controller": "EnrollmentController",
+    "method": "GET",
+    "path": "/api/enrollments/{enrollmentIdx}/data",
+    "requiresAuth": true,
+    "description": "Get parsed enrollment JSON data",
+    "pathParams": ["enrollmentIdx"],
+    "queryParams": []
+  },
+  "enrollmentCreate": {
+    "controller": "EnrollmentController",
+    "method": "POST",
+    "path": "/api/enrollments",
+    "requiresAuth": true,
+    "description": "Enroll in lecture",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "enrollmentCancel": {
+    "controller": "EnrollmentController",
+    "method": "DELETE",
+    "path": "/api/enrollments/{enrollmentIdx}",
+    "requiresAuth": true,
+    "description": "Cancel enrollment",
+    "pathParams": ["enrollmentIdx"],
+    "queryParams": []
+  },
+  "enrollmentUpdateAttendance": {
+    "controller": "EnrollmentController",
+    "method": "PUT",
+    "path": "/api/enrollments/{enrollmentIdx}/attendance",
+    "requiresAuth": true,
+    "description": "Update attendance information",
+    "pathParams": ["enrollmentIdx"],
+    "queryParams": []
+  },
+  "enrollmentUpdateGrade": {
+    "controller": "EnrollmentController",
+    "method": "PUT",
+    "path": "/api/enrollments/{enrollmentIdx}/grade",
+    "requiresAuth": true,
+    "description": "Update grade information",
+    "pathParams": ["enrollmentIdx"],
+    "queryParams": []
+  },
+  "assignmentsGetAll": {
+    "controller": "AssignmentController",
+    "method": "GET",
+    "path": "/api/assignments",
+    "requiresAuth": true,
+    "description": "Get assignments with filters",
+    "pathParams": [],
+    "queryParams": ["lecIdx", "withLecture", "stats", "page", "size"]
+  },
+  "assignmentById": {
+    "controller": "AssignmentController",
+    "method": "GET",
+    "path": "/api/assignments/{assignmentIdx}",
+    "requiresAuth": true,
+    "description": "Get assignment detail by ID",
+    "pathParams": ["assignmentIdx"],
+    "queryParams": []
+  },
+  "assignmentData": {
+    "controller": "AssignmentController",
+    "method": "GET",
+    "path": "/api/assignments/{assignmentIdx}/data",
+    "requiresAuth": true,
+    "description": "Get parsed assignment JSON data",
+    "pathParams": ["assignmentIdx"],
+    "queryParams": []
+  },
+  "assignmentCreate": {
+    "controller": "AssignmentController",
+    "method": "POST",
+    "path": "/api/assignments",
+    "requiresAuth": true,
+    "description": "Create new assignment",
+    "pathParams": [],
+    "queryParams": []
+  },
+  "assignmentSubmit": {
+    "controller": "AssignmentController",
+    "method": "POST",
+    "path": "/api/assignments/{assignmentIdx}/submit",
+    "requiresAuth": true,
+    "description": "Submit assignment",
+    "pathParams": ["assignmentIdx"],
+    "queryParams": []
+  },
+  "assignmentUpdate": {
+    "controller": "AssignmentController",
+    "method": "PUT",
+    "path": "/api/assignments/{assignmentIdx}",
+    "requiresAuth": true,
+    "description": "Update assignment information",
+    "pathParams": ["assignmentIdx"],
+    "queryParams": []
+  },
+  "assignmentGrade": {
+    "controller": "AssignmentController",
+    "method": "PUT",
+    "path": "/api/assignments/{assignmentIdx}/grade",
+    "requiresAuth": true,
+    "description": "Grade assignment",
+    "pathParams": ["assignmentIdx"],
+    "queryParams": []
+  },
+  "assignmentDelete": {
+    "controller": "AssignmentController",
+    "method": "DELETE",
+    "path": "/api/assignments/{assignmentIdx}",
+    "requiresAuth": true,
+    "description": "Delete assignment",
+    "pathParams": ["assignmentIdx"],
+    "queryParams": []
+  }
+}
