@@ -246,7 +246,7 @@ async function updateAssignment() {
     const title = prompt('📝 새 제목 (수정할 경우):', '');
     const description = prompt('📝 새 설명 (수정할 경우):', '');
     const maxScore = 10;  // ✅ 항상 10점으로 고정
-    const dueDate = prompt('📅 새 마감일 (수정할 경우, YYYY-MM-DD):', '');
+    const dueDate = prompt('📅 새 마감일 (수정할 경우, YYYYMMDD):', '');
 
     console.log('\n✏️ 과제 수정');
     console.log('═══════════════════════════════════════════════════════');

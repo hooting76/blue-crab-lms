@@ -77,17 +77,16 @@ const students = await studentsResponse.json();
 
 ### 2. 출결 관리: 출결 요청 (학생)
 
-**엔드포인트**: `POST /api/attendance/request`
+**엔드포인트**: `POST /api/student/attendance/request`
 
-**목적**: 학생이 출석을 요청합니다.
+**목적**: 학생이 출석 인정을 요청합니다.
 
 **Request Body**:
 ```json
 {
-  "studentIdx": 100,                    // 학생 ID (필수)
-  "lecSerial": "CS101",      // 강의 코드 (필수)
-  "requestType": "ATTENDANCE",          // 요청 타입 (기본: ATTENDANCE)
-  "notes": "지각 사유"                   // 비고 (선택)
+  "enrollmentIdx": 1,                   // 수강신청 ID (필수)
+  "sessionNumber": 3,                   // 회차 번호 (1~80, 필수)
+  "requestReason": "병원 진료로 인한 결석"  // 신청 사유 (필수)
 }
 ```
 
@@ -95,30 +94,31 @@ const students = await studentsResponse.json();
 ```json
 {
   "success": true,
-  "message": "출결 요청이 접수되었습니다.",
+  "message": "출석 인정 신청 완료",
   "data": {
-    "requestIdx": 456,
-    "studentIdx": 100,
-    "lecIdx": 1,
-    "requestType": "ATTENDANCE",
-    "status": "PENDING",
-    "requestDate": "2025-10-17T10:00:00Z"
-  }
+    "requestIdx": 1,
+    "enrollmentIdx": 1,
+    "sessionNumber": 3,
+    "requestReason": "병원 진료로 인한 결석",
+    "approvalStatus": "PENDING",
+    "createdAt": "2025-03-10T10:00:00"
+  },
+  "timestamp": "2025-03-10T10:00:00Z"
 }
 ```
 
 **프론트엔드 호출 예시**:
 ```javascript
-const attendanceRequest = await fetch('/api/attendance/request', {
+const attendanceRequest = await fetch('/api/student/attendance/request', {
   method: 'POST',
   headers: {
     'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    studentIdx: currentUser.userIdx,
-    lecSerial: currentLecture.lecSerial,
-    notes: "교통 체증으로 지각"
+    enrollmentIdx: 1,
+    sessionNumber: 3,
+    requestReason: "병원 진료로 인한 결석"
   })
 });
 ```
@@ -127,7 +127,7 @@ const attendanceRequest = await fetch('/api/attendance/request', {
 
 ### 3. 출결 관리: 출결 승인 (교수)
 
-**엔드포인트**: `PUT /api/attendance/{requestIdx}/approve`
+**엔드포인트**: `PUT /api/professor/attendance/requests/{requestIdx}/approve`
 
 **목적**: 교수님이 학생의 출결 요청을 승인/거부합니다.
 
@@ -137,8 +137,7 @@ const attendanceRequest = await fetch('/api/attendance/request', {
 **Request Body**:
 ```json
 {
-  "approved": true,     // 승인 여부 (true: 승인, false: 거부)
-  "notes": "승인 완료"   // 교수 비고 (선택)
+  "professorIdx": 1  // 교수 ID (필수)
 }
 ```
 
@@ -161,28 +160,27 @@ const attendanceRequest = await fetch('/api/attendance/request', {
 **프론트엔드 호출 예시**:
 ```javascript
 // 승인
-const approveResponse = await fetch(`/api/attendance/${requestIdx}/approve`, {
+const approveResponse = await fetch(`/api/professor/attendance/requests/${requestIdx}/approve`, {
   method: 'PUT',
   headers: {
     'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    approved: true,
-    notes: "출석 인정"
+    professorIdx: currentUser.userIdx
   })
 });
 
-// 거부
-const rejectResponse = await fetch(`/api/attendance/${requestIdx}/approve`, {
+// 거부 (별도 엔드포인트)
+const rejectResponse = await fetch(`/api/professor/attendance/requests/${requestIdx}/reject`, {
   method: 'PUT',
   headers: {
     'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    approved: false,
-    notes: "사유 불충분"
+    professorIdx: currentUser.userIdx,
+    rejectReason: "사유 불충분"
   })
 });
 ```
@@ -239,11 +237,16 @@ const rejectResponse = await fetch(`/api/attendance/${requestIdx}/approve`, {
 {
   "lecSerial": "CS101",      // 강의 코드 (필수)
   "title": "자료구조 과제 2",           // 과제 제목 (필수)
-  "description": "트리 구조 구현",      // 과제 설명 (필수)
-  "dueDate": "2025-03-22T23:59:00Z",   // 제출 마감일 (필수)
-  "maxScore": 100                      // 만점 점수 (필수)
+  "body": "트리 구조 구현",      // 과제 설명 (필수, description이 아님!)
+  "dueDate": "20250322",   // 제출 마감일 (필수, YYYYMMDD 형식)
+  "maxScore": 100                      // ⚠️ 무시됨! 항상 10점으로 고정
 }
 ```
+
+**⚠️ 중요**: 
+- 필드명은 `description`이 아닌 `body`입니다.
+- `maxScore`는 요청값과 관계없이 **항상 10점**으로 고정됩니다.
+- **날짜 형식**: `YYYYMMDD` 형식 (예: `20250322`)
 
 **Response (성공)**:
 ```json

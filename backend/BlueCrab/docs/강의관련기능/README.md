@@ -1,9 +1,59 @@
 # 강의 관리 시스템 API 가이드
 
 > **작성일**: 2025-10-17
-> **버전**: 2.2 (LEC_SERIAL 예시 수정)
+> **버전**: 2.3 (테스트 코드 우선 참고 안내 추가)
 > **대상**: 프론트엔드 담당자
 > **작성자**: 백엔드 담당자 (성태준)
+
+---
+
+## ⚠️ 중요 주의사항
+
+### 🔴 문서 불일치 시 우선순위
+
+**마크다운 문서와 실제 구현 간 불일치가 있을 경우:**
+
+1. **최우선 참고**: `브라우저콘솔테스트/` 디렉토리의 **테스트 코드**
+   - 실제 백엔드 API와 통신하여 검증된 코드
+   - 실제 요청/응답 구조가 그대로 반영됨
+   - 최신 API 변경사항이 실시간 반영됨
+
+2. **참고**: Phase1~4 마크다운 문서
+   - 전체적인 API 흐름 이해용
+   - 일부 예시가 실제와 다를 수 있음
+
+**📁 테스트 코드 위치**: `docs/강의관련기능/브라우저콘솔테스트/`
+- `lecture-test-1-admin-create.js`: 관리자 강의 관리
+- `lecture-test-2a-student-enrollment.js`: 학생 수강신청
+- `lecture-test-2b-student-my-courses.js`: 학생 수강 관리
+- `lecture-test-3-student-assignment.js`: 학생 과제 제출
+- `lecture-test-4a-professor-assignment-create.js`: 교수 과제 생성
+- `lecture-test-4b-professor-assignment-grade.js`: 교수 과제 채점
+- `lecture-test-5-professor-students.js`: 교수 수강생 관리
+- `lecture-test-6-admin-statistics.js`: 관리자 통계
+
+### ⚡ 주요 불일치 가능 항목
+
+1. **요청 필드명**: 문서에서 설명한 필드명과 실제 API가 다를 수 있음
+   - 예: `professor` (문서) vs 실제 USER_IDX 숫자
+   
+2. **응답 구조**: ApiResponse 래퍼 사용 여부
+   - 일부 API는 `{ success, data }` 구조
+   - 일부 API는 엔티티 직접 반환
+   - 테스트 코드에서 실제 구조 확인 필수
+
+3. **필드 타입**: 문자열 vs 숫자
+   - 예: `lecProf`는 숫자 문자열 "22" (USER_IDX)
+   - 예: `lecProfName`은 문자열 "김교수" (조회된 이름)
+
+**💡 권장 개발 프로세스**:
+```
+1. Phase 마크다운으로 전체 흐름 파악
+2. 브라우저 콘솔 테스트 코드로 실제 API 확인
+3. 테스트 코드의 요청/응답 구조를 프론트엔드에 적용
+```
+
+---
 
 ## 📋 문서 목적
 
@@ -45,18 +95,42 @@
 ## 🔧 공통 사항
 
 ### API 기본 정보
-- **Base URL**: `https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api`
+- **프로젝트 Base URL**: `https://bluecrab.chickenkiller.com/BlueCrab-1.0.0`
+- **강의 관련 API 경로**: 본 문서의 모든 엔드포인트는 `/api/`로 시작
+  - 예: `/api/lectures`, `/api/enrollments/enroll`, `/api/assignments`
+  - 전체 URL 예시: `https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/lectures`
 - **인증**: JWT Bearer Token (Authorization 헤더)
 - **Content-Type**: `application/json`
 - **HTTP Method**: 주로 POST (복합 쿼리 지원)
 
 ### 공통 응답 형식
+
+**⚠️ 중요**: 현재 모든 API가 아래 형식을 따르지는 않습니다. 일부 엔드포인트는 엔티티/DTO를 직접 반환합니다.
+
+**표준 응답 (일부 API만 사용)**:
 ```json
 {
   "success": true,
   "data": { ... },
   "message": "성공 메시지",
   "timestamp": "2025-10-17T10:00:00Z"
+}
+```
+
+**실제 많은 API의 응답**:
+```json
+{
+  "lecIdx": 1,
+  "lecSerial": "CS101",
+  ...
+}
+```
+또는
+```json
+{
+  "content": [...],
+  "totalElements": 100,
+  "totalPages": 5
 }
 ```
 
@@ -106,7 +180,7 @@
   "studentIdx": 100,
   "lecIdx": 1,
   "lecSerial": "CS101",
-  "enrollmentDate": "2025-03-01",
+  "enrollmentDate": "20250301",
   "status": "ACTIVE"
 }
 ```
@@ -119,10 +193,12 @@
   "lecSerial": "CS101",
   "title": "과제1",
   "description": "자료구조 과제",
-  "dueDate": "2025-03-15",
+  "dueDate": "20250315",
   "maxScore": 100
 }
 ```
+
+**💡 날짜 형식**: `YYYYMMDD` 형식 사용 (예: `20250315`)
 
 ## 🚀 빠른 시작
 

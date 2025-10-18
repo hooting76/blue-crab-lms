@@ -212,7 +212,7 @@ async function createAssignment() {
     const title = prompt('📝 과제 제목:', '1주차 과제');
     const description = prompt('📝 과제 설명:', '자바 프로그래밍 기초 과제입니다.');
     const maxScore = 10;  // ✅ 항상 10점으로 고정
-    const dueDate = prompt('📅 마감일 (YYYY-MM-DD):', '2025-12-31');
+    const dueDate = prompt('📅 마감일 (YYYYMMDD):', '20251231');
 
     if (!title || !lecSerial) {
         console.log('❌ 필수 입력값이 없습니다.');

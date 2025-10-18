@@ -38,26 +38,42 @@
 
 **Response (성공)**:
 ```json
-[
-  {
-    "lecIdx": 1,
-    "lecSerial": "CS101",
-    "lecTit": "자료구조",
-    "lecProfName": "김교수",
-    "lecYear": 1,
-    "lecSemester": 1,
-    "lecMany": 30,
-    "lecCurrent": 25,
-    "lecPoint": 3,
-    "lecTime": "월1,수1",
-    "availableSeats": 5,
-    "isEligible": true,
-    "eligibilityReason": "전공 일치",
-    "majorMatch": true,
-    "departmentMatch": false
+{
+  "eligibleLectures": [
+    {
+      "lecSerial": "CS101",
+      "lecTit": "자료구조",
+      "lecProf": "22",
+      "lecPoint": 3,
+      "lecTime": "월1수1",
+      "lecCurrent": 25,
+      "lecMany": 30,
+      "lecMcode": "01",
+      "lecMcodeDep": "001",
+      "lecMin": 0,
+      "isEligible": true,
+      "eligibilityReason": "수강 가능 (전공 일치: 01-001)"
+    }
+  ],
+  "totalCount": 45,
+  "eligibleCount": 30,
+  "ineligibleCount": 15,
+  "pagination": {
+    "currentPage": 0,
+    "pageSize": 20,
+    "totalElements": 30,
+    "totalPages": 2
+  },
+  "studentInfo": {
+    "userIdx": 100,
+    "userName": "홍길동",
+    "majorFacultyCode": "01",
+    "majorDeptCode": "001"
   }
-]
+}
 ```
+
+**⚠️ 주의**: 실제 응답은 배열이 아닌 객체이며, `eligibleLectures` 키로 강의 목록을 반환합니다.
 
 **Response (에러)**:
 ```json
@@ -91,7 +107,7 @@ const eligibleLectures = await response.json();
 
 ### 2. 수강신청
 
-**엔드포인트**: `POST /api/enrollments`
+**엔드포인트**: `POST /api/enrollments/enroll`
 
 **목적**: 선택한 강의에 수강신청을 합니다.
 
@@ -99,26 +115,21 @@ const eligibleLectures = await response.json();
 ```json
 {
   "studentIdx": 100,        // 학생 ID (필수)
-  "lecSerial": "CS101"  // 강의 코드 (필수)
+  "lecSerial": "CS101"      // 강의 코드 (필수)
 }
 ```
 
 **Response (성공)**:
 ```json
 {
-  "success": true,
-  "message": "수강신청이 완료되었습니다.",
-  "data": {
-    "enrollmentIdx": 123,
-    "studentIdx": 100,
-    "lecIdx": 1,
-    "lecSerial": "CS101",
-    "enrollmentDate": "2025-10-17T10:00:00Z",
-    "status": "ACTIVE"
-  },
-  "timestamp": "2025-10-17T10:00:00Z"
+  "enrollmentIdx": 1,
+  "lecIdx": 1,
+  "studentIdx": 100,
+  "enrollmentData": "{\"enrollment\":{\"status\":\"ENROLLED\",\"enrollmentDate\":\"2025-03-01T09:00:00\"}}"
 }
 ```
+
+**⚠️ 주의**: 실제 응답은 `EnrollmentExtendedTbl` 엔티티를 직접 반환하며, `success`/`message` 래퍼가 없습니다.
 
 **Response (에러 케이스)**:
 ```json
@@ -139,7 +150,7 @@ const eligibleLectures = await response.json();
 
 **프론트엔드 호출 예시**:
 ```javascript
-const enrollResponse = await fetch('/api/enrollments', {
+const enrollResponse = await fetch('/api/enrollments/enroll', {
   method: 'POST',
   headers: {
     'Authorization': `Bearer ${token}`,
@@ -151,12 +162,14 @@ const enrollResponse = await fetch('/api/enrollments', {
   })
 });
 
-const result = await enrollResponse.json();
-if (result.success) {
+if (enrollResponse.ok) {
+  const enrollment = await enrollResponse.json();
+  console.log('수강신청 완료:', enrollment);
   alert('수강신청 완료!');
   // 목록 새로고침
 } else {
-  alert(result.message);
+  const error = await enrollResponse.json();
+  alert(error.message || '수강신청 실패');
 }
 ```
 
