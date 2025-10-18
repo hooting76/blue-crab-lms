@@ -3,6 +3,8 @@
 > **최종 업데이트**: 2025-10-18  
 > **문서 위치**: `/claudedocs/`
 
+> 📦 **2025-10-18 재정리**: 현재 모든 문서 디렉터리는 `archive/2025-10-18-reset/` 하위로 이동되었습니다. 아래 링크는 해당 경로 기준으로 작성되었습니다.
+
 ---
 
 ## 🚀 빠른 링크
@@ -11,20 +13,20 @@
 
 | 문서 | 경로 | 설명 |
 |------|------|------|
-| **기술 스택** | [tech-stack/기술스택_및_버전정보.md](./tech-stack/기술스택_및_버전정보.md) | 실제 운영 환경 버전 정보 |
-| **데이터베이스** | [database/database-schema.md](./database/database-schema.md) | 전체 DB 스키마 (18개 테이블) |
-| **백엔드 가이드** | [backend-guide/프론트엔드_개발자를위한_백엔드_가이드_인덱스.md](./backend-guide/프론트엔드_개발자를위한_백엔드_가이드_인덱스.md) | 백엔드 통합 가이드 |
-| **API 문서** | [api-endpoints/api-documentation.md](./api-endpoints/api-documentation.md) | REST API 엔드포인트 |
-| **시설 예약 API** ⭐ | [api-endpoints/facility-reservation-api-complete.md](./api-endpoints/facility-reservation-api-complete.md) | 시설 예약 API 완전 가이드 |
-| **시설 예약 빠른 참조** ⚡ | [api-endpoints/facility-reservation-api-quick-reference.md](./api-endpoints/facility-reservation-api-quick-reference.md) | 시설 예약 API 빠른 참조 |
-| **FCM 가이드** | [feature-docs/fcm/README.md](./feature-docs/fcm/README.md) | 푸시 알림 구현 가이드 |
-| **시설 예약 정책** 🆕 | [feature-docs/facility-reservation/consecutive-time-only-policy.md](./feature-docs/facility-reservation/consecutive-time-only-policy.md) | 연속된 시간대만 예약 가능 정책 |
+| **기술 스택** | [tech-stack/기술스택_및_버전정보.md](./archive/2025-10-18-reset/tech-stack/기술스택_및_버전정보.md) | 실제 운영 환경 버전 정보 |
+| **데이터베이스** | [database/database-schema.md](./archive/2025-10-18-reset/database/database-schema.md) | 전체 DB 스키마 (18개 테이블) |
+| **백엔드 가이드** | [backend-guide/프론트엔드_개발자를위한_백엔드_가이드_인덱스.md](./archive/2025-10-18-reset/backend-guide/프론트엔드_개발자를위한_백엔드_가이드_인덱스.md) | 백엔드 통합 가이드 |
+| **API 문서** | [api-endpoints/api-documentation.md](./archive/2025-10-18-reset/api-endpoints/api-documentation.md) | REST API 엔드포인트 |
+| **시설 예약 API** ⭐ | [api-endpoints/facility-reservation-api-complete.md](./archive/2025-10-18-reset/api-endpoints/facility-reservation-api-complete.md) | 시설 예약 API 완전 가이드 |
+| **시설 예약 빠른 참조** ⚡ | [api-endpoints/facility-reservation-api-quick-reference.md](./archive/2025-10-18-reset/api-endpoints/facility-reservation-api-quick-reference.md) | 시설 예약 API 빠른 참조 |
+| **FCM 가이드** | [feature-docs/fcm/README.md](./archive/2025-10-18-reset/feature-docs/fcm/README.md) | 푸시 알림 구현 가이드 |
+| **시설 예약 정책** 🆕 | [feature-docs/facility-reservation/consecutive-time-only-policy.md](./archive/2025-10-18-reset/feature-docs/facility-reservation/consecutive-time-only-policy.md) | 연속된 시간대만 예약 가능 정책 |
 
 ---
 
 ## 📂 폴더별 문서
 
-### 🔧 [tech-stack/](./tech-stack/)
+### 🔧 [tech-stack/](./archive/2025-10-18-reset/tech-stack/)
 **기술 스택 및 버전 정보**
 
 - ✅ Java 21.0.7 LTS
@@ -34,7 +36,7 @@
 
 ---
 
-### 📖 [backend-guide/](./backend-guide/)
+### 📖 [backend-guide/](./archive/2025-10-18-reset/backend-guide/)
 **백엔드 개발 가이드**
 
 1. 프론트엔드 개발자를 위한 백엔드 가이드 인덱스
@@ -45,7 +47,7 @@
 
 ---
 
-### 🎯 [feature-docs/](./feature-docs/)
+### 🎯 [feature-docs/](./archive/2025-10-18-reset/feature-docs/)
 **기능별 문서**
 
 #### 📱 [fcm/](./feature-docs/fcm/)
@@ -75,7 +77,7 @@
 
 ---
 
-### 🔌 [api-endpoints/](./api-endpoints/)
+### 🔌 [api-endpoints/](./archive/2025-10-18-reset/api-endpoints/)
 **API 문서**
 
 - api-documentation.md (전체 API 개요)
@@ -126,7 +128,7 @@
 
 ---
 
-### �️ [database/](./database/)
+### �️ [database/](./archive/2025-10-18-reset/database/)
 **데이터베이스 스키마**
 
 - ✅ database-schema.md (상세 문서)
@@ -143,7 +145,7 @@
 
 ---
 
-### �📊 [backend-analysis/](./backend-analysis/)
+### �📊 [backend-analysis/](./archive/2025-10-18-reset/backend-analysis/)
 **백엔드 상세 분석**
 
 - 00-Phase1-통합분석보고서.md

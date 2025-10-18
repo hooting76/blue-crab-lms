@@ -5,11 +5,19 @@
 
 ---
 
+> 📦 **2025-10-18 재정리 안내**
+>
+> - 모든 세부 문서는 `archive/2025-10-18-reset/` 하위로 이동했습니다.
+> - 최신화가 필요한 자료는 해당 아카이브 폴더에서 꺼내어 `claudedocs/` 루트로 복원한 뒤 업데이트하세요.
+> - 아래 폴더 구조 및 안내는 아카이브 내부 경로를 기준으로 유지됩니다.
+
+
 ## 📁 폴더 구조
 
 ```
 claudedocs/
-├── tech-stack/                    # 기술 스택 및 버전 정보
+claudedocs/
+├── archive/2025-10-18-reset/...
 │   └── 기술스택_및_버전정보.md
 │
 ├── backend-guide/                 # 백엔드 개발 가이드
@@ -150,61 +158,67 @@ claudedocs/
 2. **facility-reservation-prerequisites.md**: 사전 요구사항
 3. **facility-reservation-user-flow-analysis.md**: 사용자 플로우 분석
 4. **facility-reservation-issues-analysis.md**: 이슈 분석
-
-##### 🏗️ 구현 문서
-
-5. **facility-reservation-backend-blueprint.md**: 백엔드 구조 설계
-6. **facility-reservation-implementation-plan.md**: 구현 계획
-7. **facility-reservation-implementation-ready.md**: 구현 준비
-8. **facility-reservation-final-plan.md**: 최종 계획 (최신)
-
-##### 🔧 버그 수정 및 개선
-
-9. **facility-reservation-critical-fixes.md**: 치명적 버그 수정
-10. **facility-reservation-jpql-fixes.md**: JPQL 쿼리 수정
-
-##### 📦 기타 자료
-
-- **facility-reservation-final-plan-v2.0-deprecated.md**: 폐기된 v2.0 계획
-- **admin_booking_system.tsx**: 관리자 예약 관리 UI (React)
-- **facility_booking_system.tsx**: 사용자 예약 UI (React)
-- **facility_reservation_schema.sql**: 데이터베이스 스키마
-
-**기술 스택**:
-- Spring Boot 2.7.18
-- JPA/Hibernate 5.6.15
-- MariaDB 10.x
-- React 18.x
-
-**대상**: 풀스택 개발자, 백엔드 개발자, 프론트엔드 개발자
-
----
-
-### 4️⃣ API 문서 (`api-endpoints/`)
-
-**REST API 엔드포인트 문서**
-
-- **api-documentation.md**: API 엔드포인트 전체 목록 및 사용법
-
-**대상**: 프론트엔드 개발자, API 사용자
-
----
-
-### 5️⃣ 데이터베이스 (`database/`)
-
-**데이터베이스 스키마 및 구조 문서**
-
-- ✅ **database-schema.md**: 전체 데이터베이스 스키마 상세 문서
-  - 18개 테이블 구조
-  - ERD 다이어그램
-  - 인덱스 및 외래키
-  - VIEW 및 Trigger
-  
-- ✅ **blue_crab_schema.sql**: 데이터베이스 생성 SQL 스크립트
-  - CREATE TABLE 문
-  - 제약조건 및 인덱스
-  - 즉시 실행 가능한 SQL
-
+```
+claudedocs/
+├── archive/
+│   ├── 2025-10-18-reset/
+│   │   ├── tech-stack/
+│   │   │   └── 기술스택_및_버전정보.md
+│   │   │
+│   │   ├── backend-guide/
+│   │   │   ├── 프론트엔드_개발자를위한_백엔드_가이드_인덱스.md
+│   │   │   ├── 백엔드_폴더구조_빠른참조.md
+│   │   │   ├── 백엔드_최신화_확인_및_업데이트_필요사항.md
+│   │   │   ├── 백엔드-분석문서-vs-실제코드-비교보고서.md
+│   │   │   └── 프론트엔드를_위한_백엔드_동작방식_설명계획.md
+│   │   │
+│   │   ├── feature-docs/
+│   │   │   ├── fcm/
+│   │   │   │   ├── fcm-code-review.md
+│   │   │   │   ├── fcm-frontend-flow.md
+│   │   │   │   ├── fcm-frontend-integration.md
+│   │   │   │   ├── fcm-redis-flow.md
+│   │   │   │   ├── fcm-admin-test.js
+│   │   │   │   └── fcm-browser-test.js
+│   │   │   │
+│   │   │   └── facility-reservation/
+│   │   │       ├── facility-reservation-backend-blueprint.md
+│   │   │       ├── facility-reservation-critical-fixes.md
+│   │   │       ├── facility-reservation-final-plan.md
+│   │   │       ├── facility-reservation-implementation-plan.md
+│   │   │       ├── facility-reservation-implementation-ready.md
+│   │   │       ├── facility-reservation-issues-analysis.md
+│   │   │       ├── facility-reservation-jpql-fixes.md
+│   │   │       ├── facility-reservation-plan.md
+│   │   │       ├── facility-reservation-prerequisites.md
+│   │   │       ├── facility-reservation-user-flow-analysis.md
+│   │   │       ├── facility-reservation-final-plan-v2.0-deprecated.md
+│   │   │       ├── admin_booking_system.tsx
+│   │   │       ├── facility_booking_system.tsx
+│   │   │       └── facility_reservation_schema.sql
+│   │   │
+│   │   ├── api-endpoints/
+│   │   │   └── api-documentation.md
+│   │   │
+│   │   ├── database/
+│   │   │   ├── database-schema.md
+│   │   │   └── blue_crab_schema.sql
+│   │   │
+│   │   └── backend-analysis/
+│   │       ├── 00-Phase1-통합분석보고서.md
+│   │       ├── 01-전체구조-분석.md
+│   │       ├── 02-API-엔드포인트-분석.md
+│   │       ├── 03-의존성-관계-분석.md
+│   │       ├── config-analysis/
+│   │       ├── controller-analysis/
+│   │       ├── entity-analysis/
+│   │       └── repository-analysis/
+│   │
+│   └── ... (기존 아카이브 폴더)
+│
+├── DOCS_INDEX.md
+└── README.md
+```
 **데이터베이스 정보**:
 - 호스트: 121.165.24.26:55511
 - 데이터베이스: blue_crab
@@ -322,7 +336,7 @@ claudedocs/
 
 | 날짜 | 변경 내용 | 작성자 |
 |------|----------|--------|
-| 2025-10-18 | 아카이브 세분화 (Phase/Bugfix/API Tester/Reference) 및 불필요 문서 이동 | GitHub Copilot |
+| 2025-10-18 | 전체 문서 `archive/2025-10-18-reset/` 이동 및 루트 최소화 | GitHub Copilot |
 | 2025-10-10 | SSH 접속으로 실제 버전 확인 및 업데이트 | GitHub Copilot |
 | 2025-10-10 | 문서 폴더 구조 정리 및 README 작성 | GitHub Copilot |
 
