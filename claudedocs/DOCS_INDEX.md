@@ -1,6 +1,6 @@
 # 📚 Blue Crab LMS 문서 빠른 참조
 
-> **최종 업데이트**: 2025-10-10  
+> **최종 업데이트**: 2025-10-18  
 > **문서 위치**: `/claudedocs/`
 
 ---
@@ -54,6 +54,8 @@
 - fcm-frontend-flow.md
 - fcm-frontend-integration.md
 - fcm-redis-flow.md
+- fcm-document-review.md
+- 테스트페이지-FCM-수정완료.md
 
 #### 🏢 [facility-reservation/](./feature-docs/facility-reservation/)
 **시설 예약 시스템**
@@ -67,6 +69,9 @@
 - facility-reservation-jpql-fixes.md
 - admin_booking_system.tsx
 - facility_booking_system.tsx
+- Admin_Reservations_API_Implementation_Status.md (관리자 예약 API 구현 현황)
+- AdminReservationDetailAPI_Request.md (관리자 예약 상세 API)
+- Admin_Reservations_Search_API_Request_detailed.md (관리자 예약 검색 API)
 
 ---
 
@@ -82,21 +87,41 @@
 ### 🧪 API Testing Tool
 **API 테스터 개발 문서**
 
-- **api-tester-phase1.1-complete.md** ✅ (UI Redesign 완료)
-- **api-tester-phase1.2-complete.md** ✅ (Badge Update 완료)
-- **api-tester-phase1.3-complete.md** ✅ (Auth Tab Navigation 완료)
-- **PHASE1.2-COMPLETION-REPORT.md** 📊 (Phase 1.2 완료 보고서)
-- **PHASE1.2-SUMMARY.md** 📝 (빠른 참조용 요약)
-- api-tester-refactoring-summary.md (리팩토링 이력)
-- api-tester-testing-guide.md (테스트 가이드)
-- bugfix-api-templates-path.md (버그 수정 이력)
-- console-api-tester-guide.md (콘솔 가이드)
-- feature-history-body-preview.md (히스토리 기능)
+- **[archive/phase-reports/api-tester-phase1.1-complete.md](./archive/phase-reports/api-tester-phase1.1-complete.md)** ✅ (UI Redesign 완료)
+- **[archive/phase-reports/api-tester-phase1.2-complete.md](./archive/phase-reports/api-tester-phase1.2-complete.md)** ✅ (Badge Update 완료)
+- **[archive/phase-reports/api-tester-phase1.3-complete.md](./archive/phase-reports/api-tester-phase1.3-complete.md)** ✅ (Auth Tab Navigation 완료)
+- **[archive/phase-reports/PHASE1.2-COMPLETION-REPORT.md](./archive/phase-reports/PHASE1.2-COMPLETION-REPORT.md)** 📊 (Phase 1.2 완료 보고서)
+- **[archive/phase-reports/PHASE1.2-SUMMARY.md](./archive/phase-reports/PHASE1.2-SUMMARY.md)** 📝 (빠른 참조용 요약)
+- **[archive/phase-reports/PHASE1.3-COMPLETION-REPORT.md](./archive/phase-reports/PHASE1.3-COMPLETION-REPORT.md)** 🧾 (Phase 1.3 완료 보고서)
+- **[archive/phase-reports/Phase4-DDL-테스트-완료.md](./archive/phase-reports/Phase4-DDL-테스트-완료.md)** 🛠️ (Phase 4 DDL 작업)
+- **[archive/phase-reports/최종점검보고서.md](./archive/phase-reports/최종점검보고서.md)** 📋 (최종 점검 보고)
+- **[archive/phase-reports/feature-history-body-preview.md](./archive/phase-reports/feature-history-body-preview.md)** (히스토리 기능)
+- **[archive/bugfixes/bugfix-api-templates-path.md](./archive/bugfixes/bugfix-api-templates-path.md)** (버그 수정 이력)
+- **[archive/bugfixes/bugfix-duplicate-notifications.md](./archive/bugfixes/bugfix-duplicate-notifications.md)** (푸시 중복 버그 수정)
+- **[archive/bugfixes/bugfix-hibernate-querye exception-join-fetch-pagination.md](./archive/bugfixes/bugfix-hibernate-querye%20exception-join-fetch-pagination.md)** (Hibernate Query 수정)
+- **[archive/bugfixes/push-api-security-improvement.md](./archive/bugfixes/push-api-security-improvement.md)** (보안 개선)
+- **[archive/api-tester/api-tester-refactoring-summary.md](./archive/api-tester/api-tester-refactoring-summary.md)** (리팩토링 이력)
+- **[archive/api-tester/api-tester-testing-guide.md](./archive/api-tester/api-tester-testing-guide.md)** (테스트 가이드)
+- **[archive/api-tester/console-api-tester-guide.md](./archive/api-tester/console-api-tester-guide.md)** (콘솔 가이드)
+- **[archive/api-tester/data-only-push-test-guide.md](./archive/api-tester/data-only-push-test-guide.md)** (데이터 전용 테스트 가이드)
+
+---
+
+### 🗃️ [archive/](./archive/)
+**과거 참고 문서 보관소**
+
+- phase-reports/ — Phase별 완료 보고서, 회고, 스크린샷 자료
+- bugfixes/ — 주요 버그 수정 및 보안 개선 이력
+- api-tester/ — API 테스터 프로젝트 산출물 및 가이드
+- reference/ — DTO 리팩토링, API Gap 등 참고 분석 문서
+   - api-endpoint-gap-analysis.md
+   - dto-refactoring-phase1-analysis.md
 
 **개발 진행 상황**:
-- ✅ Phase 1.1: 2-row 레이아웃 UI 재설계
-- ✅ Phase 1.2: Body Template Badge 실시간 업데이트
-- ✅ Phase 1.3: 일반/관리자 로그인 탭 네비게이션
+- ✅ Phase 1.1: 2-row 레이아웃 UI 재설계 (archive/phase-reports)
+- ✅ Phase 1.2: Body Template Badge 실시간 업데이트 (archive/phase-reports)
+- ✅ Phase 1.3: 일반/관리자 로그인 탭 네비게이션 (archive/phase-reports)
+- ✅ Phase 4: DDL 정책 테스트 및 회고 (archive/phase-reports)
 - 🔜 Phase 2: 추가 기능 개선 (키보드 단축키, 다크 모드 등)
 
 ---

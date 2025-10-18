@@ -47,6 +47,12 @@ claudedocs/
 ├── api-endpoints/                 # API 문서
 │   └── api-documentation.md
 │
+├── archive/                       # 완료 문서 & 버그 리포트 보관소
+│   ├── phase-reports/             # Phase별 완료 보고서, 회고, 스크린샷 가이드
+│   ├── bugfixes/                  # 버그 수정 및 보안 개선 기록
+│   ├── api-tester/                # API 테스터 프로젝트 산출물 및 가이드
+│   └── reference/                 # 참고용 분석/리포트 문서
+│
 ├── database/                      # 데이터베이스 스키마
 │   ├── database-schema.md         # 스키마 상세 문서 (Markdown)
 │   └── blue_crab_schema.sql       # 스키마 생성 SQL
@@ -208,7 +214,23 @@ claudedocs/
 
 ---
 
-### 6️⃣ 백엔드 분석 (`backend-analysis/`)
+### 6️⃣ 아카이브 (`archive/`)
+
+**완료된 Phase 보고서 & 히스토리 문서**
+
+- `phase-reports/`: Phase 1~4 완료 보고서, 종합 점검 결과, 히스토리 문서
+- `bugfixes/`: 치명 이슈 해결 과정, 보안 개선 작업 기록
+- `api-tester/`: API 테스터 프로젝트 문서, 콘솔/테스트 가이드
+- `reference/`: DTO 리팩토링, 엔드포인트 갭 분석 등 참고용 분석 자료
+
+**활용 포인트**
+- 현황 파악에는 최신 디렉터리를 우선 확인하고, 과거 결정 및 회고는 `archive/`에서 추적
+- `phase-reports/`에는 각 마일스톤의 스크린샷, 완료 보고서가 정리되어 있어 향후 회고 시 유용
+- `api-tester/`와 `reference/`는 특정 프로젝트/분석 회상 시에만 참조
+
+---
+
+### 7️⃣ 백엔드 분석 (`backend-analysis/`)
 
 **백엔드 코드 상세 분석**
 
@@ -300,6 +322,7 @@ claudedocs/
 
 | 날짜 | 변경 내용 | 작성자 |
 |------|----------|--------|
+| 2025-10-18 | 아카이브 세분화 (Phase/Bugfix/API Tester/Reference) 및 불필요 문서 이동 | GitHub Copilot |
 | 2025-10-10 | SSH 접속으로 실제 버전 확인 및 업데이트 | GitHub Copilot |
 | 2025-10-10 | 문서 폴더 구조 정리 및 README 작성 | GitHub Copilot |
 
