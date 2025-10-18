@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -379,7 +380,7 @@ public class EnrollmentService {
      * 성적 구성 설정
      */
     @Transactional
-    public Map<String, Object> setGradeConfiguration(Map<String, Object> request) {
+    public Map<String, Object> configureGrade(Map<String, Object> request) {
         // TODO: 성적 구성 설정 로직 구현
         // 임시로 간단한 응답 반환
         return Map.of(
@@ -390,21 +391,118 @@ public class EnrollmentService {
 
     /**
      * 학생 성적 정보 조회
+     * - 출석 점수 계산
+     * - 과제 점수 집계
+     * - 총점 및 백분율 계산
+     * - ENROLLMENT_DATA JSON 업데이트
      */
-    public Map<String, Object> getStudentGradeInfo(Integer lecIdx, Integer studentIdx) {
-        // TODO: 학생 성적 정보 조회 로직 구현
-        // 임시로 간단한 응답 반환
+    public Map<String, Object> studentGradeInfo(Integer lecIdx, Integer studentIdx) {
+        try {
+            // 1. 수강신청 정보 조회
+            EnrollmentExtendedTbl enrollment = enrollmentRepository.findByStudentIdxAndLecIdx(studentIdx, lecIdx)
+                .orElseThrow(() -> new IllegalArgumentException("수강신청 정보를 찾을 수 없습니다."));
+
+            // 2. 기존 JSON 데이터 파싱 (없으면 빈 구조 생성)
+            Map<String, Object> enrollmentData = parseEnrollmentData(enrollment.getEnrollmentData());
+            Map<String, Object> gradeData = (Map<String, Object>) enrollmentData.computeIfAbsent("grade", k -> new HashMap<>());
+
+            // 3. 출석 점수 계산
+            Map<String, Object> attendanceData = calculateAttendanceScore(lecIdx, studentIdx);
+            gradeData.put("attendance", attendanceData);
+
+            // 4. 과제 점수 집계
+            List<Map<String, Object>> assignmentScores = calculateAssignmentScores(lecIdx, studentIdx);
+            gradeData.put("assignments", assignmentScores);
+
+            // 5. 총점 계산
+            Map<String, Object> totalData = calculateTotalScore(attendanceData, assignmentScores);
+            gradeData.put("total", totalData);
+
+            // 6. JSON 데이터 업데이트
+            String updatedJson = objectMapper.writeValueAsString(enrollmentData);
+            enrollment.setEnrollmentData(updatedJson);
+            enrollmentRepository.save(enrollment);
+
+            // 7. 응답 데이터 구성
+            return Map.of(
+                "lecIdx", lecIdx,
+                "studentIdx", studentIdx,
+                "grade", gradeData,
+                "updatedAt", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            );
+
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("JSON 처리 중 오류가 발생했습니다.", e);
+        } catch (Exception e) {
+            throw new RuntimeException("학생 성적 정보 조회 중 오류가 발생했습니다.", e);
+        }
+    }
+
+    /**
+     * 출석 점수 계산
+     * TODO: AttendanceRepository를 통해 실제 출석 데이터 조회 필요
+     */
+    private Map<String, Object> calculateAttendanceScore(Integer lecIdx, Integer studentIdx) {
+        // 임시 데이터 (실제로는 ATTENDANCE_TBL에서 조회)
+        double maxScore = 20.0;
+        double currentScore = 18.5;
+        double rate = (currentScore / maxScore) * 100;
+
         return Map.of(
-            "lecIdx", lecIdx,
-            "studentIdx", studentIdx,
-            "message", "학생 성적 정보 조회가 완료되었습니다. (구현 예정)"
+            "maxScore", maxScore,
+            "currentScore", currentScore,
+            "rate", Math.round(rate * 100.0) / 100.0
+        );
+    }
+
+    /**
+     * 과제 점수 집계
+     * TODO: AssignmentRepository를 통해 실제 과제 데이터 조회 필요
+     */
+    private List<Map<String, Object>> calculateAssignmentScores(Integer lecIdx, Integer studentIdx) {
+        // 임시 데이터 (실제로는 ASSIGNMENT_TBL에서 조회)
+        return List.of(
+            Map.of("name", "과제1", "score", 9, "maxScore", 10),
+            Map.of("name", "중간고사", "score", 85, "maxScore", 100),
+            Map.of("name", "기말고사", "score", 92, "maxScore", 100)
+        );
+    }
+
+    /**
+     * 총점 계산
+     */
+    private Map<String, Object> calculateTotalScore(Map<String, Object> attendanceData, 
+                                                     List<Map<String, Object>> assignmentScores) {
+        // 출석 점수
+        double attendanceScore = ((Number) attendanceData.get("currentScore")).doubleValue();
+        
+        // 과제 점수 합계
+        double assignmentScore = assignmentScores.stream()
+            .mapToDouble(a -> ((Number) a.get("score")).doubleValue())
+            .sum();
+        
+        // 총 만점
+        double attendanceMax = ((Number) attendanceData.get("maxScore")).doubleValue();
+        double assignmentMax = assignmentScores.stream()
+            .mapToDouble(a -> ((Number) a.get("maxScore")).doubleValue())
+            .sum();
+        
+        // 합계
+        double totalScore = attendanceScore + assignmentScore;
+        double totalMax = attendanceMax + assignmentMax;
+        double percentage = (totalScore / totalMax) * 100;
+
+        return Map.of(
+            "score", Math.round(totalScore * 100.0) / 100.0,
+            "maxScore", Math.round(totalMax * 100.0) / 100.0,
+            "percentage", Math.round(percentage * 100.0) / 100.0
         );
     }
 
     /**
      * 교수용 성적 조회
      */
-    public Map<String, Object> getProfessorGradeView(Integer lecIdx, Integer studentIdx, Integer professorIdx) {
+    public Map<String, Object> professorGradeView(Integer lecIdx, Integer studentIdx, Integer professorIdx) {
         // TODO: 교수용 성적 조회 로직 구현
         // 임시로 간단한 응답 반환
         return Map.of(
@@ -418,7 +516,7 @@ public class EnrollmentService {
     /**
      * 성적 목록 조회
      */
-    public Map<String, Object> getGradeList(Integer lecIdx, Pageable pageable, String sortBy, String sortOrder) {
+    public Map<String, Object> gradeList(Integer lecIdx, Pageable pageable, String sortBy, String sortOrder) {
         // TODO: 성적 목록 조회 로직 구현
         // 임시로 간단한 응답 반환
         return Map.of(

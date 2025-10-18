@@ -2,31 +2,35 @@
 
 Blue Crab LMS 강의 관련 기능을 브라우저 콘솔에서 테스트하기 위한 파일들입니다.
 
-## 📁 파일 구조
+## 📁 디렉토리 구조
 
-### 📖 가이드 문서
-- **`TEST_GUIDE.md`** - 🆕 완전한 테스트 가이드 (v6.0)
-- **`usage-diagram.drawio`** - 테스트 흐름도 (Draw.io 형식)
-- **`usage-diagram.drawio.png`** - 테스트 흐름도 (이미지)
-
-### 🧪 테스트 스크립트
-
-#### 👨‍💼 관리자
-- **`lecture-test-1-admin-create.js`** - 강의 CRUD 및 통계
-- **`lecture-test-6-admin-statistics.js`** - 전체 시스템 통계
-
-#### 👨‍🎓 학생  
-- **`lecture-test-2a-student-enrollment.js`** - 수강 가능 강의 조회 및 신청
-- **`lecture-test-2b-student-my-courses.js`** - 내 수강 목록 및 취소
-- **`lecture-test-3-student-assignment.js`** - 과제 조회 및 제출
-
-#### 👨‍🏫 교수
-- **`lecture-test-4a-professor-assignment-create.js`** - 과제 생성 및 목록
-- **`lecture-test-4b-professor-assignment-grade.js`** - 과제 채점 및 관리  
-- **`lecture-test-5-professor-students.js`** - 수강생 조회 및 관리
-
-### 📊 참고 데이터
-- **`professor_accounts.csv`** - 교수 계정 정보
+```
+브라우저콘솔테스트/
+├── README.md              # 이 파일
+├── TEST_GUIDE.md          # 완전한 테스트 가이드 (v6.0)
+├── TEST_REVIEW.md         # 성적 관리 테스트 검토 리포트
+├── usage-diagram.drawio   # 테스트 흐름도
+│
+├── 01-admin/              # 👨‍💼 관리자 테스트
+│   ├── lecture-test-1-admin-create.js      # 강의 CRUD
+│   └── lecture-test-6-admin-statistics.js  # 시스템 통계
+│
+├── 02-student/            # 👨‍🎓 학생 테스트
+│   ├── lecture-test-2a-student-enrollment.js  # 수강 신청
+│   ├── lecture-test-2b-student-my-courses.js  # 내 수강 목록
+│   └── lecture-test-3-student-assignment.js   # 과제 조회/제출
+│
+├── 03-professor/          # 👨‍🏫 교수 테스트
+│   ├── lecture-test-4a-professor-assignment-create.js  # 과제 생성
+│   ├── lecture-test-4b-professor-assignment-grade.js   # 과제 채점
+│   └── lecture-test-5-professor-students.js            # 수강생 관리
+│
+├── 04-grade/              # 📊 성적 관리 (Phase4 신규)
+│   └── grade-management-test.js            # 성적 관리 시스템 v2.0
+│
+└── data/                  # � 참고 데이터
+    └── professor_accounts.csv              # 교수 계정 정보
+```
 
 ## 🚀 빠른 시작
 
@@ -38,15 +42,75 @@ Blue Crab LMS 강의 관련 기능을 브라우저 콘솔에서 테스트하기 
 - 트러블슈팅 방법
 ```
 
-### 2. API URL 이해
+### 2. 역할별 테스트 파일 선택
+
+#### 👨‍💼 관리자 테스트
+```bash
+01-admin/
+├── lecture-test-1-admin-create.js      # 강의 생성, 수정, 삭제, 통계
+└── lecture-test-6-admin-statistics.js  # 전체 시스템 통계 조회
+```
+
+**주요 기능**:
+- 강의 CRUD
+- 강의 통계 조회
+- 시스템 전체 통계
+
+#### 👨‍🎓 학생 테스트
+```bash
+02-student/
+├── lecture-test-2a-student-enrollment.js  # 수강 가능 강의 조회 및 신청
+├── lecture-test-2b-student-my-courses.js  # 내 수강 목록 및 취소
+└── lecture-test-3-student-assignment.js   # 과제 조회 및 제출
+```
+
+**주요 기능**:
+- 수강 가능 강의 조회
+- 수강 신청/취소
+- 과제 조회/제출
+
+#### 👨‍🏫 교수 테스트
+```bash
+03-professor/
+├── lecture-test-4a-professor-assignment-create.js  # 과제 생성
+├── lecture-test-4b-professor-assignment-grade.js   # 과제 채점
+└── lecture-test-5-professor-students.js            # 수강생 조회
+```
+
+**주요 기능**:
+- 과제 생성/관리
+- 과제 채점
+- 수강생 목록 조회
+
+#### 📊 성적 관리 (신규 Phase4)
+```bash
+04-grade/
+└── grade-management-test.js  # 성적 관리 시스템 v2.0
+```
+
+**주요 기능**:
+- ✅ 성적 구성 설정 (출석, 과제, 시험 배점)
+- ✅ 학생 성적 조회 (출석율, 과제 점수, 총점)
+- ✅ 교수용 성적 조회
+- ✅ 전체 성적 목록 조회
+- ✅ 최종 등급 배정 (60% 기준 + 상대평가)
+
+**v2.0 개선사항**:
+- ✅ HTTP 상태 코드 검증
+- ✅ 성공/실패 명확한 표시
+- ✅ 응답 시간 측정
+- ✅ 응답 데이터 구조화 출력
+- ✅ 동적 테스트 데이터 변경
+- ✅ 테스트 결과 요약
+
+### 3. API URL 이해
 ```javascript
 // 프로젝트 베이스: https://bluecrab.chickenkiller.com/BlueCrab-1.0.0
 // API 베이스: https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api
-// 실제 호출: https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/lectures
 const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 ```
 
-### 3. 로그인 수행
+### 4. 로그인 수행
 ```javascript
 // 학생/교수: docs/일반유저 로그인+게시판/test-1-login.js
 await login()

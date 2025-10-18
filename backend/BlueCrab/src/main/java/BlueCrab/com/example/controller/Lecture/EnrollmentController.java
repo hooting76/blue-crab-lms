@@ -509,7 +509,7 @@ public class EnrollmentController {
 
         try {
             // 성적 구성 설정 로직을 EnrollmentService에 위임
-            Map<String, Object> result = enrollmentService.setGradeConfiguration(request);
+            Map<String, Object> result = enrollmentService.configureGrade(request);
             return ResponseEntity.ok(createSuccessResponse("성적 구성이 설정되었습니다.", result));
             
         } catch (Exception e) {
@@ -532,7 +532,7 @@ public class EnrollmentController {
         }
 
         try {
-            Map<String, Object> gradeInfo = enrollmentService.getStudentGradeInfo(lecIdx, studentIdx);
+            Map<String, Object> gradeInfo = enrollmentService.studentGradeInfo(lecIdx, studentIdx);
             return ResponseEntity.ok(createSuccessResponse("성적 조회가 완료되었습니다.", gradeInfo));
             
         } catch (Exception e) {
@@ -556,7 +556,7 @@ public class EnrollmentController {
         }
 
         try {
-            Map<String, Object> gradeInfo = enrollmentService.getProfessorGradeView(lecIdx, studentIdx, professorIdx);
+            Map<String, Object> gradeInfo = enrollmentService.professorGradeView(lecIdx, studentIdx, professorIdx);
             return ResponseEntity.ok(createSuccessResponse("교수용 성적 조회가 완료되었습니다.", gradeInfo));
             
         } catch (Exception e) {
@@ -583,7 +583,7 @@ public class EnrollmentController {
 
         try {
             Pageable pageable = PageRequest.of(page, size);
-            Map<String, Object> gradeList = enrollmentService.getGradeList(lecIdx, pageable, sortBy, sortOrder);
+            Map<String, Object> gradeList = enrollmentService.gradeList(lecIdx, pageable, sortBy, sortOrder);
             return ResponseEntity.ok(createSuccessResponse("성적 목록 조회가 완료되었습니다.", gradeList));
             
         } catch (Exception e) {
