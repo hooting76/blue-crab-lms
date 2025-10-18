@@ -38,7 +38,15 @@ Blue Crab LMS 강의 관련 기능을 브라우저 콘솔에서 테스트하기 
 - 트러블슈팅 방법
 ```
 
-### 2. 로그인 수행
+### 2. API URL 이해
+```javascript
+// 프로젝트 베이스: https://bluecrab.chickenkiller.com/BlueCrab-1.0.0
+// API 베이스: https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api
+// 실제 호출: https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/lectures
+const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
+```
+
+### 3. 로그인 수행
 ```javascript
 // 학생/교수: docs/일반유저 로그인+게시판/test-1-login.js
 await login()
@@ -49,7 +57,7 @@ await sendAuthCode()
 await verifyAuthCode()
 ```
 
-### 3. 역할별 테스트 실행
+### 4. 역할별 테스트 실행
 ```javascript
 // 각 테스트 파일을 브라우저 콘솔에 복사 후 실행
 // 예: 학생 수강신청

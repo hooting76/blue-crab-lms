@@ -39,6 +39,12 @@ window.authToken = null;
 window.currentUser = null;
 ```
 
+**⚠️ API URL 주의사항:**
+- 프로젝트 베이스 URL: `https://bluecrab.chickenkiller.com/BlueCrab-1.0.0`  
+- API 전용 URL: `https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api`
+- 모든 강의 관련 API 엔드포인트는 `/api/` 경로를 사용하므로 편의상 `API_BASE_URL`로 통일
+- 실제 호출 시: `${API_BASE_URL}/lectures` → `https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/lectures`
+
 ### 2. 사용자 역할별 로그인
 
 #### 👨‍🎓 학생/교수 로그인
@@ -237,7 +243,10 @@ console.log('User:', window.currentUser)
 - **scores**: 과제 점수는 항상 10점 만점
 
 ### 🌐 네트워크
-- 실제 서버 API와 연동 (bluecrab.chickenkiller.com)
+- **실제 서버**: `https://bluecrab.chickenkiller.com`
+- **프로젝트 베이스**: `/BlueCrab-1.0.0`
+- **API 엔드포인트**: `/api/lectures`, `/api/assignments` 등
+- **완전한 URL 예시**: `https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/lectures`
 - CORS 정책으로 브라우저 콘솔에서만 실행 가능
 - 네트워크 에러 시 서버 상태 확인 필요
 
@@ -257,9 +266,12 @@ await login() // 또는 await adminLogin()
 // 로그인 상태 확인
 checkAuth()
 
-// 네트워크 상태 확인
-fetch('https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/health')
-  .then(r => console.log('Server status:', r.status))
+// 네트워크 상태 확인 (실제 API 엔드포인트 테스트)
+fetch('https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/lectures/list', {
+  method: 'POST',
+  headers: { 'Authorization': `Bearer ${window.authToken}`, 'Content-Type': 'application/json' },
+  body: JSON.stringify({ page: 0, size: 1 })
+}).then(r => console.log('API status:', r.status))
 ```
 
 ### 3. 권한 에러 (403)
