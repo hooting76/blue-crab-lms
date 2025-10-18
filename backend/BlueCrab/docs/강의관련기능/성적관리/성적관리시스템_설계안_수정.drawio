@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" version="28.2.7">
   <diagram name="성적관리시스템" id="grade-management-system">
-    <mxGraphModel dx="1426" dy="777" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="light-dark(#FFFFFF,#FFFFFF)" math="0" shadow="0">
+    <mxGraphModel dx="1188" dy="648" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="light-dark(#FFFFFF,#FFFFFF)" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -10,7 +10,7 @@
         <mxCell id="professor" value="👨‍🏫 교수 계정" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#60a917;strokeColor=#2D7600;strokeWidth=2;fontSize=14;fontStyle=1;fontColor=#ffffff;" parent="1" vertex="1">
           <mxGeometry x="50" y="100" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="MG4DHli698F3isjgFY7O-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="lecture-select" target="professor">
+        <mxCell id="MG4DHli698F3isjgFY7O-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="lecture-select" target="professor" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="lecture-select" value="담당 강의 선택" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#008a00;strokeColor=#005700;strokeWidth=2;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
@@ -19,31 +19,31 @@
         <mxCell id="grade-config" value="📊 성적 구성 설정" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#ffffff;" parent="1" vertex="1">
           <mxGeometry x="390" y="100" width="140" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="attendance-score" value="📅 출석 점수&#xa;&#xa;• 출석율 × 지정 만점&#xa;• 출결 정보 자동 반영&#xa;• 실시간 업데이트" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e51400;strokeColor=#B20000;strokeWidth=2;fontSize=11;align=left;verticalAlign=top;fontColor=#ffffff;" parent="1" vertex="1">
+        <mxCell id="attendance-score" value="📅 출석 점수&#xa;&#xa;• 출석율 × 지정 만점&#xa;• 출결 정보 자동 반영&#xa;• 이벤트 기반 업데이트" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e51400;strokeColor=#B20000;strokeWidth=2;fontSize=11;align=left;verticalAlign=top;fontColor=#ffffff;" parent="1" vertex="1">
           <mxGeometry x="50" y="220" width="150" height="100" as="geometry" />
         </mxCell>
         <mxCell id="assignment-score" value="📝 과제 점수&#xa;&#xa;• 개별 과제별 점수&#xa;• 과제 생성/채점 시 반영&#xa;• 누적 점수 계산" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fa6800;strokeColor=#C73500;strokeWidth=2;fontSize=11;align=left;verticalAlign=top;fontColor=#000000;" parent="1" vertex="1">
           <mxGeometry x="220" y="220" width="150" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="MG4DHli698F3isjgFY7O-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="exam-score" target="grade-config">
+        <mxCell id="MG4DHli698F3isjgFY7O-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="exam-score" target="grade-config" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="exam-score" value="🎯 중간/기말고사&#xa;&#xa;• 과제의 특수 형태&#xa;• 과제명: 중간고사/기말고사&#xa;• 동일한 채점 방식" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;strokeWidth=2;fontSize=11;align=left;verticalAlign=top;fontColor=#000000;" parent="1" vertex="1">
           <mxGeometry x="390" y="220" width="150" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="total-score" value="📊 합계 점수&#xa;&#xa;• 점수/만점 형태&#xa;• 백분율 계산&#xa;• 실시간 자동 계산" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3c800;strokeColor=#B09500;strokeWidth=2;fontSize=11;align=left;verticalAlign=top;fontColor=#000000;" parent="1" vertex="1">
+        <mxCell id="total-score" value="📊 합계 점수&#xa;&#xa;• 점수/만점 형태&#xa;• 백분율 계산&#xa;• 이벤트 기반 자동 계산" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3c800;strokeColor=#B09500;strokeWidth=2;fontSize=11;align=left;verticalAlign=top;fontColor=#000000;" parent="1" vertex="1">
           <mxGeometry x="560" y="220" width="150" height="100" as="geometry" />
         </mxCell>
         <mxCell id="json-structure" value="&lt;font style=&quot;font-size: 12px;&quot;&gt;🗃️ ENROLLMENT_DATA (JSON)&lt;br&gt;&lt;br&gt;{&lt;br&gt;  &quot;grade&quot;: {&lt;br&gt;    &quot;attendance&quot;: {&lt;br&gt;      &quot;maxScore&quot;: 20,&lt;br&gt;      &quot;currentScore&quot;: 18.5,&lt;br&gt;      &quot;rate&quot;: 92.5&lt;br&gt;    },&lt;br&gt;    &quot;assignments&quot;: [&lt;br&gt;      {&quot;name&quot;: &quot;과제1&quot;, &quot;score&quot;: 9, &quot;maxScore&quot;: 10},&lt;br&gt;      {&quot;name&quot;: &quot;중간고사&quot;, &quot;score&quot;: 85, &quot;maxScore&quot;: 100},&lt;br&gt;      {&quot;name&quot;: &quot;기말고사&quot;, &quot;score&quot;: 92, &quot;maxScore&quot;: 100}&lt;br&gt;    ],&lt;br&gt;    &quot;total&quot;: {&lt;br&gt;      &quot;score&quot;: 204.5,&lt;br&gt;      &quot;maxScore&quot;: 230,&lt;br&gt;      &quot;percentage&quot;: 88.9&lt;br&gt;    },&lt;br&gt;    &quot;letterGrade&quot;: &quot;A&quot;&lt;br&gt;  }&lt;br&gt;}&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#76608a;strokeColor=#432D57;strokeWidth=2;fontSize=10;align=left;verticalAlign=top;fontFamily=Courier New;fontColor=#ffffff;" parent="1" vertex="1">
           <mxGeometry x="750" y="60" width="380" height="340" as="geometry" />
         </mxCell>
-        <mxCell id="student-list" value="👨‍🎓 수강생 목록&#xa;&#xa;• 개별 성적 관리&#xa;• 실시간 업데이트&#xa;• 백분위 순위 계산" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#76608a;strokeColor=#432D57;strokeWidth=2;fontSize=12;align=left;verticalAlign=top;fontColor=#ffffff;" parent="1" vertex="1">
+        <mxCell id="student-list" value="👨‍🎓 수강생 목록&#xa;&#xa;• 개별 성적 관리&#xa;• 이벤트 기반 업데이트&#xa;• 백분위 순위 계산" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#76608a;strokeColor=#432D57;strokeWidth=2;fontSize=12;align=left;verticalAlign=top;fontColor=#ffffff;" parent="1" vertex="1">
           <mxGeometry x="50" y="360" width="200" height="90" as="geometry" />
         </mxCell>
-        <mxCell id="final-grade" value="🎓 최종 성적 처리&#xa;&#xa;• 기말고사/최종과제 완료 후&#xa;• 백분위 기준 등급 배정&#xa;• A, B, C, D, F 등급" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#a0522d;strokeColor=#6D1F00;strokeWidth=2;fontSize=12;align=left;verticalAlign=top;fontColor=#ffffff;" parent="1" vertex="1">
-          <mxGeometry x="300" y="360" width="200" height="90" as="geometry" />
+        <mxCell id="final-grade" value="🎓 최종 성적 처리&#xa;&#xa;• 60% 미만: 무조건 F등급&#xa;• 60% 이상: A,B,C,D 상대평가&#xa;• 낙제자가 D→C→B 순서로 하위등급 침범&#xa;• 동점자: 모두 상위등급에 배정&#xa;• 합격자는 남은 등급에 성적순 배정" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#a0522d;strokeColor=#6D1F00;strokeWidth=2;fontSize=10;align=left;verticalAlign=top;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="300" y="360" width="210" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="api-endpoints" value="🔧 POST 방식 API 엔드포인트&#xa;&#xa;POST /api/enrollments/grade-config&#xa;  → 성적 구성 설정&#xa;&#xa;POST /api/enrollments/grade-input&#xa;  → 개별 성적 입력&#xa;&#xa;POST /api/enrollments/grade-list&#xa;  → 성적 조회&#xa;&#xa;POST /api/enrollments/grade-finalize&#xa;  → 최종 등급 배정" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#647687;strokeColor=#314354;strokeWidth=2;fontSize=11;align=left;verticalAlign=top;fontFamily=Courier New;fontColor=#ffffff;" parent="1" vertex="1">
+        <mxCell id="api-endpoints" value="🔧 POST 방식 API 엔드포인트&#xa;&#xa;POST /api/enrollments/grade-config&#xa;  → 성적 구성 설정&#xa;&#xa;POST /api/enrollments/grade-info&#xa;  → 개별 성적 조회&#xa;&#xa;POST /api/enrollments/grade-list&#xa;  → 전체 성적 목록&#xa;&#xa;POST /api/enrollments/grade-finalize&#xa;  → 60% 기준 최종 등급 배정&#xa;  → 낙제자 하위등급 침범 처리" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#647687;strokeColor=#314354;strokeWidth=2;fontSize=11;align=left;verticalAlign=top;fontFamily=Courier New;fontColor=#ffffff;" parent="1" vertex="1">
           <mxGeometry x="750" y="420" width="280" height="230" as="geometry" />
         </mxCell>
         <mxCell id="arrow1" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=light-dark(#E1D5E7,#3333FF);fontColor=light-dark(#000000,#000000);" parent="1" source="professor" target="lecture-select" edge="1">
@@ -58,10 +58,14 @@
             <mxPoint x="390" y="130" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="arrow3" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=light-dark(#E1D5E7,#3333FF);fontColor=light-dark(#000000,#000000);" parent="1" source="grade-config" target="json-structure" edge="1">
+        <mxCell id="arrow3" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=light-dark(#E1D5E7,#3333FF);fontColor=light-dark(#000000,#000000);exitX=1;exitY=0.5;exitDx=0;exitDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="grade-config" target="json-structure" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="530" y="130" as="sourcePoint" />
             <mxPoint x="750" y="200" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="700" y="130" />
+              <mxPoint x="700" y="130" />
+            </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="arrow4" value="구성 요소" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=light-dark(#E1D5E7,#3333FF);fontColor=light-dark(#FFFFFF,#FFFFFF);" parent="1" source="grade-config" edge="1">
@@ -76,28 +80,34 @@
         <mxCell id="step1" value="1️⃣ 성적 구성 설정" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e51400;strokeColor=#B20000;strokeWidth=2;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
           <mxGeometry x="50" y="520" width="140" height="40" as="geometry" />
         </mxCell>
+        <mxCell id="vSctXvwFK8mNluJOIU93-4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="step2" target="step1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vSctXvwFK8mNluJOIU93-7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="step2" target="step1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
         <mxCell id="step2" value="2️⃣ 출석/과제 점수 입력" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fa6800;strokeColor=#C73500;strokeWidth=2;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
           <mxGeometry x="220" y="520" width="140" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="step3" value="3️⃣ 실시간 합계 계산" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3c800;strokeColor=#B09500;strokeWidth=2;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
+        <mxCell id="step3" value="3️⃣ 이벤트 기반 합계 계산" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3c800;strokeColor=#B09500;strokeWidth=2;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
           <mxGeometry x="390" y="520" width="140" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="step4" value="4️⃣ 최종 등급 배정" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;strokeWidth=2;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
+        <mxCell id="step4" value="4️⃣ 60% 기준 등급 배정" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;strokeWidth=2;fontSize=12;fontColor=#000000;" parent="1" vertex="1">
           <mxGeometry x="560" y="520" width="140" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="process-arrow1" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#424242;fontColor=light-dark(#000000,#000000);" parent="1" edge="1">
+        <mxCell id="process-arrow1" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=light-dark(#E1D5E7,#3333FF);fontColor=light-dark(#000000,#000000);" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="190" y="540" as="sourcePoint" />
             <mxPoint x="220" y="540" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="process-arrow2" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#424242;fontColor=light-dark(#000000,#000000);" parent="1" edge="1">
+        <mxCell id="process-arrow2" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=light-dark(#E1D5E7,#3333FF);fontColor=light-dark(#000000,#000000);" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="360" y="540" as="sourcePoint" />
             <mxPoint x="390" y="540" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="process-arrow3" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#424242;fontColor=light-dark(#000000,#000000);" parent="1" edge="1">
+        <mxCell id="process-arrow3" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=light-dark(#E1D5E7,#3333FF);fontColor=light-dark(#000000,#000000);" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="530" y="540" as="sourcePoint" />
             <mxPoint x="560" y="540" as="targetPoint" />
@@ -106,17 +116,35 @@
         <mxCell id="features-title" value="✨ 주요 특징" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=light-dark(#000000,#000000);" parent="1" vertex="1">
           <mxGeometry x="50" y="600" width="100" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="feature1" value="🔄 실시간 자동 계산" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e51400;strokeColor=#B20000;strokeWidth=1;fontSize=11;fontColor=#ffffff;" parent="1" vertex="1">
+        <mxCell id="feature1" value="🔄 이벤트 기반 자동 계산" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e51400;strokeColor=#B20000;strokeWidth=1;fontSize=11;fontColor=#ffffff;" parent="1" vertex="1">
           <mxGeometry x="50" y="640" width="130" height="30" as="geometry" />
         </mxCell>
         <mxCell id="feature2" value="📊 JSON 기반 유연성" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fa6800;strokeColor=#C73500;strokeWidth=1;fontSize=11;fontColor=#000000;" parent="1" vertex="1">
           <mxGeometry x="190" y="640" width="130" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="feature3" value="🎯 백분위 등급 배정" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;strokeWidth=1;fontSize=11;fontColor=#000000;" parent="1" vertex="1">
+        <mxCell id="feature3" value="🎯 60% 기준 상대평가" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;strokeWidth=1;fontSize=11;fontColor=#000000;" parent="1" vertex="1">
           <mxGeometry x="330" y="640" width="130" height="30" as="geometry" />
         </mxCell>
         <mxCell id="feature4" value="👨‍🏫 교수 전용 관리" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3c800;strokeColor=#B09500;strokeWidth=1;fontSize=11;fontColor=#000000;" parent="1" vertex="1">
           <mxGeometry x="470" y="640" width="130" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vSctXvwFK8mNluJOIU93-1" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.442;entryY=-0.001;entryDx=0;entryDy=0;entryPerimeter=0;strokeColor=light-dark(#E1D5E7,#3333FF);edgeStyle=orthogonalEdgeStyle;strokeWidth=2;" parent="1" target="attendance-score" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="460" y="180" as="sourcePoint" />
+            <mxPoint x="510" y="310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vSctXvwFK8mNluJOIU93-2" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=light-dark(#E1D5E7,#3333FF);" parent="1" target="assignment-score" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="295" y="180" as="sourcePoint" />
+            <mxPoint x="510" y="310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vSctXvwFK8mNluJOIU93-3" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;strokeColor=light-dark(#E1D5E7,#3333FF);strokeWidth=2;" parent="1" target="total-score" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="460" y="180" as="sourcePoint" />
+            <mxPoint x="450" y="220" as="targetPoint" />
+          </mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>
