@@ -299,6 +299,14 @@ public class EnrollmentController {
         return response;
     }
 
+    private Map<String, Object> createSuccessResponse(String message, Object data) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", message);
+        response.put("data", data);
+        return response;
+    }
+
     /**
      * EnrollmentExtendedTbl 엔티티를 EnrollmentDto로 변환
      * Lazy Loading 문제를 방지하고 필요한 정보만 포함
@@ -383,5 +391,229 @@ public class EnrollmentController {
         return entities.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
+    }
+
+    // ========================================
+    // 성적 관리 API 추가
+    // ========================================
+
+    /**
+     * 성적 구성 설정 API
+     * POST /api/enrollments/grade-config
+     */
+    @PostMapping("/grade-config")
+    public ResponseEntity<?> setGradeConfig(@RequestBody Map<String, Object> request) {
+        try {
+            String action = (String) request.get("action");
+            
+            if ("set-config".equals(action)) {
+                return handleGradeConfig(request);
+            }
+            
+            return ResponseEntity.badRequest()
+                .body(createErrorResponse("지원하지 않는 액션입니다."));
+                
+        } catch (Exception e) {
+            logger.error("성적 구성 설정 실패", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(createErrorResponse("성적 구성 설정 중 오류가 발생했습니다."));
+        }
+    }
+
+    /**
+     * 개별 성적 조회 API
+     * POST /api/enrollments/grade-info
+     */
+    @PostMapping("/grade-info")
+    public ResponseEntity<?> getGradeInfo(@RequestBody Map<String, Object> request) {
+        try {
+            String action = (String) request.get("action");
+            
+            switch (action) {
+                case "get-grade":
+                    return handleStudentGradeInfo(request);
+                case "professor-view":
+                    return handleProfessorGradeView(request);
+                default:
+                    return ResponseEntity.badRequest()
+                        .body(createErrorResponse("지원하지 않는 액션입니다."));
+            }
+            
+        } catch (Exception e) {
+            logger.error("성적 조회 실패", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(createErrorResponse("성적 조회 중 오류가 발생했습니다."));
+        }
+    }
+
+    /**
+     * 전체 수강생 성적 목록 API
+     * POST /api/enrollments/grade-list
+     */
+    @PostMapping("/grade-list")
+    public ResponseEntity<?> getGradeList(@RequestBody Map<String, Object> request) {
+        try {
+            String action = (String) request.get("action");
+            
+            if ("list-all".equals(action)) {
+                return handleGradeList(request);
+            }
+            
+            return ResponseEntity.badRequest()
+                .body(createErrorResponse("지원하지 않는 액션입니다."));
+                
+        } catch (Exception e) {
+            logger.error("성적 목록 조회 실패", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(createErrorResponse("성적 목록 조회 중 오류가 발생했습니다."));
+        }
+    }
+
+    /**
+     * 최종 등급 배정 API
+     * POST /api/enrollments/grade-finalize
+     */
+    @PostMapping("/grade-finalize")
+    public ResponseEntity<?> finalizeGrades(@RequestBody Map<String, Object> request) {
+        try {
+            String action = (String) request.get("action");
+            
+            if ("finalize".equals(action)) {
+                return handleGradeFinalize(request);
+            }
+            
+            return ResponseEntity.badRequest()
+                .body(createErrorResponse("지원하지 않는 액션입니다."));
+                
+        } catch (Exception e) {
+            logger.error("등급 배정 실패", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(createErrorResponse("등급 배정 중 오류가 발생했습니다."));
+        }
+    }
+
+    // ========================================
+    // 성적 관리 핸들러 메서드들
+    // ========================================
+
+    /**
+     * 성적 구성 설정 핸들러
+     */
+    private ResponseEntity<?> handleGradeConfig(Map<String, Object> request) {
+        Integer lecIdx = request.get("lecIdx") != null ? ((Number) request.get("lecIdx")).intValue() : null;
+        
+        if (lecIdx == null) {
+            return ResponseEntity.badRequest()
+                .body(createErrorResponse("lecIdx는 필수 파라미터입니다."));
+        }
+
+        try {
+            // 성적 구성 설정 로직을 EnrollmentService에 위임
+            Map<String, Object> result = enrollmentService.setGradeConfiguration(request);
+            return ResponseEntity.ok(createSuccessResponse("성적 구성이 설정되었습니다.", result));
+            
+        } catch (Exception e) {
+            logger.error("성적 구성 설정 처리 실패", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(createErrorResponse("성적 구성 설정 처리 중 오류가 발생했습니다."));
+        }
+    }
+
+    /**
+     * 학생 성적 조회 핸들러
+     */
+    private ResponseEntity<?> handleStudentGradeInfo(Map<String, Object> request) {
+        Integer lecIdx = request.get("lecIdx") != null ? ((Number) request.get("lecIdx")).intValue() : null;
+        Integer studentIdx = request.get("studentIdx") != null ? ((Number) request.get("studentIdx")).intValue() : null;
+        
+        if (lecIdx == null || studentIdx == null) {
+            return ResponseEntity.badRequest()
+                .body(createErrorResponse("lecIdx와 studentIdx는 필수 파라미터입니다."));
+        }
+
+        try {
+            Map<String, Object> gradeInfo = enrollmentService.getStudentGradeInfo(lecIdx, studentIdx);
+            return ResponseEntity.ok(createSuccessResponse("성적 조회가 완료되었습니다.", gradeInfo));
+            
+        } catch (Exception e) {
+            logger.error("학생 성적 조회 실패", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(createErrorResponse("학생 성적 조회 중 오류가 발생했습니다."));
+        }
+    }
+
+    /**
+     * 교수용 성적 조회 핸들러
+     */
+    private ResponseEntity<?> handleProfessorGradeView(Map<String, Object> request) {
+        Integer lecIdx = request.get("lecIdx") != null ? ((Number) request.get("lecIdx")).intValue() : null;
+        Integer studentIdx = request.get("studentIdx") != null ? ((Number) request.get("studentIdx")).intValue() : null;
+        Integer professorIdx = request.get("professorIdx") != null ? ((Number) request.get("professorIdx")).intValue() : null;
+        
+        if (lecIdx == null || studentIdx == null || professorIdx == null) {
+            return ResponseEntity.badRequest()
+                .body(createErrorResponse("lecIdx, studentIdx, professorIdx는 필수 파라미터입니다."));
+        }
+
+        try {
+            Map<String, Object> gradeInfo = enrollmentService.getProfessorGradeView(lecIdx, studentIdx, professorIdx);
+            return ResponseEntity.ok(createSuccessResponse("교수용 성적 조회가 완료되었습니다.", gradeInfo));
+            
+        } catch (Exception e) {
+            logger.error("교수용 성적 조회 실패", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(createErrorResponse("교수용 성적 조회 중 오류가 발생했습니다."));
+        }
+    }
+
+    /**
+     * 성적 목록 조회 핸들러
+     */
+    private ResponseEntity<?> handleGradeList(Map<String, Object> request) {
+        Integer lecIdx = request.get("lecIdx") != null ? ((Number) request.get("lecIdx")).intValue() : null;
+        int page = request.get("page") != null ? ((Number) request.get("page")).intValue() : 0;
+        int size = request.get("size") != null ? ((Number) request.get("size")).intValue() : 20;
+        String sortBy = (String) request.getOrDefault("sortBy", "percentage");
+        String sortOrder = (String) request.getOrDefault("sortOrder", "desc");
+        
+        if (lecIdx == null) {
+            return ResponseEntity.badRequest()
+                .body(createErrorResponse("lecIdx는 필수 파라미터입니다."));
+        }
+
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            Map<String, Object> gradeList = enrollmentService.getGradeList(lecIdx, pageable, sortBy, sortOrder);
+            return ResponseEntity.ok(createSuccessResponse("성적 목록 조회가 완료되었습니다.", gradeList));
+            
+        } catch (Exception e) {
+            logger.error("성적 목록 조회 실패", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(createErrorResponse("성적 목록 조회 중 오류가 발생했습니다."));
+        }
+    }
+
+    /**
+     * 최종 등급 배정 핸들러
+     */
+    private ResponseEntity<?> handleGradeFinalize(Map<String, Object> request) {
+        Integer lecIdx = request.get("lecIdx") != null ? ((Number) request.get("lecIdx")).intValue() : null;
+        Double passingThreshold = request.get("passingThreshold") != null ? 
+            ((Number) request.get("passingThreshold")).doubleValue() : 60.0;
+        
+        if (lecIdx == null) {
+            return ResponseEntity.badRequest()
+                .body(createErrorResponse("lecIdx는 필수 파라미터입니다."));
+        }
+
+        try {
+            Map<String, Object> result = enrollmentService.finalizeGrades(lecIdx, passingThreshold, request);
+            return ResponseEntity.ok(createSuccessResponse("최종 등급 배정이 완료되었습니다.", result));
+            
+        } catch (Exception e) {
+            logger.error("최종 등급 배정 실패", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(createErrorResponse("최종 등급 배정 중 오류가 발생했습니다."));
+        }
     }
 }
