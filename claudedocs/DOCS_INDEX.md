@@ -1,7 +1,9 @@
 # 📚 Blue Crab LMS 문서 빠른 참조
 
-> **최종 업데이트**: 2025-10-10  
+> **최종 업데이트**: 2025-10-18  
 > **문서 위치**: `/claudedocs/`
+
+> 📦 **2025-10-18 재정리**: 현재 모든 문서 디렉터리는 `archive/2025-10-18-reset/` 하위로 이동되었습니다. 아래 링크는 해당 경로 기준으로 작성되었습니다.
 
 ---
 
@@ -11,20 +13,20 @@
 
 | 문서 | 경로 | 설명 |
 |------|------|------|
-| **기술 스택** | [tech-stack/기술스택_및_버전정보.md](./tech-stack/기술스택_및_버전정보.md) | 실제 운영 환경 버전 정보 |
-| **데이터베이스** | [database/database-schema.md](./database/database-schema.md) | 전체 DB 스키마 (18개 테이블) |
-| **백엔드 가이드** | [backend-guide/프론트엔드_개발자를위한_백엔드_가이드_인덱스.md](./backend-guide/프론트엔드_개발자를위한_백엔드_가이드_인덱스.md) | 백엔드 통합 가이드 |
-| **API 문서** | [api-endpoints/api-documentation.md](./api-endpoints/api-documentation.md) | REST API 엔드포인트 |
-| **시설 예약 API** ⭐ | [api-endpoints/facility-reservation-api-complete.md](./api-endpoints/facility-reservation-api-complete.md) | 시설 예약 API 완전 가이드 |
-| **시설 예약 빠른 참조** ⚡ | [api-endpoints/facility-reservation-api-quick-reference.md](./api-endpoints/facility-reservation-api-quick-reference.md) | 시설 예약 API 빠른 참조 |
-| **FCM 가이드** | [feature-docs/fcm/README.md](./feature-docs/fcm/README.md) | 푸시 알림 구현 가이드 |
-| **시설 예약 정책** 🆕 | [feature-docs/facility-reservation/consecutive-time-only-policy.md](./feature-docs/facility-reservation/consecutive-time-only-policy.md) | 연속된 시간대만 예약 가능 정책 |
+| **기술 스택** | [tech-stack/기술스택_및_버전정보.md](./archive/2025-10-18-reset/tech-stack/기술스택_및_버전정보.md) | 실제 운영 환경 버전 정보 |
+| **데이터베이스** | [database/database-schema.md](./archive/2025-10-18-reset/database/database-schema.md) | 전체 DB 스키마 (18개 테이블) |
+| **백엔드 가이드** | [backend-guide/프론트엔드_개발자를위한_백엔드_가이드_인덱스.md](./archive/2025-10-18-reset/backend-guide/프론트엔드_개발자를위한_백엔드_가이드_인덱스.md) | 백엔드 통합 가이드 |
+| **API 문서** | [api-endpoints/api-documentation.md](./archive/2025-10-18-reset/api-endpoints/api-documentation.md) | REST API 엔드포인트 |
+| **시설 예약 API** ⭐ | [api-endpoints/facility-reservation-api-complete.md](./archive/2025-10-18-reset/api-endpoints/facility-reservation-api-complete.md) | 시설 예약 API 완전 가이드 |
+| **시설 예약 빠른 참조** ⚡ | [api-endpoints/facility-reservation-api-quick-reference.md](./archive/2025-10-18-reset/api-endpoints/facility-reservation-api-quick-reference.md) | 시설 예약 API 빠른 참조 |
+| **FCM 가이드** | [feature-docs/fcm/README.md](./archive/2025-10-18-reset/feature-docs/fcm/README.md) | 푸시 알림 구현 가이드 |
+| **시설 예약 정책** 🆕 | [feature-docs/facility-reservation/consecutive-time-only-policy.md](./archive/2025-10-18-reset/feature-docs/facility-reservation/consecutive-time-only-policy.md) | 연속된 시간대만 예약 가능 정책 |
 
 ---
 
 ## 📂 폴더별 문서
 
-### 🔧 [tech-stack/](./tech-stack/)
+### 🔧 [tech-stack/](./archive/2025-10-18-reset/tech-stack/)
 **기술 스택 및 버전 정보**
 
 - ✅ Java 21.0.7 LTS
@@ -34,7 +36,7 @@
 
 ---
 
-### 📖 [backend-guide/](./backend-guide/)
+### 📖 [backend-guide/](./archive/2025-10-18-reset/backend-guide/)
 **백엔드 개발 가이드**
 
 1. 프론트엔드 개발자를 위한 백엔드 가이드 인덱스
@@ -45,7 +47,7 @@
 
 ---
 
-### 🎯 [feature-docs/](./feature-docs/)
+### 🎯 [feature-docs/](./archive/2025-10-18-reset/feature-docs/)
 **기능별 문서**
 
 #### 📱 [fcm/](./feature-docs/fcm/)
@@ -54,6 +56,8 @@
 - fcm-frontend-flow.md
 - fcm-frontend-integration.md
 - fcm-redis-flow.md
+- fcm-document-review.md
+- 테스트페이지-FCM-수정완료.md
 
 #### 🏢 [facility-reservation/](./feature-docs/facility-reservation/)
 **시설 예약 시스템**
@@ -67,10 +71,13 @@
 - facility-reservation-jpql-fixes.md
 - admin_booking_system.tsx
 - facility_booking_system.tsx
+- Admin_Reservations_API_Implementation_Status.md (관리자 예약 API 구현 현황)
+- AdminReservationDetailAPI_Request.md (관리자 예약 상세 API)
+- Admin_Reservations_Search_API_Request_detailed.md (관리자 예약 검색 API)
 
 ---
 
-### 🔌 [api-endpoints/](./api-endpoints/)
+### 🔌 [api-endpoints/](./archive/2025-10-18-reset/api-endpoints/)
 **API 문서**
 
 - api-documentation.md (전체 API 개요)
@@ -82,26 +89,46 @@
 ### 🧪 API Testing Tool
 **API 테스터 개발 문서**
 
-- **api-tester-phase1.1-complete.md** ✅ (UI Redesign 완료)
-- **api-tester-phase1.2-complete.md** ✅ (Badge Update 완료)
-- **api-tester-phase1.3-complete.md** ✅ (Auth Tab Navigation 완료)
-- **PHASE1.2-COMPLETION-REPORT.md** 📊 (Phase 1.2 완료 보고서)
-- **PHASE1.2-SUMMARY.md** 📝 (빠른 참조용 요약)
-- api-tester-refactoring-summary.md (리팩토링 이력)
-- api-tester-testing-guide.md (테스트 가이드)
-- bugfix-api-templates-path.md (버그 수정 이력)
-- console-api-tester-guide.md (콘솔 가이드)
-- feature-history-body-preview.md (히스토리 기능)
+- **[archive/phase-reports/api-tester-phase1.1-complete.md](./archive/phase-reports/api-tester-phase1.1-complete.md)** ✅ (UI Redesign 완료)
+- **[archive/phase-reports/api-tester-phase1.2-complete.md](./archive/phase-reports/api-tester-phase1.2-complete.md)** ✅ (Badge Update 완료)
+- **[archive/phase-reports/api-tester-phase1.3-complete.md](./archive/phase-reports/api-tester-phase1.3-complete.md)** ✅ (Auth Tab Navigation 완료)
+- **[archive/phase-reports/PHASE1.2-COMPLETION-REPORT.md](./archive/phase-reports/PHASE1.2-COMPLETION-REPORT.md)** 📊 (Phase 1.2 완료 보고서)
+- **[archive/phase-reports/PHASE1.2-SUMMARY.md](./archive/phase-reports/PHASE1.2-SUMMARY.md)** 📝 (빠른 참조용 요약)
+- **[archive/phase-reports/PHASE1.3-COMPLETION-REPORT.md](./archive/phase-reports/PHASE1.3-COMPLETION-REPORT.md)** 🧾 (Phase 1.3 완료 보고서)
+- **[archive/phase-reports/Phase4-DDL-테스트-완료.md](./archive/phase-reports/Phase4-DDL-테스트-완료.md)** 🛠️ (Phase 4 DDL 작업)
+- **[archive/phase-reports/최종점검보고서.md](./archive/phase-reports/최종점검보고서.md)** 📋 (최종 점검 보고)
+- **[archive/phase-reports/feature-history-body-preview.md](./archive/phase-reports/feature-history-body-preview.md)** (히스토리 기능)
+- **[archive/bugfixes/bugfix-api-templates-path.md](./archive/bugfixes/bugfix-api-templates-path.md)** (버그 수정 이력)
+- **[archive/bugfixes/bugfix-duplicate-notifications.md](./archive/bugfixes/bugfix-duplicate-notifications.md)** (푸시 중복 버그 수정)
+- **[archive/bugfixes/bugfix-hibernate-querye exception-join-fetch-pagination.md](./archive/bugfixes/bugfix-hibernate-querye%20exception-join-fetch-pagination.md)** (Hibernate Query 수정)
+- **[archive/bugfixes/push-api-security-improvement.md](./archive/bugfixes/push-api-security-improvement.md)** (보안 개선)
+- **[archive/api-tester/api-tester-refactoring-summary.md](./archive/api-tester/api-tester-refactoring-summary.md)** (리팩토링 이력)
+- **[archive/api-tester/api-tester-testing-guide.md](./archive/api-tester/api-tester-testing-guide.md)** (테스트 가이드)
+- **[archive/api-tester/console-api-tester-guide.md](./archive/api-tester/console-api-tester-guide.md)** (콘솔 가이드)
+- **[archive/api-tester/data-only-push-test-guide.md](./archive/api-tester/data-only-push-test-guide.md)** (데이터 전용 테스트 가이드)
+
+---
+
+### 🗃️ [archive/](./archive/)
+**과거 참고 문서 보관소**
+
+- phase-reports/ — Phase별 완료 보고서, 회고, 스크린샷 자료
+- bugfixes/ — 주요 버그 수정 및 보안 개선 이력
+- api-tester/ — API 테스터 프로젝트 산출물 및 가이드
+- reference/ — DTO 리팩토링, API Gap 등 참고 분석 문서
+   - api-endpoint-gap-analysis.md
+   - dto-refactoring-phase1-analysis.md
 
 **개발 진행 상황**:
-- ✅ Phase 1.1: 2-row 레이아웃 UI 재설계
-- ✅ Phase 1.2: Body Template Badge 실시간 업데이트
-- ✅ Phase 1.3: 일반/관리자 로그인 탭 네비게이션
+- ✅ Phase 1.1: 2-row 레이아웃 UI 재설계 (archive/phase-reports)
+- ✅ Phase 1.2: Body Template Badge 실시간 업데이트 (archive/phase-reports)
+- ✅ Phase 1.3: 일반/관리자 로그인 탭 네비게이션 (archive/phase-reports)
+- ✅ Phase 4: DDL 정책 테스트 및 회고 (archive/phase-reports)
 - 🔜 Phase 2: 추가 기능 개선 (키보드 단축키, 다크 모드 등)
 
 ---
 
-### �️ [database/](./database/)
+### �️ [database/](./archive/2025-10-18-reset/database/)
 **데이터베이스 스키마**
 
 - ✅ database-schema.md (상세 문서)
@@ -118,7 +145,7 @@
 
 ---
 
-### �📊 [backend-analysis/](./backend-analysis/)
+### �📊 [backend-analysis/](./archive/2025-10-18-reset/backend-analysis/)
 **백엔드 상세 분석**
 
 - 00-Phase1-통합분석보고서.md
