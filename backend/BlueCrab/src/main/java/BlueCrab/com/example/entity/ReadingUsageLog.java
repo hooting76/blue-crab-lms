@@ -61,6 +61,12 @@ public class ReadingUsageLog {
      */
     @Column(name = "end_time")
     private LocalDateTime endTime;
+
+    @Column(name = "pre_notice_sent_at")
+    private LocalDateTime preNoticeSentAt;
+
+    @Column(name = "pre_notice_token_count")
+    private Integer preNoticeTokenCount;
     
     /**
      * 기록 생성 시간
@@ -138,6 +144,22 @@ public class ReadingUsageLog {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public LocalDateTime getPreNoticeSentAt() {
+        return preNoticeSentAt;
+    }
+
+    public void setPreNoticeSentAt(LocalDateTime preNoticeSentAt) {
+        this.preNoticeSentAt = preNoticeSentAt;
+    }
+
+    public Integer getPreNoticeTokenCount() {
+        return preNoticeTokenCount;
+    }
+
+    public void setPreNoticeTokenCount(Integer preNoticeTokenCount) {
+        this.preNoticeTokenCount = preNoticeTokenCount;
+    }
     
     /**
      * 퇴실 처리를 합니다.
@@ -171,6 +193,8 @@ public class ReadingUsageLog {
                 ", userCode='" + userCode + '\'' +
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
+                ", preNoticeSentAt=" + preNoticeSentAt +
+                ", preNoticeTokenCount=" + preNoticeTokenCount +
                 ", createdAt=" + createdAt +
                 '}';
     }

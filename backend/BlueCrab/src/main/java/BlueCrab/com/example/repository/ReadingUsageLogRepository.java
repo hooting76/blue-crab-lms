@@ -2,6 +2,7 @@ package BlueCrab.com.example.repository;
 
 import BlueCrab.com.example.entity.ReadingUsageLog;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -140,4 +141,10 @@ public interface ReadingUsageLogRepository extends JpaRepository<ReadingUsageLog
      * @return 활성 세션이 있으면 true, 없으면 false
      */
     boolean existsByUserCodeAndEndTimeIsNull(String userCode);
+
+       @Modifying(clearAutomatically = true)
+       @Query("UPDATE ReadingUsageLog rul SET rul.preNoticeSentAt = :sentAt, rul.preNoticeTokenCount = :tokenCount WHERE rul.logId = :logId")
+       int markPreNoticeSent(@Param("logId") Long logId,
+                                            @Param("sentAt") LocalDateTime sentAt,
+                                            @Param("tokenCount") Integer tokenCount);
 }

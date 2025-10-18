@@ -1,0 +1,855 @@
+{
+  "authLogin": {
+    "name": "로그인",
+    "category": "인증 · 계정",
+    "description": "아이디/비밀번호로 JWT 발급",
+    "auth": false,
+    "method": "POST",
+    "endpoint": "/api/auth/login",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "username": "student@university.edu",
+      "password": "password123"
+    }
+  },
+  "authRefresh": {
+    "name": "토큰 갱신",
+    "category": "인증 · 계정",
+    "description": "리프레시 토큰으로 새 토큰 발급",
+    "auth": false,
+    "method": "POST",
+    "endpoint": "/api/auth/refresh",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "refreshToken": "REFRESH_TOKEN_VALUE"
+    }
+  },
+  "authLogout": {
+    "name": "로그아웃",
+    "category": "인증 · 계정",
+    "description": "Access/Refresh 토큰 무효화",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/auth/logout",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "refreshToken": "REFRESH_TOKEN_VALUE"
+    }
+  },
+  "authValidate": {
+    "name": "토큰 유효성 확인",
+    "category": "인증 · 계정",
+    "description": "현재 Access 토큰 상태 체크",
+    "auth": true,
+    "method": "GET",
+    "endpoint": "/api/auth/validate",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "accountFindId": {
+    "name": "ID 찾기",
+    "category": "인증 · 계정",
+    "description": "학번/이름/전화로 이메일 찾기",
+    "auth": false,
+    "method": "POST",
+    "endpoint": "/api/account/FindId",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "userCode": 20240001,
+      "userName": "홍길동",
+      "userPhone": "01012345678"
+    }
+  },
+  "mailSend": {
+    "name": "이메일 인증 코드 발송",
+    "category": "인증 · 계정",
+    "description": "로그인 사용자 메일 인증 코드 요청",
+    "auth": true,
+    "method": "GET",
+    "endpoint": "/sendMail",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "mailVerify": {
+    "name": "이메일 인증 코드 검증",
+    "category": "인증 · 계정",
+    "description": "메일 인증 코드 확인",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/verifyCode",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "authCode": "ABC123"
+    }
+  },
+  "pwResetVerifyIdentity": {
+    "name": "PW 재설정 · 본인확인",
+    "category": "인증 · 계정",
+    "description": "이메일/학번 등으로 본인확인",
+    "auth": false,
+    "method": "POST",
+    "endpoint": "/api/auth/password-reset/verify-identity",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "email": "student@university.edu",
+      "userCode": "20240001",
+      "userName": "홍길동",
+      "userPhone": "01012345678"
+    }
+  },
+  "pwResetSendMail": {
+    "name": "PW 재설정 · 인증메일 발송",
+    "category": "인증 · 계정",
+    "description": "IRT 토큰으로 인증 코드 발송",
+    "auth": false,
+    "method": "POST",
+    "endpoint": "/api/auth/password-reset/send-email",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "irtToken": "IRT_TOKEN_VALUE"
+    }
+  },
+  "pwResetVerifyCode": {
+    "name": "PW 재설정 · 코드 검증",
+    "category": "인증 · 계정",
+    "description": "IRT + 인증 코드 확인",
+    "auth": false,
+    "method": "POST",
+    "endpoint": "/api/auth/password-reset/verify-code",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "irtToken": "IRT_TOKEN_VALUE",
+      "authCode": "ABC123"
+    }
+  },
+  "pwResetChange": {
+    "name": "PW 재설정 · 비밀번호 변경",
+    "category": "인증 · 계정",
+    "description": "RT 토큰으로 비밀번호 변경",
+    "auth": false,
+    "method": "POST",
+    "endpoint": "/api/auth/password-reset/change-password",
+    "params": [],
+    "headers": [
+      {
+        "name": "X-RT",
+        "required": true,
+        "example": "RESET_TOKEN_VALUE",
+        "description": "비밀번호 재설정 토큰"
+      }
+    ],
+    "bodyTemplate": {
+      "newPassword": "Aa123456!"
+    }
+  },
+  "adminLogin": {
+    "name": "관리자 로그인",
+    "category": "관리자",
+    "description": "관리자 1차 로그인",
+    "auth": false,
+    "method": "POST",
+    "endpoint": "/api/admin/login",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "adminId": "admin@bluecrab.com",
+      "password": "admin123!"
+    }
+  },
+  "adminVerifyEmail": {
+    "name": "관리자 이메일 인증",
+    "category": "관리자",
+    "description": "2차 인증 링크 확인",
+    "auth": false,
+    "method": "GET",
+    "endpoint": "/api/admin/verify-email",
+    "params": [
+      {
+        "name": "token",
+        "type": "text",
+        "location": "query",
+        "required": true,
+        "example": "EMAIL_TOKEN_VALUE",
+        "description": "이메일 인증 토큰"
+      }
+    ],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "adminEmailAuthRequest": {
+    "name": "관리자 인증코드 요청",
+    "category": "관리자",
+    "description": "임시 세션 토큰으로 인증 코드 발급",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/admin/email-auth/request",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "adminEmailAuthVerify": {
+    "name": "관리자 인증코드 검증",
+    "category": "관리자",
+    "description": "인증 코드로 최종 JWT 발급",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/admin/email-auth/verify",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "authCode": "ABC123"
+    }
+  },
+  "adminAuthRefresh": {
+    "name": "관리자 토큰 갱신",
+    "category": "관리자",
+    "description": "리프레시 토큰으로 새 토큰 발급",
+    "auth": false,
+    "method": "POST",
+    "endpoint": "/api/admin/auth/refresh",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "refreshToken": "REFRESH_TOKEN_VALUE"
+    }
+  },
+  "adminReservationsPending": {
+    "name": "시설 승인 대기 목록",
+    "category": "관리자",
+    "description": "승인 대기 예약 목록",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/admin/reservations/pending",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "adminReservationsApprove": {
+    "name": "시설 예약 승인",
+    "category": "관리자",
+    "description": "예약 승인 처리",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/admin/reservations/approve",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "reservationIdx": 1,
+      "adminNote": "승인합니다."
+    }
+  },
+  "adminReservationsReject": {
+    "name": "시설 예약 반려",
+    "category": "관리자",
+    "description": "예약 반려 처리",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/admin/reservations/reject",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "reservationIdx": 1,
+      "rejectionReason": "사유를 입력하세요."
+    }
+  },
+  "adminReservationsSearch": {
+    "name": "시설 예약 검색",
+    "category": "관리자",
+    "description": "필터 조건으로 전체 예약 목록 조회",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/admin/reservations/search",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "page": 0,
+      "size": 5,
+      "status": "PENDING",
+      "facilityIdx": 1,
+      "dateFrom": "2025-07-01",
+      "dateTo": "2025-07-31",
+      "query": "홍길동"
+    }
+  },
+  "adminReservationsDetail": {
+    "name": "시설 예약 상세 (관리자)",
+    "category": "관리자",
+    "description": "관리자 권한으로 예약 상세 조회",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/admin/reservations/{reservationIdx}",
+    "params": [
+      {
+        "name": "reservationIdx",
+        "type": "number",
+        "location": "path",
+        "required": true,
+        "example": "123",
+        "description": "예약 IDX"
+      }
+    ],
+    "headers": [],
+    "bodyTemplate": {}
+  },
+  "userList": {
+    "name": "사용자 목록",
+    "category": "사용자 · 프로필",
+    "description": "전체 사용자 조회",
+    "auth": true,
+    "method": "GET",
+    "endpoint": "/api/users",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "userDetail": {
+    "name": "사용자 상세",
+    "category": "사용자 · 프로필",
+    "description": "ID로 사용자 조회",
+    "auth": true,
+    "method": "GET",
+    "endpoint": "/api/users/{id}",
+    "params": [
+      {
+        "name": "id",
+        "type": "number",
+        "location": "path",
+        "required": true,
+        "example": "1",
+        "description": "사용자 ID"
+      }
+    ],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "userCreate": {
+    "name": "사용자 생성",
+    "category": "사용자 · 프로필",
+    "description": "사용자 등록",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/users",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "userEmail": "newuser@example.com",
+      "userPw": "Password123!",
+      "userName": "홍길동",
+      "userCode": "20250001",
+      "userPhone": "01011112222",
+      "userBirth": "19950315",
+      "userStudent": 0,
+      "userZip": 12345,
+      "userFirstAdd": "서울시 강남구",
+      "userLastAdd": "역삼동 123-45"
+    }
+  },
+  "profileMe": {
+    "name": "내 프로필 조회",
+    "category": "사용자 · 프로필",
+    "description": "로그인 사용자 프로필",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/profile/me",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "profileImage": {
+    "name": "프로필 이미지 URL",
+    "category": "사용자 · 프로필",
+    "description": "프로필 이미지 Presigned URL",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/profile/me/image",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "boardList": {
+    "name": "게시판 목록",
+    "category": "게시판",
+    "description": "게시글 목록(본문 제외)",
+    "auth": false,
+    "method": "POST",
+    "endpoint": "/api/boards/list",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "page": 0,
+      "size": 10
+    }
+  },
+  "boardDetail": {
+    "name": "게시글 상세",
+    "category": "게시판",
+    "description": "게시글 본문 + 첨부 조회",
+    "auth": false,
+    "method": "POST",
+    "endpoint": "/api/boards/detail",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "boardIdx": 1
+    }
+  },
+  "boardCreate": {
+    "name": "게시글 작성",
+    "category": "게시판",
+    "description": "JWT 필요, Base64 자동 처리",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/boards/create",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "boardTitle": "공지사항 제목",
+      "boardContent": "본문 내용입니다.",
+      "boardCode": 1
+    }
+  },
+  "facilityList": {
+    "name": "시설 목록",
+    "category": "시설 · 열람실",
+    "description": "활성 시설 전체 조회",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/facilities",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "facilityAvailability": {
+    "name": "시설 가용성 확인",
+    "category": "시설 · 열람실",
+    "description": "시설 예약 가능시간 확인 (yyyy-MM-dd HH:mm:ss 포맷)",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/facilities/{facilityIdx}/availability",
+    "params": [
+      {
+        "name": "facilityIdx",
+        "type": "number",
+        "location": "path",
+        "required": true,
+        "example": "1",
+        "description": "시설 ID"
+      },
+      {
+        "name": "startTime",
+        "type": "text",
+        "location": "query",
+        "required": true,
+        "example": "2025-01-08 10:00:00",
+        "description": "시작 시간 (예: 2025-01-08 10:00:00)"
+      },
+      {
+        "name": "endTime",
+        "type": "text",
+        "location": "query",
+        "required": true,
+        "example": "2025-01-08 12:00:00",
+        "description": "종료 시간 (예: 2025-01-08 12:00:00)"
+      }
+    ],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "reservationCreate": {
+    "name": "시설 예약",
+    "category": "시설 · 열람실",
+    "description": "시설 예약 생성 (정원/주말/사전예약 정책 검증)",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/reservations",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "facilityIdx": 1,
+      "startTime": "2025-01-08 10:00:00",
+      "endTime": "2025-01-08 12:00:00",
+      "partySize": 4,
+      "purpose": "스터디 모임",
+      "requestedEquipment": "빔프로젝터"
+    }
+  },
+  "reservationMy": {
+    "name": "내 시설 예약",
+    "category": "시설 · 열람실",
+    "description": "내 예약 목록 조회 (최신순)",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/reservations/my",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "reservationMyByStatus": {
+    "name": "내 시설 예약 (상태별)",
+    "category": "시설 · 열람실",
+    "description": "상태별로 내 예약 목록 조회",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/reservations/my/status/{status}",
+    "params": [
+      {
+        "name": "status",
+        "type": "text",
+        "location": "path",
+        "required": true,
+        "example": "PENDING",
+        "description": "예약 상태 (PENDING/APPROVED/REJECTED/CANCELLED/COMPLETED)"
+      }
+    ],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "reservationDetail": {
+    "name": "시설 예약 상세",
+    "category": "시설 · 열람실",
+    "description": "예약 단건 조회 (본인 예약만 가능)",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/reservations/{reservationIdx}",
+    "params": [
+      {
+        "name": "reservationIdx",
+        "type": "number",
+        "location": "path",
+        "required": true,
+        "example": "123",
+        "description": "조회할 예약 ID"
+      }
+    ],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "reservationCancel": {
+    "name": "시설 예약 취소",
+    "category": "시설 · 열람실",
+    "description": "취소 마감 시간 검증 (시설 정책 적용)",
+    "auth": true,
+    "method": "DELETE",
+    "endpoint": "/api/reservations/{reservationIdx}",
+    "params": [
+      {
+        "name": "reservationIdx",
+        "type": "number",
+        "location": "path",
+        "required": true,
+        "example": "123",
+        "description": "취소할 예약 ID"
+      }
+    ],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "readingRoomStatus": {
+    "name": "열람실 현황",
+    "category": "시설 · 열람실",
+    "description": "좌석 사용 현황 조회",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/reading-room/status",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "readingRoomReserve": {
+    "name": "열람실 좌석 예약",
+    "category": "시설 · 열람실",
+    "description": "좌석 번호로 예약",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/reading-room/reserve",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "seatNumber": 15
+    }
+  },
+  "readingRoomCheckout": {
+    "name": "열람실 퇴실",
+    "category": "시설 · 열람실",
+    "description": "예약 좌석 퇴실",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/reading-room/checkout",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "seatNumber": 15
+    }
+  },
+  "fcmRegister": {
+    "name": "FCM 토큰 등록",
+    "category": "알림 · 푸시",
+    "description": "토큰 등록/충돌 감지",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/fcm/register",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "fcmToken": "DEVICE_TOKEN",
+      "platform": "WEB",
+      "keepSignedIn": true
+    }
+  },
+  "fcmSend": {
+    "name": "FCM 단건 전송",
+    "category": "알림 · 푸시",
+    "description": "관리자 권한 필요",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/fcm/send",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "targetType": "USER",
+      "targeta": ["20240001"],
+      "title": "테스트 알림",
+      "body": "테스트 메시지입니다.",
+      "data": {
+        "type": "TEST"
+      }
+    }
+  },
+  "fcmRegisterForce": {
+    "name": "FCM 토큰 강제 변경",
+    "category": "알림 · 푸시",
+    "description": "기기 교체 시 기존 토큰 덮어쓰기",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/fcm/register/force",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "fcmToken": "NEW_DEVICE_TOKEN",
+      "platform": "WEB",
+      "keepSignedIn": true
+    }
+  },
+  "fcmUnregister": {
+    "name": "FCM 토큰 삭제",
+    "category": "알림 · 푸시",
+    "description": "로그아웃 시 토큰 제거",
+    "auth": true,
+    "method": "DELETE",
+    "endpoint": "/api/fcm/unregister",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "fcmToken": "DEVICE_TOKEN",
+      "platform": "WEB",
+      "forceDelete": true
+    }
+  },
+  "fcmSendBatch": {
+    "name": "FCM 일괄 전송",
+    "category": "알림 · 푸시",
+    "description": "여러 사용자 + 플랫폼 선택",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/fcm/send/batch",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "userCodes": ["20240001", "20240002"],
+      "title": "일괄 알림",
+      "body": "다중 사용자 테스트 메시지입니다.",
+      "platforms": ["ANDROID", "IOS", "WEB"],
+      "data": {
+        "type": "BATCH_TEST"
+      }
+    }
+  },
+  "fcmSendBroadcast": {
+    "name": "FCM 브로드캐스트",
+    "category": "알림 · 푸시",
+    "description": "전체 사용자 / 필터링 전송",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/fcm/send/broadcast",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "title": "브로드캐스트 알림",
+      "body": "전체 사용자에게 전송되는 테스트 메시지입니다.",
+      "platforms": ["ANDROID", "IOS", "WEB"],
+      "data": {
+        "type": "BROADCAST_TEST",
+        "deeplink": "/notice"
+      },
+      "filter": {
+        "userType": "ALL"
+      }
+    }
+  },
+  "fcmStats": {
+    "name": "FCM 토큰 통계",
+    "category": "알림 · 푸시",
+    "description": "등록·활성 토큰 현황",
+    "auth": true,
+    "method": "GET",
+    "endpoint": "/api/fcm/stats",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "pushVapidKey": {
+    "name": "WebPush VAPID 키",
+    "category": "알림 · 푸시",
+    "description": "VAPID 공개키 조회",
+    "auth": false,
+    "method": "GET",
+    "endpoint": "/api/push/vapid-key",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "pushDataOnly": {
+    "name": "🧪 Data-only 알림 (관리자)",
+    "category": "알림 · 푸시",
+    "description": "중복 방지 테스트 (관리자 권한 필요)",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/push/send-data-only",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "token": "YOUR_FCM_TOKEN_HERE",
+      "title": "Data-only 테스트",
+      "body": "이 알림은 Data 방식으로만 전송됩니다",
+      "data": {
+        "type": "test",
+        "action": "open_page"
+      }
+    }
+  },
+  "pushDataOnlyBatch": {
+    "name": "🧪 Data-only 알림 (다중 토큰)",
+    "category": "알림 · 푸시",
+    "description": "여러 FCM 토큰에 Data-only 메시지를 일괄 전송",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/push/send-data-only-batch",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "tokens": [
+        "FCM_TOKEN_1",
+        "FCM_TOKEN_2"
+      ],
+      "title": "Data-only 배치 테스트",
+      "body": "이 알림은 Data 방식으로 여러 기기에 전송됩니다",
+      "data": {
+        "type": "test_batch",
+        "action": "open_page"
+      }
+    }
+  },
+  "fcmTokenLookupByUser": {
+    "name": "FCM 토큰 조회 (유저코드)",
+    "category": "알림 · 푸시",
+    "description": "사용자 코드로 등록된 토큰 확인",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/fcm/tokens/by-user",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "userCodes": [
+        "20240001",
+        "20240002"
+      ],
+      "platforms": [
+        "ANDROID",
+        "IOS",
+        "WEB"
+      ],
+      "includeTemporary": true
+    }
+  },
+  "fcmSendDataOnlyByUser": {
+    "name": "FCM Data-only 전송 (유저코드)",
+    "category": "알림 · 푸시",
+    "description": "사용자 코드 기반 Data-only 발송",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/fcm/send/data-only",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "userCodes": [
+        "20240001"
+      ],
+      "title": "Data-only 운영 테스트",
+      "body": "이 알림은 Data-only 방식으로 전송됩니다",
+      "data": {
+        "type": "facility_update",
+        "target": "reading_room"
+      },
+      "platforms": [
+        "ANDROID",
+        "IOS",
+        "WEB"
+      ],
+      "includeTemporary": true
+    }
+  },
+  "apiPing": {
+    "name": "Ping",
+    "category": "시스템",
+    "description": "가볍게 서버 상태 확인",
+    "auth": false,
+    "method": "GET",
+    "endpoint": "/api/ping",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "apiHealth": {
+    "name": "Health Check",
+    "category": "시스템",
+    "description": "애플리케이션/DB 상태",
+    "auth": false,
+    "method": "GET",
+    "endpoint": "/api/health",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "apiSystemInfo": {
+    "name": "시스템 정보",
+    "category": "시스템",
+    "description": "JVM/메모리 상세",
+    "auth": true,
+    "method": "GET",
+    "endpoint": "/api/system-info",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "databaseInfo": {
+    "name": "DB 정보",
+    "category": "시스템",
+    "description": "데이터베이스 메타데이터",
+    "auth": true,
+    "method": "GET",
+    "endpoint": "/api/database/info",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": null
+  }
+}

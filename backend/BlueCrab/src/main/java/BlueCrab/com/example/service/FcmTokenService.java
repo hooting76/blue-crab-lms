@@ -193,6 +193,42 @@ public class FcmTokenService {
         return lookupTokensInternal(request.getUserCodes(), request.getPlatforms(), includeTemporary);
     }
 
+    public FcmTokenCollectionResult collectTokensByUserCodes(List<String> userCodes) {
+        return collectTokensByUserCodes(userCodes, null, true);
+    }
+
+    public FcmTokenCollectionResult collectTokensByUserCodes(List<String> userCodes,
+                                                             List<String> platforms,
+                                                             boolean includeTemporary) {
+        List<FcmTokenLookupResponse> lookupResults = lookupTokensInternal(userCodes, platforms, includeTemporary);
+
+        Map<String, List<String>> tokensByUser = new LinkedHashMap<>();
+        LinkedHashSet<String> flattenedTokens = new LinkedHashSet<>();
+
+        for (FcmTokenLookupResponse lookup : lookupResults) {
+            Map<String, List<String>> tokensByPlatform = lookup.getTokensByPlatform();
+            if (tokensByPlatform == null || tokensByPlatform.isEmpty()) {
+                continue;
+            }
+
+            List<String> aggregated = tokensByPlatform.values().stream()
+                    .filter(Objects::nonNull)
+                    .flatMap(Collection::stream)
+                    .filter(this::isValidToken)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            if (aggregated.isEmpty()) {
+                continue;
+            }
+
+            tokensByUser.put(lookup.getUserCode(), aggregated);
+            flattenedTokens.addAll(aggregated);
+        }
+
+        return new FcmTokenCollectionResult(lookupResults, tokensByUser, new ArrayList<>(flattenedTokens));
+    }
+
     public FcmDataOnlySendResponse sendDataOnlyByUser(FcmDataOnlySendRequest request) {
         Objects.requireNonNull(request, "요청 객체는 null일 수 없습니다");
         boolean includeTemporary = request.getIncludeTemporary() == null || request.getIncludeTemporary();
