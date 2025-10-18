@@ -1,39 +1,6 @@
-# Blue Crab LMS Frontend Docs
+# Blue Crab LMS Documentation
 
-> **작성일**: 2025-10-18  
-> **목적**: 프론트엔드/알림 관련 최신 문서 경로 안내 및 보관 정책 명시
+> **Status**: Rebuilding from scratch (2025-10-18)  
+> **Note**: Previous documentation has been preserved under `docs-legacy/2025-10-18/`.
 
----
-
-## 📁 디렉터리 개요
-
-- `backend-api-catalog.md` — 백엔드 전 API 목록 (자동 생성)
-- `archive/` — 과거 문서 및 참고 자료 보관소
-
----
-
-## � 재정리 현황
-
-- 2025-10-18에 기존 문서 전량을 `archive/2025-10-18-reset/` 하위로 이동했습니다.
-- 최신화가 필요한 자료는 `archive/2025-10-18-reset/`에서 꺼내어 `docs/` 루트에 다시 배치하면 됩니다.
-- 추가로 작성되는 새 문서도 초안 단계에서는 루트에 두고, 완료 시점에 아카이브 위치를 재평가하세요.
-
-## �🗂️ 아카이브 정책
-
-- 날짜가 포함된 리포트 및 완료 문서는 `archive/<YYYY-MM>/` 또는 지정된 스냅샷 폴더로 이동
-- 루트에는 최신화 대상 문서만 유지
-- 신규 리포트 작성 시, 작업 완료 후 아카이브 폴더로 이동 여부를 결정
-
-### 현재 아카이브 분류
-
-| 폴더 | 용도 |
-|------|------|
-| `archive/2025-10/` | 2025년 10월 작업 보고 및 변경 이력 (기존 기록) |
-| `archive/2025-10-18-reset/` | 2025-10-18 이전 전체 문서 백업 스냅샷 |
-
-## ✅ 유지보수 체크리스트
-
-- `backend-api-catalog.md`는 스크립트 `python tmp/generate_api_catalog.py`로 갱신
-- 새 문서를 추가할 때는 루트에 임시로 두고 필요 시 `archive/2025-10-18-reset/`에서 참고 자료를 복원
-- 사용 종료된 문서는 아카이브로 이동하여 루트 규모를 최소화
-- 문서 명세 변경 시 작성일과 목적을 반드시 업데이트
+This directory is intentionally blank while the new documentation structure is being designed. Add new guides and index files here once the structure is finalized.
