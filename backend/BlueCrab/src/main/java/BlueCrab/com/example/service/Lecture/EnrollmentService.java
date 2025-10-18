@@ -370,4 +370,78 @@ public class EnrollmentService {
     private String getCurrentDateTime() {
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
+
+    // ========================================
+    // 성적 관리 메서드들
+    // ========================================
+
+    /**
+     * 성적 구성 설정
+     */
+    @Transactional
+    public Map<String, Object> setGradeConfiguration(Map<String, Object> request) {
+        // TODO: 성적 구성 설정 로직 구현
+        // 임시로 간단한 응답 반환
+        return Map.of(
+            "lecIdx", request.get("lecIdx"),
+            "message", "성적 구성 설정이 완료되었습니다. (구현 예정)"
+        );
+    }
+
+    /**
+     * 학생 성적 정보 조회
+     */
+    public Map<String, Object> getStudentGradeInfo(Integer lecIdx, Integer studentIdx) {
+        // TODO: 학생 성적 정보 조회 로직 구현
+        // 임시로 간단한 응답 반환
+        return Map.of(
+            "lecIdx", lecIdx,
+            "studentIdx", studentIdx,
+            "message", "학생 성적 정보 조회가 완료되었습니다. (구현 예정)"
+        );
+    }
+
+    /**
+     * 교수용 성적 조회
+     */
+    public Map<String, Object> getProfessorGradeView(Integer lecIdx, Integer studentIdx, Integer professorIdx) {
+        // TODO: 교수용 성적 조회 로직 구현
+        // 임시로 간단한 응답 반환
+        return Map.of(
+            "lecIdx", lecIdx,
+            "studentIdx", studentIdx,
+            "professorIdx", professorIdx,
+            "message", "교수용 성적 조회가 완료되었습니다. (구현 예정)"
+        );
+    }
+
+    /**
+     * 성적 목록 조회
+     */
+    public Map<String, Object> getGradeList(Integer lecIdx, Pageable pageable, String sortBy, String sortOrder) {
+        // TODO: 성적 목록 조회 로직 구현
+        // 임시로 간단한 응답 반환
+        return Map.of(
+            "lecIdx", lecIdx,
+            "page", pageable.getPageNumber(),
+            "size", pageable.getPageSize(),
+            "sortBy", sortBy,
+            "sortOrder", sortOrder,
+            "message", "성적 목록 조회가 완료되었습니다. (구현 예정)"
+        );
+    }
+
+    /**
+     * 최종 등급 배정
+     */
+    @Transactional
+    public Map<String, Object> finalizeGrades(Integer lecIdx, Double passingThreshold, Map<String, Object> request) {
+        // TODO: 최종 등급 배정 로직 구현
+        // 임시로 간단한 응답 반환
+        return Map.of(
+            "lecIdx", lecIdx,
+            "passingThreshold", passingThreshold,
+            "message", "최종 등급 배정이 완료되었습니다. (구현 예정)"
+        );
+    }
 }
