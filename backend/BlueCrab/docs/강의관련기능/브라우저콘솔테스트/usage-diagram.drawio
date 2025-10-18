@@ -155,7 +155,7 @@
           <mxGeometry x="155" y="962" width="80" height="26" as="geometry" />
         </mxCell>
         <mxCell id="notice-box" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2" parent="1" vertex="1">
-          <mxGeometry x="300" y="890" width="850" height="140" as="geometry" />
+          <mxGeometry x="300" y="890" width="850" height="190" as="geometry" />
         </mxCell>
         <mxCell id="notice-title" value="⚠️ 주의사항" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#CC0000" parent="1" vertex="1">
           <mxGeometry x="310" y="895" width="120" height="30" as="geometry" />
@@ -191,19 +191,19 @@
           <mxGeometry x="730" y="1025" width="450" height="20" as="geometry" />
         </mxCell>
         <mxCell id="completion-box" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#6a00ff;strokeColor=#3700CC;strokeWidth=3;dashed=0;fontColor=#ffffff;labelBackgroundColor=none;" parent="1" vertex="1">
-          <mxGeometry x="810" y="110" width="280" height="330" as="geometry" />
+          <mxGeometry x="810" y="110" width="280" height="440" as="geometry" />
         </mxCell>
         <mxCell id="completion-title" value="🎉 모든 테스트 파일 완료 (v6.0)" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=15;fontStyle=1;fontColor=light-dark(#000000,#000000);" parent="1" vertex="1">
           <mxGeometry x="820" y="120" width="260" height="30" as="geometry" />
         </mxCell>
         <mxCell id="completion-test1" value="&lt;b&gt;✅ 전체 8개 테스트 파일 완료&lt;/b&gt;&lt;br&gt;&lt;br&gt;📋 &lt;b&gt;관리자 (2개)&lt;/b&gt;&lt;br&gt;• lecture-test-1: 강의 CRUD&lt;br&gt;• lecture-test-6: 시스템 통계&lt;br&gt;&lt;br&gt;👨‍🎓 &lt;b&gt;학생 (3개)&lt;/b&gt;&lt;br&gt;• lecture-test-2a: 수강신청&lt;br&gt;• lecture-test-2b: 수강관리&lt;br&gt;• lecture-test-3: 과제제출&lt;br&gt;&lt;br&gt;👨‍🏫 &lt;b&gt;교수 (3개)&lt;/b&gt;&lt;br&gt;• lecture-test-4a: 과제생성&lt;br&gt;• lecture-test-4b: 과제채점&lt;br&gt;• lecture-test-5: 수강생관리&lt;br&gt;&lt;br&gt;⭐ &lt;b&gt;v6.0 새로운 특징&lt;/b&gt;&lt;br&gt;• YYYYMMDD 날짜형식 통일&lt;br&gt;• JWT USER_IDX 자동추출&lt;br&gt;• 완전한 테스트 가이드 제공" style="text;html=1;strokeColor=#001DBC;fillColor=#0050ef;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=10;labelBackgroundColor=none;fontColor=#ffffff;" parent="1" vertex="1">
-          <mxGeometry x="820" y="155" width="260" height="230" as="geometry" />
+          <mxGeometry x="820" y="155" width="260" height="345" as="geometry" />
         </mxCell>
         <mxCell id="completion-divider" value="" style="line;strokeWidth=2;direction=south;html=1;strokeColor=#1B5E20;" parent="1" vertex="1">
           <mxGeometry x="820" y="385" width="260" height="10" as="geometry" />
         </mxCell>
         <mxCell id="completion-note" value="� TEST_GUIDE.md 생성 완료!&lt;br&gt;🎯 시나리오별 단계적 테스트 가이드&lt;br&gt;🔧 트러블슈팅 및 디버깅 도구 제공" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontStyle=1;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);" parent="1" vertex="1">
-          <mxGeometry x="820" y="400" width="260" height="35" as="geometry" />
+          <mxGeometry x="820" y="505" width="260" height="35" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

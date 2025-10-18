@@ -45,6 +45,24 @@ window.currentUser = null;
 - 모든 강의 관련 API 엔드포인트는 `/api/` 경로를 사용하므로 편의상 `API_BASE_URL`로 통일
 - 실제 호출 시: `${API_BASE_URL}/lectures` → `https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/lectures`
 
+**🔍 프론트엔드 URL 패턴 비교:**
+```javascript
+// 1. AuthFunc.jsx (권장) - 동적 URL 생성
+const BASE = 'https://bluecrab.chickenkiller.com';
+const CONTEXT = '/BlueCrab-1.0.0';
+apiUrl('/api/lectures') // 추천: 유연하고 재사용 가능
+
+// 2. CourseRegister.jsx (테스트 코드와 동일) - API 베이스 고정
+const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
+fetch(`${BASE_URL}/lectures`) // 현재 테스트 코드 방식
+
+// 3. noticeAPI.jsx (비추천) - 특정 리소스까지 하드코딩
+const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/boards';
+fetch(`${BASE_URL}/list`) // 유연성 부족
+```
+
+**💡 테스트 코드는 방식 2번을 사용** - 프론트엔드 `CourseRegister.jsx`와 동일한 패턴
+
 ### 2. 사용자 역할별 로그인
 
 #### 👨‍🎓 학생/교수 로그인

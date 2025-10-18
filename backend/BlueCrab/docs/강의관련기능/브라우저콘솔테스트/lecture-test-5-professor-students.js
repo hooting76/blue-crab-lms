@@ -133,10 +133,17 @@ async function getStudentGrades() {
     console.log('═══════════════════════════════════════════════════════');
 
     try {
-        const response = await fetch(`${API_BASE_URL}/lectures/${lectureIdx}/students/${studentIdx}/grades`, {
+        const response = await fetch(`${API_BASE_URL}/grades/my-grades`, {
+            method: 'POST',
             headers: {
+                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
-            }
+            },
+            body: JSON.stringify({
+                studentIdx: studentIdx,
+                lecSerial: lectureSerial || 'CS101',
+                action: "professor-view"
+            })
         });
 
         console.log(`📡 HTTP 상태: ${response.status}`);
