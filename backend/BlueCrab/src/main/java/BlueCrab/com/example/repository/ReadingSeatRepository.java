@@ -2,10 +2,14 @@ package BlueCrab.com.example.repository;
 
 import BlueCrab.com.example.entity.ReadingSeat;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.LockModeType;
+import javax.persistence.QueryHint;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -95,4 +99,12 @@ public interface ReadingSeatRepository extends JpaRepository<ReadingSeat, Intege
      * @return 좌석 번호순 전체 좌석 목록
      */
     List<ReadingSeat> findAllByOrderBySeatNumber();
+
+    @Lock(LockModeType.PESSIMISTIC_READ)
+    @QueryHints(value = {
+            @QueryHint(name = "javax.persistence.lock.timeout", value = "1000")
+    })
+    @Query("SELECT rs FROM ReadingSeat rs WHERE rs.isOccupied = 1 AND rs.endTime BETWEEN :start AND :end")
+    List<ReadingSeat> findActiveSeatsEndingBetween(@Param("start") LocalDateTime start,
+                                                   @Param("end") LocalDateTime end);
 }
