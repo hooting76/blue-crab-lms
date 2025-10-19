@@ -1,0 +1,85 @@
+<mxfile host="Electron" modified="2025-10-19T00:00:00.000Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" etag="abc126" version="24.7.5" type="device">
+  <diagram name="과제 관리 API" id="assignment-diagram">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="📝 과제 관리 API&#xa;(핵심 비즈니스)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="350" y="20" width="400" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="assignments-list" value="POST /api/assignments/list&#xa;📋 과제 목록 조회" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4CAF50;strokeColor=#2E7D32;fontColor=#FFFFFF;fontSize=12;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="150" y="120" width="180" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="assignments-detail" value="POST /api/assignments/detail&#xa;🔍 과제 상세 조회" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2196F3;strokeColor=#0D47A1;fontColor=#FFFFFF;fontSize=12;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="370" y="120" width="180" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="assignments-create" value="POST /api/assignments&#xa;➕ 과제 생성" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9800;strokeColor=#E65100;fontColor=#FFFFFF;fontSize=12;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="590" y="120" width="180" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="assignments-submit" value="POST /api/assignments/{assignmentIdx}/submit&#xa;📤 과제 제출" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9C27B0;strokeColor=#4A148C;fontColor=#FFFFFF;fontSize=12;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="150" y="240" width="180" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="assignments-grade" value="PUT /api/assignments/{assignmentIdx}/grade&#xa;🎯 과제 채점&#xa;🔥 성적 이벤트 트리거" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF5722;strokeColor=#BF360C;fontColor=#FFFFFF;fontSize=12;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="370" y="240" width="180" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="assignments-update" value="PUT /api/assignments/{assignmentIdx}&#xa;✏️ 과제 수정" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#795548;strokeColor=#3E2723;fontColor=#FFFFFF;fontSize=12;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="590" y="240" width="180" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="assignments-delete" value="DELETE /api/assignments/{assignmentIdx}&#xa;🗑️ 과제 삭제" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#607D8B;strokeColor=#263238;fontColor=#FFFFFF;fontSize=12;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="370" y="360" width="180" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="assignments-submissions" value="POST /api/assignments/submissions&#xa;📊 과제 제출 목록 조회" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00BCD4;strokeColor=#006064;fontColor=#FFFFFF;fontSize=12;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="150" y="360" width="180" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow1" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0" parent="1" source="assignments-list" target="assignments-detail" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-20" y="30" as="sourcePoint"/>
+            <mxPoint x="30" y="-20" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow2" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0" parent="1" source="assignments-detail" target="assignments-create" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-20" y="30" as="sourcePoint"/>
+            <mxPoint x="30" y="-20" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow3" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0" parent="1" source="assignments-create" target="assignments-submit" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-20" y="30" as="sourcePoint"/>
+            <mxPoint x="30" y="-20" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow4" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0" parent="1" source="assignments-submit" target="assignments-grade" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-20" y="30" as="sourcePoint"/>
+            <mxPoint x="30" y="-20" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow5" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0" parent="1" source="assignments-grade" target="assignments-update" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-20" y="30" as="sourcePoint"/>
+            <mxPoint x="30" y="-20" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow6" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0" parent="1" source="assignments-update" target="assignments-delete" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-20" y="30" as="sourcePoint"/>
+            <mxPoint x="30" y="-20" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow7" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0" parent="1" source="assignments-submissions" target="assignments-grade" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-20" y="30" as="sourcePoint"/>
+            <mxPoint x="30" y="-20" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="event-trigger" value="🔥 성적 이벤트 트리거&#xa;PUT /api/assignments/{assignmentIdx}/grade&#xa;• 과제 채점이 성적에 반영&#xa;• 실시간 성적 업데이트" style="text;html=1;strokeColor=#FF5722;fillColor=#FFF3E0;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=12;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="100" y="480" width="350" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend" value="🎨 범례&#xa;🟢 POST - 조회&#xa;🔵 POST - 상세&#xa;🟠 POST - 생성&#xa;🟣 POST - 제출&#xa;🟡 PUT - 채점&#xa;🟤 PUT - 수정&#xa;⚫ DELETE - 삭제&#xa;🔵 POST - 제출목록" style="text;html=1;strokeColor=none;fillColor=#F5F5F5;align=left;verticalAlign=top;whiteSpace=wrap;rounded=1;fontSize=10" parent="1" vertex="1">
+          <mxGeometry x="500" y="480" width="200" height="140" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

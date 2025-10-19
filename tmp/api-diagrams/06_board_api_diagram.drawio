@@ -1,0 +1,88 @@
+<mxfile host="Electron" modified="2025-10-19T00:00:00.000Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" etag="abc128" version="24.7.5" type="device">
+  <diagram name="게시판 시스템 API" id="board-diagram">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="📋 게시판 시스템 API&#xa;(일반 기능)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="350" y="20" width="400" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="boards-list" value="POST /api/boards/list&#xa;📋 게시글 목록" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4CAF50;strokeColor=#2E7D32;fontColor=#FFFFFF;fontSize=12;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="150" y="120" width="180" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="boards-detail" value="POST /api/boards/detail&#xa;🔍 게시글 상세" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2196F3;strokeColor=#0D47A1;fontColor=#FFFFFF;fontSize=12;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="370" y="120" width="180" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="boards-create" value="POST /api/boards/create&#xa;➕ 게시글 작성" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9800;strokeColor=#E65100;fontColor=#FFFFFF;fontSize=12;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="590" y="120" width="180" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="boards-update" value="POST /api/boards/update/{boardIdx}&#xa;✏️ 게시글 수정" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9C27B0;strokeColor=#4A148C;fontColor=#FFFFFF;fontSize=12;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="150" y="240" width="180" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="boards-delete" value="POST /api/boards/delete/{boardIdx}&#xa;🗑️ 게시글 삭제" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF5722;strokeColor=#BF360C;fontColor=#FFFFFF;fontSize=12;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="370" y="240" width="180" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="attachments-upload" value="POST /api/board-attachments/upload/{boardIdx}&#xa;📎 파일 업로드" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#795548;strokeColor=#3E2723;fontColor=#FFFFFF;fontSize=12;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="590" y="240" width="180" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="attachments-download" value="POST /api/board-attachments/download&#xa;📥 파일 다운로드" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#607D8B;strokeColor=#263238;fontColor=#FFFFFF;fontSize=12;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="150" y="360" width="180" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="attachments-delete" value="POST /api/board-attachments/delete&#xa;🗑️ 파일 삭제" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00BCD4;strokeColor=#006064;fontColor=#FFFFFF;fontSize=12;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="370" y="360" width="180" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="board-types" value="📌 게시판 유형&#xa;• 0: 학교공지&#xa;• 1: 학사공지&#xa;• 2: 학과공지&#xa;• 3: 교수공지" style="text;html=1;strokeColor=#2196F3;fillColor=#E3F2FD;align=left;verticalAlign=top;whiteSpace=wrap;rounded=1;fontSize=12" parent="1" vertex="1">
+          <mxGeometry x="650" y="120" width="200" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="minio-integration" value="📦 MinIO 연동&#xa;• 프로필 이미지&#xa;• 게시판 첨부파일&#xa;• 30일 만료 정책" style="text;html=1;strokeColor=#FF9800;fillColor=#FFF3E0;align=left;verticalAlign=top;whiteSpace=wrap;rounded=1;fontSize=12" parent="1" vertex="1">
+          <mxGeometry x="650" y="260" width="200" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow1" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0" parent="1" source="boards-list" target="boards-detail" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-20" y="30" as="sourcePoint"/>
+            <mxPoint x="30" y="-20" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow2" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0" parent="1" source="boards-detail" target="boards-create" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-20" y="30" as="sourcePoint"/>
+            <mxPoint x="30" y="-20" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow3" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0" parent="1" source="boards-create" target="boards-update" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-20" y="30" as="sourcePoint"/>
+            <mxPoint x="30" y="-20" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow4" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0" parent="1" source="boards-update" target="boards-delete" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-20" y="30" as="sourcePoint"/>
+            <mxPoint x="30" y="-20" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow5" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0" parent="1" source="boards-create" target="attachments-upload" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-20" y="30" as="sourcePoint"/>
+            <mxPoint x="30" y="-20" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow6" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0" parent="1" source="attachments-upload" target="attachments-download" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-20" y="30" as="sourcePoint"/>
+            <mxPoint x="30" y="-20" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow7" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0" parent="1" source="attachments-download" target="attachments-delete" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-20" y="30" as="sourcePoint"/>
+            <mxPoint x="30" y="-20" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend" value="🎨 범례&#xa;🟢 POST - 목록&#xa;🔵 POST - 상세&#xa;🟠 POST - 작성&#xa;🟣 POST - 수정&#xa;🟡 POST - 삭제&#xa;🟤 POST - 업로드&#xa;🔵 POST - 다운로드&#xa;🟢 POST - 파일삭제" style="text;html=1;strokeColor=none;fillColor=#F5F5F5;align=left;verticalAlign=top;whiteSpace=wrap;rounded=1;fontSize=10" parent="1" vertex="1">
+          <mxGeometry x="100" y="480" width="200" height="140" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
