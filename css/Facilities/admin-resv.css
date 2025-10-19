@@ -156,3 +156,97 @@
   border:1px solid var(--ar-line); border-radius:10px; outline:none; font-size:14px;
   background:#fff;
 }
+/* 필터 바 레이아웃: 상태/시설은 기존 간격 유지, 검색만 인라인 붙이기 */
+.ar-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;                /* 상태/시설 간격 유지 */
+  align-items: flex-end;
+}
+
+.ar-filter .field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 검색 필드 폭은 유동적으로 넓게 */
+.ar-filter .field.search {
+  flex: 1 1 320px;
+  min-width: 280px;
+}
+
+/* 인풋 + 버튼을 공백 없이 붙이기 */
+.ar-filter .field.search .search-inline {
+  display: flex;
+  align-items: stretch;
+}
+
+.ar-filter .field.search .search-inline input {
+  flex: 1 1 auto;
+  height: 38px;
+  border: 1px solid #e5e7eb;
+  border-right: none;                       /* 버튼과 경계 겹치기 */
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  padding: 0 12px;
+}
+
+.ar-filter .field.search .search-inline .ar-primary {
+  height: 38px;
+  border-top-left-radius: 0;                /* 붙어 보이게 */
+  border-bottom-left-radius: 0;
+  margin-left: 0;                            /* 간격 제거 */
+  /* 필요 시 보더 보정 */
+  border: 1px solid #2563eb;
+  border-left: none;
+  padding: 0 14px;
+}
+
+/* 좁은 화면에서 필드들이 줄바꿈될 때도 깔끔하게 */
+@media (max-width: 720px) {
+  .ar-filter { gap: 10px; }
+  .ar-filter .field.search { flex: 1 1 100%; }
+}
+
+/* 균등 그리드 */
+.ar-filter--grid .filter-row{
+  display:grid;
+  grid-template-columns: 1fr 1fr 2fr; /* 상태 / 시설 / 검색(넓게) */
+  gap:12px;
+  align-items:end;
+}
+.ar-filter .field label{
+  display:block;
+  font-size:13px;
+  color:#374151;
+  margin:0 0 6px;
+  font-weight:600;
+}
+.ar-filter .ctl{
+  width:100%;
+  height:40px;
+  border:1px solid #e5e7eb;
+  border-radius:10px;
+  padding:0 12px;
+  font-size:14px;
+  background:#fff;
+}
+.ar-filter .search-inline{
+  display:flex;
+  gap:0;
+}
+.ar-filter .search-inline .ctl{
+  border-top-right-radius:0;
+  border-bottom-right-radius:0;
+}
+.ar-filter .search-inline .search-btn{
+  height:40px;
+  border-top-left-radius:0;
+  border-bottom-left-radius:0;
+  padding:0 14px;
+}
+
+

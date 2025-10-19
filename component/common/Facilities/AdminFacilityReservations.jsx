@@ -1,21 +1,21 @@
 // component/common/facilities/AdminFacilityReservations.jsx
-// 관리자 시설 예약: 탭(승인 대기 / 전체 예약) + 필터 + 테이블 뷰 + 페이지네이션 + 상세 모달
+// 관리자 시설 예약: 탭(승인 대기 / 전체 예약) + 필터(기간 제거) + 테이블 + 페이지네이션 + 상세 모달
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   adminPendingList,
   adminSearchReservations,
-  getAdminReservationDetail, // 모달 내에서 사용할 수 있도록 로드 트리거만 남김
 } from "../../../src/api/adminReservations";
 import { postFacilities } from "../../../src/api/facility";
 import AdminReservationDetailModal from "./AdminReservationDetailModal";
 import "../../../css/Facilities/admin-resv.css";
 
+// 페이지 크기
 const PAGE_SIZE = 10;
 
-// 상태 옵션 (백엔드 검색 statusList 값과 라벨 매핑)
+// 상태 옵션(백엔드 enum과 일치)
 const STATUS_OPTIONS = [
-  { value: "", label: "전체" },
+  { value: "", label: "전체 상태" },
   { value: "PENDING", label: "승인 대기" },
   { value: "APPROVED", label: "승인 완료" },
   { value: "REJECTED", label: "반려됨" },
@@ -34,31 +34,30 @@ function StatusBadge({ status }) {
 }
 
 export default function AdminFacilityReservations() {
-  // 탭: 승인 대기 / 전체 예약
-  const [tab, setTab] = useState("PENDING"); // "PENDING" | "ALL"
+  /** 탭: "PENDING" | "ALL" */
+  const [tab, setTab] = useState("PENDING");
 
-  // 페이지
+  /** 페이지 인덱스(0-base) */
   const [page, setPage] = useState(0);
 
-  // 목록/로딩/오류
+  /** 목록/로딩/오류 */
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const [rows, setRows] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
 
-  // 상세 모달
+  /** 상세 모달 */
   const [selectedIdx, setSelectedIdx] = useState(null);
 
-  // 필터
+  /** 필터(기간 제거) */
   const [facilityOptions, setFacilityOptions] = useState([]);
   const [filters, setFilters] = useState({
-    status: "",       // STATUS_OPTIONS value
-    facilityIdx: "",  // number|string
-    dateFrom: "",     // YYYY-MM-DD
-    dateTo: "",       // YYYY-MM-DD
-    keyword: "",      // free text
+    status: "",      // '' 이면 전체 (PENDING 포함)
+    facilityIdx: "", // number|string
+    query: "",       // 이름/학번/시설명
   });
 
-  // 시설 목록(셀렉트)
+  // 시설 옵션 로드
   useEffect(() => {
     (async () => {
       try {
@@ -66,7 +65,7 @@ export default function AdminFacilityReservations() {
         const list = Array.isArray(res?.data) ? res.data : [];
         setFacilityOptions(list.map(f => ({ value: String(f.facilityIdx), label: f.facilityName })));
       } catch (e) {
-        // 무시(필터에 시설 항목만 비게 됨)
+        // 무시
         console.error(e);
       }
     })();
@@ -74,34 +73,42 @@ export default function AdminFacilityReservations() {
 
   // 목록 로드
   const load = useCallback(
-    async (nextTab = tab, nextPage = page) => {
+    async (nextTab = tab, nextPage = page, nextFilters = filters) => {
       setLoading(true);
       setErr("");
       try {
         if (nextTab === "PENDING") {
-          // 승인 대기 목록
+          // 승인 대기 목록(전용 API)
           const res = await adminPendingList({ page: nextPage, size: PAGE_SIZE });
-          const data = Array.isArray(res?.data) ? res.data : [];
-          setRows(data);
+          const dataArr = res?.data?.content || res?.data || []; // 양쪽 스펙 대응
+          setRows(Array.isArray(dataArr) ? dataArr : []);
+          setTotalPages(
+            typeof res?.data?.totalPages === "number" ? res.data.totalPages : (res?.data?.hasNext ? nextPage + 2 : nextPage + 1)
+          );
         } else {
           // 전체 예약 검색
           const body = {
             page: nextPage,
             size: PAGE_SIZE,
           };
-          // 필터 적용
-          if (filters.dateFrom) body.dateFrom = filters.dateFrom;
-          if (filters.dateTo) body.dateTo = filters.dateTo;
-          if (filters.facilityIdx) body.facilityIdx = Number(filters.facilityIdx);
-          if (filters.keyword) body.keyword = filters.keyword.trim();
-          if (filters.status) body.statusList = [filters.status];
+          if (nextFilters.status) body.status = nextFilters.status; // enum 1개
+          if (nextFilters.facilityIdx) body.facilityIdx = Number(nextFilters.facilityIdx);
+          if (nextFilters.query?.trim()) body.query = nextFilters.query.trim();
+          // dateFrom/dateTo는 미설정 시 생략(백엔드가 기본 3개월로 처리).  :contentReference[oaicite:2]{index=2}
 
           const res = await adminSearchReservations(body);
-          const data = Array.isArray(res?.data) ? res.data : [];
-          setRows(data);
+          const content = res?.data?.content ?? res?.data ?? [];
+          setRows(Array.isArray(content) ? content : []);
+          setTotalPages(res?.data?.totalPages ?? 1);
         }
       } catch (e) {
-        setErr(e?.message || "목록을 불러오지 못했습니다.");
+        const msg =
+          e?.status === 401
+            ? "세션이 만료되었습니다. 다시 로그인해 주세요."
+            : e?.message || "목록을 불러오지 못했습니다.";
+        setErr(msg);
+        setRows([]);
+        setTotalPages(1);
       } finally {
         setLoading(false);
       }
@@ -109,53 +116,46 @@ export default function AdminFacilityReservations() {
     [tab, page, filters]
   );
 
-  // 탭 변경 시 1페이지로
-  const switchTab = async (t) => {
+  // 탭 전환 → 페이지 0으로
+  const switchTab = (t) => {
     setTab(t);
     setPage(0);
   };
 
-  // 탭/페이지/필터 변화에 따라 로드
+  // 탭/페이지 변경 시 로드
   useEffect(() => {
-    load(tab, page);
+    load(tab, page, filters);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, page]);
 
-  // 필터 변경 → 페이지 0으로 리셋 후 조회
+  // 필터 변경
   const onFilterChange = (patch) => {
     setFilters((prev) => ({ ...prev, ...patch }));
   };
+
+  // 검색 적용(ALL 탭에서만)
   const applyFilters = async () => {
     setPage(0);
-    await load("ALL", 0);
+    await load("ALL", 0, { ...filters });
   };
 
-  // 페이지네이션 (total 미제공 가정: 한 페이지가 꽉 차면 다음 페이지 있다고 판단)
+  // 페이지네이션
   const canPrev = useMemo(() => page > 0, [page]);
-  const canNext = useMemo(() => rows.length === PAGE_SIZE, [rows.length]);
+  const canNext = useMemo(() => page + 1 < (totalPages || 1), [page, totalPages]);
+  const goPrev = () => { if (canPrev) setPage((p) => p - 1); };
+  const goNext = () => { if (canNext) setPage((p) => p + 1); };
 
-  const goPrev = async () => {
-    if (!canPrev) return;
-    const next = page - 1;
-    setPage(next);
-  };
-  const goNext = async () => {
-    if (!canNext) return;
-    const next = page + 1;
-    setPage(next);
-  };
-
-  // 상세 모달
+  // 모달
   const openModal = (reservationIdx) => setSelectedIdx(reservationIdx);
   const closeModal = () => setSelectedIdx(null);
   const handleActionDone = async () => {
     closeModal();
-    await load(tab, page);
+    await load(tab, page, filters);
   };
 
   return (
     <div className="ar-wrap">
-      {/* 헤더: 탭 + (ALL일 때) 필터 */}
+      {/* 헤더: 탭 */}
       <header className="ar-header">
         <div className="ar-tabs">
           <button
@@ -173,68 +173,60 @@ export default function AdminFacilityReservations() {
         </div>
       </header>
 
-      {/* 필터 바: 전체 예약 탭에서만 표시 */}
+      {/* 필터 바: ALL에서만 표시 — 균일한 높이/간격/정렬 */}
       {tab === "ALL" && (
-        <section className="ar-filter" aria-label="검색 필터">
-          <div className="field">
-            <label>상태</label>
-            <select
-              value={filters.status}
-              onChange={(e) => onFilterChange({ status: e.target.value })}
-            >
-              {STATUS_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-          </div>
+        <section className="ar-filter ar-filter--grid" aria-label="검색 필터">
+          <div className="filter-row">
+            <div className="field">
+              <label>상태</label>
+              <select
+                className="ctl"
+                value={filters.status}
+                onChange={(e) => onFilterChange({ status: e.target.value })}
+              >
+                {STATUS_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div className="field">
-            <label>시설</label>
-            <select
-              value={filters.facilityIdx}
-              onChange={(e) => onFilterChange({ facilityIdx: e.target.value })}
-            >
-              <option value="">전체 시설</option>
-              {facilityOptions.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-          </div>
+            <div className="field">
+              <label>시설</label>
+              <select
+                className="ctl"
+                value={filters.facilityIdx}
+                onChange={(e) => onFilterChange({ facilityIdx: e.target.value })}
+              >
+                <option value="">전체 시설</option>
+                {facilityOptions.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div className="field">
-            <label>기간</label>
-            <div className="range">
-              <input
-                type="date"
-                value={filters.dateFrom}
-                onChange={(e) => onFilterChange({ dateFrom: e.target.value })}
-              />
-              <input
-                type="date"
-                value={filters.dateTo}
-                onChange={(e) => onFilterChange({ dateTo: e.target.value })}
-              />
+            <div className="field search-field">
+              <label>검색</label>
+              <div className="search-inline">
+                <input
+                  className="ctl"
+                  type="text"
+                  placeholder="이름, 학번/사번, 시설명"
+                  value={filters.query}
+                  onChange={(e) => onFilterChange({ query: e.target.value })}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") applyFilters();
+                  }}
+                />
+                <button className="ar-primary search-btn" onClick={applyFilters}>
+                  검색
+                </button>
+              </div>
             </div>
           </div>
-
-          <div className="field">
-            <label>검색</label>
-            <input
-              type="text"
-              placeholder="이름, 이메일, 목적 등"
-              value={filters.keyword}
-              onChange={(e) => onFilterChange({ keyword: e.target.value })}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") applyFilters();
-              }}
-            />
-          </div>
-
-          {/* 필터 적용 버튼은 별도 두지 않고 Enter/변경 후 자동 조회가 필요하면 여기에 버튼 추가 */}
         </section>
       )}
 
@@ -283,7 +275,7 @@ export default function AdminFacilityReservations() {
                   </td>
                   <td style={td}>
                     <div>
-                      {item.startTime?.replace(" ", " ") || "-"} ~ {item.endTime?.split(" ")[1] || ""}
+                      {item.startTime || "-"} ~ {item.endTime?.split(" ")[1] || ""}
                     </div>
                   </td>
                   <td style={td}>
@@ -303,11 +295,11 @@ export default function AdminFacilityReservations() {
           </table>
         </div>
 
-        {/* 페이지네이션 */}
+        {/* 페이지네이션: totalPages 기반 */}
         {!loading && !err && rows.length > 0 && (
           <div className="ar-pager">
             <button className="pg-btn" disabled={!canPrev} onClick={goPrev}>이전</button>
-            <div className="pg-page">{page + 1}</div>
+            <div className="pg-page">{page + 1}{totalPages ? ` / ${totalPages}` : ""}</div>
             <button className="pg-btn" disabled={!canNext} onClick={goNext}>다음</button>
           </div>
         )}
@@ -317,7 +309,7 @@ export default function AdminFacilityReservations() {
       {selectedIdx !== null && (
         <AdminReservationDetailModal
           reservationIdx={selectedIdx}
-          mode={tab} // "PENDING" | "ALL"
+          mode={tab}
           onClose={closeModal}
           onActionDone={handleActionDone}
         />
@@ -326,7 +318,7 @@ export default function AdminFacilityReservations() {
   );
 }
 
-/* ------- inline 스타일(간결하게) ------- */
+/* ------- 테이블 기본 스타일 ------- */
 const th = {
   textAlign: "left",
   padding: "12px 14px",
