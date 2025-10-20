@@ -171,7 +171,7 @@ function ClassAttending({ currentPage, setCurrentPage }) {
                   ✖
                 </button>
                 <CourseDetail
-                  lecture={lectureList.find((lec) => lec.lecIdx === selectedLecIdx)}
+                  lecture={lectureList.find((lec) => lec.lecSerial === selectedLecSerial)}
                   currentPage={currentPage}
                   setCurrentPage={setCurrentPage}
                 />
