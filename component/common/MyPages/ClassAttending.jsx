@@ -13,6 +13,7 @@ function ClassAttending({ currentPage, setCurrentPage }) {
   const accessToken = user.data.accessToken;
   const isProf = user.data.user.userStudent === 1;
   const [lectureList, setLectureList] = useState([]);
+  const [assignmentList, setAssignmentList] = useState([]);
 
   // 1. 선택한 강의 ID 상태 추가
   const [selectedLecSerial, setSelectedLecSerial] = useState("");
@@ -91,7 +92,31 @@ function ClassAttending({ currentPage, setCurrentPage }) {
     }
   };
 
+  // 과제 목록 불러오기
+  const getAssignments = async(accessToken) => {
+    try {
+        const response = await fetch(`${BASE_URL}/assignments/list`, {
+            method: "POST",
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody)
+            });
+             if (!response.ok) throw new Error('과제 목록 조회 실패');
+            const data = await response.json();
+            setAssignmentList(data);
+        } catch (error) {
+            console.error('과제 목록 에러:', error);
+            setAssignmentList([]);
+        }
+    };
+
+
+
+
   useEffect(() => {
+    getAssignments(accessToken);
     if (isProf) {
       fetchLectureList(accessToken, user);
     } else {
@@ -126,6 +151,7 @@ function ClassAttending({ currentPage, setCurrentPage }) {
   }
 
   console.log("lectureList : ", lectureList);
+  console.log("assignmentList : ", assignmentList);
 
 
 
@@ -242,6 +268,20 @@ function ClassAttending({ currentPage, setCurrentPage }) {
                 <button className="assignmentCreateModalBtn" onClick={openAssignmentCreateModal}>
                   과제 생성
                 </button>
+                <br/>
+                <table className="assignment-list">
+                <thead>
+                    <tr>
+                        <th style={{ width: "10%" }}>번호</th>
+                        <th style={{ width: "60%" }}>제목</th>
+                        <th style={{ width: "10%" }}>조회수</th>
+                        <th style={{ width: "20%" }}>작성일</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                </tbody>
+            </table>
               </div>
               {isTestModalOpen && <TestModal onClose={closeTestModal} />}
               {isAssignmentCreateModalOpen && (

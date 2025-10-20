@@ -33,7 +33,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage }) {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(requestBody),
+                body: JSON.stringify(requestBody)
             });
 
             if (!response.ok) throw new Error('강의 목록 조회 실패');
