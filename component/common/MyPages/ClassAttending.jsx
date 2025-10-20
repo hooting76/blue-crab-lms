@@ -15,6 +15,7 @@ function ClassAttending({currentPage, setCurrentPage}) {
     const [lectureList, setLectureList] = useState([]);
     const [selectedSemester, setSelectedSemester] = useState(1); // 학기 선택 상태
     const [selectedYear, setSelectedYear] = useState(1);
+    const [ifMajor, setIfMajor] = useState(1);
 
     console.log("user : ", user);
 
@@ -26,6 +27,11 @@ function ClassAttending({currentPage, setCurrentPage}) {
     // year 변경 핸들러
     const handleYearChange = (e) => {
         setSelectedYear(e.target.value);
+    };
+
+    // 전공 여부 변경 핸들러
+    const handleIfMajor = (e) => {
+        setIfMajor(e.target.value);
     };
 
 
@@ -61,7 +67,7 @@ const [isClassDetailModalOpen, setIsClassDetailModalOpen] = useState(false);
     const closeClassDetailModal = () => setIsClassDetailModalOpen(false);
 
     
-const fetchLectureList = async (accessToken, selectedSemester, selectedYear) => {
+const fetchLectureList = async (accessToken, selectedSemester, selectedYear, ifMajor) => {
     try {
 
         const requestBody = {
@@ -70,7 +76,8 @@ const fetchLectureList = async (accessToken, selectedSemester, selectedYear) => 
             semester: parseInt(selectedSemester),
             professor: user.data.user.id,
             year: parseInt(selectedYear),
-            open: 1
+            open: 1,
+            major: ifMajor
         };
 
         const response = await fetch(`${BASE_URL}/lectures`, {
@@ -147,6 +154,11 @@ const fetchEnrolledList = async (accessToken) => {
                         <option value={2}>2학년</option>
                         <option value={3}>3학년</option>
                         <option value={4}>4학년</option>
+                    </select>
+
+                    <select value={ifMajor} onChange={handleIfMajor}>
+                        <option value={1}>전공</option>
+                        <option value={0}>교양</option>
                     </select>
                 </>
             }
