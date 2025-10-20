@@ -231,6 +231,7 @@ useEffect(() => {
       setBoardCode(null);
       setSelectedFiles([]);
       editorRef.current.getInstance().setMarkdown('');
+      console.log("currentPage : ", currentPage);
     } catch (error) {
       alert(error.message);
     }
@@ -313,6 +314,7 @@ useEffect(() => {
       setExistingAttachments([]);
       setDeletedAttachments([]);
       editorRef.current.getInstance().setMarkdown('');
+      console.log("currentPage : ", currentPage);
     } catch (error) {
       alert(error.message);
     }
