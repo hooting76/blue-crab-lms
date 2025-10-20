@@ -128,37 +128,17 @@ const fetchEnrolledList = async (accessToken, user) => {
 
     useEffect(() => {
         if (isProf) {
-            fetchLectureList(accessToken, selectedSemester);
+            fetchLectureList(accessToken, user);
             } else {
-            fetchEnrolledList(accessToken, selectedSemester);
+            fetchEnrolledList(accessToken, user);
             }
-        }, [accessToken, selectedSemester]); // ✅ accessToken이 생겼을 때, 학기가 선택되었을 때 호출
+        }, [accessToken, user]); // ✅ accessToken이 생겼을 때 호출
 
         console.log("lectureList : ", lectureList);
 
         
     return (
         <div className="classAttending_list_container">
-            {isProf &&
-                <>
-                    <select value={selectedSemester} onChange={handleSemesterChange}>
-                        <option value={1}>1학기</option>
-                        <option value={2}>2학기</option>
-                    </select>
-
-                    <select value={selectedYear} onChange={handleYearChange}>
-                        <option value={1}>1학년</option>
-                        <option value={2}>2학년</option>
-                        <option value={3}>3학년</option>
-                        <option value={4}>4학년</option>
-                    </select>
-
-                    <select value={ifMajor} onChange={handleIfMajor}>
-                        <option value={1}>전공</option>
-                        <option value={0}>교양</option>
-                    </select>
-                </>
-            }
 
             <select className="lectureName">
                 {lectureList.length > 0 ? (
