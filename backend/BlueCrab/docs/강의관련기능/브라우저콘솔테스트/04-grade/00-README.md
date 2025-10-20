@@ -19,6 +19,7 @@ Task G (성적 관리 시스템) Phase 4 브라우저 콘솔 테스트
  08-MODULE-REFERENCE.md       # 모듈 참조
  09-TROUBLESHOOTING.md        # 문제 해결
  10-LEGACY.md                 # 레거시
+ 11-TEST-FLOW.drawio          # 테스트 플로우 다이어그램
 ```
 
 ---
