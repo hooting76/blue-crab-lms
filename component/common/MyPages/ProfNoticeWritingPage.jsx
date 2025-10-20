@@ -236,7 +236,7 @@ useEffect(() => {
     if (!boardIdx) return alert("수정할 게시물 ID가 없습니다.");
 
     const boardContent = editorRef.current.getInstance().getMarkdown();
-    if (!boardTitle || boardCode === null || !boardContent.trim()) {
+    if (!boardTitle || !boardContent.trim()) {
       alert('모든 필드를 입력해주세요.');
       return;
     }
