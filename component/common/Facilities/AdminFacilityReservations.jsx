@@ -1,5 +1,5 @@
 // component/common/facilities/AdminFacilityReservations.jsx
-// 관리자 시설 예약: 탭(승인 대기 / 전체 예약) + 필터(기간 제거) + 테이블 + 페이지네이션 + 상세 모달
+// 관리자 시설 예약: 탭(승인 대기 / 전체 예약) + 필터 + 테이블 + 페이지네이션 + 상세 모달
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -10,7 +10,7 @@ import { postFacilities } from "../../../src/api/facility";
 import AdminReservationDetailModal from "./AdminReservationDetailModal";
 import "../../../css/Facilities/admin-resv.css";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 5;
 
 const STATUS_OPTIONS = [
   { value: "", label: "전체 상태" },
@@ -31,10 +31,17 @@ function StatusBadge({ status }) {
   return <span className="ar-badge">{status || "-"}</span>;
 }
 
+// "YYYY-MM-DD HH:mm:ss" → "YYYY-MM-DD HH:mm"
+const toYmdHm = (s = "") => {
+  if (!s) return "";
+  const [ymd, time = ""] = s.split(" ");
+  const [hh = "", mm = ""] = time.split(":");
+  return `${ymd} ${hh}:${mm}`;
+};
+
 export default function AdminFacilityReservations() {
   const [tab, setTab] = useState("PENDING"); // "PENDING" | "ALL"
   const [page, setPage] = useState(0);
-
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const [rows, setRows] = useState([]);
@@ -49,7 +56,7 @@ export default function AdminFacilityReservations() {
     query: "",
   });
 
-  // 시설 목록(셀렉트)
+  // 시설 옵션
   useEffect(() => {
     (async () => {
       try {
@@ -72,14 +79,20 @@ export default function AdminFacilityReservations() {
       try {
         if (nextTab === "PENDING") {
           const res = await adminPendingList({ page: nextPage, size: PAGE_SIZE });
-          const content = res?.data?.content ?? res?.data ?? [];
-          setRows(Array.isArray(content) ? content : []);
-          setTotalPages(res?.data?.totalPages ?? 1);
+          const dataArr = res?.data?.content || res?.data || [];
+          setRows(Array.isArray(dataArr) ? dataArr : []);
+          setTotalPages(
+            typeof res?.data?.totalPages === "number"
+              ? res.data.totalPages
+              : res?.data?.hasNext
+              ? nextPage + 2
+              : nextPage + 1
+          );
         } else {
           const body = { page: nextPage, size: PAGE_SIZE };
+          if (nextFilters.status) body.status = nextFilters.status;
           if (nextFilters.facilityIdx) body.facilityIdx = Number(nextFilters.facilityIdx);
           if (nextFilters.query?.trim()) body.query = nextFilters.query.trim();
-          if (nextFilters.status) body.status = nextFilters.status;
 
           const res = await adminSearchReservations(body);
           const content = res?.data?.content ?? res?.data ?? [];
@@ -101,36 +114,35 @@ export default function AdminFacilityReservations() {
     [tab, page, filters]
   );
 
-  // 탭 전환 → 페이지 0으로
-  const switchTab = (t) => {
-    setTab(t);
-    setPage(0);
-  };
-
   // 탭/페이지 변경 시 로드
   useEffect(() => {
     load(tab, page, filters);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, page]);
 
-  // 필터 변경
-  const onFilterChange = (patch) => {
-    setFilters((prev) => ({ ...prev, ...patch }));
+  // 총 페이지 수가 줄어들면 현재 페이지 보정
+  useEffect(() => {
+    if (page + 1 > (totalPages || 1)) setPage(0);
+  }, [totalPages, page]);
+
+  const switchTab = (t) => {
+    setTab(t);
+    setPage(0);
   };
 
-  // 검색 적용(ALL 탭에서만)
+  const onFilterChange = (patch) =>
+    setFilters((prev) => ({ ...prev, ...patch }));
+
   const applyFilters = async () => {
     setPage(0);
     await load("ALL", 0, { ...filters });
   };
 
-  // 페이지네이션
   const canPrev = useMemo(() => page > 0, [page]);
   const canNext = useMemo(() => page + 1 < (totalPages || 1), [page, totalPages]);
-  const goPrev = () => { if (canPrev) setPage((p) => p - 1); };
-  const goNext = () => { if (canNext) setPage((p) => p + 1); };
+  const goPrev = () => canPrev && setPage((p) => p - 1);
+  const goNext = () => canNext && setPage((p) => p + 1);
 
-  // 모달
   const openModal = (reservationIdx) => setSelectedIdx(reservationIdx);
   const closeModal = () => setSelectedIdx(null);
   const handleActionDone = async () => {
@@ -140,19 +152,19 @@ export default function AdminFacilityReservations() {
 
   return (
     <div className="ar-wrap">
-      {/* 상단(탭 + 필터) : 네 CSS의 .ar-sticky 컨테이너 사용 */}
+      {/* 상단: 탭/필터 (sticky) */}
       <div className="ar-sticky">
         <header className="ar-header">
           <div className="ar-tabs">
             <button
               className={`ar-tab ${tab === "PENDING" ? "active" : ""}`}
-              onClick={() => { setTab("PENDING"); setPage(0); }}
+              onClick={() => switchTab("PENDING")}
             >
               승인 대기
             </button>
             <button
               className={`ar-tab ${tab === "ALL" ? "active" : ""}`}
-              onClick={() => { setTab("ALL"); setPage(0); }}
+              onClick={() => switchTab("ALL")}
             >
               전체 예약
             </button>
@@ -193,7 +205,7 @@ export default function AdminFacilityReservations() {
                 </select>
               </div>
 
-              <div className="field search-field">
+              <div className="field">
                 <label>검색</label>
                 <div className="search-inline">
                   <input
@@ -202,9 +214,7 @@ export default function AdminFacilityReservations() {
                     placeholder="이름, 학번/사번, 시설명"
                     value={filters.query}
                     onChange={(e) => onFilterChange({ query: e.target.value })}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") applyFilters();
-                    }}
+                    onKeyDown={(e) => e.key === "Enter" && applyFilters()}
                   />
                   <button className="ar-primary search-btn" onClick={applyFilters}>
                     검색
@@ -216,7 +226,7 @@ export default function AdminFacilityReservations() {
         )}
       </div>
 
-      {/* 테이블 */}
+      {/* 표 */}
       <section className="ar-table-wrap">
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -234,58 +244,79 @@ export default function AdminFacilityReservations() {
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={7} style={tdCenter}>불러오는 중…</td>
+                  <td colSpan={7} style={tdCenter}>
+                    불러오는 중…
+                  </td>
                 </tr>
               )}
               {err && !loading && (
                 <tr>
-                  <td colSpan={7} style={tdCenter}>{err}</td>
+                  <td colSpan={7} style={tdCenter}>
+                    {err}
+                  </td>
                 </tr>
               )}
               {!loading && !err && rows.length === 0 && (
                 <tr>
                   <td colSpan={7} style={tdCenter}>
-                    {tab === "PENDING" ? "승인 대기 중인 예약이 없습니다." : "검색 결과가 없습니다."}
+                    {tab === "PENDING"
+                      ? "승인 대기 중인 예약이 없습니다."
+                      : "검색 결과가 없습니다."}
                   </td>
                 </tr>
               )}
-              {!loading && !err && rows.map((item) => (
-                <tr key={item.reservationIdx}>
-                  <td style={td}>
-                    <div>{item.createdAt?.split(" ")[0] || "-"}</div>
-                    <div style={muted}>{item.createdAt?.split(" ")[1] || ""}</div>
-                  </td>
-                  <td style={td}>
-                    <div>{item.facilityName || "-"}</div>
-                    <div style={muted}>{item.facilityLocation || ""}</div>
-                  </td>
-                  <td style={td}>
-                    <div>
-                      {item.startTime || "-"} ~ {item.endTime?.split(" ")[1] || ""}
-                    </div>
-                  </td>
-                  <td style={td}>
-                    <div>{item.userName || "Unknown"}</div>
-                    <div style={muted}>{item.userEmail || item.userCode || ""}</div>
-                  </td>
-                  <td style={tdCenter}>{item.partySize ?? "-"}</td>
-                  <td style={tdCenter}><StatusBadge status={item.status} /></td>
-                  <td style={tdCenter}>
-                    <button className="ar-primary" onClick={() => openModal(item.reservationIdx)}>
-                      상세보기
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {!loading &&
+                !err &&
+                rows.map((item) => (
+                  <tr key={item.reservationIdx}>
+                    <td style={td}>
+                      <div>{item.createdAt?.split(" ")[0] || "-"}</div>
+                      <div style={muted}>{item.createdAt?.split(" ")[1] || ""}</div>
+                    </td>
+                    <td style={td}>
+                      <div>{item.facilityName || "-"}</div>
+                      <div style={muted}>{item.facilityLocation || ""}</div>
+                    </td>
+                    <td style={td}>
+                      <div>
+                        {/* YYYY-MM-DD HH:mm~HH:mm */}
+                        {toYmdHm(item.startTime) || "-"} ~ {toYmdHm(item.endTime).split(" ")[1] || ""}
+                      </div>
+                    </td>
+                    <td style={td}>
+                      <div>{item.userName || "Unknown"}</div>
+                      <div style={muted}>{item.userEmail || item.userCode || ""}</div>
+                    </td>
+                    <td style={tdCenter}>{item.partySize ?? "-"}</td>
+                    <td style={tdCenter}>
+                      <StatusBadge status={item.status} />
+                    </td>
+                    <td style={tdCenter}>
+                      <button
+                        className="ar-primary"
+                        onClick={() => openModal(item.reservationIdx)}
+                      >
+                        상세보기
+                      </button>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
 
         {!loading && !err && rows.length > 0 && (
           <div className="ar-pager">
-            <button className="pg-btn" disabled={!canPrev} onClick={goPrev}>이전</button>
-            <div className="pg-page">{page + 1}{totalPages ? ` / ${totalPages}` : ""}</div>
-            <button className="pg-btn" disabled={!canNext} onClick={goNext}>다음</button>
+            <button className="pg-btn" disabled={!canPrev} onClick={goPrev}>
+              이전
+            </button>
+            <div className="pg-page">
+              {page + 1}
+              {totalPages ? ` / ${totalPages}` : ""}
+            </div>
+            <button className="pg-btn" disabled={!canNext} onClick={goNext}>
+              다음
+            </button>
           </div>
         )}
       </section>
@@ -302,7 +333,7 @@ export default function AdminFacilityReservations() {
   );
 }
 
-/* ------- 테이블 기본 스타일 (컴포넌트 내부) ------- */
+/* ------- 테이블 기본 스타일 ------- */
 const th = {
   textAlign: "left",
   padding: "12px 14px",
