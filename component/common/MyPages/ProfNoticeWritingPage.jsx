@@ -19,11 +19,14 @@ function ProfNoticeWritingPage({ notice, accessToken: propToken, currentPage, se
 
   const editorRef = useRef();
   const [boardTitle, setBoardTitle] = useState('');
-  const [boardCode, setBoardCode] = useState(null);
+  const [boardCode, setBoardCode] = useState(3);
+  const [selectedLectureId, setSelectedLectureId] = useState('');
   const [existingAttachments, setExistingAttachments] = useState([]);
   const [deletedAttachments, setDeletedAttachments] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [boardIdx, setBoardIdx] = useState(notice?.boardIdx || null); // 🔧 boardIdx 상태 추가
+  const [lectureList, setLectureList] = useState([]);
+  const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
   const { isAuthenticated, user, isUserAuth } = UseUser();
 
@@ -35,6 +38,40 @@ function ProfNoticeWritingPage({ notice, accessToken: propToken, currentPage, se
   };
 
   const accessToken = propToken || getAccessToken();
+
+
+  const fetchLectureList = async (accessToken, user) => {
+    try {
+
+        const requestBody = {
+            page: 0,
+            size: 20,
+            professor: String(user.data.user.id)
+        };
+
+        const response = await fetch(`${BASE_URL}/lectures`, {
+            method: "POST",
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+        console.log("Request body:", requestBody);
+
+        if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
+
+        const data = await response.json();
+        setLectureList(data); // ✅ 받아온 데이터 저장
+    } catch (error) {
+        console.error('강의 목록 조회 에러:', error);
+    }
+};
+
+useEffect(() => {
+  fetchLectureList(accessToken, user);
+}, [accessToken, user]); // ✅ accessToken이 생겼을 때 호출
+
 
   // 🔧 boardIdx가 바뀔 때 첨부파일 불러오기
 useEffect(() => {
@@ -80,9 +117,9 @@ useEffect(() => {
     if (notice?.boardTitle) {
       setBoardTitle(decodeBase64(notice.boardTitle));
     }
-    if (typeof notice?.boardContent === 'string' && editorRef.current) {
-      editorRef.current.getInstance().setMarkdown(decodeBase64(notice.boardContent));
-    }
+   // if (typeof notice?.boardContent === 'string' && editorRef.current) {
+    //  editorRef.current.getInstance().setMarkdown(decodeBase64(notice.boardContent));
+   // }
     if (typeof notice?.boardCode === 'number') {
       setBoardCode(notice.boardCode);
     }
@@ -131,11 +168,11 @@ useEffect(() => {
     });
     const boardReg = date.replace(" ", "T");
 
-    const NoticeByAdmin = {
+    const NoticeByProf = {
       boardTitle,
-      boardCode: Number(boardCode),
+      boardCode: 3,
       boardContent,
-      boardWriterIdx: admin?.data?.adminIdx,
+      boardWriterIdx: String(user.data.user.id),
       boardReg,
       boardOn: 1
     };
@@ -147,7 +184,7 @@ useEffect(() => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`
         },
-        body: JSON.stringify(NoticeByAdmin),
+        body: JSON.stringify(NoticeByProf),
       });
 
       if (!response.ok) throw new Error('서버 에러가 발생했습니다.');
@@ -169,7 +206,12 @@ useEffect(() => {
         if (!uploadResponse.ok) throw new Error('파일 업로드 중 에러가 발생했습니다.');
 
         const uploadResult = await uploadResponse.json();
-        const attachmentIdxs = uploadResult.attachments.map(att => att.attachmentIdx);
+        const attachmentIdxs = Array.isArray(uploadResult.attachments)
+          ? uploadResult.attachments.map(att => att.attachmentIdx)
+          : [];
+          console.log("📂 uploadResult:", uploadResult);
+
+
 
         await fetch(`https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/boards/link-attachments/${createdIdx}`, {
           method: 'POST',
@@ -182,11 +224,14 @@ useEffect(() => {
       }
 
       alert('공지사항이 성공적으로 등록되었습니다!');
+      setTimeout(() => {
+        setCurrentPage("수강/강의과목 공지사항");
+      }, 100);
       setBoardTitle('');
       setBoardCode(null);
       setSelectedFiles([]);
       editorRef.current.getInstance().setMarkdown('');
-      setCurrentPage("수강과목 공지사항");
+      console.log("currentPage : ", currentPage);
     } catch (error) {
       alert(error.message);
     }
@@ -200,7 +245,7 @@ useEffect(() => {
     if (!boardIdx) return alert("수정할 게시물 ID가 없습니다.");
 
     const boardContent = editorRef.current.getInstance().getMarkdown();
-    if (!boardTitle || boardCode === null || !boardContent.trim()) {
+    if (!boardTitle || !boardContent.trim()) {
       alert('모든 필드를 입력해주세요.');
       return;
     }
@@ -213,7 +258,7 @@ useEffect(() => {
 
     const updatedNotice = {
       boardTitle,
-      boardCode: Number(boardCode),
+      boardCode: 3,
       boardContent,
       boardLast
     };
@@ -243,7 +288,11 @@ useEffect(() => {
         if (!uploadResponse.ok) throw new Error('파일 업로드 중 에러가 발생했습니다.');
 
         const uploadResult = await uploadResponse.json();
-        const attachmentIdxs = uploadResult.attachments.map(att => att.attachmentIdx);
+        const attachmentIdxs = Array.isArray(uploadResult.attachments)
+          ? uploadResult.attachments.map(att => att.attachmentIdx)
+          : [];
+          console.log("📂 uploadResult:", uploadResult);
+
 
         await fetch(`https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/boards/link-attachments/${boardIdx}`, {
           method: 'POST',
@@ -256,13 +305,16 @@ useEffect(() => {
       }
 
       alert('공지사항이 성공적으로 수정되었습니다!');
+      setTimeout(() => {
+        setCurrentPage("수강/강의과목 공지사항");
+      }, 100);
       setBoardTitle('');
       setBoardCode(null);
       setSelectedFiles([]);
       setExistingAttachments([]);
       setDeletedAttachments([]);
       editorRef.current.getInstance().setMarkdown('');
-      setCurrentPage("수강과목 공지사항");
+      console.log("currentPage : ", currentPage);
     } catch (error) {
       alert(error.message);
     }
@@ -270,7 +322,7 @@ useEffect(() => {
 
 
 
-  if (currentPage === "수강과목 공지사항")
+  if (currentPage === "수강/강의과목 공지사항")
     return <ClassAttendingNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
 
   return (
@@ -287,17 +339,17 @@ useEffect(() => {
       </div>
 
       <div>
-        <label>카테고리</label><br />
-        <select
-          value={boardCode}
-          onChange={(e) => setBoardCode(Number(e.target.value))}
-          required
-          style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
-        >
-          <option value={null}>카테고리를 선택하세요</option>
-          <option value={0}>학사공지</option>
-          <option value={1}>행정공지</option>
-          <option value={2}>기타공지</option>
+        <label>과목</label><br />
+        <select value={selectedLectureId} onChange={(e) => setSelectedLectureId(e.target.value)}>
+            {lectureList.length > 0 ? (
+                lectureList.map((cls) => (
+                    <option key={cls.lecIdx} value={cls.lecIdx}>
+                        {cls.lecTit}
+                    </option>
+                  ))
+                ) : (
+                    <option disabled>강의 목록 없음</option>
+                )}
         </select>
       </div>
 

@@ -1,115 +1,148 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { UseUser } from '../../../hook/UseUser';
 import ProfNoticeWritingPage from './ProfNoticeWritingPage.jsx';
+import ProfNoticeDetail from './ProfNoticeDetail.jsx'; // 누락된 import 추가
 
-function ClassAttendingNotice({currentPage, setCurrentPage}) {
-    const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
-    const {user} = UseUser();
-    const accessToken = user.data.accessToken;
+const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
+const NOTICE_BOARD_CODE = 3;
+
+function ClassAttendingNotice({ currentPage, setCurrentPage }) {
+    const { user } = UseUser();
+    const accessToken = user?.data?.accessToken;
+    const userId = user?.data?.user?.id;
+    const isProf = user?.data?.user?.userStudent === 1;
+
+    const [selectedLectureId, setSelectedLectureId] = useState(null);
     const [lectureList, setLectureList] = useState([]);
+    const [noticeList, setNoticeList] = useState([]);
+    const [selectedIdx, setSelectedIdx] = useState(null);
+    const [fetchedNotice, setFetchedNotice] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-        // select 변경 핸들러
-        const handleSemesterChange = (e) => {
-            setSelectedSemester(e.target.value);
-        };
-    
-    const today = new Date();
-    let currentYear = today.getFullYear();
-    const currentMonth = today.getMonth() + 1;
-    
-    let currentSemester;
-    
-    if (currentMonth >= 3 && currentMonth <= 8) {
-        currentSemester = 1;
-    } else if (currentMonth >= 9) {
-        currentSemester = 2;
-    } else {
-        // 1~2월은 전년도 2학기
-        currentYear -= 1;
-        currentSemester = 2;
-    }
-    
-    
-    // 현재 학기를 기준으로 지난 8개 학기 생성
-    const generateSemesters = (count = 8) => {
-        const semesters = [];
-        let year = currentYear;
-        let semester = currentSemester;
-    
-        for (let i = 0; i < count; i++) {
-            const value = `${year}_${semester}`;
-            const label = `${year}년 ${semester}학기`;
-            semesters.push({ value, label });
-    
-            // 이전 학기로 이동
-            if (semester === 1) {
-                semester = 2;
-                year -= 1;
-            } else {
-                semester = 1;
-            }
-        }
-    
-        return semesters;
-    };
-    
-    const semesterOptions = generateSemesters(8);
-    const currentSemesterValue = `${currentYear}_${currentSemester}`; // 현재 학기 value
-    const [selectedSemester, setSelectedSemester] = useState(currentSemesterValue); // 학기 선택 상태
+    /** ========== Fetch ========== */
+    const fetchLectureList = async () => {
+        const endpoint = isProf ? '/lectures' : '/enrollments/list';
+        const requestBody = isProf
+            ? { page: 0, size: 20, professor: String(userId) }
+            : { page: 0, size: 20, studentIdx: String(userId), enrolled: true };
 
+        try {
+            const response = await fetch(`${BASE_URL}${endpoint}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            });
 
-
-const fetchLectureList = async (accessToken, selectedSemester) => {
-    try {
-        const [year, semester] = selectedSemester.split('_');
-
-        const response = await fetch(`${BASE_URL}/lectures`, {
-            method: "POST",
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({page: 0, size: 20, year: parseInt(year), semester: parseInt(semester)})
-        });
-    if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
+            if (!response.ok) throw new Error('강의 목록 조회 실패');
             const data = await response.json();
-            setLectureList(data); // ✅ 받아온 데이터 저장
+            setLectureList(data);
+            if (data.length > 0) setSelectedLectureId(data[0].lecIdx); // 첫 강의 선택
         } catch (error) {
-            console.error('강의 목록 조회 에러:', error);
+            console.error('강의 목록 에러:', error);
+            setLectureList([]);
         }
     };
 
+    const fetchAllNotices = async () => {
+        try {
+            const response = await fetch(`${BASE_URL}/boards/list`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ page: 0, size: 1000, boardCode: NOTICE_BOARD_CODE }),
+            });
+
+            if (!response.ok) throw new Error('공지사항 조회 실패');
+            const data = await response.json();
+            console.log("📦 notices response:", data);
+            setNoticeList(data.content);
+        } catch (error) {
+            console.error('공지사항 에러:', error);
+            setNoticeList([]);
+        }
+    };
+
+    /** ========== useEffect ========== */
     useEffect(() => {
-            fetchLectureList(accessToken, selectedSemester);
-        }, [accessToken, selectedSemester]); // ✅ accessToken이 생겼을 때, 학기가 선택되었을 때 호출
+        if (accessToken && userId) {
+            fetchLectureList();
+            fetchAllNotices();
+        }
+    }, [accessToken, userId]);
 
-        console.log("lectureList : ", lectureList);
+    /** ========== Helpers ========== */
+    const decodeBase64 = (str) => {
+        try {
+            const cleanStr = str.replace(/\s/g, '');
+            const binary = atob(cleanStr);
+            return decodeURIComponent(
+                Array.prototype.map
+                    .call(binary, (ch) => '%' + ('00' + ch.charCodeAt(0).toString(16)).slice(-2))
+                    .join('')
+            );
+        } catch (e) {
+            console.error("Base64 디코딩 오류:", e);
+            return "";
+        }
+    };
+
+    const formatTime = (timeStr) => {
+        const date = new Date(timeStr);
+        const now = new Date();
+
+        const isToday =
+            date.getFullYear() === now.getFullYear() &&
+            date.getMonth() === now.getMonth() &&
+            date.getDate() === now.getDate();
+
+        const formatted = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+
+        if (isToday) return formatted;
+
+        return `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')} ${formatted}`;
+    };
+
+    const filteredNotices = useMemo(() => {
+    if (!selectedLectureId) return [];
+    return noticeList.filter((notice) => notice.lecIdx === Number(selectedLectureId));
+}, [noticeList, selectedLectureId]);
 
 
+    /** ========== Event Handlers ========== */
+    const handleLectureChange = (e) => {
+        setSelectedLectureId(e.target.value);
+    };
 
-    const profNoticeWrite = () => {
-    setCurrentPage("과목별 공지 작성");
-    }
+    const handleNoticeClick = (boardIdx) => {
+        setSelectedIdx(boardIdx);
+        setIsModalOpen(true);
+    };
 
+    const handleModalClose = () => {
+        setSelectedIdx(null);
+        setFetchedNotice(null);
+        setIsModalOpen(false);
+    };
+
+    const handleEdit = () => {
+        setCurrentPage("과목별 공지 작성");
+    };
+
+    /** ========== Page Change ========== */
     if (currentPage === "과목별 공지 작성") {
-        return (
-            <ProfNoticeWritingPage currentPage={currentPage} setCurrentPage={setCurrentPage}/>
-        );
+        return <ProfNoticeWritingPage currentPage={currentPage} setCurrentPage={setCurrentPage} />;
     }
 
-
-
-    return(
+    /** ========== Render ========== */
+    return (
         <>
-            <select value={selectedSemester} onChange={handleSemesterChange} className='selectSemester'>
-                {semesterOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                        {option.label}
-                    </option>
-                ))}
-            </select>
-
-            <select className="lectureName">
+            {/* 강의 선택 드롭다운 */}
+            <select className="lectureName" onChange={handleLectureChange} value={selectedLectureId || ''}>
                 {lectureList.length > 0 ? (
                     lectureList.map((cls) => (
                         <option key={cls.lecIdx} value={cls.lecIdx}>
@@ -121,15 +154,68 @@ const fetchLectureList = async (accessToken, selectedSemester) => {
                 )}
             </select>
 
-            {user.data.user.userStudent === 1 && // 교수일 경우 공지 작성 버튼 표시
-                <>
-                    <div className="profNoticeWriteBtnArea">
-                        <button className="profNoticeWriteBtn" onClick={profNoticeWrite}>과목별 공지 작성</button>
+            {isProf && (
+                <div className="profNoticeWriteBtnArea">
+                    <button className="profNoticeWriteBtn" onClick={handleEdit}>
+                        과목별 공지 작성
+                    </button>
+                </div>
+            )}
+
+            {/* 공지 테이블 */}
+            <table className="notice-table">
+                <thead>
+                    <tr>
+                        <th style={{ width: "10%" }}>번호</th>
+                        <th style={{ width: "60%" }}>제목</th>
+                        <th style={{ width: "10%" }}>조회수</th>
+                        <th style={{ width: "20%" }}>작성일</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {filteredNotices.length > 0 ? (
+                        filteredNotices.map((notice) => {
+                            const isSelected = notice.boardIdx === selectedIdx;
+                            const boardView = isSelected && fetchedNotice
+                                ? fetchedNotice.boardView
+                                : notice.boardView;
+
+                            return (
+                                <tr key={notice.boardIdx} onClick={() => handleNoticeClick(notice.boardIdx)} style={{ cursor: "pointer" }}>
+                                    <td>{notice.boardIdx}</td>
+                                    <td>{decodeBase64(notice.boardTitle)}</td>
+                                    <td>{boardView}</td>
+                                    <td>{formatTime(notice.boardReg)}</td>
+                                </tr>
+                            );
+                        })
+                    ) : (
+                        <tr>
+                            <td colSpan="4">공지사항이 없습니다.</td>
+                        </tr>
+                    )}
+                </tbody>
+            </table>
+
+            {/* 공지 모달 */}
+            {isModalOpen && (
+                <div className="modal-overlay" onClick={handleModalClose}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <button className="modal-close" onClick={handleModalClose}>✖</button>
+                        <ProfNoticeDetail
+                            boardIdx={selectedIdx}
+                            currentPage={currentPage}
+                            setCurrentPage={setCurrentPage}
+                            onFetchComplete={(notice) => setFetchedNotice(notice)}
+                        />
+                        <button className="noticeEditButton" onClick={handleEdit}>
+                            공지 수정
+                        </button>
                     </div>
-                </>
-            }
+                </div>
+            )}
         </>
-    )
+    );
 }
 
 export default ClassAttendingNotice;

@@ -16,50 +16,6 @@ function ClassAttending({currentPage, setCurrentPage}) {
 
     console.log("user : ", user);
 
-    // select 변경 핸들러
-    const handleSemesterChange = (e) => {
-        setSelectedSemester(e.target.value);
-    };
-
- const today = new Date();
-// let currentYear = today.getFullYear();
-// const currentMonth = today.getMonth() + 1;
-
-// const 
-// }}
-
-
-// 현재 학기를 기준으로 지난 8개 학기 생성
-// const generateSemesters = (count = 8) => {
-//     const semesters = [];
-//     let year = currentYear;
-//     let semester = currentSemester;
-
-//     for (let i = 0; i < count; i++) {
-//         const value = `${year}_${semester}`;
-//         const label = `${year}년 ${semester}학기`;
-//         semesters.push({ value, label });
-
-        // 이전 학기로 이동
-//         if (semester === 1) {
-//             semester = 2;
-//             year -= 1;
-//         } else {
-//             semester = 1;
-//         }
-//     }
-
-//     return semesters;
-// };
-
-// const semesterOptions = generateSemesters(8);
-// const currentSemesterValue = `${currentYear}_${currentSemester}`; // 현재 학기 value
-const [selectedSemester, setSelectedSemester] = useState(1); // 학기 선택 상태
-// const handleYearChange = (e) => {
-//     setSelectedYear(e.target.value);
-// };
-
-// const [selectedYear, setSelectedYear] = useState(1);
 
 const attendanceRequestSubmit = (e) => {
     e.preventDefault();
@@ -93,15 +49,13 @@ const [isClassDetailModalOpen, setIsClassDetailModalOpen] = useState(false);
     const closeClassDetailModal = () => setIsClassDetailModalOpen(false);
 
     
-const fetchLectureList = async (accessToken, selectedSemester) => {
+const fetchLectureList = async (accessToken, user) => {
     try {
-        // const [year, semester] = selectedSemester.split('_');
 
         const requestBody = {
             page: 0,
             size: 20,
-            // year: selectedYear,
-            semester: parseInt(selectedSemester)
+            professor: String(user.data.user.id)
         };
 
         const response = await fetch(`${BASE_URL}/lectures`, {
@@ -123,28 +77,49 @@ const fetchLectureList = async (accessToken, selectedSemester) => {
     }
 };
 
+const fetchEnrolledList = async (accessToken, user) => {
+    try {
+
+        const requestBody = {
+            page: 0,
+            size: 20,
+            studentIdx: String(user.data.user.id),
+            enrolled: true
+        };
+
+        const response = await fetch(`${BASE_URL}/enrollments/list`, {
+            method: "POST",
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+        console.log("Request body:", requestBody);
+
+        if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
+
+        const data = await response.json();
+        setLectureList(data); // ✅ 받아온 데이터 저장
+    } catch (error) {
+        console.error('강의 목록 조회 에러:', error);
+    }
+};
+
 
     useEffect(() => {
-            fetchLectureList(accessToken, selectedSemester);
-        }, [accessToken, selectedSemester]); // ✅ accessToken이 생겼을 때, 학기가 선택되었을 때 호출
+        if (isProf) {
+            fetchLectureList(accessToken, user);
+            } else {
+            fetchEnrolledList(accessToken, user);
+            }
+        }, [accessToken, user]); // ✅ accessToken이 생겼을 때 호출
 
         console.log("lectureList : ", lectureList);
 
         
     return (
         <div className="classAttending_list_container">
-            {/* <select value={selectedSemester} onChange={handleSemesterChange} className='selectSemester'>
-                {semesterOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                        {option.label}
-                    </option>
-                ))}
-            </select> */}
-
-            <select value={selectedSemester} onChange={handleSemesterChange}>
-                <option value={1}>1학기</option>
-                <option value={2}>2학기</option>
-            </select>
 
             <select className="lectureName">
                 {lectureList.length > 0 ? (

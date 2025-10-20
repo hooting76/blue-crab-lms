@@ -1,9 +1,9 @@
 // components/common/facilities/AdminReservationDetailModal.jsx
-// 공용 상세 API 호출 + (승인대기일 때만) 승인/반려 처리 영역 노출
+// 관리자 시설 예약 상세 모달 (CSS 클래스 기반 레이아웃 + 하단 액션 sticky + 예약일시 포맷)
 
 import React, { useEffect, useState } from "react";
 import {
-  getAdminReservationDetail,  
+  getAdminReservationDetail,
   adminApprove,
   adminReject,
 } from "../../../src/api/adminReservations";
@@ -22,7 +22,7 @@ export default function AdminReservationDetailModal({
   const [adminNote, setAdminNote] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
 
-  // 상태 표기(서버가 한글/영문 둘 다 올 수 있어 안전 매핑)
+  // 상태 표준화
   const normStatus = (v) => {
     const s = String(v || "").toUpperCase();
     if (["PENDING", "대기", "대기중"].includes(s)) return "PENDING";
@@ -49,9 +49,7 @@ export default function AdminReservationDetailModal({
         if (mounted) setLoading(false);
       }
     })();
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, [reservationIdx]);
 
   const onApprove = async () => {
@@ -76,122 +74,125 @@ export default function AdminReservationDetailModal({
     }
   };
 
-  const statusForBadge = (() => {
+  const badgeClass = (() => {
     const n = normStatus(detail?.status);
-    if (n === "APPROVED") return "green";
-    if (n === "REJECTED") return "red";
-    return "yellow";
+    if (n === "APPROVED") return "ar-badge green";
+    if (n === "REJECTED") return "ar-badge red";
+    return "ar-badge yellow";
   })();
 
-  const statusForText = (() => {
+  const badgeText = (() => {
     const n = normStatus(detail?.status);
     if (n === "APPROVED") return "승인됨";
     if (n === "REJECTED") return "반려됨";
     return "대기중";
   })();
 
+  // 예약일시 포맷: "YYYY-MM-DD HH:mm~HH:mm"
+  const formatStartEnd = (start, end) => {
+    if (!start || !end) return (start || "-") + " ~ " + (end || "-");
+    const [d1, t1 = ""] = String(start).split(" ");
+    const [, t2 = ""] = String(end).split(" ");
+    const hhmm1 = t1.slice(0,5);
+    const hhmm2 = t2.slice(0,5);
+    return `${d1} ${hhmm1}~${hhmm2}`;
+  };
+
   return (
     <div className="modal-backdrop">
       <div className="modal">
+        {/* 헤더 */}
         <div className="modal-head">
           <div className="mh-left">
             <b>예약 상세</b>
-            {detail && (
-              <span className={`ar-badge ${statusForBadge}`} style={{ marginLeft: 8 }}>
-                {statusForText}
-              </span>
-            )}
+            {detail && <span className={badgeClass} style={{ marginLeft: 8 }}>{badgeText}</span>}
           </div>
-          <button className="icon" onClick={onClose}>
-            ✕
-          </button>
+          <button className="icon" onClick={onClose} aria-label="닫기">✕</button>
         </div>
 
         <div className="modal-body">
-          {loading && <div>불러오는 중…</div>}
+          {loading && <div className="ar-loading">불러오는 중…</div>}
           {err && <div className="ar-error">{err}</div>}
 
           {!loading && !err && detail && (
             <>
-              <div className="row">
-                <b>시설</b>
-                <div>{detail.facilityName || "-"}</div>
-              </div>
-              <div className="row">
-                <b>예약 일시</b>
-                <div>
-                  {detail.startTime} ~ {detail.endTime}
+              {/* 기본 정보: 2열 정렬 */}
+              <div className="info-grid">
+                <div className="row">
+                  <b>시설</b>
+                  <div>{detail.facilityName || "-"}</div>
+                </div>
+                <div className="row">
+                  <b>예약 일시</b>
+                  <div>{formatStartEnd(detail.startTime, detail.endTime)}</div>
+                </div>
+                <div className="row">
+                  <b>신청자</b>
+                  <div>
+                    {detail.userName}
+                    {detail.userCode ? ` (${detail.userCode})` : ""}
+                  </div>
+                </div>
+                <div className="row">
+                  <b>이메일</b>
+                  <div>{detail.userEmail || "-"}</div>
+                </div>
+                <div className="row">
+                  <b>예상 인원</b>
+                  <div>{detail.partySize}명</div>
+                </div>
+                <div className="row">
+                  <b>신청 일시</b>
+                  <div>{detail.createdAt}</div>
                 </div>
               </div>
-              <div className="row">
-                <b>신청자</b>
-                <div>
-                  {detail.userName} {detail.userCode ? `(${detail.userCode})` : ""}
-                </div>
-              </div>
-              <div className="row">
-                <b>이메일</b>
-                <div>{detail.userEmail || "-"}</div>
-              </div>
-              <div className="row">
-                <b>예상 인원</b>
-                <div>{detail.partySize}명</div>
-              </div>
-              <div className="row">
-                <b>신청 일시</b>
-                <div>{detail.createdAt}</div>
-              </div>
 
-              {detail.purpose && (
-                <>
-                  <span className="block">사용 목적</span>
-                  <div className="ar-box">{detail.purpose}</div>
-                </>
-              )}
-              {detail.requestedEquipment && (
-                <>
-                  <span className="block">요청 장비</span>
-                  <div className="ar-box">{detail.requestedEquipment}</div>
-                </>
-              )}
+              {/* 사용 목적 / 요청 장비 - 읽기 전용 인풋 형태 */}
+              <label className="section-label">사용 목적</label>
+              <div className="readonly-input">{detail.purpose || "-"}</div>
 
-              {/* 보기 전용 메모/반려사유 (승인됨/반려됨에서만) */}
+              <label className="section-label">요청 장비</label>
+              <div className="readonly-input">{detail.requestedEquipment || "-"}</div>
+
+              {/* 승인됨/반려됨 메모 */}
               {normStatus(detail.status) === "APPROVED" && detail.adminNote && (
                 <>
-                  <span className="block">관리자 비고</span>
-                  <div className="ar-box info">{detail.adminNote}</div>
+                  <label className="section-label">관리자 비고</label>
+                  <div className="readonly-input note-approved">{detail.adminNote}</div>
                 </>
               )}
               {normStatus(detail.status) === "REJECTED" && detail.rejectionReason && (
                 <>
-                  <span className="block">반려 사유</span>
-                  <div className="ar-box danger">{detail.rejectionReason}</div>
+                  <label className="section-label">반려 사유</label>
+                  <div className="readonly-input note-rejected">{detail.rejectionReason}</div>
                 </>
               )}
 
-              {/* 처리 영역: 승인 대기일 때만 노출 */}
+              {/* 처리 영역: 승인 대기일 때만 */}
               {isPending && (
                 <>
-                  <span className="block">승인 비고 (선택)</span>
+                  <label className="section-label">승인 비고 (선택)</label>
                   <textarea
+                    className="readonly-input"
+                    style={{ minHeight: 96 }}
                     placeholder="승인 시 전달할 메시지를 입력하세요 (예: 장비 세팅 완료)"
                     value={adminNote}
                     onChange={(e) => setAdminNote(e.target.value)}
                   />
-                  <span className="block">반려 사유 (필수)</span>
+
+                  <label className="section-label">반려 사유 (필수)</label>
                   <textarea
+                    className="readonly-input"
+                    style={{ minHeight: 96 }}
                     placeholder="반려 시 사유를 입력하세요"
                     value={rejectionReason}
                     onChange={(e) => setRejectionReason(e.target.value)}
                   />
 
-                  <div className="actions">
-                    <button className="approve" onClick={onApprove}>
-                      승인
-                    </button>
-                    <button className="reject" onClick={onReject}>
-                      반려
-                    </button>
+                  {/* 하단 액션바 (sticky) */}
+                  <div className="action-bar-sticky">
+                    <button className="btn-approve" onClick={onApprove}>✅ 승인</button>
+                    <button className="btn-reject" onClick={onReject}>❌ 반려</button>
                   </div>
                 </>
               )}
