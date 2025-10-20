@@ -8,13 +8,23 @@
  */
 
 // 유틸리티 함수 import (grade-test-utils.js 먼저 로드 필요)
-const { apiCall, apiGet, apiPut, testData } = window.gradeTestUtils;
+// 브라우저 콘솔 재로드 대응: window 객체에서 직접 참조
+if (!window.gradeTestUtils) {
+    console.error('❌ gradeTestUtils가 로드되지 않았습니다!');
+    console.error('   먼저 01-grade-test-utils.js를 로드하세요.');
+    throw new Error('gradeTestUtils 로드 필요');
+}
+
+// 함수들을 직접 변수에 할당하지 않고 사용 시점에 참조
+// (const 중복 선언 방지)
 
 // ============================================
 // 1. 성적 구성 설정 테스트
 // POST /api/enrollments/grade-config
 // ============================================
 async function testGradeConfig() {
+    const { testData, apiCall } = window.gradeTestUtils;
+    
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('⚙️  성적 구성 설정 테스트');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -53,6 +63,8 @@ async function testGradeConfig() {
 // GET /api/enrollments/{lecIdx}/{studentIdx}/grade
 // ============================================
 async function testStudentGradeInfo() {
+    const { testData, apiGet } = window.gradeTestUtils;
+    
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('📊 학생 성적 조회 테스트');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -113,6 +125,8 @@ async function testStudentGradeInfo() {
 // GET /api/enrollments/professor/grade
 // ============================================
 async function testProfessorGradeView() {
+    const { testData, apiGet } = window.gradeTestUtils;
+    
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('👨‍🏫 교수용 성적 조회 테스트');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -180,6 +194,8 @@ async function testProfessorGradeView() {
 // GET /api/enrollments/grade-list
 // ============================================
 async function testGradeList() {
+    const { testData, apiGet } = window.gradeTestUtils;
+    
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('📋 성적 목록 조회 테스트');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -227,6 +243,8 @@ async function testGradeList() {
 // POST /api/enrollments/finalize-grades
 // ============================================
 async function testGradeFinalize() {
+    const { testData, apiCall } = window.gradeTestUtils;
+    
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('🏆 최종 등급 배정 테스트');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -349,4 +367,17 @@ window.gradePhase1Tests = {
     runAll: runPhase1Tests
 };
 
-console.log('✅ Phase 1 테스트 로드 완료 (grade-phase1-tests.js)');
+console.log('✅ [2/4] Phase 1 테스트 로드 완료');
+console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+console.log('🎯 Phase 1: 핵심 성적 관리 기능 테스트 (5개)');
+console.log('');
+console.log('   1️⃣ gradePhase1Tests.config()         - 성적 구성 설정');
+console.log('   2️⃣ gradePhase1Tests.studentInfo()    - 학생 성적 조회');
+console.log('   3️⃣ gradePhase1Tests.professorView()  - 교수용 성적 조회');
+console.log('   4️⃣ gradePhase1Tests.gradeList()      - 성적 목록 조회');
+console.log('   5️⃣ gradePhase1Tests.finalize()       - 최종 등급 배정');
+console.log('');
+console.log('   ⭐ await gradePhase1Tests.runAll()    - 전체 실행 (권장)');
+console.log('');
+console.log('💡 테스트 완료 후 03-grade-phase3-tests.js 로드하세요');
+console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');

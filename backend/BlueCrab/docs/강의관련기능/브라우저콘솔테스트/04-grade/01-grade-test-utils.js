@@ -1,87 +1,69 @@
 /**
- * 성적 관리 시스템 - 공통 유틸리티
- * 모든 테스트에서 사용하는 공통 함수들
+ * 성적 관리 시스템 - 공통 유틸리티 (테스트 도구 모음)
  * 
  * ============================================
- * 사용 방법
+ * 📋 이 파일의 역할
  * ============================================
  * 
- * 1. 브라우저 콘솔에 파일 내용 전체 복사 & 붙여넣기
+ * ❌ 이 파일 자체로는 테스트를 실행하지 않습니다
+ * ✅ 다른 테스트 파일(02, 03)이 사용할 "도구"를 제공합니다
  * 
- * 2. 로드 확인:
+ * 비유:
+ * - 이 파일 = 공구함 🧰 (망치, 드라이버 등 도구만 제공)
+ * - 02, 03 파일 = 실제 작업 📋 (도구를 사용해서 테스트 실행)
+ * 
+ * 제공하는 기능:
+ * 1. API 호출 함수 (apiCall, apiGet, apiPut)
+ * 2. 테스트 데이터 입력/저장 (inputTestData, setTestData)
+ * 3. 데이터 검증 (validateTestData)
+ * 4. 인증 확인 (checkAuth)
+ * 
+ * ============================================
+ * 🚀 사용 방법
+ * ============================================
+ * 
+ * 1단계: 이 파일을 브라우저 콘솔에 복사 & 붙여넣기
+ * 
+ * 2단계: 로드 확인
  *    window.gradeTestUtils
+ *    → { apiCall: ƒ, testData: {...}, ... } 출력되면 성공
  * 
- *    예상 결과:
- *    {
- *      apiCall: ƒ,
- *      apiGet: ƒ,
- *      apiPut: ƒ,
- *      checkAuth: ƒ,
- *      testData: { lecIdx: 1, studentIdx: 100, ... },
- *      setTestData: ƒ,
- *      getTestData: ƒ,
- *      API_BASE_URL: "https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api"
- *    }
+ * 3단계: 테스트 데이터 입력 (필수!)
+ *    gradeTestUtils.inputTestData()
+ *    → 팝업 창에서 강의ID, 학생ID 등 입력
  * 
- * 3. 인증 확인:
+ * 4단계: 실제 테스트 실행을 위해 다음 파일 로드
+ *    - 02-grade-phase1-tests.js (5개 핵심 테스트)
+ *    - 03-grade-phase3-tests.js (2개 이벤트 테스트)
+ * 
+ * ============================================
+ * 💡 확인 가능한 것
+ * ============================================
+ * 
+ * ✅ 도구 준비 확인:
+ *    console.log(window.gradeTestUtils)
+ * 
+ * ✅ 인증 상태 확인:
  *    gradeTestUtils.checkAuth()
  * 
- *    예상 결과 (로그인 완료):
- *    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." (JWT 토큰)
+ * ✅ 데이터 입력 기능 확인:
+ *    gradeTestUtils.inputTestData()
  * 
- *    예상 결과 (로그인 필요):
- *    ⚠️ 로그인이 필요합니다!
- *    🔧 docs/일반유저 로그인+게시판/test-1-login.js 실행
- *       await login() (교수 계정 사용)
- *    false
- * 
- * 4. 테스트 데이터 확인:
+ * ✅ 현재 데이터 확인:
  *    gradeTestUtils.getTestData()
  * 
- *    예상 결과:
- *    {
- *      lecIdx: 1,
- *      studentIdx: 100,
- *      professorIdx: 22,
- *      enrollmentIdx: 1,
- *      assignmentIdx: 1,
- *      passingThreshold: 60,
- *      attendanceMaxScore: 80,
- *      assignmentTotalMaxScore: 100,
- *      latePenaltyPerSession: 0.5,
- *      gradeDistribution: { "A+": 10, "A": 15, "B+": 20, ... }
- *    }
- * 
- * 5. 테스트 데이터 변경 (선택):
- *    gradeTestUtils.setTestData(1, 100, 22, 1)
- * 
- *    예상 결과:
- *    ✅ 테스트 데이터 업데이트: { lecIdx: 1, studentIdx: 100, ... }
- * 
- * 6. API 호출 예제:
- *    await gradeTestUtils.apiGet('/enrollments/1/100/grade')
- * 
- *    예상 결과 (성공):
- *    ✅ GET /enrollments/1/100/grade 성공 (145.23ms)
- *    { success: true, data: { ... }, duration: "145.23" }
- * 
- *    예상 결과 (실패):
- *    ❌ HTTP 404: Not Found
- *    { success: false, error: "강의를 찾을 수 없습니다", status: 404, duration: "89.45" }
- * 
- * ============================================
- * 다음 단계
- * ============================================
- * 이 유틸리티를 로드한 후:
- * - grade-phase1-tests.js 로드 (Phase 1 테스트)
- * - grade-phase3-tests.js 로드 (Phase 3 이벤트 테스트)
- * - grade-test-runner.js 로드 (통합 실행)
+ * ❌ 실제 API 테스트 실행:
+ *    → 불가능! 02, 03 파일 로드 후 runPhase1Tests() 등 실행
  */
 
 // ============================================
 // 기본 설정
 // ============================================
-const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
+// 브라우저 콘솔 재로드 대응: 전역 변수로 관리
+if (typeof window.GRADE_API_BASE_URL === 'undefined') {
+    window.GRADE_API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
+}
+const API_BASE_URL = window.GRADE_API_BASE_URL;
 
 // 전역 변수 (test-1-login.js에서 설정한 토큰 사용)
 if (typeof window.authToken === 'undefined') window.authToken = null;
@@ -192,41 +174,80 @@ async function apiPut(endpoint, data) {
 // ============================================
 // 테스트 데이터 관리
 // ============================================
-const testData = {
-    lecIdx: 1,
-    studentIdx: 100,
-    professorIdx: 22,
-    enrollmentIdx: 1,
-    assignmentIdx: 1,
-    passingThreshold: 60.0,
-    attendanceMaxScore: 80,
-    assignmentTotalMaxScore: 100,
-    latePenaltyPerSession: 0.5,
-    gradeDistribution: {
-        "A+": 10,
-        "A": 15,
-        "B+": 20,
-        "B": 25,
-        "C": 20,
-        "D": 10
-    }
-};
+// 브라우저 콘솔 재로드 대응: 전역 객체로 관리
+if (typeof window.gradeTestData === 'undefined') {
+    window.gradeTestData = {
+        lecIdx: null,
+        studentIdx: null,
+        professorIdx: null,
+        enrollmentIdx: null,
+        assignmentIdx: null,
+        passingThreshold: 60.0,
+        attendanceMaxScore: 80,
+        assignmentTotalMaxScore: 100,
+        latePenaltyPerSession: 0.5,
+        gradeDistribution: {
+            "A+": 10,
+            "A": 15,
+            "B+": 20,
+            "B": 25,
+            "C": 20,
+            "D": 10
+        }
+    };
+}
+const testData = window.gradeTestData;
 
-function setTestData(lecIdx, studentIdx, professorIdx, enrollmentIdx) {
-    testData.lecIdx = lecIdx;
-    testData.studentIdx = studentIdx;
-    if (professorIdx !== undefined) {
-        testData.professorIdx = professorIdx;
-    }
-    if (enrollmentIdx !== undefined) {
-        testData.enrollmentIdx = enrollmentIdx;
-    }
+// 대화형 데이터 입력
+function inputTestData() {
+    console.log('\n📝 테스트 데이터 입력');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    const lecIdx = prompt('강의 IDX를 입력하세요:', testData.lecIdx || '');
+    const studentIdx = prompt('학생 IDX를 입력하세요:', testData.studentIdx || '');
+    const professorIdx = prompt('교수 IDX를 입력하세요 (선택):', testData.professorIdx || '');
+    const enrollmentIdx = prompt('수강신청 IDX를 입력하세요 (선택):', testData.enrollmentIdx || '');
+    const assignmentIdx = prompt('과제 IDX를 입력하세요 (선택):', testData.assignmentIdx || '');
+    
+    if (lecIdx) testData.lecIdx = parseInt(lecIdx);
+    if (studentIdx) testData.studentIdx = parseInt(studentIdx);
+    if (professorIdx) testData.professorIdx = parseInt(professorIdx);
+    if (enrollmentIdx) testData.enrollmentIdx = parseInt(enrollmentIdx);
+    if (assignmentIdx) testData.assignmentIdx = parseInt(assignmentIdx);
+    
+    console.log('✅ 테스트 데이터 업데이트:', testData);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+    return testData;
+}
+
+// 프로그래밍 방식 데이터 설정
+function setTestData(lecIdx, studentIdx, professorIdx, enrollmentIdx, assignmentIdx) {
+    if (lecIdx !== undefined) testData.lecIdx = lecIdx;
+    if (studentIdx !== undefined) testData.studentIdx = studentIdx;
+    if (professorIdx !== undefined) testData.professorIdx = professorIdx;
+    if (enrollmentIdx !== undefined) testData.enrollmentIdx = enrollmentIdx;
+    if (assignmentIdx !== undefined) testData.assignmentIdx = assignmentIdx;
+    
     console.log('✅ 테스트 데이터 업데이트:', testData);
     return testData;
 }
 
 function getTestData() {
     return testData;
+}
+
+// 데이터 검증
+function validateTestData() {
+    const errors = [];
+    if (!testData.lecIdx) errors.push('lecIdx (강의 IDX)');
+    if (!testData.studentIdx) errors.push('studentIdx (학생 IDX)');
+    
+    if (errors.length > 0) {
+        console.warn('⚠️ 필수 데이터 누락:', errors.join(', '));
+        console.warn('💡 gradeTestUtils.inputTestData() 실행하여 데이터 입력하세요.');
+        return false;
+    }
+    return true;
 }
 
 // ============================================
@@ -241,11 +262,21 @@ window.gradeTestUtils = {
     
     // 데이터 관리
     testData,
-    setTestData,
+    inputTestData,      // 대화형 입력
+    setTestData,        // 프로그래밍 방식
     getTestData,
+    validateTestData,   // 데이터 검증
     
     // 설정
     API_BASE_URL
 };
 
-console.log('✅ 성적 관리 테스트 유틸리티 로드 완료 (grade-test-utils.js)');
+console.log('✅ [1/4] 성적 관리 테스트 유틸리티 로드 완료');
+console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+console.log('📝 다음 단계: 테스트 데이터 입력');
+console.log('');
+console.log('   방법 1: gradeTestUtils.inputTestData()    (대화형 입력)');
+console.log('   방법 2: gradeTestUtils.setData(6, 100)    (직접 입력)');
+console.log('');
+console.log('💡 데이터 입력 후 02-grade-phase1-tests.js 로드하세요');
+console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
