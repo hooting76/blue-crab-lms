@@ -3,7 +3,7 @@ import '../../../css/MyPages/ClassAttending.css';
 import { UseUser } from '../../../hook/UseUser';
 import ApproveAttendanceModal from './ApproveAttendanceModal.jsx';
 import TestModal from './TestModal.jsx';
-import AssignmentModal from './AssignmentModal.jsx';
+import AssignmentCreateModal from './AssignmentCreateModal.jsx';
 import ProfNoticeWritingPage from './ProfNoticeWritingPage.jsx';
 import CourseDetail from './CourseDetail';
 
@@ -40,9 +40,9 @@ const [isTestModalOpen, setIsTestModalOpen] = useState(false);
     const openTestModal = () => setIsTestModalOpen(true);
     const closeTestModal = () => setIsTestModalOpen(false);
 
-const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
-    const openAssignmentModal = () => setIsAssignmentModalOpen(true);
-    const closeAssignmentModal = () => setIsAssignmentModalOpen(false);
+const [isAssignmentCreateModalOpen, setIsAssignmentCreateModalOpen] = useState(false);
+    const openAssignmentCreateModal = () => setIsAssignmentCreateModalOpen(true);
+    const closeAssignmentCreateModal = () => setIsAssignmentCreateModalOpen(false);
 
 const [isClassDetailModalOpen, setIsClassDetailModalOpen] = useState(false);
     const openClassDetailModal = () => setIsClassDetailModalOpen(true);
@@ -204,7 +204,7 @@ const fetchEnrolledList = async (accessToken, user) => {
                         )}
                     </div>
                     {/* 모달 렌더링 */}
-                    {isAttendanceModalOpen && <ApproveAttendanceModal onClose={closeAttendanceModal} />}
+                    {isAttendanceModalOpen && <ApproveAttendanceModal onClose={closeAttendanceModal}/>}
                 </div>
 
                 <div className="testAssignment">
@@ -226,11 +226,11 @@ const fetchEnrolledList = async (accessToken, user) => {
                                 <button className="testModalBtn" onClick={openTestModal}>시험 관리</button>
                             </div>
                             <div className="profAssignment">
-                                <button className="assignmentModalBtn" onClick={openAssignmentModal}>과제 관리</button>
+                                <button className="assignmentCreateModalBtn" onClick={openAssignmentCreateModal}>과제 생성</button>
                             </div>
                             {/* 모달 렌더링 */}
                             {isTestModalOpen && <TestModal onClose={closeTestModal}/>}
-                            {isAssignmentModalOpen && <AssignmentModal onClose={closeAssignmentModal}/>}
+                            {isAssignmentCreateModalOpen && <AssignmentCreateModal onClose={closeAssignmentCreateModal} lecSerial={lecIdx}/>}
                         </>
                     )}
                 </div>

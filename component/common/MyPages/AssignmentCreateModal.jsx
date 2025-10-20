@@ -1,0 +1,82 @@
+import {useState} from "react";
+import "../../../css/MyPages/AssignmentCreateModal.css";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { UseUser } from '../../../hook/UseUser';
+
+const AssignmentCreateModal = ({ onClose, lecSerial }) => {
+    const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
+    const [dueDate, setDueDate] = useState(null);
+    const maxScore = 10;
+    const {user} = UseUser();
+    const accessToken = user.data.accessToken;
+    const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
+
+    const submitAssignmentCreate = async (e) => {
+
+        if (!title || !description || !dueDate) {
+            alert("모든 필드를 입력해주세요");
+            return;
+        }
+
+        try {
+            const assignmentData = {
+                lecSerial,
+                title,
+                body: description,
+                maxScore,
+                dueDate: dueDate.toISOString()
+            }
+
+                const response = await fetch(`${BASE_URL}/assignments`, {
+                method: "POST",
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(assignmentData)
+            });
+            console.log("assignmentData :", assignmentData);
+
+            if (!response.ok) throw new Error('과제 생성에 실패했습니다.');
+            alert('과제가 성공적으로 생성되었습니다!');
+            onClose(); // 모달 닫기
+        } catch (error) {
+            console.error('과제 생성 에러:', error);
+        }
+    };
+    
+    return (
+        <div className="assignment-create-modal-container">
+            <div className="assignment-create-modal-content">
+                <div>과목: {lecSerial}</div>
+                <div>과제 제목:
+                    <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required/>
+                </div>
+                <div>과제 설명:
+                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} required />
+                </div>
+                <div>마감일:
+                    <DatePicker
+                        selected={dueDate}
+                        onChange={(date) => setDueDate(date)}
+                        showTimeSelect
+                        timeFormat="HH:mm"
+                        timeIntervals={60}
+                        dateFormat="yyyy-MM-dd HH:mm"
+                        placeholderText="마감일 선택"
+                        required
+                    />
+                </div>
+                <div>배점: {maxScore}</div>
+
+                <button onClick={submitAssignmentCreate}>과제 생성</button>
+                <br/>
+                <button onClick={onClose}>닫기</button>
+            </div>
+        </div>
+    );
+}
+
+export default AssignmentCreateModal;
