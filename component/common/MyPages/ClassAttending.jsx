@@ -27,7 +27,7 @@ function ClassAttending({ currentPage, setCurrentPage }) {
   // 강의 목록 받아올 때 첫 강의로 기본 선택 설정
   useEffect(() => {
     if (lectureList.length > 0) {
-      setSelectedLecIdx(lectureList[0].lecIdx);
+      setSelectedLecSerial(lectureList[0].lecSerial);
     }
   }, [lectureList]);
 
