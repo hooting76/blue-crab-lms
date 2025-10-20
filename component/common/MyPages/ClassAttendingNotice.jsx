@@ -6,6 +6,7 @@ function ClassAttendingNotice({currentPage, setCurrentPage}) {
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
     const {user} = UseUser();
     const accessToken = user.data.accessToken;
+    const isProf = user.data.user.userStudent === 1;
     const [lectureList, setLectureList] = useState([]);
 
 
@@ -105,7 +106,7 @@ const fetchEnrolledList = async (accessToken, user) => {
                 )}
             </select>
 
-            {user.data.user.userStudent === 1 && // 교수일 경우 공지 작성 버튼 표시
+            {isProf && // 교수일 경우 공지 작성 버튼 표시
                 <>
                     <div className="profNoticeWriteBtnArea">
                         <button className="profNoticeWriteBtn" onClick={profNoticeWrite}>과목별 공지 작성</button>
