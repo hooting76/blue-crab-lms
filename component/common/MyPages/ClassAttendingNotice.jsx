@@ -107,8 +107,10 @@ function ClassAttendingNotice({ rows, currentPage, setCurrentPage }) {
     };
 
     const filteredNotices = useMemo(() => {
-        return noticeList.filter((notice) => notice.lecIdx === Number(selectedLectureId));
-    }, [noticeList, selectedLectureId]);
+    if (!selectedLectureId) return [];
+    return noticeList.filter((notice) => notice.lecIdx === Number(selectedLectureId));
+}, [noticeList, selectedLectureId]);
+
 
     /** ========== Event Handlers ========== */
     const handleLectureChange = (e) => {
