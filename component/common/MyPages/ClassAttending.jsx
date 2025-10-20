@@ -93,8 +93,8 @@ function ClassAttending({ currentPage, setCurrentPage }) {
   };
 
   // 과제 목록 불러오기
-  const getAssignments = async(accessToken, lecSerial) => {
-    const requestBody = {lecSerial: lecSerial, page: 0, size: 20, action: "list"}
+  const getAssignments = async(accessToken, selectedLecSerial) => {
+    const requestBody = {lecSerial: selectedLecSerial, page: 0, size: 20, action: "list"}
     try {
         const response = await fetch(`${BASE_URL}/assignments/list`, {
             method: "POST",
@@ -113,17 +113,18 @@ function ClassAttending({ currentPage, setCurrentPage }) {
         }
     };
 
-
-
-
   useEffect(() => {
-    getAssignments(accessToken, lecSerial);
     if (isProf) {
       fetchLectureList(accessToken, user);
     } else {
       fetchEnrolledList(accessToken, user);
     }
-  }, [accessToken, user, lecSerial]);
+  }, [accessToken, user]);
+
+  useEffect(() => {
+    getAssignments(accessToken, selectedLecSerial);
+  }, [accessToken, selectedLecSerial]);
+
 
   // 출석인정 신청
   const attendanceRequestSubmit = (e) => {
