@@ -5,13 +5,20 @@
  */
 
 // 유틸리티 함수 import (grade-test-utils.js 먼저 로드 필요)
-const { apiPut, testData } = window.gradeTestUtils;
+// 브라우저 콘솔 재로드 대응: window 객체에서 직접 참조
+if (!window.gradeTestUtils) {
+    console.error('❌ gradeTestUtils가 로드되지 않았습니다!');
+    console.error('   먼저 01-grade-test-utils.js를 로드하세요.');
+    throw new Error('gradeTestUtils 로드 필요');
+}
 
 // ============================================
 // 1. 출석 업데이트 테스트 (이벤트 시스템)
 // PUT /api/enrollments/{enrollmentIdx}/attendance
 // ============================================
 async function testAttendanceUpdate() {
+    const { testData, apiPut } = window.gradeTestUtils;
+    
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('📅 출석 업데이트 테스트 (이벤트 발행)');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -51,6 +58,8 @@ async function testAttendanceUpdate() {
 // PUT /api/assignments/{assignmentIdx}/grade
 // ============================================
 async function testAssignmentGrade() {
+    const { testData, apiPut } = window.gradeTestUtils;
+    
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('📝 과제 채점 테스트 (이벤트 발행)');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -152,4 +161,15 @@ window.gradePhase3Tests = {
     runAll: runPhase3Tests
 };
 
-console.log('✅ Phase 3 테스트 로드 완료 (grade-phase3-tests.js)');
+console.log('✅ [3/4] Phase 3 테스트 로드 완료');
+console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+console.log('⚡ Phase 3: 이벤트 시스템 테스트 (2개)');
+console.log('');
+console.log('   6️⃣ gradePhase3Tests.attendance()     - 출석 업데이트 → 이벤트');
+console.log('   7️⃣ gradePhase3Tests.assignment()     - 과제 채점 → 이벤트');
+console.log('');
+console.log('   ⭐ await gradePhase3Tests.runAll()    - 전체 실행 (권장)');
+console.log('');
+console.log('💡 선택: 04-grade-test-runner.js 로드 (통합 기능)');
+console.log('   - 통합 러너 없이도 모든 테스트 완료 가능');
+console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');

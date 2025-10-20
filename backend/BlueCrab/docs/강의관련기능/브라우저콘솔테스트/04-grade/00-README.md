@@ -8,18 +8,18 @@ Task G (성적 관리 시스템) Phase 4 브라우저 콘솔 테스트
 
 ```
 04-grade/
- 01-grade-test-utils.js       #  공통 유틸리티
- 02-grade-phase1-tests.js     #  Phase 1 (5개)
- 03-grade-phase3-tests.js     #  Phase 3 (2개)
- 04-grade-test-runner.js      #  통합 러너
- 00-README.md                 # 이 문서
- 05-QUICK-START.md            # 빠른 시작
- 06-USAGE-GUIDE.md            # 사용법
- 07-TESTING-GUIDE.md          # Phase 4 테스트
- 08-MODULE-REFERENCE.md       # 모듈 참조
- 09-TROUBLESHOOTING.md        # 문제 해결
- 10-LEGACY.md                 # 레거시
- 11-TEST-FLOW.drawio          # 테스트 플로우 다이어그램
+├── 01-grade-test-utils.js       # 🧰 테스트 도구 모음 (실행X, 도구만 제공)
+├── 02-grade-phase1-tests.js     # 🎯 Phase 1 (5개 테스트 실행)
+├── 03-grade-phase3-tests.js     # ⚡ Phase 3 (2개 테스트 실행)
+├── 04-grade-test-runner.js      # 🚀 통합 러너 (선택)
+├── 00-README.md                 # 이 문서
+├── 05-QUICK-START.md            # 빠른 시작
+├── 06-USAGE-GUIDE.md            # 사용법
+├── 07-TESTING-GUIDE.md          # Phase 4 테스트
+├── 08-MODULE-REFERENCE.md       # 모듈 참조
+├── 09-TROUBLESHOOTING.md        # 문제 해결
+├── 10-LEGACY.md                 # 레거시
+└── 11-TEST-FLOW.drawio          # 테스트 플로우 다이어그램
 ```
 
 ---

@@ -4,6 +4,25 @@
  */
 
 // ============================================
+// 사전 체크
+// ============================================
+if (!window.gradeTestUtils) {
+    console.error('❌ gradeTestUtils가 로드되지 않았습니다!');
+    console.error('   먼저 01-grade-test-utils.js를 로드하세요.');
+    throw new Error('gradeTestUtils 로드 필요');
+}
+if (!window.gradePhase1Tests) {
+    console.error('❌ gradePhase1Tests가 로드되지 않았습니다!');
+    console.error('   먼저 02-grade-phase1-tests.js를 로드하세요.');
+    throw new Error('gradePhase1Tests 로드 필요');
+}
+if (!window.gradePhase3Tests) {
+    console.error('❌ gradePhase3Tests가 로드되지 않았습니다!');
+    console.error('   먼저 03-grade-phase3-tests.js를 로드하세요.');
+    throw new Error('gradePhase3Tests 로드 필요');
+}
+
+// ============================================
 // 전체 테스트 실행
 // ============================================
 async function runAllTests() {
@@ -124,10 +143,73 @@ async function runScenarioTest() {
 }
 
 // ============================================
+// 대화형 테스트 시작
+// ============================================
+async function startInteractiveTest() {
+    console.log('🎯 대화형 테스트 모드');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+    
+    // 데이터 입력
+    window.gradeTestUtils.inputTestData();
+    
+    // 데이터 검증
+    if (!window.gradeTestUtils.validateTestData()) {
+        console.error('❌ 필수 데이터가 입력되지 않았습니다.');
+        return;
+    }
+    
+    // 테스트 선택
+    console.log('\n📋 테스트 옵션:');
+    console.log('1. 전체 테스트 실행 (권장)');
+    console.log('2. Phase 1만 실행 (핵심 기능 5개)');
+    console.log('3. Phase 3만 실행 (이벤트 2개)');
+    console.log('4. 시나리오 테스트 (전체 플로우)\n');
+    
+    const choice = prompt('선택하세요 (1-4):', '1');
+    
+    console.log('\n🚀 테스트 시작...\n');
+    
+    switch(choice) {
+        case '1':
+            return await runAllTests();
+        case '2':
+            return await window.gradePhase1Tests.runAll();
+        case '3':
+            return await window.gradePhase3Tests.runAll();
+        case '4':
+            return await runScenarioTest();
+        default:
+            console.log('❌ 잘못된 선택입니다. 전체 테스트를 실행합니다.');
+            return await runAllTests();
+    }
+}
+
+// ============================================
+// 빠른 테스트 (기본값 사용)
+// ============================================
+async function quickTest(lecIdx, studentIdx) {
+    console.log('⚡ 빠른 테스트 모드');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+    
+    if (!lecIdx || !studentIdx) {
+        console.error('❌ 사용법: gradeTests.quick(lecIdx, studentIdx)');
+        console.error('   예: gradeTests.quick(6, 100)');
+        return;
+    }
+    
+    window.gradeTestUtils.setTestData(lecIdx, studentIdx);
+    
+    console.log('📋 테스트 데이터:', window.gradeTestUtils.testData);
+    console.log('\n🚀 학생 성적 조회 테스트 시작...\n');
+    
+    return await window.gradePhase1Tests.studentInfo();
+}
+
+// ============================================
 // 커스텀 테스트
 // ============================================
-async function testWithCustomData(lecIdx, studentIdx, professorIdx, enrollmentIdx) {
-    window.gradeTestUtils.setTestData(lecIdx, studentIdx, professorIdx, enrollmentIdx);
+async function testWithCustomData(lecIdx, studentIdx, professorIdx, enrollmentIdx, assignmentIdx) {
+    window.gradeTestUtils.setTestData(lecIdx, studentIdx, professorIdx, enrollmentIdx, assignmentIdx);
     return await window.gradePhase1Tests.studentInfo();
 }
 
@@ -135,6 +217,10 @@ async function testWithCustomData(lecIdx, studentIdx, professorIdx, enrollmentId
 // 전역 객체 통합
 // ============================================
 window.gradeTests = {
+    // === 🚀 빠른 시작 ===
+    start: startInteractiveTest,      // 대화형 테스트 시작
+    quick: quickTest,                  // 빠른 단일 테스트
+    
     // === 전체 테스트 ===
     runAll: runAllTests,
     scenario: runScenarioTest,
@@ -155,8 +241,10 @@ window.gradeTests = {
     phase3: window.gradePhase3Tests.runAll,
     
     // === 유틸리티 ===
-    setData: window.gradeTestUtils.setTestData,
+    inputData: window.gradeTestUtils.inputTestData,  // 대화형 데이터 입력
+    setData: window.gradeTestUtils.setTestData,       // 프로그래밍 방식
     getData: window.gradeTestUtils.getTestData,
+    validateData: window.gradeTestUtils.validateTestData,
     customTest: testWithCustomData
 };
 
@@ -165,7 +253,7 @@ window.gradeTests = {
 // ============================================
 console.log(`
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🎯 성적 관리 시스템 API 테스트 v3.0 (모듈화) 로드 완료
+🎯 성적 관리 시스템 API 테스트 v3.1 (대화형 모드) 로드 완료
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ⚠️  사전 준비: 먼저 교수 계정으로 로그인하세요!
@@ -173,11 +261,18 @@ console.log(`
 📝 실행: await login() (교수 계정 사용)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 기본 사용법:
+� 빠른 시작 (권장):
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  ⭐ await gradeTests.runAll()      전체 테스트 실행 (7개)
-  🎬 await gradeTests.scenario()    시나리오 테스트 (전체 플로우)
+  ⭐ await gradeTests.start()               대화형 테스트 (데이터 입력 → 테스트 선택)
+  ⚡ await gradeTests.quick(6, 100)         빠른 테스트 (강의IDX, 학생IDX)
+  
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 전체 테스트 실행:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  await gradeTests.runAll()                 전체 테스트 실행 (7개)
+  await gradeTests.scenario()               시나리오 테스트 (전체 플로우)
   
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📝 Phase별 전체 실행:
@@ -202,31 +297,48 @@ console.log(`
   7️⃣ await gradeTests.assignment()     과제 채점 → 이벤트
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🛠️  유틸리티:
+🛠️  데이터 관리:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  gradeTests.getData()                  현재 테스트 데이터 확인
-  gradeTests.setData(1, 100, 22, 1)     테스트 데이터 변경
-  gradeTests.customTest(1, 100)         커스텀 데이터로 조회
+  gradeTests.inputData()                     대화형 데이터 입력
+  gradeTests.setData(6, 100, 14, 1, 1)       직접 데이터 설정
+  gradeTests.getData()                       현재 데이터 확인
+  gradeTests.validateData()                  데이터 검증
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✨ v3.0 모듈화 구조:
+📖 사용 예시:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  ✅ grade-test-utils.js       공통 유틸리티 (API 호출, 데이터 관리)
-  ✅ grade-phase1-tests.js     Phase 1 테스트 (핵심 기능 5개)
-  ✅ grade-phase3-tests.js     Phase 3 테스트 (이벤트 2개)
-  ✅ grade-test-runner.js      통합 테스트 러너 (현재 파일)
+  // 방법 1: 대화형 (가장 쉬움)
+  await gradeTests.start()
+  
+  // 방법 2: 빠른 테스트
+  await gradeTests.quick(6, 100)
+  
+  // 방법 3: 수동 설정
+  gradeTests.setData(6, 100, 14, 1, 1)
+  await gradeTests.runAll()
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🚀 빠른 시작:
+✨ v3.1 새로운 기능:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  1. 로그인 먼저!
-  2. await gradeTests.runAll()         (전체 테스트)
-  3. 또는 await gradeTests.scenario()  (시나리오 테스트)
+  ✅ 대화형 데이터 입력 (프롬프트)
+  ✅ 빠른 테스트 명령어
+  ✅ 데이터 검증 기능
+  ✅ 사용자 친화적 명령어
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `);
 
-console.log('✅ 통합 테스트 러너 로드 완료 (grade-test-runner.js)');
+console.log('✅ [4/4] 통합 테스트 러너 로드 완료 (선택사항)');
+console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+console.log('🎁 추가 편의 기능:');
+console.log('');
+console.log('   🚀 await gradeTests.start()           - 대화형 재실행');
+console.log('   ⚡ await gradeTests.quick(6, 100)     - 빠른 조회');
+console.log('   🎬 await gradeTests.scenario()        - 전체 시나리오');
+console.log('   🔄 await gradeTests.runAll()          - Phase 1+3 통합 실행');
+console.log('');
+console.log('💡 이미 Phase 1, 3을 각각 실행했다면 이 파일은 선택사항입니다');
+console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');

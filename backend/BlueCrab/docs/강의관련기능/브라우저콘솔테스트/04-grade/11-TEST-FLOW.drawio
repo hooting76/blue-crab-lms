@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" version="28.2.7">
   <diagram name="테스트플로우" id="test-flow">
-    <mxGraphModel dx="679" dy="370" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1100" background="light-dark(#FFFFFF,#FFFFFF)" math="0" shadow="0">
+    <mxGraphModel dx="1426" dy="777" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1100" background="light-dark(#FFFFFF,#FFFFFF)" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -13,17 +13,17 @@
         <mxCell id="module-title" value="📦 테스트 모듈 구조 (4개)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;fontColor=light-dark(#000000,#000000);" parent="1" vertex="1">
           <mxGeometry x="40" y="100" width="300" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="module1" value="📦 01-grade-test-utils.js&#xa;&#xa;✨ 공통 유틸리티 (235줄)&#xa;&#xa;▪ apiCall() - API 호출&#xa;▪ apiGet() - GET 전용&#xa;▪ apiPut() - PUT 전용&#xa;▪ 로그 포맷팅&#xa;▪ 에러 처리" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#008a00;strokeColor=#005700;strokeWidth=2;fontSize=11;align=left;verticalAlign=top;fontColor=#ffffff;spacingLeft=8;spacingTop=8;" parent="1" vertex="1">
-          <mxGeometry x="40" y="140" width="200" height="140" as="geometry" />
+        <mxCell id="module1" value="📦 01-grade-test-utils.js&#xa;&#xa;🧰 테스트 도구 모음 (235줄)&#xa;❌ 이 파일 자체로는 테스트 실행 안 함&#xa;&#xa;▪ apiCall() - API 호출&#xa;▪ apiGet() - GET 전용&#xa;▪ apiPut() - PUT 전용&#xa;▪ inputTestData() - 데이터 입력&#xa;▪ validateTestData() - 검증" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#008a00;strokeColor=#005700;strokeWidth=2;fontSize=11;align=left;verticalAlign=top;fontColor=#ffffff;spacingLeft=8;spacingTop=8;" parent="1" vertex="1">
+          <mxGeometry x="40" y="140" width="200" height="160" as="geometry" />
         </mxCell>
-        <mxCell id="module2" value="📦 02-grade-phase1-tests.js&#xa;&#xa;🎯 Phase 1 테스트 (343줄)&#xa;&#xa;▪ testGradeConfig()&#xa;▪ testStudentGradeInfo()&#xa;▪ testProfessorGradeView()&#xa;▪ testGradeList()&#xa;▪ testGradeFinalize()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;strokeWidth=2;fontSize=11;align=left;verticalAlign=top;fontColor=#ffffff;spacingLeft=8;spacingTop=8;" parent="1" vertex="1">
-          <mxGeometry x="320" y="140" width="200" height="140" as="geometry" />
+        <mxCell id="module2" value="📦 02-grade-phase1-tests.js&#xa;&#xa;🎯 Phase 1 테스트 (343줄)&#xa;✅ 5개 핵심 기능 테스트 실행&#xa;&#xa;▪ testGradeConfig()&#xa;▪ testStudentGradeInfo()&#xa;▪ testProfessorGradeView()&#xa;▪ testGradeList()&#xa;▪ testGradeFinalize()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;strokeWidth=2;fontSize=11;align=left;verticalAlign=top;fontColor=#ffffff;spacingLeft=8;spacingTop=8;" parent="1" vertex="1">
+          <mxGeometry x="320" y="140" width="200" height="160" as="geometry" />
         </mxCell>
-        <mxCell id="module3" value="📦 03-grade-phase3-tests.js&#xa;&#xa;⚡ Phase 3 테스트 (149줄)&#xa;&#xa;▪ testAttendanceUpdate()&#xa;▪ testAssignmentGrade()&#xa;▪ 비동기 이벤트 검증&#xa;▪ 서버 로그 확인" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#a20025;strokeColor=#6F0000;strokeWidth=2;fontSize=11;align=left;verticalAlign=top;fontColor=#ffffff;spacingLeft=8;spacingTop=8;" parent="1" vertex="1">
-          <mxGeometry x="610" y="140" width="200" height="140" as="geometry" />
+        <mxCell id="module3" value="📦 03-grade-phase3-tests.js&#xa;&#xa;⚡ Phase 3 테스트 (149줄)&#xa;✅ 2개 이벤트 시스템 테스트 실행&#xa;&#xa;▪ testAttendanceUpdate()&#xa;▪ testAssignmentGrade()&#xa;▪ 비동기 이벤트 검증&#xa;▪ 서버 로그 확인" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#a20025;strokeColor=#6F0000;strokeWidth=2;fontSize=11;align=left;verticalAlign=top;fontColor=#ffffff;spacingLeft=8;spacingTop=8;" parent="1" vertex="1">
+          <mxGeometry x="610" y="140" width="200" height="160" as="geometry" />
         </mxCell>
-        <mxCell id="module4" value="📦 04-grade-test-runner.js&#xa;&#xa;🚀 통합 러너 (212줄)&#xa;&#xa;▪ runAll() - 전체 실행&#xa;▪ scenario() - 시나리오&#xa;▪ 결과 집계&#xa;▪ 성공률 계산" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fa6800;strokeColor=#C73500;strokeWidth=2;fontSize=11;align=left;verticalAlign=top;fontColor=#ffffff;spacingLeft=8;spacingTop=8;" parent="1" vertex="1">
-          <mxGeometry x="890" y="140" width="200" height="140" as="geometry" />
+        <mxCell id="module4" value="📦 04-grade-test-runner.js&#xa;&#xa;🚀 통합 러너 (212줄) - 선택&#xa;✅ 모든 테스트를 편리하게 실행&#xa;&#xa;▪ runAll() - 전체 실행&#xa;▪ scenario() - 시나리오&#xa;▪ 결과 집계&#xa;▪ 성공률 계산" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fa6800;strokeColor=#C73500;strokeWidth=2;fontSize=11;align=left;verticalAlign=top;fontColor=#ffffff;spacingLeft=8;spacingTop=8;" parent="1" vertex="1">
+          <mxGeometry x="890" y="140" width="200" height="160" as="geometry" />
         </mxCell>
         <mxCell id="arrow1" value="의존" style="endArrow=classic;html=1;rounded=0;strokeWidth=3;strokeColor=#9673A6;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=12;fontColor=light-dark(#FFFFFF,#FFFFFF);fontStyle=1;" parent="1" source="module1" target="module2" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
@@ -47,16 +47,16 @@
           <mxGeometry x="40" y="320" width="400" height="30" as="geometry" />
         </mxCell>
         <mxCell id="test1" value="1️⃣ 성적 구성 설정&#xa;&#xa;📡 POST /api/enrollments/grade-config&#xa;&#xa;✓ 출석/과제/시험 배점&#xa;✓ 등급 분포 (A+~D)&#xa;✓ 지각 페널티 설정&#xa;&#xa;▶ gradeTests.config()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#008a00;strokeColor=#005700;strokeWidth=2;fontSize=11;align=left;verticalAlign=top;fontColor=#ffffff;spacingLeft=8;spacingTop=8;" parent="1" vertex="1">
-          <mxGeometry x="40" y="370" width="180" height="150" as="geometry" />
+          <mxGeometry x="40" y="370" width="180" height="160" as="geometry" />
         </mxCell>
         <mxCell id="test2" value="2️⃣ 학생 성적 조회&#xa;&#xa;📡 GET /enrollments/{lec}/{stu}/grade&#xa;&#xa;✓ 출석 점수 (출석율, 지각)&#xa;✓ 과제 점수 (개별, 총점)&#xa;✓ 총점, 백분율&#xa;&#xa;▶ gradeTests.studentInfo()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;strokeWidth=2;fontSize=11;align=left;verticalAlign=top;fontColor=#ffffff;spacingLeft=8;spacingTop=8;" parent="1" vertex="1">
           <mxGeometry x="250" y="370" width="180" height="160" as="geometry" />
         </mxCell>
         <mxCell id="test3" value="3️⃣ 교수용 성적 조회&#xa;&#xa;📡 GET /enrollments/professor/grade&#xa;&#xa;✓ 학생 정보 + 통계&#xa;✓ 반 평균, 최고점&#xa;✓ 순위 정보&#xa;&#xa;▶ gradeTests.professorView()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#a20025;strokeColor=#6F0000;strokeWidth=2;fontSize=11;align=left;verticalAlign=top;fontColor=#ffffff;spacingLeft=8;spacingTop=8;" parent="1" vertex="1">
-          <mxGeometry x="460" y="370" width="180" height="150" as="geometry" />
+          <mxGeometry x="460" y="370" width="180" height="160" as="geometry" />
         </mxCell>
         <mxCell id="test4" value="4️⃣ 성적 목록 조회&#xa;&#xa;📡 GET /enrollments/grade-list&#xa;&#xa;✓ 전체 수강생 목록&#xa;✓ 정렬 (점수, 이름)&#xa;✓ 페이징 처리&#xa;&#xa;▶ gradeTests.gradeList()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fa6800;strokeColor=#C73500;strokeWidth=2;fontSize=11;align=left;verticalAlign=top;fontColor=#ffffff;spacingLeft=8;spacingTop=8;" parent="1" vertex="1">
-          <mxGeometry x="670" y="370" width="180" height="150" as="geometry" />
+          <mxGeometry x="670" y="370" width="180" height="160" as="geometry" />
         </mxCell>
         <mxCell id="test5" value="5️⃣ 최종 등급 배정&#xa;&#xa;📡 POST /enrollments/finalize-grades&#xa;&#xa;✓ 60% 기준 F등급 분류&#xa;✓ 상대평가 (A+~D)&#xa;✓ 하위 침범 알고리즘&#xa;✓ 동점자 상위등급 배정&#xa;&#xa;▶ gradeTests.finalize()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#a20025;strokeColor=#6F0000;strokeWidth=2;fontSize=11;align=left;verticalAlign=top;fontColor=#ffffff;spacingLeft=8;spacingTop=8;" parent="1" vertex="1">
           <mxGeometry x="880" y="370" width="180" height="170" as="geometry" />
@@ -106,10 +106,13 @@
             <mxPoint x="670" y="440" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="flow-arrow4" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#D79B00;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;fontColor=#000000;" parent="1" source="test4" target="test5" edge="1">
+        <mxCell id="flow-arrow4" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#D79B00;edgeStyle=orthogonalEdgeStyle;fontColor=#000000;exitX=0.997;exitY=0.462;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="test4" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="850" y="440" as="sourcePoint" />
-            <mxPoint x="880" y="440" as="targetPoint" />
+            <mxPoint x="880" y="445" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="850" y="445" />
+            </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="event-arrow1" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#6C8EBF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;fontColor=#000000;" parent="1" source="test6" target="test7" edge="1">
