@@ -345,7 +345,7 @@ mvn test -Dtest=FirebasePushServiceIntegrationTest
 ## 📋 추가 문서
 
 프로젝트 루트 디렉토리에서 다음 문서들을 확인할 수 있습니다:
-
+- `agent-readme.md` - 백엔드 작업을 맡은 에이전트용 온보딩 가이드
 - `README_AUTH.md` - 인증 시스템 상세 가이드
 - `README_ENTITY_UNIFICATION.md` - 엔티티 통합 가이드  
 - `README_REFACTORING.md` - 리팩토링 가이드
