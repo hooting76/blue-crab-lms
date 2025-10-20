@@ -345,7 +345,7 @@ useEffect(() => {
           previewStyle="vertical"
           height="300px"
           initialEditType="wysiwyg"
-          initialValue={notice?.boardContent ? decodeBase64(notice.boardContent) : ''}
+          // initialValue={notice?.boardContent ? decodeBase64(notice.boardContent) : ''}
           useCommandShortcut={true}
           language="ko-KR"
         />
