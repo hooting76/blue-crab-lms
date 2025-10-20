@@ -206,7 +206,12 @@ useEffect(() => {
         if (!uploadResponse.ok) throw new Error('파일 업로드 중 에러가 발생했습니다.');
 
         const uploadResult = await uploadResponse.json();
-        const attachmentIdxs = uploadResult.attachments.map(att => att.attachmentIdx);
+        const attachmentIdxs = Array.isArray(uploadResult.attachments)
+          ? uploadResult.attachments.map(att => att.attachmentIdx)
+          : [];
+          console.log("📂 uploadResult:", uploadResult);
+
+
 
         await fetch(`https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/boards/link-attachments/${createdIdx}`, {
           method: 'POST',
@@ -280,7 +285,11 @@ useEffect(() => {
         if (!uploadResponse.ok) throw new Error('파일 업로드 중 에러가 발생했습니다.');
 
         const uploadResult = await uploadResponse.json();
-        const attachmentIdxs = uploadResult.attachments.map(att => att.attachmentIdx);
+        const attachmentIdxs = Array.isArray(uploadResult.attachments)
+          ? uploadResult.attachments.map(att => att.attachmentIdx)
+          : [];
+          console.log("📂 uploadResult:", uploadResult);
+
 
         await fetch(`https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/boards/link-attachments/${boardIdx}`, {
           method: 'POST',
