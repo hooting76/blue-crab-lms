@@ -15,7 +15,7 @@ function ClassAttending({ currentPage, setCurrentPage }) {
   const [lectureList, setLectureList] = useState([]);
 
   // 1. 선택한 강의 ID 상태 추가
-  const [selectedLecIdx, setSelectedLecIdx] = useState("");
+  const [selectedLecIdx, setSelectedLecIdx] = useState();
 
   // 모달 상태들
   const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
@@ -123,6 +123,10 @@ function ClassAttending({ currentPage, setCurrentPage }) {
   if (currentPage === '과목별 공지 작성') {
     return <ProfNoticeWritingPage currentPage={currentPage} setCurrentPage={setCurrentPage} />;
   }
+
+  console.log("lectureList : ", lectureList);
+
+  
 
   return (
     <div className="classAttending_list_container">
@@ -242,7 +246,7 @@ function ClassAttending({ currentPage, setCurrentPage }) {
                 <AssignmentCreateModal
                 onClose={closeAssignmentCreateModal}
                 lecSerial={selectedLecIdx}
-                lecTitle={lectureList.find(lec => lec.lecIdx === Number(selectedLecIdx))?.lecTit || ''}/>
+                lecTitle={lectureList.find(lec => lec.lecIdx === selectedLecIdx)?.lecTit || ''}/>
               )}
             </>
           )}
