@@ -60,7 +60,7 @@ function ClassAttendingNotice({ rows, currentPage, setCurrentPage }) {
             if (!response.ok) throw new Error('공지사항 조회 실패');
             const data = await response.json();
             console.log("📦 notices response:", data);
-            setNoticeList(data.Array);
+            setNoticeList(data.content);
         } catch (error) {
             console.error('공지사항 에러:', error);
             setNoticeList([]);
