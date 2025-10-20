@@ -94,6 +94,7 @@ function ClassAttending({ currentPage, setCurrentPage }) {
 
   // 과제 목록 불러오기
   const getAssignments = async(accessToken) => {
+    const requestBody = {lecSerial: lecSerial, page: 0, size: 20, action: "list"}
     try {
         const response = await fetch(`${BASE_URL}/assignments/list`, {
             method: "POST",
