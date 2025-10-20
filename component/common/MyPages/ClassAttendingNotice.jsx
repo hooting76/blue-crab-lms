@@ -2,12 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { UseUser } from '../../../hook/UseUser';
 import ProfNoticeWritingPage from './ProfNoticeWritingPage.jsx';
 
-function ClassAttendingNotice({currentPage, setCurrentPage}) {
+function ClassAttendingNotice({rows, currentPage, setCurrentPage}) {
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
     const {user} = UseUser();
     const accessToken = user.data.accessToken;
     const isProf = user.data.user.userStudent === 1;
-    const [lectureList, setLectureList] = useState([]);
+    const [selectedIdx, setSelectedIdx] = useState(null);
+    const [selectedNotice, setSelectedNotice] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [lectureList, setLectureList] = useState(rows);
+    const [noticeList, setNoticeList] = useState(null);
+    const [fetchedNotice, setFetchedNotice] = useState(null); // fetch된 진짜 notice
 
 
 const fetchLectureList = async (accessToken, user) => {
@@ -79,6 +84,41 @@ const fetchEnrolledList = async (accessToken, user) => {
         console.log("lectureList : ", lectureList);
 
 
+const fetchAllNotices = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/boards/list`, {
+      method: "POST",
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        page: 0,
+        size: 1000, // 충분히 크게 설정
+        boardCode: 3 // 공지사항 코드
+      })
+    });
+
+    if (!response.ok) throw new Error("공지사항 목록 조회 실패");
+
+    const data = await response.json();
+    setNoticeList(data); // 모든 공지사항 저장
+  } catch (error) {
+    console.error("공지사항 조회 에러:", error);
+    setNoticeList([]); // 실패 시 비움
+  }
+};
+
+useEffect(() => {
+  fetchAllNotices();
+}, []);
+
+const filteredNotices = noticeList?.filter(
+  (notice) => notice.lecIdx === Number(selectedLecIdx)
+);
+
+
+
 
     const profNoticeWrite = () => {
     setCurrentPage("과목별 공지 작성");
@@ -128,6 +168,18 @@ const formattedTime = (boardReg) => {
     }
     };
 
+     const openModal = (boardIdx) => {
+    setSelectedIdx(boardIdx);
+    setIsModalOpen(true);
+    };
+
+
+    const closeModal = () => {
+        setSelectedIdx(null);
+        setIsModalOpen(false);
+        setFetchedNotice(null); // ✅ 초기화
+    };
+
     return(
         <>
             <select className="lectureName">
@@ -159,27 +211,34 @@ const formattedTime = (boardReg) => {
                     <th style={{width: "20%"}}>작성일</th>
                 </tr>
             </thead>
-            <tbody> 
-                {lectureList.map(r => {
+            <tbody>
+                {filteredNotices?.length > 0 ? (
+                    filteredNotices.map((r) => {
                     const isSelected = r.boardIdx === selectedIdx;
                     const boardView = isSelected && fetchedNotice
-                    ? fetchedNotice.boardView
-                    : r.boardView;
+                        ? fetchedNotice.boardView
+                        : r.boardView;
 
                     return (
-                    <tr
+                        <tr
                         key={r.boardIdx}
                         onClick={() => openModal(r.boardIdx)}
                         style={{ cursor: "pointer" }}
-                    >
+                        >
                         <td>{r.boardIdx}</td>
-                        <td>{decodeBase64(r.boardTitle)}</td> 
+                        <td>{decodeBase64(r.boardTitle)}</td>
                         <td>{boardView}</td>
                         <td>{formattedTime(r.boardReg)}</td>
-                    </tr>
+                        </tr>
                     );
-                })}
+                    })
+                ) : (
+                    <tr>
+                    <td colSpan="4">공지사항이 없습니다.</td>
+                    </tr>
+                )}
             </tbody>
+
         </table>
 
         {isModalOpen && (
