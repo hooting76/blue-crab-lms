@@ -19,7 +19,8 @@ function ProfNoticeWritingPage({ notice, accessToken: propToken, currentPage, se
 
   const editorRef = useRef();
   const [boardTitle, setBoardTitle] = useState('');
-  const [boardCode, setBoardCode] = useState(null);
+  const [boardCode, setBoardCode] = useState(3);
+  const [selectedLectureId, setSelectedLectureId] = useState('');
   const [existingAttachments, setExistingAttachments] = useState([]);
   const [deletedAttachments, setDeletedAttachments] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -324,7 +325,7 @@ useEffect(() => {
 
       <div>
         <label>과목</label><br />
-        <select>
+        <select value={selectedLectureId} onChange={(e) => setSelectedLectureId(e.target.value)}>
             {lectureList.length > 0 ? (
                 lectureList.map((cls) => (
                     <option key={cls.lecIdx} value={cls.lecIdx}>
