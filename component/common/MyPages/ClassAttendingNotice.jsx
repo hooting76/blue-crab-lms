@@ -6,7 +6,7 @@ import ProfNoticeDetail from './ProfNoticeDetail.jsx'; // 누락된 import 추�
 const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 const NOTICE_BOARD_CODE = 3;
 
-function ClassAttendingNotice({ rows, currentPage, setCurrentPage }) {
+function ClassAttendingNotice({ currentPage, setCurrentPage }) {
     const { user } = UseUser();
     const accessToken = user?.data?.accessToken;
     const userId = user?.data?.user?.id;
