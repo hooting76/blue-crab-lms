@@ -111,6 +111,8 @@ function ClassAttendingNotice({ rows, currentPage, setCurrentPage }) {
     return noticeList.filter((notice) => notice.lecIdx === Number(selectedLectureId));
 }, [noticeList, selectedLectureId]);
 
+console.log("📦 notices response:", data);
+
 
     /** ========== Event Handlers ========== */
     const handleLectureChange = (e) => {
