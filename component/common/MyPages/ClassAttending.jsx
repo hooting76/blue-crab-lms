@@ -73,11 +73,7 @@ const fetchLectureList = async (accessToken, selectedSemester, selectedYear, ifM
         const requestBody = {
             page: 0,
             size: 20,
-            semester: parseInt(selectedSemester),
-            professor: user.data.user.id,
-            year: parseInt(selectedYear),
-            open: 1,
-            major: ifMajor
+            professor: user.data.user.id
         };
 
         const response = await fetch(`${BASE_URL}/lectures`, {
