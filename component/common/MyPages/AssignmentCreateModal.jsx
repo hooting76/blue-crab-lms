@@ -64,8 +64,8 @@ const AssignmentCreateModal = ({ onClose, lecSerial, lecTitle }) => {
                         onChange={(date) => setDueDate(date)}
                         showTimeSelect
                         timeFormat="HH:mm"
-                        timeIntervals={60}
-                        dateFormat="yyyy-MM-dd HH:mm"
+                        timeIntervals={1440}
+                        dateFormat="yyyyMMdd"
                         placeholderText="마감일 선택"
                         minDate={now} // 오늘 이후 날짜만 선택 가능
                         minTime={dueDate && dueDate.toDateString() === now.toDateString() ? now : new Date().setHours(0, 0, 0, 0)} 
