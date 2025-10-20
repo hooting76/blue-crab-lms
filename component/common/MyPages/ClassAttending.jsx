@@ -102,7 +102,7 @@ const fetchEnrolledList = async (accessToken) => {
             enrolled: true
         };
 
-        const response = await fetch(`${BASE_URL}/lectures`, {
+        const response = await fetch(`${BASE_URL}/enrollments/list`, {
             method: "POST",
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
