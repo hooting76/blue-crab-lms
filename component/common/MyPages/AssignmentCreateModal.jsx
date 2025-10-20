@@ -14,6 +14,13 @@ const AssignmentCreateModal = ({ onClose, lecSerial, lecTitle }) => {
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
     const now = new Date();
 
+    const formatDateToYYYYMMDD = (date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    return `${year}${month}${day}`;
+};
+
     const submitAssignmentCreate = async (e) => {
 
         if (!title || !description || !dueDate) {
@@ -27,7 +34,7 @@ const AssignmentCreateModal = ({ onClose, lecSerial, lecTitle }) => {
                 title,
                 body: description,
                 maxScore,
-                dueDate: String(dueDate)
+                dueDate: formatDateToYYYYMMDD(dueDate)
             }
 
                 const response = await fetch(`${BASE_URL}/assignments`, {
@@ -62,14 +69,9 @@ const AssignmentCreateModal = ({ onClose, lecSerial, lecTitle }) => {
                     <DatePicker
                         selected={dueDate}
                         onChange={(date) => setDueDate(date)}
-                        showTimeSelect
-                        timeFormat="HH:mm"
-                        timeIntervals={1440}
                         dateFormat="yyyyMMdd"
                         placeholderText="마감일 선택"
                         minDate={now} // 오늘 이후 날짜만 선택 가능
-                        minTime={dueDate && dueDate.toDateString() === now.toDateString() ? now : new Date().setHours(0, 0, 0, 0)} 
-                        maxTime={new Date().setHours(23, 59, 59, 999)}
                         required
                     />
                 </div>
