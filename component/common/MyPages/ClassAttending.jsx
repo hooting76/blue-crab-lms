@@ -15,7 +15,7 @@ function ClassAttending({ currentPage, setCurrentPage }) {
   const [lectureList, setLectureList] = useState([]);
 
   // 1. 선택한 강의 ID 상태 추가
-  const [selectedLecIdx, setSelectedLecIdx] = useState();
+  const [selectedLecSerial, setSelectedLecSerial] = useState("");
 
   // 모달 상태들
   const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
@@ -33,8 +33,9 @@ function ClassAttending({ currentPage, setCurrentPage }) {
 
   // 강의 선택 변경 핸들러
   const handleLectureChange = (e) => {
-    setSelectedLecIdx(e.target.value);
-  };
+  setSelectedLecSerial(e.target.value); // e.target.value = lecSerial
+};
+
 
   // 강의 목록 가져오기 (교수/학생 구분)
   const fetchLectureList = async (accessToken, user) => {
@@ -126,22 +127,23 @@ function ClassAttending({ currentPage, setCurrentPage }) {
 
   console.log("lectureList : ", lectureList);
 
-  
+
 
   return (
     <div className="classAttending_list_container">
       {/* 강의 선택 박스 */}
-      <select className="lectureName" value={selectedLecIdx || ''} onChange={handleLectureChange}>
+      <select className="lectureName" value={selectedLecSerial || ''} onChange={handleLectureChange}>
         {lectureList.length > 0 ? (
-          lectureList.map((cls) => (
-            <option key={cls.lecIdx} value={cls.lecIdx}>
-              {cls.lecTit}
+            lectureList.map((lec) => (
+            <option key={lec.lecSerial} value={lec.lecSerial}>
+                {lec.lecTit}
             </option>
-          ))
+            ))
         ) : (
-          <option disabled>강의 목록 없음</option>
+            <option disabled>강의 목록 없음</option>
         )}
       </select>
+
 
       <div className="classAttendingContent">
         <div className="noticeAndChat">
@@ -244,10 +246,11 @@ function ClassAttending({ currentPage, setCurrentPage }) {
               {isTestModalOpen && <TestModal onClose={closeTestModal} />}
               {isAssignmentCreateModalOpen && (
                 <AssignmentCreateModal
-                onClose={closeAssignmentCreateModal}
-                lecSerial={selectedLecIdx}
-                lecTitle={lectureList.find(lec => lec.lecIdx === selectedLecIdx)?.lecTit || ''}/>
-              )}
+                    onClose={closeAssignmentCreateModal}
+                    lecSerial={selectedLecSerial}
+                    lecTitle={lectureList.find(lec => lec.lecSerial === selectedLecSerial)?.lecTit || ''}
+                />
+                )}
             </>
           )}
         </div>
