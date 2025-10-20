@@ -1,12 +1,12 @@
 // src/api/facility.js
-// BlueCrab LMS - 시설 API (실서버 연동, POST-only, 401 자동 갱신 후 1회 재시도)
+// BlueCrab LMS - 시설 API (실서버 연동, POST-only, 401 자동 갱신 1회 재시도)
+// *타임아웃 제거* 버전
 
 import { ensureAccessTokenOrRedirect } from '../utils/authFlow';
 import { readAccessToken } from '../utils/readAccessToken';
 
 /* 절대 베이스 URL */
 const BASE_API_ROOT = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
-const REQ_TIMEOUT_MS = 10000;
 
 // 공통 헤더
 const getHeaders = (accessToken) => ({
@@ -18,7 +18,6 @@ const getHeaders = (accessToken) => ({
 const parseJsonSafe = async (res) => {
   const ct = res.headers.get('content-type') || '';
   if (ct.includes('application/json')) return res.json();
-  if (res.status === 204) return {}; // no-content 방어
   const body = await res.text();
   const err = new Error('API가 JSON이 아닌 응답을 반환했습니다.');
   err.nonJsonBody = body;
@@ -27,17 +26,11 @@ const parseJsonSafe = async (res) => {
   throw err;
 };
 
-// 타임아웃 포함 fetch
-const fetchWithTimeout = (url, opts = {}, ms = REQ_TIMEOUT_MS) =>
-  Promise.race([
-    fetch(url, opts),
-    new Promise((_, rej) => setTimeout(() => rej(new Error('요청 시간 초과')), ms)),
-  ]);
-
 // 401 → 토큰 갱신 후 1회 재시도 (POST 기본)
+// (타임아웃/Promise.race 제거)
 async function postRetry401(url, bodyObj) {
   let token = readAccessToken();
-  let res = await fetchWithTimeout(url, {
+  let res = await fetch(url, {
     method: 'POST',
     headers: getHeaders(token),
     body: JSON.stringify(bodyObj ?? {}),
@@ -45,7 +38,7 @@ async function postRetry401(url, bodyObj) {
 
   if (res.status === 401) {
     token = await ensureAccessTokenOrRedirect();
-    res = await fetchWithTimeout(url, {
+    res = await fetch(url, {
       method: 'POST',
       headers: getHeaders(token),
       body: JSON.stringify(bodyObj ?? {}),
@@ -72,36 +65,6 @@ async function handleResponse(res, defaultErrMsg = '요청 처리 실패') {
   }
   return payload; // ApiResponse<T>
 }
-
-/* 상태 표준화 & 매핑 유틸(추가) 
-/** 서버 status 문자열을 화면 공통 표준으로 통일 */
-export const normalizeReservationStatus = (v) => {
-  const s = String(v || '').toUpperCase().trim();
-  if (['PENDING', 'WAITING', 'REQUESTED', 'UNDER_REVIEW', 'PENDING_APPROVAL', 'APPROVAL_PENDING'].includes(s))
-    return 'PENDING';
-  if (['APPROVED', 'CONFIRMED', 'BOOKED', 'RESERVED'].includes(s))
-    return 'APPROVED';
-  if (['REJECTED', 'DECLINED', 'DENIED'].includes(s))
-    return 'REJECTED';
-  if (['CANCELLED', 'CANCELED'].includes(s))
-    return 'CANCELLED';
-  if (['COMPLETED', 'DONE', 'FINISHED'].includes(s))
-    return 'COMPLETED';
-  return s || undefined;
-};
-
-/** /daily-schedule 응답(timeSlots)을 표준 슬롯 배열로 변환 */
-export const mapDailySlotsFromApi = (timeSlots = []) => {
-  // 서버는 hour:"09:00" 형태일 수 있으니 숫자 시(hour) 뽑아서 매핑
-  return (Array.isArray(timeSlots) ? timeSlots : []).map((t) => {
-    const hh = Number(String(t.hour || '0').split(':')[0]);
-    return {
-      hour: hh,
-      isAvailable: t.isAvailable !== false,
-      status: normalizeReservationStatus(t?.status),
-    };
-  });
-};
 
 /*시설 조회 & 가용성 / 일정 */
 // 활성 시설 목록
@@ -210,8 +173,4 @@ export default {
   postReservationDetail,
   cancelReservation,
   RESERVATION_STATUS,
-
-  // 유틸도 디폴트 export에 포함해두면 다른 곳에서 쉽게 import 가능
-  normalizeReservationStatus,
-  mapDailySlotsFromApi,
 };
