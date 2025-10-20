@@ -275,9 +275,8 @@ function ClassAttending({ currentPage, setCurrentPage }) {
                 <thead>
                     <tr>
                         <th style={{ width: "10%" }}>번호</th>
-                        <th style={{ width: "50%" }}>제목</th>
-                        <th style={{ width: "20%" }}>작성일</th>
-                        <th style={{ width: "20%" }}>마감일</th>
+                        <th style={{ width: "60%" }}>제목</th>
+                        <th style={{ width: "30%" }}>마감일</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -299,16 +298,13 @@ function ClassAttending({ currentPage, setCurrentPage }) {
                             <tr key={assignment.assignmentIdx}>
                             <td>{index + 1}</td>
                             <td>{title}</td>
-                            <td>
-                                -
-                            </td>
                             <td>{formatDate(dueDate)}</td>
                             </tr>
                         );
                         })
                     ) : (
                         <tr>
-                        <td colSpan="4" style={{ textAlign: 'center' }}>과제가 없습니다.</td>
+                        <td colSpan="3" style={{ textAlign: 'center' }}>과제가 없습니다.</td>
                         </tr>
                     )}
                 </tbody>
