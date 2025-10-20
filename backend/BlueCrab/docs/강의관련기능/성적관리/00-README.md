@@ -15,9 +15,7 @@ Task G (성적 관리 시스템) 구현 문서 허브
 ├── 04-TEST-REPORT.md               # 테스트 완료보고
 ├── 05-LATE-PENALTY.md              # 지각 처리
 ├── 06-SYSTEM-DESIGN.drawio         # 시스템 설계도
-├── 06-SYSTEM-DESIGN.drawio.png     # 설계도 이미지
-├── 07-TEST-FLOW.drawio             # 테스트 플로우
-└── 07-TEST-FLOW.drawio.png         # 플로우 이미지
+└── 06-SYSTEM-DESIGN.drawio.png     # 설계도 이미지
 ```
 
 ---
