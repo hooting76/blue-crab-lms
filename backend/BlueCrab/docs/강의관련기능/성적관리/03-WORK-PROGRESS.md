@@ -30,11 +30,13 @@ Phase 1~4 구현 진행 상황 (17/20 완료, 85%)
 - [x] 등급 분포 기준 설정 (A, B, C, D 비율)
 - [x] ENROLLMENT_DATA의 gradeConfig 영역에 저장
 - [x] JSON 구조 생성 및 업데이트
+- [x] **lecSerial → lecIdx 자동 변환 기능 추가** ✨
 
 **예상 구현 사항**:
 ```java
 public Map<String, Object> configureGrade(Map<String, Object> request) {
-    Integer lecIdx = (Integer) request.get("lecIdx");
+    // lecSerial 또는 lecIdx 중 하나로 강의 식별
+    Integer lecIdx = getLecIdxFromRequest(request);  // 자동 변환 처리
     Integer attendanceMaxScore = (Integer) request.get("attendanceMaxScore");
     Integer assignmentTotalScore = (Integer) request.get("assignmentTotalScore");
     Integer examTotalScore = (Integer) request.get("examTotalScore");

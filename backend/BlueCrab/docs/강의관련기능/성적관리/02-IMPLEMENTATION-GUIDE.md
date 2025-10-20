@@ -73,8 +73,11 @@ Blue Crab LMS의 성적 관리 시스템은 **ENROLLMENT_EXTENDED_TBL의 ENROLLM
 
 **엔드포인트**: `POST /api/enrollments/grade-config`
 
+**강의 식별**: `lecIdx` (정수) 또는 `lecSerial` (문자열) 중 하나 사용  
+→ lecSerial 사용 시 백엔드가 자동으로 lecIdx로 변환
+
 ```javascript
-// 요청 예시
+// 요청 예시 1 (lecIdx 사용)
 {
   "lecIdx": 1,
   "attendanceMaxScore": 20,
@@ -85,6 +88,21 @@ Blue Crab LMS의 성적 관리 시스템은 **ENROLLMENT_EXTENDED_TBL의 ENROLLM
     "B": 40,  // 30~70%
     "C": 20,  // 70~90%
     "D": 10   // 나머지
+  },
+  "action": "set-config"
+}
+
+// 요청 예시 2 (lecSerial 사용 - 권장)
+{
+  "lecSerial": "ETH201",  // 강의 코드로 식별
+  "attendanceMaxScore": 20,
+  "assignmentTotalScore": 50,
+  "examTotalScore": 30,
+  "gradeDistribution": {
+    "A": 30,
+    "B": 40,
+    "C": 20,
+    "D": 10
   },
   "action": "set-config"
 }
@@ -104,19 +122,21 @@ Blue Crab LMS의 성적 관리 시스템은 **ENROLLMENT_EXTENDED_TBL의 ENROLLM
 
 **엔드포인트**: `POST /api/enrollments/grade-info`
 
+**강의 식별**: `lecIdx` (정수) 또는 `lecSerial` (문자열) 중 하나 사용
+
 ```javascript
-// 요청 예시 (학생 본인 조회)
+// 요청 예시 (학생 본인 조회 - lecSerial 사용)
 {
-  "lecIdx": 1,
+  "lecSerial": "ETH201",
   "studentIdx": 100,
   "action": "get-grade"
 }
 
-// 요청 예시 (교수용 조회)
+// 요청 예시 (교수용 조회 - lecIdx 사용)
 {
   "lecIdx": 1,
   "studentIdx": 100,
-  "professorIdx": 22,
+  "professorIdx": 50,
   "action": "professor-view"
 }
 

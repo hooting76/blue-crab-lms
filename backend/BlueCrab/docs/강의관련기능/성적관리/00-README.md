@@ -66,10 +66,13 @@ v3.0 테스트 코드 업데이트 내역
 
 ### Phase 1: 핵심 메서드 (5개)
 1. 성적 구성 설정 - `POST /api/enrollments/grade-config`
-2. 학생 성적 조회 - `GET /api/enrollments/{lecIdx}/{studentIdx}/grade`
-3. 교수용 성적 조회 - `GET /api/enrollments/professor/grade`
-4. 성적 목록 조회 - `GET /api/enrollments/grade-list`
-5. 최종 등급 배정 - `POST /api/enrollments/finalize-grades`
+2. 학생 성적 조회 - `POST /api/enrollments/grade-info` (action: get-grade)
+3. 교수용 성적 조회 - `POST /api/enrollments/grade-info` (action: professor-view)
+4. 성적 목록 조회 - `POST /api/enrollments/grade-list` (action: list-all)
+5. 최종 등급 배정 - `POST /api/enrollments/grade-finalize` (action: finalize)
+
+**강의 식별**: 모든 API에서 `lecIdx` (정수) 또는 `lecSerial` (문자열) 사용 가능  
+→ lecSerial 사용 시 백엔드가 LEC_TBL 조회하여 자동 변환
 
 ### Phase 3: 이벤트 시스템 (2개)
 6. 출석 업데이트 - `PUT /api/enrollments/{enrollmentIdx}/attendance`

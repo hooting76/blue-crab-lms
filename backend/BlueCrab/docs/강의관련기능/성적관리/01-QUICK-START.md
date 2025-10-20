@@ -168,13 +168,14 @@ gradeTests.testAssignmentEvent();
 
 ```javascript
 // 콘솔에서 수동 확인
-gradeTests.professorGradeView().then(data => {
-  console.log('출석 점수:', data.attendanceScore);
-  console.log('출석 백분율:', data.attendancePercentage);
-  console.log('과제 점수:', data.assignmentScores);
-  console.log('총점:', data.totalScore);
-  console.log('최종 백분율:', data.percentage);
-});
+// lecSerial 사용 예시
+gradePhase1.setLecture('ETH201', 100)  // lecSerial, studentIdx
+await gradePhase1.professorView()
+
+// 또는 lecIdx 사용
+gradePhase1.config.lecIdx = 1
+gradePhase1.config.studentIdx = 100
+await gradePhase1.professorView()
 ```
 
 **예상 결과**:
