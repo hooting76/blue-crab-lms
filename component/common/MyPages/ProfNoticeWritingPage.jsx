@@ -24,6 +24,7 @@ function ProfNoticeWritingPage({ notice, accessToken: propToken, currentPage, se
   const [deletedAttachments, setDeletedAttachments] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [boardIdx, setBoardIdx] = useState(notice?.boardIdx || null); // 🔧 boardIdx 상태 추가
+  const [lectureList, setLectureList] = useState([]);
 
   const { isAuthenticated, user, isUserAuth } = UseUser();
 
@@ -35,6 +36,40 @@ function ProfNoticeWritingPage({ notice, accessToken: propToken, currentPage, se
   };
 
   const accessToken = propToken || getAccessToken();
+
+
+  const fetchLectureList = async (accessToken, user) => {
+    try {
+
+        const requestBody = {
+            page: 0,
+            size: 20,
+            professor: String(user.data.user.id)
+        };
+
+        const response = await fetch(`${BASE_URL}/lectures`, {
+            method: "POST",
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+        console.log("Request body:", requestBody);
+
+        if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
+
+        const data = await response.json();
+        setLectureList(data); // ✅ 받아온 데이터 저장
+    } catch (error) {
+        console.error('강의 목록 조회 에러:', error);
+    }
+};
+
+useEffect(() => {
+  fetchLectureList(accessToken, user);
+}, [accessToken, user]); // ✅ accessToken이 생겼을 때 호출
+
 
   // 🔧 boardIdx가 바뀔 때 첨부파일 불러오기
 useEffect(() => {
@@ -131,11 +166,11 @@ useEffect(() => {
     });
     const boardReg = date.replace(" ", "T");
 
-    const NoticeByAdmin = {
+    const NoticeByProf = {
       boardTitle,
-      boardCode: Number(boardCode),
+      boardCode: 3,
       boardContent,
-      boardWriterIdx: admin?.data?.adminIdx,
+      boardWriterIdx: String(user.data.user.id),
       boardReg,
       boardOn: 1
     };
@@ -147,7 +182,7 @@ useEffect(() => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`
         },
-        body: JSON.stringify(NoticeByAdmin),
+        body: JSON.stringify(NoticeByProf),
       });
 
       if (!response.ok) throw new Error('서버 에러가 발생했습니다.');
@@ -213,7 +248,7 @@ useEffect(() => {
 
     const updatedNotice = {
       boardTitle,
-      boardCode: Number(boardCode),
+      boardCode: 3,
       boardContent,
       boardLast
     };
@@ -270,7 +305,7 @@ useEffect(() => {
 
 
 
-  if (currentPage === "수강과목 공지사항")
+  if (currentPage === "수강/강의과목 공지사항")
     return <ClassAttendingNotice currentPage={currentPage} setCurrentPage={setCurrentPage} />;
 
   return (
@@ -287,17 +322,17 @@ useEffect(() => {
       </div>
 
       <div>
-        <label>카테고리</label><br />
-        <select
-          value={boardCode}
-          onChange={(e) => setBoardCode(Number(e.target.value))}
-          required
-          style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
-        >
-          <option value={null}>카테고리를 선택하세요</option>
-          <option value={0}>학사공지</option>
-          <option value={1}>행정공지</option>
-          <option value={2}>기타공지</option>
+        <label>과목</label><br />
+        <select>
+            {lectureList.length > 0 ? (
+                lectureList.map((cls) => (
+                    <option key={cls.lecIdx} value={cls.lecIdx}>
+                        {cls.lecTit}
+                    </option>
+                  ))
+                ) : (
+                    <option disabled>강의 목록 없음</option>
+                )}
         </select>
       </div>
 
