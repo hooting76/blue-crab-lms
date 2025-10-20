@@ -12,6 +12,7 @@ const AssignmentCreateModal = ({ onClose, lecSerial, lecTitle }) => {
     const {user} = UseUser();
     const accessToken = user.data.accessToken;
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
+    const now = new Date();
 
     const submitAssignmentCreate = async (e) => {
 
