@@ -19,6 +19,8 @@ function ClassAttending({currentPage, setCurrentPage}) {
 
     console.log("user : ", user);
 
+    const professorIdx = getUserIdxFromToken();
+
     // select 변경 핸들러
     const handleSemesterChange = (e) => {
         setSelectedSemester(e.target.value);
@@ -67,13 +69,13 @@ const [isClassDetailModalOpen, setIsClassDetailModalOpen] = useState(false);
     const closeClassDetailModal = () => setIsClassDetailModalOpen(false);
 
     
-const fetchLectureList = async (accessToken, selectedSemester, selectedYear, ifMajor) => {
+const fetchLectureList = async (accessToken, professorIdx) => {
     try {
 
         const requestBody = {
             page: 0,
             size: 20,
-            professor: user.data.user.id
+            professor: professorIdx
         };
 
         const response = await fetch(`${BASE_URL}/lectures`, {
