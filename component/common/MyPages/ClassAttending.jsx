@@ -13,27 +13,8 @@ function ClassAttending({currentPage, setCurrentPage}) {
     const accessToken = user.data.accessToken;
     const isProf = user.data.user.userStudent === 1;
     const [lectureList, setLectureList] = useState([]);
-    const [selectedSemester, setSelectedSemester] = useState(1); // 학기 선택 상태
-    const [selectedYear, setSelectedYear] = useState(1);
-    const [ifMajor, setIfMajor] = useState(1);
 
     console.log("user : ", user);
-
-
-    // select 변경 핸들러
-    const handleSemesterChange = (e) => {
-        setSelectedSemester(e.target.value);
-    };
-
-    // year 변경 핸들러
-    const handleYearChange = (e) => {
-        setSelectedYear(e.target.value);
-    };
-
-    // 전공 여부 변경 핸들러
-    const handleIfMajor = (e) => {
-        setIfMajor(e.target.value);
-    };
 
 
 const attendanceRequestSubmit = (e) => {
@@ -74,7 +55,7 @@ const fetchLectureList = async (accessToken, user) => {
         const requestBody = {
             page: 0,
             size: 20,
-            professor: user.data.user.id
+            professor: String(user.data.user.id)
         };
 
         const response = await fetch(`${BASE_URL}/lectures`, {
@@ -102,7 +83,7 @@ const fetchEnrolledList = async (accessToken, user) => {
         const requestBody = {
             page: 0,
             size: 20,
-            studentIdx: user.data.user.id,
+            studentIdx: String(user.data.user.id),
             enrolled: true
         };
 
