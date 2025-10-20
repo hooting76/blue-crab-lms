@@ -224,11 +224,13 @@ useEffect(() => {
       }
 
       alert('공지사항이 성공적으로 등록되었습니다!');
+      setTimeout(() => {
+        setCurrentPage("수강/강의과목 공지사항");
+      }, 100);
       setBoardTitle('');
       setBoardCode(null);
       setSelectedFiles([]);
       editorRef.current.getInstance().setMarkdown('');
-      setCurrentPage("수강/강의과목 공지사항");
     } catch (error) {
       alert(error.message);
     }
@@ -302,13 +304,15 @@ useEffect(() => {
       }
 
       alert('공지사항이 성공적으로 수정되었습니다!');
+      setTimeout(() => {
+        setCurrentPage("수강/강의과목 공지사항");
+      }, 100);
       setBoardTitle('');
       setBoardCode(null);
       setSelectedFiles([]);
       setExistingAttachments([]);
       setDeletedAttachments([]);
       editorRef.current.getInstance().setMarkdown('');
-      setCurrentPage("수강/강의과목 공지사항");
     } catch (error) {
       alert(error.message);
     }
