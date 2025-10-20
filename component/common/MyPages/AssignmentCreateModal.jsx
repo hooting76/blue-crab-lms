@@ -27,7 +27,7 @@ const AssignmentCreateModal = ({ onClose, lecSerial, lecTitle }) => {
                 title,
                 body: description,
                 maxScore,
-                dueDate: dueDate.toISOString()
+                dueDate: String(dueDate)
             }
 
                 const response = await fetch(`${BASE_URL}/assignments`, {
