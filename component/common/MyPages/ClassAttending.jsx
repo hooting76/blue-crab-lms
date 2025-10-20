@@ -275,13 +275,42 @@ function ClassAttending({ currentPage, setCurrentPage }) {
                 <thead>
                     <tr>
                         <th style={{ width: "10%" }}>번호</th>
-                        <th style={{ width: "60%" }}>제목</th>
-                        <th style={{ width: "10%" }}>조회수</th>
+                        <th style={{ width: "50%" }}>제목</th>
                         <th style={{ width: "20%" }}>작성일</th>
+                        <th style={{ width: "20%" }}>마감일</th>
                     </tr>
                 </thead>
                 <tbody>
-                    
+                    {assignmentList.content && assignmentList.content.length > 0 ? (
+                        assignmentList.content.map((assignment, index) => {
+                        const parsedData = JSON.parse(assignment.assignmentData);
+                        const { title, dueDate } = parsedData.assignment;
+
+                        const formatDate = (dateString) => {
+                            if (!dateString || dateString.length !== 8) return dateString;
+                            const year = dateString.slice(0, 4);
+                            const month = dateString.slice(4, 6);
+                            const day = dateString.slice(6, 8);
+                            return `${year}-${month}-${day}`;
+                        };
+
+
+                        return (
+                            <tr key={assignment.assignmentIdx}>
+                            <td>{index + 1}</td>
+                            <td>{title}</td>
+                            <td>
+                                -
+                            </td>
+                            <td>{formatDate(dueDate)}</td>
+                            </tr>
+                        );
+                        })
+                    ) : (
+                        <tr>
+                        <td colSpan="4" style={{ textAlign: 'center' }}>과제가 없습니다.</td>
+                        </tr>
+                    )}
                 </tbody>
             </table>
               </div>
