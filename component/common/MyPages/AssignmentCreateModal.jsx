@@ -4,7 +4,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { UseUser } from '../../../hook/UseUser';
 
-const AssignmentCreateModal = ({ onClose, lecSerial }) => {
+const AssignmentCreateModal = ({ onClose, lecSerial, lecTitle }) => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [dueDate, setDueDate] = useState(null);
@@ -50,7 +50,7 @@ const AssignmentCreateModal = ({ onClose, lecSerial }) => {
     return (
         <div className="assignment-create-modal-container">
             <div className="assignment-create-modal-content">
-                <div>과목: {lecSerial}</div>
+                <div>과목: {lecTitle}</div>
                 <div>과제 제목:
                     <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required/>
                 </div>
@@ -66,6 +66,8 @@ const AssignmentCreateModal = ({ onClose, lecSerial }) => {
                         timeIntervals={60}
                         dateFormat="yyyy-MM-dd HH:mm"
                         placeholderText="마감일 선택"
+                        minDate={now} // 오늘 이후 날짜만 선택 가능
+                        minTime={dueDate && dueDate.toDateString() === now.toDateString() ? now : new Date().setHours(0, 0, 0, 0)} 
                         required
                     />
                 </div>

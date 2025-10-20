@@ -239,7 +239,10 @@ function ClassAttending({ currentPage, setCurrentPage }) {
               </div>
               {isTestModalOpen && <TestModal onClose={closeTestModal} />}
               {isAssignmentCreateModalOpen && (
-                <AssignmentCreateModal onClose={closeAssignmentCreateModal} lecSerial={selectedLecIdx} />
+                <AssignmentCreateModal
+                onClose={closeAssignmentCreateModal}
+                lecSerial={selectedLecIdx}
+                lecTitle={lectureList.find(lec => lec.lecIdx === selectedLecIdx)?.lecTit || ''}/>
               )}
             </>
           )}
