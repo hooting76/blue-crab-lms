@@ -69,6 +69,7 @@ const AssignmentCreateModal = ({ onClose, lecSerial, lecTitle }) => {
                         placeholderText="마감일 선택"
                         minDate={now} // 오늘 이후 날짜만 선택 가능
                         minTime={dueDate && dueDate.toDateString() === now.toDateString() ? now : new Date().setHours(0, 0, 0, 0)} 
+                        maxTime={new Date().setHours(23, 59, 59, 999)}
                         required
                     />
                 </div>
