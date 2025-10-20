@@ -25,6 +25,7 @@ function ProfNoticeWritingPage({ notice, accessToken: propToken, currentPage, se
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [boardIdx, setBoardIdx] = useState(notice?.boardIdx || null); // 🔧 boardIdx 상태 추가
   const [lectureList, setLectureList] = useState([]);
+  const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
   const { isAuthenticated, user, isUserAuth } = UseUser();
 
