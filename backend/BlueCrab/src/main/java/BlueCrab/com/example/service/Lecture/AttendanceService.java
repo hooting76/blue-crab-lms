@@ -314,4 +314,103 @@ public class AttendanceService {
     public long countPendingRequests(Integer lecIdx) {
         return requestRepository.countPendingRequestsByLecture(lecIdx);
     }
+
+    // ========================================
+    // 성적 계산용 메서드 (GradeCalculationService에서 사용)
+    // ========================================
+
+    /**
+     * 학생의 출석 점수 계산 (성적 관리용)
+     * 
+     * @param lecIdx 강의 IDX
+     * @param studentIdx 학생 IDX
+     * @return Map {maxScore: 20.0, currentScore: 18.5, percentage: 92.50}
+     */
+    public Map<String, Object> calculateAttendanceScoreForGrade(Integer lecIdx, Integer studentIdx) {
+        try {
+            // 수강신청 정보 조회
+            EnrollmentExtendedTbl enrollment = enrollmentRepository
+                .findByStudentIdxAndLecIdx(studentIdx, lecIdx)
+                .orElseThrow(() -> new IllegalArgumentException("수강 정보를 찾을 수 없습니다."));
+
+            // ENROLLMENT_DATA JSON 파싱
+            ObjectNode enrollmentData;
+            if (enrollment.getEnrollmentData() == null || enrollment.getEnrollmentData().isEmpty()) {
+                // 출석 데이터가 없으면 0점 반환
+                return Map.of(
+                    "maxScore", 20.0,
+                    "currentScore", 0.0,
+                    "percentage", 0.00
+                );
+            }
+
+            enrollmentData = (ObjectNode) objectMapper.readTree(enrollment.getEnrollmentData());
+            String attendanceStr = enrollmentData.has("attendance") ? 
+                    enrollmentData.get("attendance").asText() : "";
+
+            if (attendanceStr == null || attendanceStr.isEmpty()) {
+                // 출석 데이터가 없으면 0점 반환
+                return Map.of(
+                    "maxScore", 20.0,
+                    "currentScore", 0.0,
+                    "percentage", 0.00
+                );
+            }
+
+            // 출석 문자열 파싱
+            Map<Integer, String> attendanceMap = parseAttendanceString(attendanceStr);
+
+            // 출석율 계산 (출석률 = 출석+지각 / 총 회차)
+            // 출석(출): 출석으로 인정
+            // 지각(지): 출석으로 인정 (출석율 계산 시)
+            // 결석(결): 결석
+            int presentCount = 0;  // 출석 수
+            int lateCount = 0;     // 지각 수
+            int absentCount = 0;   // 결석 수
+            
+            for (String status : attendanceMap.values()) {
+                if (STATUS_PRESENT.equals(status)) {
+                    presentCount++;
+                } else if (STATUS_LATE.equals(status)) {
+                    lateCount++;
+                } else if (STATUS_ABSENT.equals(status)) {
+                    absentCount++;
+                }
+            }
+            
+            int attendanceCount = presentCount + lateCount;  // 출석율 = 출석 + 지각
+
+            // 최대 점수: 80회차 = 20점 만점
+            double maxScore = 20.0;
+            
+            // 출석율 기반 점수 계산 (80회 기준)
+            // 예: 77회 출석(출석+지각) / 80 * 20 = 19.25점
+            // 지각에 대한 감점은 GradeCalculationService에서 교수 설정에 따라 처리
+            double currentScore = ((double) attendanceCount / 80.0) * maxScore;
+            
+            // 백분율 계산 (0-100 범위, 소수점 셋째자리에서 반올림하여 둘째자리까지)
+            double percentage = (currentScore / maxScore) * 100.0;
+            percentage = Math.round(percentage * 100.0) / 100.0;  // 소수점 둘째자리 반올림
+            
+            // currentScore도 소수점 둘째자리 반올림
+            currentScore = Math.round(currentScore * 100.0) / 100.0;
+
+            log.debug("출석 점수 계산: lecIdx={}, studentIdx={}, 출석문자열={}, 출석={}회, 지각={}회, 결석={}회, currentScore={}, percentage={}%", 
+                    lecIdx, studentIdx, attendanceStr, presentCount, lateCount, absentCount, currentScore, percentage);
+
+            return Map.of(
+                "maxScore", maxScore,
+                "currentScore", currentScore,
+                "percentage", percentage,
+                "presentCount", presentCount,    // 출석 수
+                "lateCount", lateCount,          // 지각 수
+                "absentCount", absentCount,      // 결석 수
+                "attendanceRate", attendanceCount  // 출석율 (출석+지각)
+            );
+
+        } catch (Exception e) {
+            log.error("출석 점수 계산 실패: lecIdx={}, studentIdx={}", lecIdx, studentIdx, e);
+            throw new RuntimeException("출석 점수 계산 중 오류가 발생했습니다.", e);
+        }
+    }
 }

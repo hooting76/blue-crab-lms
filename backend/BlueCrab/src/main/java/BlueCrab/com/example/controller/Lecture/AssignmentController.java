@@ -3,10 +3,12 @@
 package BlueCrab.com.example.controller.Lecture;
 
 import BlueCrab.com.example.entity.Lecture.AssignmentExtendedTbl;
+import BlueCrab.com.example.event.Lecture.GradeUpdateEvent;
 import BlueCrab.com.example.service.Lecture.AssignmentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +28,9 @@ public class AssignmentController {
 
     @Autowired
     private AssignmentService assignmentService;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     /* 과제 목록 조회 (통합 엔드포인트) - POST 방식
      * 
@@ -286,6 +291,17 @@ public class AssignmentController {
             
             AssignmentExtendedTbl assignment = assignmentService.gradeAssignment(
                     assignmentIdx, studentIdx, score, feedback);
+            
+            // 과제 채점이 완료되면 성적 재계산 이벤트 발행
+            Integer lecIdx = assignment.getLecIdx();
+            if (lecIdx != null) {
+                eventPublisher.publishEvent(
+                    new GradeUpdateEvent(this, lecIdx, studentIdx, "ASSIGNMENT")
+                );
+                logger.info("과제 채점으로 인한 성적 재계산 이벤트 발행: lecIdx={}, studentIdx={}", 
+                    lecIdx, studentIdx);
+            }
+            
             return ResponseEntity.ok(assignment);
         } catch (IllegalArgumentException e) {
             logger.warn("과제 채점 실패: {}", e.getMessage());

@@ -295,4 +295,99 @@ public class AssignmentService {
     public boolean existsAssignment(Integer assignmentIdx) {
         return assignmentRepository.existsById(assignmentIdx);
     }
+
+    // ========================================
+    // 성적 계산용 메서드 (GradeCalculationService에서 사용)
+    // ========================================
+
+    /**
+     * 학생의 과제 점수 목록 조회 (성적 관리용)
+     * 
+     * @param lecIdx 강의 IDX
+     * @param studentIdx 학생 IDX
+     * @return List<Map> [{name: "과제1", score: 9.0, maxScore: 10.0, percentage: 90.00}, ...]
+     */
+    public List<Map<String, Object>> getStudentAssignmentScoresForGrade(Integer lecIdx, Integer studentIdx) {
+        List<Map<String, Object>> scores = new java.util.ArrayList<>();
+
+        try {
+            // 강의의 모든 과제 조회
+            List<AssignmentExtendedTbl> assignments = assignmentRepository.findByLecIdxOrderByAssignmentIdxDesc(lecIdx);
+
+            if (assignments == null || assignments.isEmpty()) {
+                return scores;  // 과제가 없으면 빈 리스트 반환
+            }
+
+            for (AssignmentExtendedTbl assignment : assignments) {
+                Map<String, Object> assignmentData = parseAssignmentData(assignment.getAssignmentData());
+                
+                if (assignmentData.isEmpty()) {
+                    continue;  // 데이터가 없으면 스킵
+                }
+
+                // 과제 기본 정보 추출
+                @SuppressWarnings("unchecked")
+                Map<String, Object> assignmentInfo = (Map<String, Object>) assignmentData.get("assignment");
+                
+                if (assignmentInfo == null) {
+                    continue;
+                }
+
+                String assignmentTitle = assignmentInfo.get("title") != null ? 
+                    (String) assignmentInfo.get("title") : "과제" + assignment.getAssignmentIdx();
+                
+                Number maxScoreNum = assignmentInfo.get("maxScore") != null ? 
+                    (Number) assignmentInfo.get("maxScore") : 100;
+                double maxScore = maxScoreNum.doubleValue();
+
+                // 제출물에서 학생의 점수 찾기
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> submissions = (List<Map<String, Object>>) 
+                    assignmentData.getOrDefault("submissions", new java.util.ArrayList<>());
+
+                double studentScore = 0.0;
+                boolean submitted = false;
+
+                for (Map<String, Object> submission : submissions) {
+                    Number studentIdxNum = (Number) submission.get("studentIdx");
+                    if (studentIdxNum != null && studentIdxNum.intValue() == studentIdx) {
+                        // 학생의 제출물을 찾음
+                        if (submission.containsKey("score") && submission.get("score") != null) {
+                            Number scoreNum = (Number) submission.get("score");
+                            studentScore = scoreNum.doubleValue();
+                            submitted = true;
+                        }
+                        break;
+                    }
+                }
+
+                // 미제출인 경우 0점 처리
+                if (!submitted) {
+                    studentScore = 0.0;
+                }
+
+                // 백분율 계산 (0-100 범위, 소수점 셋째자리에서 반올림하여 둘째자리까지)
+                double percentage = (studentScore / maxScore) * 100.0;
+                percentage = Math.round(percentage * 100.0) / 100.0;  // 소수점 둘째자리 반올림
+                
+                // score도 소수점 둘째자리 반올림
+                studentScore = Math.round(studentScore * 100.0) / 100.0;
+                maxScore = Math.round(maxScore * 100.0) / 100.0;
+
+                Map<String, Object> scoreInfo = new java.util.HashMap<>();
+                scoreInfo.put("name", assignmentTitle);
+                scoreInfo.put("score", studentScore);
+                scoreInfo.put("maxScore", maxScore);
+                scoreInfo.put("percentage", percentage);
+                scoreInfo.put("submitted", submitted);
+
+                scores.add(scoreInfo);
+            }
+
+            return scores;
+
+        } catch (Exception e) {
+            throw new RuntimeException("과제 점수 조회 중 오류가 발생했습니다: " + e.getMessage(), e);
+        }
+    }
 }

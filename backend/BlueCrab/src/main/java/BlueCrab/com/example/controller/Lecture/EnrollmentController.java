@@ -6,6 +6,7 @@ import BlueCrab.com.example.dto.Lecture.EnrollmentDto;
 import BlueCrab.com.example.entity.Lecture.EnrollmentExtendedTbl;
 import BlueCrab.com.example.entity.Lecture.LecTbl;
 import BlueCrab.com.example.entity.UserTbl;
+import BlueCrab.com.example.event.Lecture.GradeUpdateEvent;
 import BlueCrab.com.example.repository.UserTblRepository;
 import BlueCrab.com.example.service.Lecture.EnrollmentService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -37,6 +39,9 @@ public class EnrollmentController {
 
     @Autowired
     private UserTblRepository userTblRepository;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     /* 수강신청 목록 조회 (통합 엔드포인트) - POST 방식
      * 
@@ -250,6 +255,18 @@ public class EnrollmentController {
             
             EnrollmentExtendedTbl updated = enrollmentService.updateAttendance(
                     enrollmentIdx, attended, absent, late);
+            
+            // 출석 정보가 업데이트되면 성적 재계산 이벤트 발행
+            Integer lecIdx = updated.getLecIdx();
+            Integer studentIdx = updated.getStudentIdx();
+            if (lecIdx != null && studentIdx != null) {
+                eventPublisher.publishEvent(
+                    new GradeUpdateEvent(this, lecIdx, studentIdx, "ATTENDANCE")
+                );
+                logger.info("출석 업데이트로 인한 성적 재계산 이벤트 발행: lecIdx={}, studentIdx={}", 
+                    lecIdx, studentIdx);
+            }
+            
             return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException e) {
             logger.warn("출석 정보 업데이트 실패: {}", e.getMessage());
