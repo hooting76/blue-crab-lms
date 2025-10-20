@@ -19,46 +19,6 @@ function ClassAttending({currentPage, setCurrentPage}) {
 
     console.log("user : ", user);
 
-    function decodeJWT(token) {
-    try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => 
-            '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-        ).join(''));
-        return JSON.parse(jsonPayload);
-    } catch (e) {
-        console.error('JWT 디코딩 실패:', e);
-        return null;
-    }
-}
-
-    function getUserIdxFromToken() {
-    if (!window.authToken) {
-        console.log('⚠️ 로그인 토큰이 없습니다.');
-        return null;
-    }
-    
-    const payload = decodeJWT(window.authToken);
-    if (!payload) {
-        console.log('❌ JWT 디코딩 실패');
-        return null;
-    }
-    
-    // JWT에서 USER_IDX 추출 (가능한 필드명들 시도)
-    const userIdx = payload.userIdx || payload.USER_IDX || payload.userId || payload.USER_ID || payload.user_id || payload.id;
-    
-    if (userIdx) {
-        console.log(`✅ JWT에서 USER_IDX 추출 성공: ${userIdx}`);
-        return String(userIdx); // 문자열로 변환
-    } else {
-        console.log('❌ JWT에서 USER_IDX를 찾을 수 없습니다.');
-        console.log('📋 JWT Payload:', payload);
-        return null;
-    }
-}
-
-    const professorIdx = getUserIdxFromToken();
 
     // select 변경 핸들러
     const handleSemesterChange = (e) => {
@@ -108,13 +68,13 @@ const [isClassDetailModalOpen, setIsClassDetailModalOpen] = useState(false);
     const closeClassDetailModal = () => setIsClassDetailModalOpen(false);
 
     
-const fetchLectureList = async (accessToken, professorIdx) => {
+const fetchLectureList = async (accessToken, user) => {
     try {
 
         const requestBody = {
             page: 0,
             size: 20,
-            professor: professorIdx
+            professor: user.data.user.id
         };
 
         const response = await fetch(`${BASE_URL}/lectures`, {
@@ -136,7 +96,7 @@ const fetchLectureList = async (accessToken, professorIdx) => {
     }
 };
 
-const fetchEnrolledList = async (accessToken) => {
+const fetchEnrolledList = async (accessToken, user) => {
     try {
 
         const requestBody = {
