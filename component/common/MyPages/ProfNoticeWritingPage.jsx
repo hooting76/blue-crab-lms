@@ -175,7 +175,7 @@ useEffect(() => {
       boardWriterIdx: String(user.data.user.id),
       boardReg,
       boardOn: 1,
-      lecIdx: lecIdx
+      lecIdx: selectedLectureId
     };
 
     try {
@@ -262,7 +262,7 @@ useEffect(() => {
       boardCode: 3,
       boardContent,
       boardLast,
-      lecIdx: lecIdx
+      lecIdx: selectedLectureId
     };
 
     try {
