@@ -223,7 +223,7 @@ useEffect(() => {
       setBoardCode(null);
       setSelectedFiles([]);
       editorRef.current.getInstance().setMarkdown('');
-      setCurrentPage("수강과목 공지사항");
+      setCurrentPage("수강/강의과목 공지사항");
     } catch (error) {
       alert(error.message);
     }
@@ -299,7 +299,7 @@ useEffect(() => {
       setExistingAttachments([]);
       setDeletedAttachments([]);
       editorRef.current.getInstance().setMarkdown('');
-      setCurrentPage("수강과목 공지사항");
+      setCurrentPage("수강/강의과목 공지사항");
     } catch (error) {
       alert(error.message);
     }
