@@ -19,6 +19,31 @@ function ClassAttending({currentPage, setCurrentPage}) {
 
     console.log("user : ", user);
 
+    function getUserIdxFromToken() {
+    if (!window.authToken) {
+        console.log('⚠️ 로그인 토큰이 없습니다.');
+        return null;
+    }
+    
+    const payload = decodeJWT(window.authToken);
+    if (!payload) {
+        console.log('❌ JWT 디코딩 실패');
+        return null;
+    }
+    
+    // JWT에서 USER_IDX 추출 (가능한 필드명들 시도)
+    const userIdx = payload.userIdx || payload.USER_IDX || payload.userId || payload.USER_ID || payload.user_id || payload.id;
+    
+    if (userIdx) {
+        console.log(`✅ JWT에서 USER_IDX 추출 성공: ${userIdx}`);
+        return String(userIdx); // 문자열로 변환
+    } else {
+        console.log('❌ JWT에서 USER_IDX를 찾을 수 없습니다.');
+        console.log('📋 JWT Payload:', payload);
+        return null;
+    }
+}
+
     const professorIdx = getUserIdxFromToken();
 
     // select 변경 핸들러
