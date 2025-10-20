@@ -23,6 +23,10 @@ const AssignmentCreateModal = ({ onClose, lecSerial, lecTitle }) => {
 
     const submitAssignmentCreate = async (e) => {
 
+        console.log("user:", user);
+        console.log("accessToken:", accessToken);
+
+
         if (!title || !description || !dueDate) {
             alert("모든 필드를 입력해주세요");
             return;
