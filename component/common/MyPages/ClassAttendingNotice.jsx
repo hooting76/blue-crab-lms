@@ -160,7 +160,7 @@ const formattedTime = (boardReg) => {
                 </tr>
             </thead>
             <tbody> 
-                {noticeList.map(r => {
+                {lectureList.map(r => {
                     const isSelected = r.boardIdx === selectedIdx;
                     const boardView = isSelected && fetchedNotice
                     ? fetchedNotice.boardView
