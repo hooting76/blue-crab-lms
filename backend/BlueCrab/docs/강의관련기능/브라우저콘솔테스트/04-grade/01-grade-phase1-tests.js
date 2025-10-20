@@ -2,7 +2,7 @@
  * Phase 1: 핵심 성적 관리 기능 테스트 (완전 독립 버전)
  * 
  * 🎯 완전 독립 실행 가능 - 다른 파일 필요 없음!
- * 🔐 lecSerial + JWT 토큰 인증 방식
+ * 🔐 lecSerial + studentIdx + JWT 토큰 인증 방식
  * 
  * ============================================
  * 🚀 사용법
@@ -13,8 +13,8 @@
  * 
  * 2단계: 이 파일 전체 복사 → 브라우저 콘솔 붙여넣기
  * 
- * 3단계: 강의 코드 설정 (선택)
- *    gradePhase1.setLecture('CS101-2024-1')
+ * 3단계: 강의 설정 (선택)
+ *    gradePhase1.setLecture('ETH201', 100)  // lecSerial, studentIdx
  * 
  * 4단계: 테스트 실행
  *    await gradePhase1.runAll()
@@ -38,17 +38,19 @@
     // ============================================
     const API_BASE = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
     
-    // 테스트 설정 (lecSerial 방식)
+    // 테스트 설정 (lecSerial + studentIdx 방식)
     const config = {
-        lecSerial: null,  // 프롬프트 또는 setLecture()로 설정
-        studentEmail: 'student@univ.edu',  // 기본값
+        lecSerial: null,  // 프롬프트 또는 setLecture()로 설정 (강의 코드, 예: "ETH201")
+        studentIdx: null,  // USER_IDX
         passingThreshold: 60.0,
         attendanceMaxScore: 80,
         assignmentTotalMaxScore: 100,
         latePenaltyPerSession: 0.5,
         gradeDistribution: {
-            "A+": 10, "A": 15, "B+": 20,
-            "B": 25, "C": 20, "D": 10
+            "A": 30,  // 상위 30%
+            "B": 40,  // 30~70%
+            "C": 20,  // 70~90%
+            "D": 10   // 90~100%
         }
     };
     
@@ -60,7 +62,7 @@
         return window.authToken || localStorage.getItem('jwtAccessToken');
     }
     
-    async function apiCall(endpoint, data = null, method = 'POST') {
+    async function apiCall(endpoint, data, method = 'POST') {
         const token = getToken();
         if (!token) {
             console.error('❌ 로그인 필요! await login() 실행하세요.');
@@ -75,7 +77,7 @@
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: method !== 'GET' ? JSON.stringify(data) : undefined
+                body: JSON.stringify(data)
             });
             
             const duration = (performance.now() - start).toFixed(2);
@@ -101,19 +103,19 @@
     // 설정 함수
     // ============================================
     
-    function setLecture(lecSerial, studentEmail = null) {
+    function setLecture(lecSerial, studentIdx = null) {
         config.lecSerial = lecSerial;
-        if (studentEmail) config.studentEmail = studentEmail;
-        console.log('✅ 설정 완료:', { lecSerial: config.lecSerial, studentEmail: config.studentEmail });
+        if (studentIdx) config.studentIdx = studentIdx;
+        console.log('✅ 설정 완료:', { lecSerial: config.lecSerial, studentIdx: config.studentIdx });
         return config;
     }
     
     function promptLecture() {
-        const lecSerial = prompt('강의 코드 (예: CS101-2024-1):', config.lecSerial || '');
-        const studentEmail = prompt('학생 이메일:', config.studentEmail);
+        const lecSerial = prompt('강의 코드 (예: ETH201):', config.lecSerial || '');
+        const studentIdx = prompt('학생 IDX (USER_IDX):', config.studentIdx || '');
         
         if (lecSerial) config.lecSerial = lecSerial;
-        if (studentEmail) config.studentEmail = studentEmail;
+        if (studentIdx) config.studentIdx = parseInt(studentIdx);
         
         console.log('✅ 설정:', config);
         return config;
@@ -121,7 +123,7 @@
     
     // ============================================
     // 1. 성적 구성 설정
-    // POST /lectures/{lecSerial}/grade-config
+    // POST /enrollments/grade-config
     // ============================================
     
     async function testGradeConfig() {
@@ -135,18 +137,20 @@
         }
         
         const data = {
+            action: 'set-config',
+            lecSerial: config.lecSerial,
             attendanceMaxScore: config.attendanceMaxScore,
             assignmentTotalMaxScore: config.assignmentTotalMaxScore,
             latePenaltyPerSession: config.latePenaltyPerSession,
             gradeDistribution: config.gradeDistribution
         };
         
-        console.log(`📤 강의: ${config.lecSerial}`);
+        console.log(`📤 강의 코드: ${config.lecSerial}`);
         console.log(`   출석: ${data.attendanceMaxScore}점`);
         console.log(`   과제: ${data.assignmentTotalMaxScore}점`);
         console.log(`   지각 페널티: ${data.latePenaltyPerSession}점/회`);
         
-        const result = await apiCall(`/lectures/${config.lecSerial}/grade-config`, data);
+        const result = await apiCall(`/enrollments/grade-config`, data);
         
         if (result?.success) {
             console.log('\n✅ 성공!');
@@ -161,7 +165,7 @@
     
     // ============================================
     // 2. 학생 성적 조회
-    // GET /lectures/{lecSerial}/students/{email}/grade
+    // POST /enrollments/grade-info (action: get-grade)
     // ============================================
     
     async function testStudentGradeInfo() {
@@ -169,18 +173,23 @@
         console.log('📊 학생 성적 조회');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
-        if (!config.lecSerial) {
+        if (!config.lecSerial || !config.studentIdx) {
             promptLecture();
         }
         
-        console.log(`📤 강의: ${config.lecSerial}`);
-        console.log(`   학생: ${config.studentEmail}`);
+        console.log(`📤 강의 코드: ${config.lecSerial}`);
+        console.log(`   학생 IDX: ${config.studentIdx}`);
         
-        const email = encodeURIComponent(config.studentEmail);
-        const result = await apiCall(`/lectures/${config.lecSerial}/students/${email}/grade`, null, 'GET');
+        const data = {
+            action: 'get-grade',
+            lecSerial: config.lecSerial,
+            studentIdx: config.studentIdx
+        };
+        
+        const result = await apiCall(`/enrollments/grade-info`, data);
         
         if (result?.success && result.data) {
-            const d = result.data;
+            const d = result.data.data || result.data;
             console.log('\n📊 성적 정보:');
             
             if (d.attendanceScore !== undefined) {
@@ -217,7 +226,7 @@
     
     // ============================================
     // 3. 교수용 성적 조회
-    // GET /lectures/{lecSerial}/professor/grade
+    // POST /enrollments/grade-info (action: professor-view)
     // ============================================
     
     async function testProfessorGradeView() {
@@ -225,13 +234,18 @@
         console.log('👨‍🏫 교수용 성적 조회');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
-        if (!config.lecSerial) promptLecture();
+        if (!config.lecSerial || !config.studentIdx) promptLecture();
         
-        const email = encodeURIComponent(config.studentEmail);
-        const result = await apiCall(`/lectures/${config.lecSerial}/professor/grade?studentEmail=${email}`, null, 'GET');
+        const data = {
+            action: 'professor-view',
+            lecSerial: config.lecSerial,
+            studentIdx: config.studentIdx
+        };
+        
+        const result = await apiCall(`/enrollments/grade-info`, data);
         
         if (result?.success && result.data) {
-            const d = result.data;
+            const d = result.data.data || result.data;
             console.log('\n📊 교수용 정보:');
             
             if (d.studentName) console.log(`  👤 학생: ${d.studentName}`);
@@ -259,7 +273,7 @@
     
     // ============================================
     // 4. 성적 목록 조회
-    // GET /lectures/{lecSerial}/grade-list
+    // POST /enrollments/grade-list (action: list-all)
     // ============================================
     
     async function testGradeList() {
@@ -269,17 +283,19 @@
         
         if (!config.lecSerial) promptLecture();
         
-        const params = new URLSearchParams({
+        const data = {
+            action: 'list-all',
+            lecSerial: config.lecSerial,
             page: 0,
             size: 20,
             sortBy: 'percentage',
             sortOrder: 'desc'
-        });
+        };
         
-        const result = await apiCall(`/lectures/${config.lecSerial}/grade-list?${params}`, null, 'GET');
+        const result = await apiCall(`/enrollments/grade-list`, data);
         
         if (result?.success && result.data) {
-            const d = result.data;
+            const d = result.data.data || result.data;
             console.log('\n📊 조회 결과:');
             console.log(`  - 총 학생: ${d.totalElements || d.content?.length || 0}명`);
             console.log(`  - 페이지: ${d.number || 0}/${d.totalPages || 1}`);
@@ -302,7 +318,7 @@
     
     // ============================================
     // 5. 최종 등급 배정
-    // POST /lectures/{lecSerial}/finalize-grades
+    // POST /enrollments/grade-finalize (action: finalize)
     // ============================================
     
     async function testGradeFinalize() {
@@ -313,6 +329,8 @@
         if (!config.lecSerial) promptLecture();
         
         const data = {
+            action: 'finalize',
+            lecSerial: config.lecSerial,
             passingThreshold: config.passingThreshold,
             gradeDistribution: config.gradeDistribution
         };
@@ -320,10 +338,10 @@
         console.log(`📤 합격 기준: ${data.passingThreshold}%`);
         console.log(`   등급 분포:`, data.gradeDistribution);
         
-        const result = await apiCall(`/lectures/${config.lecSerial}/finalize-grades`, data);
+        const result = await apiCall(`/enrollments/grade-finalize`, data);
         
         if (result?.success && result.data) {
-            const d = result.data;
+            const d = result.data.data || result.data;
             console.log('\n📊 등급 배정 결과:');
             
             if (d.gradeStats) {
@@ -422,7 +440,7 @@
     console.log('   2. await gradePhase1.runAll()   - 전체 실행');
     console.log('');
     console.log('💡 또는:');
-    console.log('   gradePhase1.setLecture("CS101-2024-1")');
+    console.log('   gradePhase1.setLecture("ETH201", 100)  // lecSerial, studentIdx');
     console.log('   await gradePhase1.config()');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     

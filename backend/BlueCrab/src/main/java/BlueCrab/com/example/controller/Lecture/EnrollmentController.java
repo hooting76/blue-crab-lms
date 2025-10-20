@@ -518,10 +518,21 @@ public class EnrollmentController {
      */
     private ResponseEntity<?> handleGradeConfig(Map<String, Object> request) {
         Integer lecIdx = request.get("lecIdx") != null ? ((Number) request.get("lecIdx")).intValue() : null;
+        String lecSerial = (String) request.get("lecSerial");
+        
+        // lecSerial이 제공된 경우 lecIdx로 변환
+        if (lecIdx == null && lecSerial != null && !lecSerial.trim().isEmpty()) {
+            lecIdx = enrollmentService.getLectureIdxBySerial(lecSerial);
+            if (lecIdx == null) {
+                return ResponseEntity.badRequest()
+                    .body(createErrorResponse("존재하지 않는 강의 코드입니다: " + lecSerial));
+            }
+            request.put("lecIdx", lecIdx);  // 변환된 lecIdx를 request에 추가
+        }
         
         if (lecIdx == null) {
             return ResponseEntity.badRequest()
-                .body(createErrorResponse("lecIdx는 필수 파라미터입니다."));
+                .body(createErrorResponse("lecIdx 또는 lecSerial은 필수 파라미터입니다."));
         }
 
         try {
@@ -541,11 +552,21 @@ public class EnrollmentController {
      */
     private ResponseEntity<?> handleStudentGradeInfo(Map<String, Object> request) {
         Integer lecIdx = request.get("lecIdx") != null ? ((Number) request.get("lecIdx")).intValue() : null;
+        String lecSerial = (String) request.get("lecSerial");
         Integer studentIdx = request.get("studentIdx") != null ? ((Number) request.get("studentIdx")).intValue() : null;
+        
+        // lecSerial이 제공된 경우 lecIdx로 변환
+        if (lecIdx == null && lecSerial != null && !lecSerial.trim().isEmpty()) {
+            lecIdx = enrollmentService.getLectureIdxBySerial(lecSerial);
+            if (lecIdx == null) {
+                return ResponseEntity.badRequest()
+                    .body(createErrorResponse("존재하지 않는 강의 코드입니다: " + lecSerial));
+            }
+        }
         
         if (lecIdx == null || studentIdx == null) {
             return ResponseEntity.badRequest()
-                .body(createErrorResponse("lecIdx와 studentIdx는 필수 파라미터입니다."));
+                .body(createErrorResponse("lecIdx(또는 lecSerial)와 studentIdx는 필수 파라미터입니다."));
         }
 
         try {
@@ -564,12 +585,22 @@ public class EnrollmentController {
      */
     private ResponseEntity<?> handleProfessorGradeView(Map<String, Object> request) {
         Integer lecIdx = request.get("lecIdx") != null ? ((Number) request.get("lecIdx")).intValue() : null;
+        String lecSerial = (String) request.get("lecSerial");
         Integer studentIdx = request.get("studentIdx") != null ? ((Number) request.get("studentIdx")).intValue() : null;
         Integer professorIdx = request.get("professorIdx") != null ? ((Number) request.get("professorIdx")).intValue() : null;
         
+        // lecSerial이 제공된 경우 lecIdx로 변환
+        if (lecIdx == null && lecSerial != null && !lecSerial.trim().isEmpty()) {
+            lecIdx = enrollmentService.getLectureIdxBySerial(lecSerial);
+            if (lecIdx == null) {
+                return ResponseEntity.badRequest()
+                    .body(createErrorResponse("존재하지 않는 강의 코드입니다: " + lecSerial));
+            }
+        }
+        
         if (lecIdx == null || studentIdx == null || professorIdx == null) {
             return ResponseEntity.badRequest()
-                .body(createErrorResponse("lecIdx, studentIdx, professorIdx는 필수 파라미터입니다."));
+                .body(createErrorResponse("lecIdx(또는 lecSerial), studentIdx, professorIdx는 필수 파라미터입니다."));
         }
 
         try {
@@ -588,14 +619,24 @@ public class EnrollmentController {
      */
     private ResponseEntity<?> handleGradeList(Map<String, Object> request) {
         Integer lecIdx = request.get("lecIdx") != null ? ((Number) request.get("lecIdx")).intValue() : null;
+        String lecSerial = (String) request.get("lecSerial");
         int page = request.get("page") != null ? ((Number) request.get("page")).intValue() : 0;
         int size = request.get("size") != null ? ((Number) request.get("size")).intValue() : 20;
         String sortBy = (String) request.getOrDefault("sortBy", "percentage");
         String sortOrder = (String) request.getOrDefault("sortOrder", "desc");
         
+        // lecSerial이 제공된 경우 lecIdx로 변환
+        if (lecIdx == null && lecSerial != null && !lecSerial.trim().isEmpty()) {
+            lecIdx = enrollmentService.getLectureIdxBySerial(lecSerial);
+            if (lecIdx == null) {
+                return ResponseEntity.badRequest()
+                    .body(createErrorResponse("존재하지 않는 강의 코드입니다: " + lecSerial));
+            }
+        }
+        
         if (lecIdx == null) {
             return ResponseEntity.badRequest()
-                .body(createErrorResponse("lecIdx는 필수 파라미터입니다."));
+                .body(createErrorResponse("lecIdx 또는 lecSerial은 필수 파라미터입니다."));
         }
 
         try {
@@ -615,12 +656,22 @@ public class EnrollmentController {
      */
     private ResponseEntity<?> handleGradeFinalize(Map<String, Object> request) {
         Integer lecIdx = request.get("lecIdx") != null ? ((Number) request.get("lecIdx")).intValue() : null;
+        String lecSerial = (String) request.get("lecSerial");
         Double passingThreshold = request.get("passingThreshold") != null ? 
             ((Number) request.get("passingThreshold")).doubleValue() : 60.0;
         
+        // lecSerial이 제공된 경우 lecIdx로 변환
+        if (lecIdx == null && lecSerial != null && !lecSerial.trim().isEmpty()) {
+            lecIdx = enrollmentService.getLectureIdxBySerial(lecSerial);
+            if (lecIdx == null) {
+                return ResponseEntity.badRequest()
+                    .body(createErrorResponse("존재하지 않는 강의 코드입니다: " + lecSerial));
+            }
+        }
+        
         if (lecIdx == null) {
             return ResponseEntity.badRequest()
-                .body(createErrorResponse("lecIdx는 필수 파라미터입니다."));
+                .body(createErrorResponse("lecIdx 또는 lecSerial은 필수 파라미터입니다."));
         }
 
         try {
