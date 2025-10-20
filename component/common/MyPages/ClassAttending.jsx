@@ -13,6 +13,7 @@ function ClassAttending({ currentPage, setCurrentPage }) {
   const accessToken = user.data.accessToken;
   const isProf = user.data.user.userStudent === 1;
   const [lectureList, setLectureList] = useState([]);
+  const [assignmentList, setAssignmentList] = useState([]);
 
   // 1. 선택한 강의 ID 상태 추가
   const [selectedLecSerial, setSelectedLecSerial] = useState("");
@@ -38,66 +39,76 @@ function ClassAttending({ currentPage, setCurrentPage }) {
 
 
   // 강의 목록 가져오기 (교수/학생 구분)
-  const fetchLectureList = async (accessToken, user) => {
-    try {
-      const requestBody = {
-        page: 0,
-        size: 20,
-        professor: String(user.data.user.id),
-      };
+const fetchLectureData = async (accessToken, user, isProf) => {
+  try {
+    const requestBody = isProf
+      ? {
+          page: 0,
+          size: 20,
+          professor: String(user.data.user.id),
+        }
+      : {
+          page: 0,
+          size: 20,
+          studentIdx: String(user.data.user.id),
+          enrolled: true,
+        };
 
-      const response = await fetch(`${BASE_URL}/lectures`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
+    const url = isProf
+      ? `${BASE_URL}/lectures`
+      : `${BASE_URL}/enrollments/list`;
 
-      if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
 
-      const data = await response.json();
-      setLectureList(data);
-    } catch (error) {
-      console.error('강의 목록 조회 에러:', error);
+    if (!response.ok) {
+      throw new Error('강의 목록을 불러오는 데 실패했습니다.');
     }
-  };
 
-  const fetchEnrolledList = async (accessToken, user) => {
+    const data = await response.json();
+    setLectureList(data);
+  } catch (error) {
+    console.error('강의 목록 조회 에러:', error);
+  }
+};
+
+
+  // 과제 목록 불러오기
+  const getAssignments = async(accessToken, selectedLecSerial) => {
+    const requestBody = {lecSerial: selectedLecSerial, page: 0, size: 20, action: "list"}
     try {
-      const requestBody = {
-        page: 0,
-        size: 20,
-        studentIdx: String(user.data.user.id),
-        enrolled: true,
-      };
-
-      const response = await fetch(`${BASE_URL}/enrollments/list`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
-
-      const data = await response.json();
-      setLectureList(data);
-    } catch (error) {
-      console.error('강의 목록 조회 에러:', error);
-    }
-  };
+        const response = await fetch(`${BASE_URL}/assignments/list`, {
+            method: "POST",
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody)
+            });
+             if (!response.ok) throw new Error('과제 목록 조회 실패');
+            const data = await response.json();
+            setAssignmentList(data);
+        } catch (error) {
+            console.error('과제 목록 에러:', error);
+            setAssignmentList([]);
+        }
+    };
 
   useEffect(() => {
-    if (isProf) {
-      fetchLectureList(accessToken, user);
-    } else {
-      fetchEnrolledList(accessToken, user);
-    }
-  }, [accessToken, user]);
+    fetchLectureData(accessToken, user, isProf);
+  }, [accessToken, user, isProf]);
+
+
+  useEffect(() => {
+    getAssignments(accessToken, selectedLecSerial);
+  }, [accessToken, selectedLecSerial]);
+
 
   // 출석인정 신청
   const attendanceRequestSubmit = (e) => {
@@ -126,6 +137,7 @@ function ClassAttending({ currentPage, setCurrentPage }) {
   }
 
   console.log("lectureList : ", lectureList);
+  console.log("assignmentList : ", assignmentList);
 
 
 
@@ -242,6 +254,45 @@ function ClassAttending({ currentPage, setCurrentPage }) {
                 <button className="assignmentCreateModalBtn" onClick={openAssignmentCreateModal}>
                   과제 생성
                 </button>
+                <br/>
+                <table className="assignment-list">
+                <thead>
+                    <tr>
+                        <th style={{ width: "10%" }}>번호</th>
+                        <th style={{ width: "60%" }}>제목</th>
+                        <th style={{ width: "30%" }}>마감일</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {assignmentList.content && assignmentList.content.length > 0 ? (
+                        assignmentList.content.map((assignment, index) => {
+                        const parsedData = JSON.parse(assignment.assignmentData);
+                        const { title, dueDate } = parsedData.assignment;
+
+                        const formatDate = (dateString) => {
+                            if (!dateString || dateString.length !== 8) return dateString;
+                            const year = dateString.slice(0, 4);
+                            const month = dateString.slice(4, 6);
+                            const day = dateString.slice(6, 8);
+                            return `${year}-${month}-${day}`;
+                        };
+
+
+                        return (
+                            <tr key={assignment.assignmentIdx}>
+                            <td>{index + 1}</td>
+                            <td>{title}</td>
+                            <td>{formatDate(dueDate)}</td>
+                            </tr>
+                        );
+                        })
+                    ) : (
+                        <tr>
+                        <td colSpan="3" style={{ textAlign: 'center' }}>과제가 없습니다.</td>
+                        </tr>
+                    )}
+                </tbody>
+            </table>
               </div>
               {isTestModalOpen && <TestModal onClose={closeTestModal} />}
               {isAssignmentCreateModalOpen && (
