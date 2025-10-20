@@ -10,7 +10,7 @@ function ClassAttendingNotice({rows, currentPage, setCurrentPage}) {
     const [selectedIdx, setSelectedIdx] = useState(null);
     const [selectedNotice, setSelectedNotice] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [lectureList, setLectureList] = useState(rows);
+    const [lectureList, setLectureList] = useState([]);
     const [noticeList, setNoticeList] = useState(null);
     const [fetchedNotice, setFetchedNotice] = useState(null); // fetch된 진짜 notice
 
