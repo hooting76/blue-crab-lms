@@ -39,58 +39,45 @@ function ClassAttending({ currentPage, setCurrentPage }) {
 
 
   // 강의 목록 가져오기 (교수/학생 구분)
-  const fetchLectureList = async (accessToken, user) => {
-    try {
-      const requestBody = {
-        page: 0,
-        size: 20,
-        professor: String(user.data.user.id),
-      };
+const fetchLectureData = async (accessToken, user, isProf) => {
+  try {
+    const requestBody = isProf
+      ? {
+          page: 0,
+          size: 20,
+          professor: String(user.data.user.id),
+        }
+      : {
+          page: 0,
+          size: 20,
+          studentIdx: String(user.data.user.id),
+          enrolled: true,
+        };
 
-      const response = await fetch(`${BASE_URL}/lectures`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
+    const url = isProf
+      ? `${BASE_URL}/lectures`
+      : `${BASE_URL}/enrollments/list`;
 
-      if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
 
-      const data = await response.json();
-      setLectureList(data);
-    } catch (error) {
-      console.error('강의 목록 조회 에러:', error);
+    if (!response.ok) {
+      throw new Error('강의 목록을 불러오는 데 실패했습니다.');
     }
-  };
 
-  const fetchEnrolledList = async (accessToken, user) => {
-    try {
-      const requestBody = {
-        page: 0,
-        size: 20,
-        studentIdx: String(user.data.user.id),
-        enrolled: true,
-      };
+    const data = await response.json();
+    setLectureList(data);
+  } catch (error) {
+    console.error('강의 목록 조회 에러:', error);
+  }
+};
 
-      const response = await fetch(`${BASE_URL}/enrollments/list`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
-
-      const data = await response.json();
-      setLectureList(data);
-    } catch (error) {
-      console.error('강의 목록 조회 에러:', error);
-    }
-  };
 
   // 과제 목록 불러오기
   const getAssignments = async(accessToken, selectedLecSerial) => {
@@ -114,12 +101,9 @@ function ClassAttending({ currentPage, setCurrentPage }) {
     };
 
   useEffect(() => {
-    if (isProf) {
-      fetchLectureList(accessToken, user);
-    } else {
-      fetchEnrolledList(accessToken, user);
-    }
-  }, [accessToken, user]);
+    fetchLectureData(accessToken, user, isProf);
+  }, [accessToken, user, isProf]);
+
 
   useEffect(() => {
     getAssignments(accessToken, selectedLecSerial);
