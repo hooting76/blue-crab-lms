@@ -117,9 +117,9 @@ useEffect(() => {
     if (notice?.boardTitle) {
       setBoardTitle(decodeBase64(notice.boardTitle));
     }
-    if (typeof notice?.boardContent === 'string' && editorRef.current) {
-      editorRef.current.getInstance().setMarkdown(decodeBase64(notice.boardContent));
-    }
+   // if (typeof notice?.boardContent === 'string' && editorRef.current) {
+    //  editorRef.current.getInstance().setMarkdown(decodeBase64(notice.boardContent));
+   // }
     if (typeof notice?.boardCode === 'number') {
       setBoardCode(notice.boardCode);
     }
@@ -354,7 +354,7 @@ useEffect(() => {
           previewStyle="vertical"
           height="300px"
           initialEditType="wysiwyg"
-          // initialValue={notice?.boardContent ? decodeBase64(notice.boardContent) : ''}
+          initialValue={notice?.boardContent ? decodeBase64(notice.boardContent) : ''}
           useCommandShortcut={true}
           language="ko-KR"
         />
