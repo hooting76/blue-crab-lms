@@ -76,13 +76,11 @@
 /* 사이드카드 자체를 위로 띄움 */
 .side-card {
   position: relative;
-  z-index: 1001; /* 모달 백드롭보다 크게 */
 }
 
 /* 패널 내부 버튼이 클릭되도록 보장 */
 .side-card .acc-panel {
   position: relative;
-  z-index: 1002;
 }
 
 .side-card .side-item {

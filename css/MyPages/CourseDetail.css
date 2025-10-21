@@ -1,0 +1,15 @@
+.courseDetailTitleCode,
+.courseDetailProfMax,
+.coursePointTimeMcodeDep,
+.courseTearSemesterMinOpen {
+    display: flex;
+    gap: 20px;
+    margin: 0;
+}
+
+.courseDetailTitleCode span,
+.courseDetailProfMax span,
+.coursePointTimeMcodeDep span,
+.courseTearSemesterMinOpen span {
+    flex: 1;
+}
