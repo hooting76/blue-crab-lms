@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { UseUser } from '../../../hook/UseUser';
 import "../../../css/MyPages/CourseDetail.css";
 
-function CourseDetail({ lecture }) {
+function CourseDetail({ lecture, onFetchComplete }) {
     const { user } = UseUser();
     const [course, setCourse] = useState(null);
 
@@ -35,14 +35,25 @@ function CourseDetail({ lecture }) {
     };
 
     useEffect(() => {
-        if (!lecture) return;
+        if (!lecture) {
+            setCourse(null);
+            return;
+        }
 
         const token = getAccessToken();
-        if (!token || !lecture.lecSerial) return;
+        if (!token || !lecture.lecSerial) {
+            setCourse(null);
+            return;
+        }
 
         fetchCourseDetail(token, lecture.lecSerial).then((data) => {
             if (data) {
                 setCourse(data);
+                if (onFetchComplete) {
+                    onFetchComplete(data); // 상세 데이터 부모에 전달
+                }
+            } else {
+                setCourse(null);
             }
         });
     }, [lecture]);
@@ -51,7 +62,7 @@ function CourseDetail({ lecture }) {
         return <div className="courseDetailContainer">강의 정보를 불러오는 중입니다...</div>;
     }
 
-    // 유틸: 학부 이름
+    // 유틸 함수들
     const formatMcode = (code) => {
         const map = {
             "01": "해양학부",
@@ -63,7 +74,6 @@ function CourseDetail({ lecture }) {
         return map[code] || "기타";
     };
 
-    // 유틸: 학과 이름
     const formatMcodeDep = (mcode, dep) => {
         const depMap = {
             "01": {
