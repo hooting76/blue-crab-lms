@@ -4,7 +4,6 @@ import CourseDetail from './CourseDetail';
 
 function CourseList({ currentPage, setCurrentPage }) {
     const { user } = UseUser();
-    const [currentPage, setCurrentPage] = useState("강의 수정");
     const [lectureList, setLectureList] = useState([]);
     const [selectedLecture, setSelectedLecture] = useState(null);s
     const [isModalOpen, setIsModalOpen] = useState(false);
