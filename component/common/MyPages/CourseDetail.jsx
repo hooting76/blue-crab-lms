@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { UseUser } from '../../../hook/UseUser';
+import CourseDetailEdit from './CourseDetailEdit';
 import "../../../css/MyPages/CourseDetail.css";
 
-function CourseDetail({ lectureDetails, onEditClick }) {
+function CourseDetail({ lectureDetails, setIsModalOpen, currentPage, setCurrentPage }) {
     const { user } = UseUser();
     const [lectureDetail, setLectureDetail] = useState(lectureDetails);
     const [loading, setLoading] = useState(true);
@@ -10,39 +11,39 @@ function CourseDetail({ lectureDetails, onEditClick }) {
 
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
-    useEffect(() => {
-    if (!lectureDetails || !lectureDetails.lecSerial) return;
+ useEffect(() => {
+  if (!lectureDetails?.lecSerial) return;
 
-    const accessToken = user?.data?.accessToken || localStorage.getItem('accessToken');
-    if (!accessToken) return;
+  const accessToken = user?.data?.accessToken || localStorage.getItem('accessToken');
+  if (!accessToken) return;
 
-    const fetchCourseDetail = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await fetch(`${BASE_URL}/lectures/detail`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ lecSerial: lectureDetails.lecSerial }),
-            });
+  const fetchCourseDetail = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${BASE_URL}/lectures/detail`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ lecSerial: lectureDetails.lecSerial }),
+      });
 
-            if (!response.ok) throw new Error('강의 상세 정보를 불러오는데 실패했습니다.');
+      if (!response.ok) throw new Error('강의 상세 정보를 불러오는데 실패했습니다.');
 
-            const data = await response.json();
-            setLectureDetail(data);
-        } catch (err) {
-            setError(err.message);
-            setLectureDetail(null);
-        } finally {
-            setLoading(false);
-        }
-    };
+      const data = await response.json();
+      setLectureDetail(data);
+    } catch (err) {
+      setError(err.message);
+      setLectureDetail(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchCourseDetail();
-}, [lectureDetails, user]);
+  fetchCourseDetail();
+}, [lectureDetails?.lecSerial, user]);
 
 
     if (loading) {
@@ -93,6 +94,29 @@ function CourseDetail({ lectureDetails, onEditClick }) {
     };
 
     const formatOpen = (lecOpen) => (lecOpen === 1 ? "열림" : "닫힘");
+
+
+    const onEditClick=(lectureDetail) => {
+                                setLectureDetail(lectureDetail);
+                                setIsModalOpen(false);
+                                setCurrentPage("강의 수정 상세 페이지");
+                            };
+
+    // 페이지가 '강의 수정 상세 페이지'일 경우
+    if (currentPage === "강의 수정 상세 페이지") {
+        if (!lectureDetail) {
+            return <div>강의 상세 정보를 불러오는 중입니다...</div>;
+        }
+
+        return (
+            <CourseDetailEdit
+                lectureDetails={lectureDetail}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+            />
+        );
+    }
+
 
     return (
         <div className="courseDetailContainer">

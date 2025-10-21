@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import { UseUser } from '../../../hook/UseUser';
 import CourseDetail from './CourseDetail';
-import CourseDetailEdit from './CourseDetailEdit';
 
 function CourseList({ currentPage, setCurrentPage }) {
     const { user } = UseUser();
+    const [currentPage, setCurrentPage] = useState("강의 수정");
     const [lectureList, setLectureList] = useState([]);
-    const [selectedLecture, setSelectedLecture] = useState(null);
-    const [selectedLectureDetail, setSelectedLectureDetail] = useState(null);
+    const [selectedLecture, setSelectedLecture] = useState(null);s
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -65,20 +64,6 @@ function CourseList({ currentPage, setCurrentPage }) {
         setIsModalOpen(false);
     };
 
-    // 페이지가 '강의 수정 상세 페이지'일 경우
-    if (currentPage === "강의 수정 상세 페이지") {
-        if (!selectedLecture) {
-            return <div>강의 상세 정보를 불러오는 중입니다...</div>;
-        }
-
-        return (
-            <CourseDetailEdit
-                lectureDetails={selectedLectureDetail}
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
-            />
-        );
-    }
 
     return (
         <>
@@ -118,12 +103,11 @@ function CourseList({ currentPage, setCurrentPage }) {
 
                         <CourseDetail
                             lectureDetails={selectedLecture}
-                            onEditClick={(lectureDetail) => {
-                                setSelectedLectureDetail(lectureDetail);
-                                setIsModalOpen(false);
-                                setCurrentPage("강의 수정 상세 페이지");
-                            }}
+                            setIsModalOpen={setIsModalOpen}
+                            currentPage={currentPage}
+                            setCurrentPage={setCurrentPage}
                         />
+
                     </div>
                 </div>
             )}
