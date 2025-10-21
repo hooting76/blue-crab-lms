@@ -22,10 +22,14 @@ const DnDCalendar = withDragAndDrop(Calendar);
 // cal func start
 function CalendarComp () {
     // state //
-    const [eventList, setEvents] = useState();
+    const [eventList, setEvents] = useState([]);
     Modal.setAppElement("#root"); // 접근 설정    
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [eventTitle, setEventTitle] = useState('');
+
+    // 학사일정 불러오기 + 일정 등록
+    
+    // 학사일정 불러오기 + 일정 등록 end    
 
     // state update
     const handleSelectEvent = (event) => {
@@ -41,15 +45,6 @@ function CalendarComp () {
         setEventTitle(tmp);
     };
     // state update end
-    
-
-    // 학사일정 불러오기 + 일정 등록
-    useEffect(() => {
-        fetch('./schedule.json')
-            .then((response) => {response.json})
-            .then((data) => {setEvents(data)})
-    }, []);
-    // 학사일정 불러오기 + 일정 등록 end
 
 
     // 날자별 style/속성 설정
