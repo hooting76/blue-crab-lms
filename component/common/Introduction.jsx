@@ -34,27 +34,47 @@ function Introduction({currentPage, setCurrentPage}) {
                 <div className="menuListTap">
                     <span 
                         onClick={toPresidentSaysHi}
-                        style={{cursor: "pointer", 
-                                fontWeight: currentPage === "총장 인사" ? "bold" : "normal"}}
-                    >총장 인사</span>
+                        style={
+                            {
+                                cursor: "pointer", 
+                                fontWeight: currentPage === "총장 인사" ? "bold" : "normal"
+                            }
+                        }>
+                        총장 인사
+                    </span>
 
                     <span 
                         onClick={toWayHere}
-                        style={{cursor: "pointer", 
-                                fontWeight: currentPage === "오시는 길" ? "bold" : "normal"}}
-                    >오시는 길</span>
+                        style={
+                            {
+                                cursor: "pointer", 
+                                fontWeight: currentPage === "오시는 길" ? "bold" : "normal"
+                            }
+                        }>
+                        오시는 길
+                    </span>
                     
                     <span 
                         onClick={toOrganization} 
-                        style={{cursor: "pointer", 
-                                fontWeight: currentPage === "학교 조직도" ? "bold" : "normal"}}
-                    >학교 조직도</span>
+                        style={
+                            {
+                                cursor: "pointer", 
+                                fontWeight: currentPage === "학교 조직도" ? "bold" : "normal"
+                            }
+                        }>
+                        학교 조직도
+                    </span>
 
                     <span 
                         onClick={toBlueCrabAcademyHistory}
-                        style={{cursor: "pointer",
-                        fontWeight: currentPage === "연혁" ? "bold" : "normal"}}
-                    >연혁</span>
+                        style={
+                            {
+                                cursor: "pointer",
+                                fontWeight: currentPage === "연혁" ? "bold" : "normal"
+                            }
+                        }>
+                        연혁
+                    </span>
                 </div>
             </div>
             <div>
