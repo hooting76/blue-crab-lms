@@ -62,7 +62,54 @@
 .rm-section .muted {
   color: #6b7280;
   font-size: 0.9rem;
-  margin: 6px 0 0;
+  margin: 0 5px 0 0 !important;
+  font-weight: bold;
+}
+.rm-section .muted span{
+  display: inline-block;
+  padding: 2.5px;
+  box-sizing: border-box;
+  background: red;
+  color: white;
+  font-weight: bold;
+  margin-left: 5px;
+  border-radius: 5px;
+}
+.rm-section textarea{
+  resize: none;
+}
+.rm-section .Equip_Things{
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  padding: 5px;
+  width: 100%;
+  outline: none;
+  box-sizing: border-box;
+  height: 36px;
+}
+.rm-section .Equip_Things::placeholder{
+  font-size: 0.9rem;
+}
+.rm-section .Equip_Things:focus-visible{
+  border: 1px solid #ccc;
+  outline: none;
+}
+.limit_CntNum{
+  width: fit-content !important;
+  text-align: center;
+}
+.limit_NumTxt{
+  display: inline-block;
+  margin-left: 5px;
+  color: #fff;
+}
+
+.limit_NumTxt p.muted{
+  background: red;
+  color: #fff !important;
+  font-weight: bold;
+  padding: 5px;
+  border-radius: 5px;
 }
 
 /* ───────── 알림 / 경고 / 에러 ───────── */
@@ -281,6 +328,7 @@
   gap: 10px;
   justify-content: flex-end;
   margin-top: 12px;
+  background: none;
 }
 .resv-modal .primary {
   background: #2563eb;
