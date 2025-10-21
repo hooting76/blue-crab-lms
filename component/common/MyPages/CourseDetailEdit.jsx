@@ -3,6 +3,8 @@ import { UseUser } from "../../../hook/UseUser";
 import CourseList from "./CourseList";
 
 function CourseDetailEdit({ lecture, currentPage, setCurrentPage }) {
+    console.log("CourseDetailEdit lecture:", lecture);
+
     if (!lecture) return <div>강의 정보를 불러오는 중입니다...</div>; // ✅ null-safe 처리
 
     const [lecTit, setLecTit] = useState(lecture.lecTit);

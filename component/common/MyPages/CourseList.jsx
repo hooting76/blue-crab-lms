@@ -47,23 +47,24 @@ function CourseList({ currentPage, setCurrentPage }) {
     const openModal = (lecture) => {
         setSelectedLecture(lecture);
         setIsModalOpen(true);
-        setDetailedLecture(null); // 초기화 (중복 클릭 시 대비)
     };
 
     const closeModal = () => {
         setSelectedLecture(null);
         setIsModalOpen(false);
-        setDetailedLecture(null);
     };
 
     const handleEdit = () => {
-        if (!detailedLecture) {
-            alert("강의 상세 정보를 불러오는 중입니다.");
-            return;
-        }
-        setCurrentPage("강의 수정 상세 페이지");
-        setIsModalOpen(false);
-    };
+  if (!detailedLecture) {
+    alert("강의 상세 정보를 불러오는 중입니다.");
+    return;
+  }
+  setIsModalOpen(false);
+  setTimeout(() => {
+    setCurrentPage("강의 수정 상세 페이지");
+  }, 100);
+};
+
 
     // ✅ 상세 정보 없으면 CourseDetailEdit 렌더링 지연
     if (currentPage === "강의 수정 상세 페이지") {
@@ -79,6 +80,13 @@ function CourseList({ currentPage, setCurrentPage }) {
             />
         );
     }
+
+    useEffect(() => {
+  console.log('selectedLecture:', selectedLecture);
+  console.log('detailedLecture:', detailedLecture);
+  console.log('currentPage:', currentPage);
+}, [selectedLecture, detailedLecture, currentPage]);
+
 
     return (
         <>
