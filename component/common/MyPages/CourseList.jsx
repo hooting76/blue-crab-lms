@@ -49,10 +49,11 @@ function CourseList({ currentPage, setCurrentPage }) {
     };
 
     useEffect(() => {
-        if (accessToken) {
-            fetchLectureData(user, accessToken);
-        }
-    }, [user, accessToken]);
+    if (accessToken) {
+        fetchLectureData(user, accessToken);
+    }
+}, [user, accessToken, currentPage]); // 🔄 currentPage도 의존성에 추가
+
 
     const openModal = (lecture) => {
         setSelectedLecture(lecture);
@@ -117,7 +118,10 @@ function CourseList({ currentPage, setCurrentPage }) {
 
                         <CourseDetail
                             lectureDetails={selectedLectureDetail}
-                            onFetchComplete={(data) => setSelectedLecture(data)}
+                            onFetchComplete={(data) => {
+                                setSelectedLecture(data);
+                                setSelectedLectureDetail(data);
+                            }}
                             onEditClick={(lectureDetail) => {
                                 setSelectedLectureDetail(lectureDetail);
                                 setIsModalOpen(false);

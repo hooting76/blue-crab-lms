@@ -5,7 +5,7 @@ import CourseList from "./CourseList";
 function CourseDetailEdit({ lectureDetails, currentPage, setCurrentPage }) {
     console.log("CourseDetailEdit lectureDetails:", lectureDetails);
 
-    if (!lecture) return <div>강의 정보를 불러오는 중입니다...</div>;
+    if (!lectureDetails) return <div>강의 정보를 불러오는 중입니다...</div>;
 
     const [lecTit, setLecTit] = useState(lectureDetails.lecTit);
     const [lecSummary, setLecSummary] = useState(lectureDetails.lecSummary);
@@ -15,7 +15,7 @@ function CourseDetailEdit({ lectureDetails, currentPage, setCurrentPage }) {
     const [lecMin, setLecMin] = useState(lectureDetails.lecMin);
 
     useEffect(() => {
-        if (lectureDetail) {
+        if (lectureDetails) {
             setLecTit(lectureDetails.lecTit);
             setLecSummary(lectureDetails.lecSummary);
             setLecMany(lectureDetails.lecMany);
@@ -23,7 +23,7 @@ function CourseDetailEdit({ lectureDetails, currentPage, setCurrentPage }) {
             setLecTime(lectureDetails.lecTime);
             setLecMin(lectureDetails.lecMin);
         }
-    }, [lectureDetail]);
+    }, [lectureDetails]);
 
     const { user } = UseUser();
     const accessToken = user?.data?.accessToken;
@@ -31,7 +31,7 @@ function CourseDetailEdit({ lectureDetails, currentPage, setCurrentPage }) {
 
     const submitCourseEdit = async () => {
         const requestBody = {
-            lecSerial: lecture.lecSerial,
+            lecSerial: lectureDetails.lecSerial,
             lecTit,
             lecMany,
             lecTime,
