@@ -2,28 +2,28 @@ import { useState, useEffect } from "react";
 import { UseUser } from "../../../hook/UseUser";
 import CourseList from "./CourseList";
 
-function CourseDetailEdit({ lecture, currentPage, setCurrentPage }) {
-    console.log("CourseDetailEdit lecture:", lecture);
+function CourseDetailEdit({ lectureDetails, currentPage, setCurrentPage }) {
+    console.log("CourseDetailEdit lectureDetails:", lectureDetails);
 
-    if (!lecture) return <div>강의 정보를 불러오는 중입니다...</div>;
+    if (!lectureDetails) return <div>강의 정보를 불러오는 중입니다...</div>;
 
-    const [lecTit, setLecTit] = useState(lecture.lecTit);
-    const [lecSummary, setLecSummary] = useState(lecture.lecSummary);
-    const [lecMany, setLecMany] = useState(lecture.lecMany);
-    const [lecPoint, setLecPoint] = useState(lecture.lecPoint);
-    const [lecTime, setLecTime] = useState(lecture.lecTime);
-    const [lecMin, setLecMin] = useState(lecture.lecMin);
+    const [lecTit, setLecTit] = useState(lectureDetails.lecTit);
+    const [lecSummary, setLecSummary] = useState(lectureDetails.lecSummary);
+    const [lecMany, setLecMany] = useState(lectureDetails.lecMany);
+    const [lecPoint, setLecPoint] = useState(lectureDetails.lecPoint);
+    const [lecTime, setLecTime] = useState(lectureDetails.lecTime);
+    const [lecMin, setLecMin] = useState(lectureDetails.lecMin);
 
     useEffect(() => {
-        if (lecture) {
-            setLecTit(lecture.lecTit);
-            setLecSummary(lecture.lecSummary);
-            setLecMany(lecture.lecMany);
-            setLecPoint(lecture.lecPoint);
-            setLecTime(lecture.lecTime);
-            setLecMin(lecture.lecMin);
+        if (lectureDetails) {
+            setLecTit(lectureDetails.lecTit);
+            setLecSummary(lectureDetails.lecSummary);
+            setLecMany(lectureDetails.lecMany);
+            setLecPoint(lectureDetails.lecPoint);
+            setLecTime(lectureDetails.lecTime);
+            setLecMin(lectureDetails.lecMin);
         }
-    }, [lecture]);
+    }, [lectureDetails]);
 
     const { user } = UseUser();
     const accessToken = user?.data?.accessToken;
@@ -31,7 +31,7 @@ function CourseDetailEdit({ lecture, currentPage, setCurrentPage }) {
 
     const submitCourseEdit = async () => {
         const requestBody = {
-            lecSerial: lecture.lecSerial,
+            lecSerial: lectureDetails.lecSerial,
             lecTit,
             lecMany,
             lecTime,
