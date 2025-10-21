@@ -47,7 +47,6 @@ function CourseList({ currentPage, setCurrentPage }) {
     const openModal = (lecture) => {
         setSelectedLecture(lecture);
         setIsModalOpen(true);
-        setDetailedLecture(null); // 초기화 (중복 클릭 시 대비)
     };
 
     const closeModal = () => {
