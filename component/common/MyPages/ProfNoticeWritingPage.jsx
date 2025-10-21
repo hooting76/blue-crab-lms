@@ -57,7 +57,6 @@ function ProfNoticeWritingPage({ notice, accessToken: propToken, currentPage, se
             },
             body: JSON.stringify(requestBody)
         });
-        console.log("Request body:", requestBody);
 
         if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
 
@@ -92,7 +91,6 @@ useEffect(() => {
       });
 
       const attList = await attListRes.json();
-      console.log("📦 board detail 응답:", attList);
 
       if (attListRes.ok) {
         // 확인: attachments가 어디에 있는지 로그로 체크
@@ -162,19 +160,11 @@ useEffect(() => {
       return;
     }
 
-    // const date = new Date().toLocaleString("sv-SE", {
-    //   timeZone: "Asia/Seoul",
-    //   hour12: false,
-    // });
-    // const boardReg = date.replace(" ", "T");
 
     const NoticeByProf = {
       boardTitle,
       boardCode: 3,
       boardContent,
-      // boardWriterIdx: String(user.data.user.id),
-      // boardReg,
-      // boardOn: 1,
       lecSerial: selectedLectureSerial
     };
 
@@ -251,17 +241,11 @@ useEffect(() => {
       return;
     }
 
-    // const date = new Date().toLocaleString("sv-SE", {
-    //   timeZone: "Asia/Seoul",
-    //   hour12: false,
-    // });
-    // const boardLast = date.replace(" ", "T");
 
     const updatedNotice = {
       boardTitle,
       boardCode: 3,
       boardContent,
-      // boardLast,
       lecSerial: selectedLectureSerial
     };
 
@@ -316,7 +300,6 @@ useEffect(() => {
       setExistingAttachments([]);
       setDeletedAttachments([]);
       editorRef.current.getInstance().setMarkdown('');
-      console.log("currentPage : ", currentPage);
     } catch (error) {
       alert(error.message);
     }

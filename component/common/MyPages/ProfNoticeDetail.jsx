@@ -28,7 +28,6 @@ const ProfNoticeDetail = ({ boardIdx, onFetchComplete }) => {
     const fetchData = async () => {
       try {
         const data = await getNoticeDetail(accessToken, boardIdx);
-        console.log("✅ 공지 fetch 완료:", data);
         setNotice(data);
         onFetchComplete?.(data);
       } catch (err) {
@@ -112,6 +111,9 @@ const handleDownload = async (attachmentIdx, fileName) => {
 
 const markdown = decodeBase64(notice.boardContent);
 
+console.log("notice.boardWriter : ", notice.boardWriter);
+console.log("user : ", user);
+
  return (
   <div className="noticeDetailContainer">
     <div className="noticeDetailTitleAndCode">
@@ -151,9 +153,11 @@ const markdown = decodeBase64(notice.boardContent);
       <Viewer initialValue={markdown} />
     </div>
 
-    <button className="noticeDeleteButton" onClick={() => handleDelete(accessToken, notice.boardIdx)}>
-      공지 삭제
-    </button>
+    {notice.boardWriter === user.data.user.id &&
+      <button className="noticeDeleteButton" onClick={() => handleDelete(accessToken, notice.boardIdx)}>
+        공지 삭제
+      </button>
+    }
   </div>
 );
 
