@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { UseUser } from "../../../hook/UseUser";
 import CourseList from "./CourseList";
 
 function CourseDetailEdit({ lecture, currentPage, setCurrentPage }) {
     console.log("CourseDetailEdit lecture:", lecture);
 
-    if (!lecture) return <div>강의 정보를 불러오는 중입니다...</div>; // ✅ null-safe 처리
+    if (!lecture) return <div>강의 정보를 불러오는 중입니다...</div>;
 
     const [lecTit, setLecTit] = useState(lecture.lecTit);
     const [lecSummary, setLecSummary] = useState(lecture.lecSummary);
@@ -13,6 +13,17 @@ function CourseDetailEdit({ lecture, currentPage, setCurrentPage }) {
     const [lecPoint, setLecPoint] = useState(lecture.lecPoint);
     const [lecTime, setLecTime] = useState(lecture.lecTime);
     const [lecMin, setLecMin] = useState(lecture.lecMin);
+
+    useEffect(() => {
+        if (lecture) {
+            setLecTit(lecture.lecTit);
+            setLecSummary(lecture.lecSummary);
+            setLecMany(lecture.lecMany);
+            setLecPoint(lecture.lecPoint);
+            setLecTime(lecture.lecTime);
+            setLecMin(lecture.lecMin);
+        }
+    }, [lecture]);
 
     const { user } = UseUser();
     const accessToken = user?.data?.accessToken;
@@ -47,7 +58,7 @@ function CourseDetailEdit({ lecture, currentPage, setCurrentPage }) {
         }
     };
 
-    // 수정 완료 후 돌아가기
+    // 수정 완료 후 강의 목록 페이지로 돌아가기
     if (currentPage === "강의 수정") {
         return <CourseList currentPage={currentPage} setCurrentPage={setCurrentPage} />;
     }

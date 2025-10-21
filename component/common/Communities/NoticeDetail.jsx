@@ -191,9 +191,15 @@ const markdown = decodeBase64(notice.boardContent);
       <Viewer initialValue={markdown} />
     </div>
 
-    <button className="noticeDeleteButton" onClick={() => handleDelete(accessToken, notice.boardIdx)}>
-      공지 삭제
-    </button>
+    {isAdminAuth && (
+      <button
+        className="noticeDeleteButton"
+        onClick={() => handleDelete(accessToken, notice.boardIdx)}
+      >
+        공지 삭제
+      </button>
+    )}
+
   </div>
 );
 

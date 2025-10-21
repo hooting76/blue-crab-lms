@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { UseUser } from '../../../hook/UseUser';
 import "../../../css/MyPages/CourseDetail.css";
 
-function CourseDetail({ lecture, onFetchComplete }) {
+function CourseDetail({ lecture, onFetchComplete, onEditClick, closeModal, setCurrentPage }) {
     const { user } = UseUser();
     const [course, setCourse] = useState(null);
 
@@ -35,15 +35,25 @@ function CourseDetail({ lecture, onFetchComplete }) {
     };
 
     useEffect(() => {
-        if (!lecture) return;
+        if (!lecture) {
+            setCourse(null);
+            return;
+        }
 
         const token = getAccessToken();
-        if (!token || !lecture.lecSerial) return;
+        if (!token || !lecture.lecSerial) {
+            setCourse(null);
+            return;
+        }
 
         fetchCourseDetail(token, lecture.lecSerial).then((data) => {
             if (data) {
                 setCourse(data);
-                onFetchComplete?.(data); // ✅ 콜백으로 부모에 전달
+                if (onFetchComplete) {
+                    onFetchComplete(data);
+                }
+            } else {
+                setCourse(null);
             }
         });
     }, [lecture]);
@@ -52,7 +62,7 @@ function CourseDetail({ lecture, onFetchComplete }) {
         return <div className="courseDetailContainer">강의 정보를 불러오는 중입니다...</div>;
     }
 
-    // 유틸: 학부 이름
+    // 유틸 함수들
     const formatMcode = (code) => {
         const map = {
             "01": "해양학부",
@@ -64,7 +74,6 @@ function CourseDetail({ lecture, onFetchComplete }) {
         return map[code] || "기타";
     };
 
-    // 유틸: 학과 이름
     const formatMcodeDep = (mcode, dep) => {
         const depMap = {
             "01": {
@@ -89,6 +98,7 @@ function CourseDetail({ lecture, onFetchComplete }) {
     };
 
     const formatOpen = (lecOpen) => (lecOpen === 1 ? "열림" : "닫힘");
+
 
     return (
         <div className="courseDetailContainer">
@@ -118,6 +128,15 @@ function CourseDetail({ lecture, onFetchComplete }) {
                 <span>학기 : {course.lecSemester}</span>
                 <span>수강 최저 학년 : {course.lecMin}</span>
                 <span>열림 여부 : {formatOpen(course.lecOpen)}</span>
+            </div>
+
+            <div style={{ marginTop: '20px' }}>
+                <button
+                    className="courseEditButton"
+                    onClick={() => onEditClick(course)}
+                >
+                    강의 수정
+                </button>
             </div>
         </div>
     );

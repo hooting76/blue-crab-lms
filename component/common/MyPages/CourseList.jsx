@@ -7,16 +7,15 @@ function CourseList({ currentPage, setCurrentPage }) {
     const { user } = UseUser();
     const [lectureList, setLectureList] = useState([]);
     const [selectedLecture, setSelectedLecture] = useState(null);
-    const [detailedLecture, setDetailedLecture] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
     const accessToken = user?.data?.accessToken;
 
-    const fetchLectureData = async () => {
+    const fetchLectureData = async (page = 0) => {
         try {
             const requestBody = {
-                page: 0,
+                page,
                 size: 20,
                 professor: String(user.data.user.id),
             };
@@ -40,9 +39,9 @@ function CourseList({ currentPage, setCurrentPage }) {
 
     useEffect(() => {
         if (accessToken) {
-            fetchLectureData();
+            fetchLectureData(currentPage - 1 || 0);
         }
-    }, [accessToken]);
+    }, [accessToken, currentPage]);
 
     const openModal = (lecture) => {
         setSelectedLecture(lecture);
@@ -54,39 +53,20 @@ function CourseList({ currentPage, setCurrentPage }) {
         setIsModalOpen(false);
     };
 
-    const handleEdit = () => {
-  if (!detailedLecture) {
-    alert("강의 상세 정보를 불러오는 중입니다.");
-    return;
-  }
-  setIsModalOpen(false);
-  setTimeout(() => {
-    setCurrentPage("강의 수정 상세 페이지");
-  }, 100);
-};
-
-
-    // ✅ 상세 정보 없으면 CourseDetailEdit 렌더링 지연
+    // 강의 수정 상세 페이지 렌더링
     if (currentPage === "강의 수정 상세 페이지") {
-        if (!detailedLecture) {
+        if (!selectedLecture) {
             return <div>강의 상세 정보를 불러오는 중입니다...</div>;
         }
 
         return (
             <CourseDetailEdit
-                lecture={detailedLecture}
+                lecture={selectedLecture}
                 currentPage={currentPage}
                 setCurrentPage={setCurrentPage}
             />
         );
     }
-
-    useEffect(() => {
-  console.log('selectedLecture:', selectedLecture);
-  console.log('detailedLecture:', detailedLecture);
-  console.log('currentPage:', currentPage);
-}, [selectedLecture, detailedLecture, currentPage]);
-
 
     return (
         <>
@@ -113,19 +93,16 @@ function CourseList({ currentPage, setCurrentPage }) {
 
                         <CourseDetail
                             lecture={selectedLecture}
-                            onFetchComplete={(data) => {
-                                console.log("✅ 상세 데이터 수신:", data);
-                                setDetailedLecture(data);
+                            onFetchComplete={(data) => setSelectedLecture(data)}
+                            onEditClick={(course) => {
+                                setSelectedLecture(course); // 수정할 강의 데이터 설정
+                                setIsModalOpen(false);      // 모달 닫기
+                                setCurrentPage("강의 수정 상세 페이지"); // 페이지 전환
                             }}
+                            closeModal={closeModal}
+                            setCurrentPage={setCurrentPage}
                         />
 
-                        <button
-                            className="courseEditButton"
-                            onClick={handleEdit}
-                            disabled={!detailedLecture}
-                        >
-                            강의 수정
-                        </button>
                     </div>
                 </div>
             )}
