@@ -52,8 +52,8 @@ function CourseDetail({lecture, onFetchComplete}) {
         }
     }, [lecture]);
 
-    console.log("course : ", course);
 
+    // 학부 함수
     const formatMcode = (lecMcode) => {
     switch (lecMcode) {
         case "01": return "해양학부";
@@ -65,6 +65,8 @@ function CourseDetail({lecture, onFetchComplete}) {
     }
 };
 
+
+// 학과 함수
 const formatMcodeDep = (lecMcode, lecMcodeDep) => {
     if (lecMcode === "01") {
         switch (lecMcodeDep) {
@@ -108,6 +110,8 @@ const formatMcodeDep = (lecMcode, lecMcodeDep) => {
     } else return "기타"
 }
 
+
+// 열림 여부 함수
 const formatOpen = (lecOpen) => {
     if (lecOpen === 1) {return "열림"} else {return "닫힘"};
 }

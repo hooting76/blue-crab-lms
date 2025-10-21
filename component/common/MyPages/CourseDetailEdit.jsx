@@ -1,55 +1,41 @@
-import {useState, useEffect} from "react";
+import {useState} from "react";
 import {UseUser} from "../../../hook/UseUser";
 import CourseList from "./CourseList";
 
 function CourseDetailEdit({lecture, currentPage, setCurrentPage}) {
-    const [lecSerial, setLecSerial] = useState();
-    const [lecTit, setLecTit] = useState();
-    const [lecSummary, setLecSummary] = useState();
-    const [lecMany, setLecMany] = useState();
-    const [lecPoint, setLecPoint] = useState();
-    const [lecTime, setLecTime] = useState();
-    const [lecProf, setLecProf] = useState();
-    const [lecMcode, setLecMcode] = useState();
-    const [lecMcodeDep, setLecMcodeDep] = useState();
-    const [lecYear, setLecYear] = useState();
-    const [lecSemester, setLecSemester] = useState();
-    const [lecMajor, setLecMajor] = useState();
-    const [lecMust, setLecMust] = useState();
-    const [lecMin, setLecMin] = useState();
-    const [lecOpen, setLecOpen] = useState();
+    const lecSerial = lecture.lecSerial;
+    const [lecTit, setLecTit] = useState(lecture.lecTit);
+    const [lecSummary, setLecSummary] = useState(lecture.lecSummary);
+    const [lecMany, setLecMany] = useState(lecture.lecMany);
+    const [lecPoint, setLecPoint] = useState(lecture.lecPoint);
+    const [lecTime, setLecTime] = useState(lecture.lecTime);
+    const [lecMin, setLecMin] = useState(lecture.lecMin);
     const {user} = UseUser();
     const accessToken = user.data.accessToken;
 
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
 
-      useEffect(() => {
-        setLecSerial(lecture.lecSerial);
-        setLecTit(lecture.lecTit);
-        setLecSummary(lecture.lecSummary);
-        setLecMany(lecture.lecMany);
-        setLecPoint(lecture.lecPoint);
-        setLecTime(lecture.lecTime);
-      }, [lecture]);
-
 
     const submitCourseEdit = async(e) => {
-        const EditedCourseRegisterDetails = {
+        const requestBody = {
+                lecSerial,
                 lecTit,
-                lecSummary,
                 lecMany,
-                lecOpen
+                lecTime,
+                lecPoint,
+                lecMin,
+                lecSummary
             }
-            console.log(("EditedCourseRegisterDetails :"), EditedCourseRegisterDetails);
+            console.log(("requestBody : "), requestBody);
 
-            try {const response = await fetch(`${BASE_URL}/lectures/update/${lecture.lectureIdx}`, {
+            try {const response = await fetch(`${BASE_URL}/lectures/update`, {
                 method: 'POST',
                 headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${accessToken}`
                 },
-                body: JSON.stringify(EditedCourseRegisterDetails),
+                body: JSON.stringify(requestBody),
             });
 
         if (!response.ok) throw new Error('서버 에러가 발생했습니다.');
@@ -57,7 +43,9 @@ function CourseDetailEdit({lecture, currentPage, setCurrentPage}) {
         setLecTit('');
         setLecSummary('');
         setLecMany(null);
-        setLecOpen('');
+        setLecTime('');
+        setLecPoint('');
+        setLecMin('');
         setCurrentPage("강의 수정");
         } catch (error) {
         alert(error.message);
@@ -104,17 +92,36 @@ function CourseDetailEdit({lecture, currentPage, setCurrentPage}) {
             </div>
 
             <div>
-                <label>강의 열림 여부</label><br />
-                <select
-                value={lecOpen}
-                onChange={(e) => setLecOpen(Number(e.target.value))}
+                <label>강의 시간</label><br />
+                <input
+                type="text"
+                value={lecTime}
+                onChange={(e) => setLecTime(e.target.value)}
                 required
                 style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
-                >
-                <option value="">강의 열림 여부</option>
-                <option value={1}>열림</option>
-                <option value={0}>닫힘</option>
-                </select>
+                />
+            </div>
+
+            <div>
+                <label>학점</label><br />
+                <input
+                type="number"
+                value={lecPoint}
+                onChange={(e) => setLecPoint(e.target.value)}
+                required
+                style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                />
+            </div>
+
+            <div>
+                <label>수강 최저 학년</label><br />
+                <input
+                type="number"
+                value={lecMin}
+                onChange={(e) => setLecMin(e.target.value)}
+                required
+                style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                />
             </div>
 
             <div>
