@@ -82,6 +82,15 @@ function CourseList({ currentPage, setCurrentPage }) {
         );
     }
 
+    const handleEditClick = (lectureData) => {
+        setIsModalOpen(false);
+        setSelectedLecture(lectureData);
+
+        setTimeout(() => {
+            setCurrentPage("강의 수정 상세 페이지");
+        }, 100);
+    };
+
     return (
         <>
             <h2>강의 목록</h2>
@@ -107,18 +116,9 @@ function CourseList({ currentPage, setCurrentPage }) {
 
                         <CourseDetail
                             lecture={selectedLecture}
-                            onFetchComplete={(data) => {
-                                setDetailedLecture(data);
-                            }}
+                            onFetchComplete={(data) => setSelectedLecture(data)}
+                            onEditClick={handleEditClick}
                         />
-
-                        <button
-                            className="courseEditButton"
-                            onClick={handleEdit}
-                            disabled={!detailedLecture}
-                        >
-                            강의 수정
-                        </button>
                     </div>
                 </div>
             )}

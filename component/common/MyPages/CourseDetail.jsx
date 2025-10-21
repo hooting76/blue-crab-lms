@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { UseUser } from '../../../hook/UseUser';
 import "../../../css/MyPages/CourseDetail.css";
 
-function CourseDetail({ lecture, onFetchComplete }) {
+function CourseDetail({ lecture, onFetchComplete, onEditClick }) {
     const { user } = UseUser();
     const [course, setCourse] = useState(null);
 
@@ -127,6 +127,21 @@ function CourseDetail({ lecture, onFetchComplete }) {
                 <span>학기 : {course.lecSemester}</span>
                 <span>수강 최저 학년 : {course.lecMin}</span>
                 <span>열림 여부 : {formatOpen(course.lecOpen)}</span>
+            </div>
+
+            <div style={{ marginTop: '20px' }}>
+                <button
+                    className="courseEditButton"
+                    onClick={() => {
+                        if (!course) {
+                            alert("강의 상세 정보를 불러오는 중입니다.");
+                            return;
+                        }
+                        if (onEditClick) onEditClick(course);
+                    }}
+                >
+                    강의 수정
+                </button>
             </div>
         </div>
     );
