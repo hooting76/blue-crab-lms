@@ -64,7 +64,7 @@ function CourseDetail({lecture, onFetchComplete}) {
 };
 
 const formatMcodeDep = (lecMcode, lecMcodeDep) => {
-    if (lecMcode = 1) {
+    if (lecMcode = "01") {
         switch (lecMcodeDep) {
             case "01": return "항해학과";
             case "02": return "해양경찰";
@@ -73,20 +73,20 @@ const formatMcodeDep = (lecMcode, lecMcodeDep) => {
             case "05": return "해양수산학";
             case "06": return "조선학과";
         }
-    } else if (lecMcode = 2) {
+    } else if (lecMcode = "02") {
         switch (lecMcodeDep) {
             case "01": return "간호학";
             case "02": return "치위생";
             case "03": return "약학과";
             case "04": return "보건정책학";
         }
-    } else if (lecMcode = 3) {
+    } else if (lecMcode = "03") {
         switch (lecMcodeDep) {
             case "01": return "물리학";
             case "02": return "수학";
             case "03": return "분자화학";
         }
-    } else if (lecMcode = 4) {
+    } else if (lecMcode = "04") {
         switch (lecMcodeDep) {
             case "01": return "철학";
             case "02": return "국어국문";
@@ -96,7 +96,7 @@ const formatMcodeDep = (lecMcode, lecMcodeDep) => {
             case "06": return "정치외교";
             case "07": return "영어영문";
         }
-    } else if (lecMcode = 5) {
+    } else if (lecMcode = "05") {
         switch (lecMcodeDep) {
             case "01": return "컴퓨터공학";
             case "02": return "기계공학";
