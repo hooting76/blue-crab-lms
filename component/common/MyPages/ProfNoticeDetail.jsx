@@ -12,7 +12,7 @@ const ProfNoticeDetail = ({ boardIdx, onFetchComplete }) => {
   const [error, setError] = useState(null);
   const { user } = UseUser();
    
-    const accessToken = user.data.accessToken();
+    const accessToken = user.data.accessToken;
 
 
 

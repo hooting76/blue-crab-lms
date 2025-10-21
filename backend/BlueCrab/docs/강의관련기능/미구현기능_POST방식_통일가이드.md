@@ -1,6 +1,7 @@
 # 🔧 미구현 기능 POST 방식 통일 가이드
 
 > **작성일**: 2025-10-18  
+> **업데이트**: 2025-10-21 (성적 관리 구현 완료 반영)  
 > **목적**: 기존 시스템과의 일관성 확보를 위한 POST 방식 API 재설계  
 > **대상**: 백엔드 개발자, 프론트엔드 개발자
 
@@ -9,7 +10,16 @@
 ## 📋 개요
 
 Blue Crab LMS의 강의 관리 시스템은 복합 쿼리 지원을 위해 **POST 방식을 채택**하고 있습니다.
-Phase4의 미구현 기능들도 이 패턴에 따라 모두 POST 방식으로 통일하여 구현하도록 재설계되었습니다.
+
+### ✅ 구현 완료 (93%)
+**성적 관리 시스템** - Phase 1~3 완료
+- 7개 API 구현 완료
+- 이벤트 기반 자동 재계산
+- 등급 배정 알고리즘 (하위 침범 방식)
+- 📁 **상세 문서**: `성적관리/` 디렉토리
+
+### ⏳ 미구현 (7%)
+Phase4의 일부 기능들도 이 패턴에 따라 모두 POST 방식으로 통일하여 구현하도록 재설계되었습니다.
 
 ### 🎯 POST 방식 채택 이유
 1. **복합 쿼리 지원**: Request Body에서 다양한 필터링 조건 지원
@@ -207,21 +217,26 @@ const gradeResult = await callAPI('/grades/input', {
 
 ## 📊 개발 우선순위
 
-### 🔴 1단계: 핵심 성적 관리 (High Priority)
-- **GradeController 신규 생성**
-- `POST /api/grades/input` - 성적 입력 (교수)
-- `POST /api/grades/my-grades` - 성적 조회 (학생/교수)
-- **예상 개발 기간**: 1-2주
+### ✅ 완료: 성적 관리 시스템 (93%)
+- **GradeManagementController, GradeCalculationService 구현 완료**
+- `POST /enrollments/grade-config` - 성적 구성 설정
+- `POST /enrollments/grade-info` - 성적 조회 (학생/교수)
+- `POST /enrollments/grade-list` - 성적 목록 조회
+- `POST /enrollments/grade-finalize` - 최종 등급 배정
+- `PUT /enrollments/{enrollmentIdx}/attendance` - 출석 업데이트
+- `PUT /assignments/{assignmentIdx}/grade` - 과제 채점
+- **완료 기간**: 2025-10 (약 3주)
+- **📁 상세 문서**: `성적관리/` 디렉토리
 
 ### 🟡 2단계: 강의평가 시스템 (Medium Priority)
-- **EvaluationController 신규 생성**
+- **EvaluationController 신규 생성 필요**
 - `POST /api/evaluations/items` - 평가 항목 조회
 - `POST /api/evaluations/submit` - 평가 제출
 - `POST /api/evaluations/results` - 평가 결과 조회
 - **예상 개발 기간**: 2-3주
 
 ### 🟢 3단계: 보고서 시스템 (Low Priority)
-- **ReportController 신규 생성**
+- **ReportController 신규 생성 필요**
 - `POST /api/reports/semester-summary` - 종합 보고서
 - **예상 개발 기간**: 1주
 
@@ -285,11 +300,14 @@ CREATE TABLE EVALUATION_TBL (
 
 ## 🎯 결론
 
-미구현 기능들을 모두 POST 방식으로 통일함으로써:
+✅ **성적 관리 구현 완료** (93%)
+- 일관성 확보: POST 방식 통일
+- 확장성 증대: 복합 쿼리 및 필터링 지원
+- 이벤트 시스템: 자동 재계산 구현
+- 등급 배정: 하위 침범 알고리즘 구현
 
-✅ **일관성 확보**: 기존 시스템과 동일한 패턴  
-✅ **확장성 증대**: 복합 쿼리 및 필터링 지원  
-✅ **유지보수성**: 통일된 구조로 코드 관리 용이  
-✅ **개발 효율성**: 기존 패턴 재사용으로 빠른 개발  
+⏳ **다음 단계**
+- 2단계: 강의평가 시스템 (2-3주)
+- 3단계: 보고서 시스템 (1주)
 
-**다음 단계**: 우선순위에 따라 1단계(성적 관리)부터 순차적 개발 진행
+**📁 참고**: 성적 관리 시스템 상세 구현은 `성적관리/` 디렉토리 참조

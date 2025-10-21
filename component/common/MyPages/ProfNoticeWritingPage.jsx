@@ -157,24 +157,24 @@ useEffect(() => {
     e.preventDefault();
 
     const boardContent = editorRef.current.getInstance().getMarkdown();
-    if (!boardTitle || boardCode === null || !boardContent.trim()) {
+    if (!boardTitle || selectedLectureSerial === "" || !boardContent.trim()) {
       alert('모든 필드를 입력해주세요.');
       return;
     }
 
-    const date = new Date().toLocaleString("sv-SE", {
-      timeZone: "Asia/Seoul",
-      hour12: false,
-    });
-    const boardReg = date.replace(" ", "T");
+    // const date = new Date().toLocaleString("sv-SE", {
+    //   timeZone: "Asia/Seoul",
+    //   hour12: false,
+    // });
+    // const boardReg = date.replace(" ", "T");
 
     const NoticeByProf = {
       boardTitle,
       boardCode: 3,
       boardContent,
-      boardWriterIdx: String(user.data.user.id),
-      boardReg,
-      boardOn: 1,
+      // boardWriterIdx: String(user.data.user.id),
+      // boardReg,
+      // boardOn: 1,
       lecSerial: selectedLectureSerial
     };
 
@@ -251,17 +251,17 @@ useEffect(() => {
       return;
     }
 
-    const date = new Date().toLocaleString("sv-SE", {
-      timeZone: "Asia/Seoul",
-      hour12: false,
-    });
-    const boardLast = date.replace(" ", "T");
+    // const date = new Date().toLocaleString("sv-SE", {
+    //   timeZone: "Asia/Seoul",
+    //   hour12: false,
+    // });
+    // const boardLast = date.replace(" ", "T");
 
     const updatedNotice = {
       boardTitle,
       boardCode: 3,
       boardContent,
-      boardLast,
+      // boardLast,
       lecSerial: selectedLectureSerial
     };
 
