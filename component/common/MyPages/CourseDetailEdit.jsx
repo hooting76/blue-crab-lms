@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { UseUser } from "../../../hook/UseUser";
 import CourseList from "./CourseList";
 
@@ -13,17 +13,6 @@ function CourseDetailEdit({ lectureDetails, currentPage, setCurrentPage }) {
     const [lecPoint, setLecPoint] = useState(lectureDetails.lecPoint);
     const [lecTime, setLecTime] = useState(lectureDetails.lecTime);
     const [lecMin, setLecMin] = useState(lectureDetails.lecMin);
-
-    useEffect(() => {
-        if (lectureDetails) {
-            setLecTit(lectureDetails.lecTit);
-            setLecSummary(lectureDetails.lecSummary);
-            setLecMany(lectureDetails.lecMany);
-            setLecPoint(lectureDetails.lecPoint);
-            setLecTime(lectureDetails.lecTime);
-            setLecMin(lectureDetails.lecMin);
-        }
-    }, [lectureDetails]);
 
     const { user } = UseUser();
     const accessToken = user?.data?.accessToken;
