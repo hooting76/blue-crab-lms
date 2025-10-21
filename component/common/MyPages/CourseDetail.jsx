@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { UseUser } from '../../../hook/UseUser';
 import "../../../css/MyPages/CourseDetail.css";
 
-function CourseDetail({ lecture, onFetchComplete }) {
+function CourseDetail({ lecture }) {
     const { user } = UseUser();
     const [course, setCourse] = useState(null);
 
@@ -43,7 +43,6 @@ function CourseDetail({ lecture, onFetchComplete }) {
         fetchCourseDetail(token, lecture.lecSerial).then((data) => {
             if (data) {
                 setCourse(data);
-                onFetchComplete?.(data); // ✅ 콜백으로 부모에 전달
             }
         });
     }, [lecture]);

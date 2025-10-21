@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { UseUser } from "../../../hook/UseUser";
 import CourseList from "./CourseList";
 
 function CourseDetailEdit({ lecture, currentPage, setCurrentPage }) {
     console.log("CourseDetailEdit lecture:", lecture);
 
-    if (!lecture) return <div>강의 정보를 불러오는 중입니다...</div>; // ✅ null-safe 처리
+    if (!lecture) return <div>강의 정보를 불러오는 중입니다...</div>;
 
     const [lecTit, setLecTit] = useState(lecture.lecTit);
     const [lecSummary, setLecSummary] = useState(lecture.lecSummary);
@@ -15,15 +15,15 @@ function CourseDetailEdit({ lecture, currentPage, setCurrentPage }) {
     const [lecMin, setLecMin] = useState(lecture.lecMin);
 
     useEffect(() => {
-    if (lecture) {
-      setLecTit(lecture.lecTit);
-      setLecSummary(lecture.lecSummary);
-      setLecMany(lecture.lecMany);
-      setLecPoint(lecture.lecPoint);
-      setLecTime(lecture.lecTime);
-      setLecMin(lecture.lecMin);
-    }
-  }, [lecture]);
+        if (lecture) {
+            setLecTit(lecture.lecTit);
+            setLecSummary(lecture.lecSummary);
+            setLecMany(lecture.lecMany);
+            setLecPoint(lecture.lecPoint);
+            setLecTime(lecture.lecTime);
+            setLecMin(lecture.lecMin);
+        }
+    }, [lecture]);
 
     const { user } = UseUser();
     const accessToken = user?.data?.accessToken;
@@ -52,14 +52,14 @@ function CourseDetailEdit({ lecture, currentPage, setCurrentPage }) {
 
             if (!response.ok) throw new Error('서버 에러가 발생했습니다.');
             alert('강의가 성공적으로 수정되었습니다!');
-            setCurrentPage("강의 수정");
+            setCurrentPage("lecture_list");
         } catch (error) {
             alert(error.message);
         }
     };
 
-    // 수정 완료 후 돌아가기
-    if (currentPage === "강의 수정") {
+    // 수정 완료 후 강의 목록 페이지로 돌아가기
+    if (currentPage === "lecture_list") {
         return <CourseList currentPage={currentPage} setCurrentPage={setCurrentPage} />;
     }
 
