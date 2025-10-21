@@ -74,7 +74,7 @@ function CourseList({ currentPage, setCurrentPage }) {
 
         return (
             <CourseDetailEdit
-                lecture={selectedLecture}
+                lecture={detailedLecture}
                 currentPage={currentPage}
                 setCurrentPage={setCurrentPage}
             />
