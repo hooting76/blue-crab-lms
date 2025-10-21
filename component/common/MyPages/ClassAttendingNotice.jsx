@@ -6,7 +6,7 @@ import ProfNoticeDetail from './ProfNoticeDetail.jsx'; // 누락된 import 추�
 const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 const NOTICE_BOARD_CODE = 3;
 
-function ClassAttendingNotice({ currentPage, setCurrentPage }) {
+function ClassAttendingNotice({ currentPage, setCurrentPage, setNoticeToEdit }) {
     const { user } = UseUser();
     const accessToken = user?.data?.accessToken;
     const userId = user?.data?.user?.id;
@@ -46,7 +46,6 @@ function ClassAttendingNotice({ currentPage, setCurrentPage }) {
         }
     };
 
-    console.log("lectureList : ", lectureList);
 
     const fetchNotices = async () => {
         try {
@@ -61,7 +60,6 @@ function ClassAttendingNotice({ currentPage, setCurrentPage }) {
 
             if (!response.ok) throw new Error('공지사항 조회 실패');
             const data = await response.json();
-            console.log("📦 notices response:", data);
             setNoticeList(data.content);
         } catch (error) {
             console.error('공지사항 에러:', error);
@@ -132,12 +130,16 @@ function ClassAttendingNotice({ currentPage, setCurrentPage }) {
     };
 
     const handleEdit = () => {
-        setCurrentPage("과목별 공지 작성");
-    };
+    if (fetchedNotice) {
+        setNoticeToEdit(fetchedNotice); // notice 상태 설정
+        setCurrentPage("과목별 공지 작성"); // 페이지 전환
+    }
+};
+
 
     /** ========== Page Change ========== */
     if (currentPage === "과목별 공지 작성") {
-        return <ProfNoticeWritingPage currentPage={currentPage} setCurrentPage={setCurrentPage} />;
+        return <ProfNoticeWritingPage notice={noticeToEdit} currentPage={currentPage} setCurrentPage={setCurrentPage} />;
     }
 
     console.log("selectedLectureSerial : ", selectedLectureSerial);
@@ -210,7 +212,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage }) {
                             boardIdx={selectedIdx}
                             currentPage={currentPage}
                             setCurrentPage={setCurrentPage}
-                            onFetchComplete={(notice) => setFetchedNotice(notice)}
+                            onFetchComplete={(notice) => {setFetchedNotice(notice); setNoticeToEdit(notice);}}
                         />
                         <button className="noticeEditButton" onClick={handleEdit}>
                             공지 수정

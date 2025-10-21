@@ -5,7 +5,7 @@ import '@toast-ui/editor/dist/i18n/ko-kr';
 import { UseUser } from '../../../hook/UseUser';
 import ClassAttendingNotice from './ClassAttendingNotice';
 
-function ProfNoticeWritingPage({ notice, accessToken: propToken, currentPage, setCurrentPage }) {
+function ProfNoticeWritingPage({ notice, currentPage, setCurrentPage }) {
 
   function decodeBase64(str) {
     if (typeof str !== 'string' || str.trim() === '') return '';
@@ -37,7 +37,7 @@ function ProfNoticeWritingPage({ notice, accessToken: propToken, currentPage, se
     return null;
   };
 
-  const accessToken = propToken || getAccessToken();
+  const accessToken = getAccessToken();
 
 
   const fetchLectureList = async (accessToken, user) => {
@@ -57,7 +57,6 @@ function ProfNoticeWritingPage({ notice, accessToken: propToken, currentPage, se
             },
             body: JSON.stringify(requestBody)
         });
-        console.log("Request body:", requestBody);
 
         if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
 
@@ -92,7 +91,6 @@ useEffect(() => {
       });
 
       const attList = await attListRes.json();
-      console.log("📦 board detail 응답:", attList);
 
       if (attListRes.ok) {
         // 확인: attachments가 어디에 있는지 로그로 체크
@@ -117,16 +115,12 @@ useEffect(() => {
     if (notice?.boardTitle) {
       setBoardTitle(decodeBase64(notice.boardTitle));
     }
-   // if (typeof notice?.boardContent === 'string' && editorRef.current) {
-    //  editorRef.current.getInstance().setMarkdown(decodeBase64(notice.boardContent));
-   // }
-    if (typeof notice?.boardCode === 'number') {
-      setBoardCode(notice.boardCode);
-    }
-    if (notice?.boardIdx) {
-      setBoardIdx(notice.boardIdx); // 🔧 초기 진입 시 boardIdx 설정
-    }
+   if (typeof notice?.boardContent === 'string' && editorRef.current) {
+     editorRef.current.getInstance().setMarkdown(decodeBase64(notice.boardContent));
+   }
   }, [notice]);
+
+  console.log("notice : ", notice);
 
   if (!isAuthenticated) {
     return <p>교수 인증 정보를 불러오는 중입니다...</p>;
@@ -162,19 +156,11 @@ useEffect(() => {
       return;
     }
 
-    // const date = new Date().toLocaleString("sv-SE", {
-    //   timeZone: "Asia/Seoul",
-    //   hour12: false,
-    // });
-    // const boardReg = date.replace(" ", "T");
 
     const NoticeByProf = {
       boardTitle,
       boardCode: 3,
       boardContent,
-      // boardWriterIdx: String(user.data.user.id),
-      // boardReg,
-      // boardOn: 1,
       lecSerial: selectedLectureSerial
     };
 
@@ -251,18 +237,11 @@ useEffect(() => {
       return;
     }
 
-    // const date = new Date().toLocaleString("sv-SE", {
-    //   timeZone: "Asia/Seoul",
-    //   hour12: false,
-    // });
-    // const boardLast = date.replace(" ", "T");
 
     const updatedNotice = {
       boardTitle,
       boardCode: 3,
-      boardContent,
-      // boardLast,
-      lecSerial: selectedLectureSerial
+      boardContent
     };
 
     try {
@@ -316,7 +295,6 @@ useEffect(() => {
       setExistingAttachments([]);
       setDeletedAttachments([]);
       editorRef.current.getInstance().setMarkdown('');
-      console.log("currentPage : ", currentPage);
     } catch (error) {
       alert(error.message);
     }
