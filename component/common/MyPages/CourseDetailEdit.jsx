@@ -2,28 +2,28 @@ import { useState, useEffect } from "react";
 import { UseUser } from "../../../hook/UseUser";
 import CourseList from "./CourseList";
 
-function CourseDetailEdit({ lecture, currentPage, setCurrentPage }) {
-    console.log("CourseDetailEdit lecture:", lecture);
+function CourseDetailEdit({ lectureDetail, currentPage, setCurrentPage }) {
+    console.log("CourseDetailEdit lectureDetail:", lectureDetail);
 
     if (!lecture) return <div>강의 정보를 불러오는 중입니다...</div>;
 
-    const [lecTit, setLecTit] = useState(lecture.lecTit);
-    const [lecSummary, setLecSummary] = useState(lecture.lecSummary);
-    const [lecMany, setLecMany] = useState(lecture.lecMany);
-    const [lecPoint, setLecPoint] = useState(lecture.lecPoint);
-    const [lecTime, setLecTime] = useState(lecture.lecTime);
-    const [lecMin, setLecMin] = useState(lecture.lecMin);
+    const [lecTit, setLecTit] = useState(lectureDetail.lecTit);
+    const [lecSummary, setLecSummary] = useState(lectureDetail.lecSummary);
+    const [lecMany, setLecMany] = useState(lectureDetail.lecMany);
+    const [lecPoint, setLecPoint] = useState(lectureDetail.lecPoint);
+    const [lecTime, setLecTime] = useState(lectureDetail.lecTime);
+    const [lecMin, setLecMin] = useState(lectureDetail.lecMin);
 
     useEffect(() => {
-        if (lecture) {
-            setLecTit(lecture.lecTit);
-            setLecSummary(lecture.lecSummary);
-            setLecMany(lecture.lecMany);
-            setLecPoint(lecture.lecPoint);
-            setLecTime(lecture.lecTime);
-            setLecMin(lecture.lecMin);
+        if (lectureDetail) {
+            setLecTit(lectureDetail.lecTit);
+            setLecSummary(lectureDetail.lecSummary);
+            setLecMany(lectureDetail.lecMany);
+            setLecPoint(lectureDetail.lecPoint);
+            setLecTime(lectureDetail.lecTime);
+            setLecMin(lectureDetail.lecMin);
         }
-    }, [lecture]);
+    }, [lectureDetail]);
 
     const { user } = UseUser();
     const accessToken = user?.data?.accessToken;
