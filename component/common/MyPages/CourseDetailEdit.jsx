@@ -3,6 +3,8 @@ import {UseUser} from "../../../hook/UseUser";
 import CourseList from "./CourseList";
 
 function CourseDetailEdit({lecture, currentPage, setCurrentPage}) {
+    console.log("lecture : ", lecture);
+
     const lecSerial = lecture.lecSerial;
     const [lecTit, setLecTit] = useState(lecture.lecTit);
     const [lecSummary, setLecSummary] = useState(lecture.lecSummary);
@@ -14,8 +16,6 @@ function CourseDetailEdit({lecture, currentPage, setCurrentPage}) {
     const accessToken = user.data.accessToken;
 
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
-
-    console.log("lecture : ", lecture);
 
 
     const submitCourseEdit = async(e) => {
