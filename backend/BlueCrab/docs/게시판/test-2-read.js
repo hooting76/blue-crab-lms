@@ -1,5 +1,18 @@
 // ========== 2단계: 게시글 조회 테스트 (BOARD_CODE 업데이트 반영) ==========
-
+// 
+// 📝 변경 이력:
+// - [2025-10-21] lecSerial 필터링 기능 추가
+//   - Controller: Map<String, Object> 지원
+//   - Service: getBoardsByCodeAndLecSerialForList() 추가
+//   - Repository: findBoardListByCodeAndLecSerialWithoutContent() 추가
+//   - 이제 getLectureNotices('ETH201')가 정상 작동합니다!
+//
+// 🎯 테스트 항목:
+// 1. 전체 게시글 목록 조회
+// 2. 특정 코드별 조회 (예: 강의공지 전체)
+// 3. 특정 강의 공지 조회 ⭐ (lecSerial 필터링)
+// 4. 게시글 상세 조회
+//
 // ========== 설정 ==========
 const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0';
 
@@ -171,26 +184,32 @@ async function getBoardListByCode(boardCode, page = 0, size = 10) {
 }
 
 /**
- * 4. 특정 강의 공지 조회
- * 주의: lecSerial은 실제로 String이지만, 백엔드 API가 현재 버그로 Integer를 요구할 수 있음
+ * 4. 특정 강의 공지 조회 ⭐ [2025-10-21 수정]
+ * 
+ * 🔧 수정사항:
+ * - Controller: Map<String, Integer> → Map<String, Object>로 변경
+ * - Service: getBoardsByCodeAndLecSerialForList() 메서드 추가
+ * - Repository: findBoardListByCodeAndLecSerialWithoutContent() 쿼리 추가
+ * - 이제 lecSerial을 String으로 정상 처리 가능
+ * 
+ * ✅ 테스트:
+ * - await getLectureNotices('ETH201')  // String 타입 정상 작동
+ * - await getLectureNotices('CS101')   // 다른 강의 코드도 가능
  */
 async function getLectureNotices(lecSerial, page = 0, size = 10) {
     if (!lecSerial) {
-        lecSerial = prompt('조회할 강의 코드를 입력하세요 (예: ETH201 또는 1):', 'ETH201');
+        lecSerial = prompt('조회할 강의 코드를 입력하세요 (예: ETH201):', 'ETH201');
     }
     
     console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log(`🎓 강의 공지 조회 (강의: ${lecSerial})`);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-    // 백엔드 버그 우회: lecSerial이 숫자로 변환 가능하면 숫자로, 아니면 문자열로 전송
-    const lecSerialValue = isNaN(lecSerial) ? lecSerial : parseInt(lecSerial);
-    
-    console.log(`💡 lecSerial 타입: ${typeof lecSerialValue} (원본: "${lecSerial}")`);
+    console.log(`💡 lecSerial 타입: String (값: "${lecSerial}")`);
 
     const result = await apiRequest(`${API_BASE_URL}/api/boards/list`, 'POST', { 
         boardCode: 3,
-        lecSerial: lecSerialValue,
+        lecSerial: lecSerial,  // ⭐ 이제 String으로 그대로 전송 가능
         page,
         size 
     });
