@@ -60,8 +60,8 @@ const fetchLectureData = async (accessToken, user) => {
 
     
         useEffect(() => {
-                fetchLectureData(accessToken, selectedSemester);
-            }, [accessToken, selectedSemester]); // ✅ accessToken이 생겼을 때 호출
+                fetchLectureData(accessToken, user);
+            }, [accessToken, user]); // ✅ accessToken이 생겼을 때 호출
     
             console.log("lectureList : ", lectureList);
 
@@ -95,14 +95,19 @@ const fetchLectureData = async (accessToken, user) => {
             <h2>강의 목록</h2>
 
             <table>
-                {lectureList.length > 0 ? (
-                    lectureList.map((lecture) => (
-                        <tr key={lecture.lecIdx} onClick={() => openModal(lecture)}>{lecture.lecTit}</tr>
-                    ))
-                ) : (
-                    <tr>강의 목록 없음</tr>
-                )}
+                <tbody>
+                    {lectureList.length > 0 ? (
+                        lectureList.map((lecture) => (
+                            <tr key={lecture.lecIdx} onClick={() => openModal(lecture)}>
+                                <td>{lecture.lecTit}</td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr><td>강의 목록 없음</td></tr>
+                    )}
+                </tbody>
             </table>
+
 
             {isModalOpen && (
                 <div className="modal-overlay" onClick={closeModal}>
