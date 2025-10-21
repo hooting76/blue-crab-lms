@@ -135,15 +135,17 @@ function ClassAttendingNotice({ currentPage, setCurrentPage }) {
         return <ProfNoticeWritingPage currentPage={currentPage} setCurrentPage={setCurrentPage} />;
     }
 
+    console.log("selectedLectureSerial : ", selectedLectureSerial);
+
     /** ========== Render ========== */
     return (
         <>
             {/* 강의 선택 드롭다운 */}
             <select className="lectureName" onChange={handleLectureChange} value={selectedLectureSerial}>
                 {lectureList.length > 0 ? (
-                    lectureList.map((cls) => (
-                        <option key={cls.lecIdx} value={cls.lecSerial}>
-                            {cls.lecTit}
+                    lectureList.map((lecture) => (
+                        <option key={lecture.lecIdx} value={lecture.lecSerial}>
+                            {lecture.lecTit}
                         </option>
                     ))
                 ) : (
