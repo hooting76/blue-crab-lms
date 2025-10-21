@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { UseUser } from '../../../hook/UseUser';
 import "../../../css/MyPages/CourseDetail.css";
 
-function CourseDetail({ lecture, onFetchComplete, onEditClick }) {
+function CourseDetail({ lecture, onFetchComplete, closeModal, setCurrentPage }) {
     const { user } = UseUser();
     const [course, setCourse] = useState(null);
 
@@ -50,7 +50,7 @@ function CourseDetail({ lecture, onFetchComplete, onEditClick }) {
             if (data) {
                 setCourse(data);
                 if (onFetchComplete) {
-                    onFetchComplete(data); // 상세 데이터 부모에 전달
+                    onFetchComplete(data);
                 }
             } else {
                 setCourse(null);
@@ -99,6 +99,17 @@ function CourseDetail({ lecture, onFetchComplete, onEditClick }) {
 
     const formatOpen = (lecOpen) => (lecOpen === 1 ? "열림" : "닫힘");
 
+    const handleEditClick = () => {
+        if (!course) {
+            alert("강의 상세 정보를 불러오는 중입니다.");
+            return;
+        }
+
+        if (closeModal) closeModal();
+        if (onFetchComplete) onFetchComplete(course);
+        if (setCurrentPage) setCurrentPage("강의 수정 상세 페이지");
+    };
+
     return (
         <div className="courseDetailContainer">
             <div className="courseDetailTitleCode">
@@ -132,13 +143,7 @@ function CourseDetail({ lecture, onFetchComplete, onEditClick }) {
             <div style={{ marginTop: '20px' }}>
                 <button
                     className="courseEditButton"
-                    onClick={() => {
-                        if (!course) {
-                            alert("강의 상세 정보를 불러오는 중입니다.");
-                            return;
-                        }
-                        if (onEditClick) onEditClick(course);
-                    }}
+                    onClick={handleEditClick}
                 >
                     강의 수정
                 </button>

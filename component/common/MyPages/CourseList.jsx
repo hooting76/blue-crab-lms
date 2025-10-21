@@ -7,7 +7,6 @@ function CourseList({ currentPage, setCurrentPage }) {
     const { user } = UseUser();
     const [lectureList, setLectureList] = useState([]);
     const [selectedLecture, setSelectedLecture] = useState(null);
-    const [detailedLecture, setDetailedLecture] = useState(null); // 상세 데이터 별도 관리
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
@@ -46,50 +45,28 @@ function CourseList({ currentPage, setCurrentPage }) {
 
     const openModal = (lecture) => {
         setSelectedLecture(lecture);
-        setDetailedLecture(null);  // 상세 데이터 초기화
         setIsModalOpen(true);
     };
 
     const closeModal = () => {
         setSelectedLecture(null);
-        setDetailedLecture(null);
         setIsModalOpen(false);
-    };
-
-    const handleEdit = () => {
-        if (!detailedLecture) {
-            alert("강의 상세 정보를 불러오는 중입니다.");
-            return;
-        }
-        setIsModalOpen(false);
-        setTimeout(() => {
-            setCurrentPage("강의 수정 상세 페이지");
-        }, 100);
     };
 
     // 강의 수정 상세 페이지 렌더링
     if (currentPage === "강의 수정 상세 페이지") {
-        if (!detailedLecture) {
+        if (!selectedLecture) {
             return <div>강의 상세 정보를 불러오는 중입니다...</div>;
         }
 
         return (
             <CourseDetailEdit
-                lecture={detailedLecture}
+                lecture={selectedLecture}
                 currentPage={currentPage}
                 setCurrentPage={setCurrentPage}
             />
         );
     }
-
-    const handleEditClick = (lectureData) => {
-        setIsModalOpen(false);
-        setSelectedLecture(lectureData);
-
-        setTimeout(() => {
-            setCurrentPage("강의 수정 상세 페이지");
-        }, 100);
-    };
 
     return (
         <>
@@ -117,7 +94,8 @@ function CourseList({ currentPage, setCurrentPage }) {
                         <CourseDetail
                             lecture={selectedLecture}
                             onFetchComplete={(data) => setSelectedLecture(data)}
-                            onEditClick={handleEditClick}
+                            closeModal={closeModal}
+                            setCurrentPage={setCurrentPage}
                         />
                     </div>
                 </div>
