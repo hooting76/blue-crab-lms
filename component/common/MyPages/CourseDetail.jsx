@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { UseUser } from '../../../hook/UseUser';
 import "../../../css/MyPages/CourseDetail.css";
 
-function CourseDetail({ lectureDetails, onFetchComplete, onEditClick }) {
+function CourseDetail({ lectureDetails, onEditClick }) {
     const { user } = UseUser();
     const [lectureDetail, setLectureDetail] = useState(lectureDetails);
     const [loading, setLoading] = useState(true);
@@ -33,7 +33,6 @@ function CourseDetail({ lectureDetails, onFetchComplete, onEditClick }) {
 
             const data = await response.json();
             setLectureDetail(data);
-            if (onFetchComplete) onFetchComplete(data);
         } catch (err) {
             setError(err.message);
             setLectureDetail(null);

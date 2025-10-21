@@ -117,11 +117,7 @@ function CourseList({ currentPage, setCurrentPage }) {
                         </button>
 
                         <CourseDetail
-                            lectureDetails={selectedLectureDetail}
-                            onFetchComplete={(data) => {
-                                setSelectedLecture(data);
-                                setSelectedLectureDetail(data);
-                            }}
+                            lectureDetails={selectedLecture}
                             onEditClick={(lectureDetail) => {
                                 setSelectedLectureDetail(lectureDetail);
                                 setIsModalOpen(false);
