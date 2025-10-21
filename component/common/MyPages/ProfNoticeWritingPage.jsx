@@ -5,7 +5,7 @@ import '@toast-ui/editor/dist/i18n/ko-kr';
 import { UseUser } from '../../../hook/UseUser';
 import ClassAttendingNotice from './ClassAttendingNotice';
 
-function ProfNoticeWritingPage({ notice, accessToken: propToken, currentPage, setCurrentPage }) {
+function ProfNoticeWritingPage({ notice, currentPage, setCurrentPage }) {
 
   function decodeBase64(str) {
     if (typeof str !== 'string' || str.trim() === '') return '';

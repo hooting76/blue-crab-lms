@@ -16,6 +16,7 @@ function MyPage({ currentPage, setCurrentPage }) {
     //수강중인 과목 화면 내에서만 쓰는 진행사항 표시용 선택 과목
     const [selectedCourseId, setSelectedCourseId] = useState("");
     const [lectureToEdit, setLectureToEdit] = useState(null);
+    const [noticeToEdit, setNoticeToEdit] = useState(null);
 
 
     const handleSelectCourse = (courseId) => {
@@ -38,9 +39,9 @@ function MyPage({ currentPage, setCurrentPage }) {
         </>
         );
         case "수강/강의과목 공지사항":
-            return <ClassAttendingNotice currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
+            return <ClassAttendingNotice currentPage={currentPage} setCurrentPage={setCurrentPage} setNoticeToEdit={setNoticeToEdit}/>;
         case "과목별 공지 작성":
-            return <ProfNoticeWritingPage currentPage={currentPage} setCurrentPage={setCurrentPage} />;
+            return <ProfNoticeWritingPage notice={noticeToEdit} currentPage={currentPage} setCurrentPage={setCurrentPage} />;
         case "강의 수정":
             return <CourseList currentPage={currentPage} setCurrentPage={setCurrentPage} setLectureToEdit={setLectureToEdit}/>;
         case "강의 수정 상세 페이지":
