@@ -52,14 +52,14 @@ function CourseDetailEdit({ lecture, currentPage, setCurrentPage }) {
 
             if (!response.ok) throw new Error('서버 에러가 발생했습니다.');
             alert('강의가 성공적으로 수정되었습니다!');
-            setCurrentPage("lecture_list");
+            setCurrentPage("강의 수정");
         } catch (error) {
             alert(error.message);
         }
     };
 
     // 수정 완료 후 강의 목록 페이지로 돌아가기
-    if (currentPage === "lecture_list") {
+    if (currentPage === "강의 수정") {
         return <CourseList currentPage={currentPage} setCurrentPage={setCurrentPage} />;
     }
 

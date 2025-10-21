@@ -99,16 +99,6 @@ function CourseDetail({ lecture, onFetchComplete, onEditClick, closeModal, setCu
 
     const formatOpen = (lecOpen) => (lecOpen === 1 ? "열림" : "닫힘");
 
-    const handleEditClick = () => {
-        if (!course) {
-            alert("강의 상세 정보를 불러오는 중입니다.");
-            return;
-        }
-
-        if (closeModal) closeModal();
-        if (onFetchComplete) onFetchComplete(course);
-        if (setCurrentPage) setCurrentPage("강의 수정 상세 페이지");
-    };
 
     return (
         <div className="courseDetailContainer">
@@ -143,7 +133,7 @@ function CourseDetail({ lecture, onFetchComplete, onEditClick, closeModal, setCu
             <div style={{ marginTop: '20px' }}>
                 <button
                     className="courseEditButton"
-                    onClick={onEditClick}
+                    onClick={() => onEditClick(course)}
                 >
                     강의 수정
                 </button>
