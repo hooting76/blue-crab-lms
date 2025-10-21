@@ -22,9 +22,14 @@ import org.slf4j.LoggerFactory;
 import BlueCrab.com.example.entity.AdminTbl;
 import BlueCrab.com.example.entity.BoardTbl;
 import BlueCrab.com.example.entity.UserTbl;
+import BlueCrab.com.example.entity.Lecture.LecTbl;
 import BlueCrab.com.example.repository.BoardRepository;
 import BlueCrab.com.example.repository.AdminTblRepository;
 import BlueCrab.com.example.repository.UserTblRepository;
+import BlueCrab.com.example.repository.Lecture.LecTblRepository;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service        // 게시글 관리 서비스
@@ -44,9 +49,13 @@ public class BoardManagementService {
     @Autowired
     private UserTblRepository userTblRepository;
 
+    @Autowired
+    private LecTblRepository lecTblRepository;
+
     // 상수 정의
     private static final Integer BOARD_ACTIVE = 1; // 활성 상태 코드
     private static final Integer BOARD_INACTIVE = 0; // 비활성 상태 코드
+    private static final Integer BOARD_CODE_LECTURE = 3; // 강의 공지 코드
 
     // ========== 게시글 작성 ==========
     
@@ -69,6 +78,59 @@ public class BoardManagementService {
             boolean isProfessor = user.isPresent() && user.get().getUserStudent() == 1;
             logger.info("교수 확인 결과: {} (사용자 존재: {}, userStudent: {})", 
                        isProfessor, user.isPresent(), user.isPresent() ? user.get().getUserStudent() : "N/A");
+
+            // ========== BOARD_CODE 3 (강의 공지) 권한 검증 ==========
+            if (boardTbl.getBoardCode() != null && boardTbl.getBoardCode() == BOARD_CODE_LECTURE) {
+                // 강의 공지는 관리자와 교수 모두 작성 가능
+                if (!isAdmin && !isProfessor) {
+                    logger.warn("강의 공지 작성 권한 없음 - 이메일: {}", currentUserEmail);
+                    throw new IllegalArgumentException("강의 공지는 관리자 또는 교수만 작성할 수 있습니다.");
+                }
+                
+                // LEC_SERIAL 필수 검증
+                if (boardTbl.getLecSerial() == null || boardTbl.getLecSerial().trim().isEmpty()) {
+                    logger.warn("강의 공지 작성 시 LEC_SERIAL 누락 - 이메일: {}", currentUserEmail);
+                    throw new IllegalArgumentException("강의 공지 작성 시 강의 코드(LEC_SERIAL)는 필수입니다.");
+                }
+                
+                // 교수인 경우: 본인 담당 강의인지 검증
+                if (isProfessor) {
+                    Integer userIdx = user.get().getUserIdx();  // USER_IDX (교수 고유 번호)
+                    String userName = user.get().getUserName();
+                    
+                    // LEC_PROF는 USER_IDX를 저장하므로 userIdx를 문자열로 변환하여 검색
+                    List<LecTbl> professorLectures = lecTblRepository.findByLecProf(String.valueOf(userIdx));
+                    List<String> validLecSerials = professorLectures.stream()
+                        .map(LecTbl::getLecSerial)
+                        .collect(Collectors.toList());
+                    
+                    logger.info("교수 담당 강의 조회 - 교수 IDX: {}, 이름: {}, 담당강의: {}", 
+                               userIdx, userName, validLecSerials);
+                    
+                    if (!validLecSerials.contains(boardTbl.getLecSerial())) {
+                        logger.warn("교수가 담당하지 않는 강의에 공지 작성 시도 - 교수 IDX: {}, 이름: {}, 강의: {}, 담당강의: {}", 
+                                   userIdx, userName, boardTbl.getLecSerial(), validLecSerials);
+                        throw new IllegalArgumentException("본인이 담당하는 강의에만 공지를 작성할 수 있습니다. (강의코드: " + boardTbl.getLecSerial() + ")");
+                    }
+                    logger.info("교수 담당 강의 검증 완료 - 교수 IDX: {}, 강의: {}", userIdx, boardTbl.getLecSerial());
+                }
+                
+                // 관리자인 경우: 모든 강의에 공지 작성 가능, 강의 존재 여부만 확인
+                if (isAdmin) {
+                    Optional<LecTbl> lecture = lecTblRepository.findByLecSerial(boardTbl.getLecSerial());
+                    if (!lecture.isPresent()) {
+                        logger.warn("관리자가 존재하지 않는 강의에 공지 작성 시도 - 강의: {}", boardTbl.getLecSerial());
+                        throw new IllegalArgumentException("존재하지 않는 강의입니다. (강의코드: " + boardTbl.getLecSerial() + ")");
+                    }
+                    logger.info("관리자 강의 존재 검증 완료 - 강의: {}", boardTbl.getLecSerial());
+                }
+            } else {
+                // BOARD_CODE 0~2 (학사/행정/기타 공지)는 관리자만 작성 가능
+                if (!isAdmin) {
+                    logger.warn("학사/행정/기타 공지 작성 권한 없음 - 교수 계정 - 이메일: {}", currentUserEmail);
+                    throw new IllegalArgumentException("학사/행정/기타 공지는 관리자만 작성할 수 있습니다.");
+                }
+            }
 
             if (!isAdmin && !isProfessor) {
                 // 관리자도 아니고 교수도 아니면 권한 없음으로 Optional.empty() 반환
@@ -127,13 +189,13 @@ public class BoardManagementService {
                 if (boardTbl.getBoardCode() == null) {
                     throw new IllegalArgumentException("게시글 코드는 null일 수 없습니다.");
                 } else if (boardTbl.getBoardCode() == 0) {
-                    boardTbl.setBoardTitle("학교 공지사항");
-                } else if (boardTbl.getBoardCode() == 1) {
                     boardTbl.setBoardTitle("학사 공지사항");
+                } else if (boardTbl.getBoardCode() == 1) {
+                    boardTbl.setBoardTitle("행정 공지사항");
                 } else if (boardTbl.getBoardCode() == 2) {
-                    boardTbl.setBoardTitle("학과 공지사항");
+                    boardTbl.setBoardTitle("기타 공지사항");
                 } else if (boardTbl.getBoardCode() == 3) {
-                    boardTbl.setBoardTitle("교수 공지사항");
+                    boardTbl.setBoardTitle("강의 공지사항");
                 } else {
                     throw new IllegalArgumentException("유효하지 않은 게시글 코드입니다: " + boardTbl.getBoardCode());
                 }

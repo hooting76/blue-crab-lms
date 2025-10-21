@@ -74,15 +74,15 @@ public class LecTbl {
     private String lecTit;
 
     /**
-     * 담당 교수명
+     * 담당 교수 USER_IDX
      * 필수 입력 필드
-     * USER_TBL의 userName과 매칭됨 (userStudent = 0인 교수)
+     * USER_TBL의 USER_IDX를 문자열로 저장 (userStudent = 1인 교수)
      *
      * 유효성:
      * - 필수 입력 (nullable = false)
      * - 최대 길이: 50자
      *
-     * 사용 예시: "김교수", "이교수"
+     * 사용 예시: "25", "42" (USER_IDX 값)
      */
     @Column(name = "LEC_PROF", nullable = false, length = 50)
     private String lecProf;
