@@ -256,7 +256,7 @@ export default function ReservationModal({ facility, onClose }) {
         <section className="rm-section">
           <label>예약 날짜</label>
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-          <p className="muted">접수 가능 시간: <strong>09:00~18:00</strong></p>
+          {/* <p className="muted">접수 가능 시간: <strong>09:00~18:00</strong></p> */}
           {!canSubmitNow && <p className="warn">지금은 접수 시간이 아닙니다. 접수는 매일 09:00~18:00에 가능합니다.</p>}
           {facility.isBlocked && <p className="error">현재 차단된 시설입니다. {facility.blockReason || ""}</p>}
         </section>
@@ -323,21 +323,55 @@ export default function ReservationModal({ facility, onClose }) {
         )}
 
         <section className="rm-section">
-          <label>사용 목적 *</label>
-          <textarea value={purpose} onChange={(e) => setPurpose(e.target.value)} placeholder="예: 팀 프로젝트 회의" />
-          <label>사용할 장비 *</label>
-          <input value={equip} onChange={(e) => setEquip(e.target.value)} placeholder="예: 빔프로젝터, 화이트보드" />
-          {facility.availableEquipText && <p className="muted">이 시설의 보유 장비: {facility.availableEquipText}</p>}
-          <label>예상 인원 *</label>
-          <input type="number" min={1} max={facility.maxCapacity || 999} value={headcount} onChange={(e) => setHeadcount(Number(e.target.value))} />
-          {facility.maxCapacity && <p className="muted">정원 {facility.maxCapacity}명</p>}
+          <label htmlFor="use_Reason">사용 목적 *</label>
+          <textarea 
+            value={purpose}
+            onChange={(e) => setPurpose(e.target.value)} placeholder="예: 팀 프로젝트 회의" 
+            id="use_Reason"/>
+
+          <label htmlFor="use_ThingsArr">사용할 장비 *</label>
+          {facility.availableEquipText 
+            && <p className="muted">보유 장비: 
+                <span>{facility.availableEquipText}</span>
+              </p>}
+          <input 
+            value={equip}
+            onChange={(e) => setEquip(e.target.value)} placeholder="예: 빔프로젝터, 화이트보드" className="Equip_Things"
+            id="use_ThingsArr"
+          />
+
+          <label htmlFor="cnt_YoyakuNum">예상 인원 *</label>
+          <input 
+            type="number"
+            min={1}
+            max={facility.maxCapacity || 999} value={headcount} onChange={(e) => setHeadcount(Number(e.target.value))} 
+            className="limit_CntNum"
+            id="cnt_YoyakuNum"
+          />
+            <span>명</span>
+
+            <span className="limit_NumTxt">
+              {facility.maxCapacity 
+                && <p className="muted">
+                    정원 {facility.maxCapacity}명
+                  </p>}
+            </span>
         </section>
 
         {msg && <p className="error">{msg}</p>}
 
         <footer className="rm-actions">
-          <button className="primary" disabled={saving || facility.isBlocked || !canSubmitNow} onClick={submit}>예약 신청하기</button>
-          <button className="secondary" onClick={onClose}>닫기</button>
+          <button 
+            className="primary" 
+            disabled={saving || facility.isBlocked || !canSubmitNow} onClick={submit}
+          >
+              예약 신청하기
+          </button>
+          <button 
+            className="secondary"
+            onClick={onClose}>
+              닫기
+          </button>
         </footer>
       </div>
     </div>

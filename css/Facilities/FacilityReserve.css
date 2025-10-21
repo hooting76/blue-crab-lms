@@ -87,8 +87,9 @@ button.link{ background:none; border:none; color:var(--primary); padding:0; curs
   background:#eef3fb; border-radius:16px; padding:32px 28px;
   margin:12px auto 20px; max-width:1120px;
 }
-.page-head h2{ text-align:center; font-size:28px; margin:0 0 8px; color:#234; letter-spacing:.02em }
-.page-head .sub{ text-align:center; color:#5c6773; margin:0 }
+.page-head h2{ text-align:center; font-size:28px; margin:0 0 8px; color:#234; letter-spacing:.02em; font-weight:bold;}
+.page-head .sub{ text-align:center; color:#5c6773; margin:0;}
+.page-head .sub b{display: block; font-weight: bold;}
 
 .content-grid{
   display:grid; grid-template-columns:1fr 360px; gap:24px; align-items:start;
