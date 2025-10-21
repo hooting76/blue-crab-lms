@@ -1,183 +1,173 @@
+
 package BlueCrab.com.example.service;
 
+import BlueCrab.com.example.dto.UserCreationRequestDTO;
+import BlueCrab.com.example.entity.RegistryTbl;
+import BlueCrab.com.example.entity.SerialCodeTable;
 import BlueCrab.com.example.entity.UserTbl;
 import BlueCrab.com.example.exception.DuplicateResourceException;
 import BlueCrab.com.example.exception.ResourceNotFoundException;
+import BlueCrab.com.example.repository.RegistryRepository;
+import BlueCrab.com.example.repository.SerialCodeTableRepository;
 import BlueCrab.com.example.repository.UserTblRepository;
 import BlueCrab.com.example.util.SlowQueryLogger;
+import BlueCrab.com.example.util.UserCodeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * 사용자 관리를 위한 서비스 클래스
- * UserTbl 엔티티 기반으로 사용자 CRUD 작업 및 비즈니스 로직을 처리
- *
- * 주요 기능:
- * - 사용자 계정 생성, 조회, 수정, 삭제 (CRUD)
- * - 이메일/전화번호 중복 검사 및 검증
- * - 역할 기반 사용자 분류 (학생/교수)
- * - 사용자 검색 및 필터링 (이름, 키워드, 생년월일 범위)
- * - 사용자 통계 정보 제공
- * - 성능 모니터링을 통한 느린 쿼리 감지
- *
- * 비즈니스 규칙:
- * - 계정 생성 시 이메일과 전화번호의 유니크성 검증
- * - 계정 수정 시 변경되는 값에 대해서만 중복 검사
- * - 존재하지 않는 사용자 접근 시 예외 발생
- * - 모든 데이터베이스 작업은 트랜잭션으로 보호
- *
- * 성능 최적화:
- * - SlowQueryLogger를 통한 쿼리 성능 모니터링
- * - 필요한 경우에만 데이터베이스 조회 수행
- * - 통계 정보 캐싱 고려 (현재는 실시간 계산)
- *
- * 예외 처리:
- * - ResourceNotFoundException: 사용자를 찾을 수 없는 경우
- * - DuplicateResourceException: 이메일/전화번호 중복 시
- *
- * 의존성:
- * - UserTblRepository: 데이터베이스 접근
- * - SlowQueryLogger: 성능 모니터링 유틸리티
- *
- * 사용 예시:
- * - 회원가입: createUser()로 새 계정 생성
- * - 프로필 수정: updateUser()로 정보 업데이트
- * - 사용자 검색: searchByKeyword()로 통합 검색
- * - 통계 대시보드: getUserStats()로 사용자 현황 조회
- *
- * @author BlueCrab Development Team
- * @version 1.0.0
- * @since 2024-01-01
- */
 @Service
 @Transactional
 public class UserTblService {
-    
-    /**
-     * 사용자 리포지토리
-     * 데이터베이스 접근을 위한 의존성 주입
-     */
+
+    private static final DateTimeFormatter REG_TIMESTAMP_FORMATTER =
+        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     @Autowired
     private UserTblRepository userTblRepository;
-    
-    /**
-     * 모든 사용자 목록을 조회하는 메서드
-     * 관리자 대시보드나 사용자 목록 페이지에서 사용
-     *
-     * 성능 모니터링:
-     * - SlowQueryLogger를 사용하여 쿼리 실행 시간 측정
-     * - 1초 이상 걸리는 경우 경고 로그 기록
-     *
-     * @return List<UserTbl> 모든 사용자 목록
-     *
-     * 사용 예시:
-     * List<UserTbl> allUsers = userService.getAllUsers();
-     * // 관리자 페이지에서 전체 사용자 목록 표시
-     */
+
+    @Autowired
+    private SerialCodeTableRepository serialCodeTableRepository;
+
+    @Autowired
+    private RegistryRepository registryRepository;
+
+    @Autowired
+    private UserCodeGenerator userCodeGenerator;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public List<UserTbl> getAllUsers() {
-        return SlowQueryLogger.measureAndLog("getAllUsers", 
+        return SlowQueryLogger.measureAndLog("getAllUsers",
             () -> userTblRepository.findAll());
     }
-    
-    /**
-     * 학생 사용자만 조회하는 메서드
-     * 학사 관리 시스템에서 학생 목록을 분리하여 조회할 때 사용
-     *
-     * 성능 모니터링:
-     * - SlowQueryLogger를 사용하여 쿼리 성능 측정
-     * - 학생 수에 따라 성능 차이가 있을 수 있음
-     *
-     * @return List<UserTbl> 학생 사용자 목록 (userStudent = 0)
-     *
-     * 사용 예시:
-     * List<UserTbl> students = userService.getStudentUsers();
-     * // 학생 명단 출력이나 학생별 기능 제공
-     */
+
     public List<UserTbl> getStudentUsers() {
-        return SlowQueryLogger.measureAndLog("getStudentUsers", 
+        return SlowQueryLogger.measureAndLog("getStudentUsers",
             () -> userTblRepository.findByUserStudent(0));
     }
-    
-    /**
-     * 교수 사용자만 조회하는 메서드
-     * 교수 목록을 별도로 관리해야 하는 경우 사용
-     *
-     * @return List<UserTbl> 교수 사용자 목록 (userStudent = 1)
-     *
-     * 사용 예시:
-     * List<UserTbl> professors = userService.getProfessorUsers();
-     * // 교수 목록 조회나 교수별 권한 부여
-     */
+
     public List<UserTbl> getProfessorUsers() {
         return userTblRepository.findByUserStudent(1);
     }
-    
-    /**
-     * ID로 특정 사용자 정보를 조회하는 메서드
-     * 사용자 상세 정보 페이지나 프로필 조회 시 사용
-     *
-     * @param id 조회할 사용자 ID
-     * @return Optional<UserTbl> 사용자 정보 (존재하지 않으면 empty)
-     *
-     * 사용 예시:
-     * Optional<UserTbl> user = userService.getUserById(123);
-     * if (user.isPresent()) {
-     *     // 사용자 정보 표시
-     * } else {
-     *     // 사용자 없음 처리
-     * }
-     */
+
     public Optional<UserTbl> getUserById(Integer id) {
         return userTblRepository.findById(id);
     }
-    
-    /**
-     * 이메일 주소로 사용자 정보를 조회하는 메서드
-     * 로그인, 계정 찾기, 프로필 조회 등에 사용
-     *
-     * @param email 조회할 사용자 이메일
-     * @return Optional<UserTbl> 사용자 정보 (존재하지 않으면 empty)
-     *
-     * 사용 예시:
-     * Optional<UserTbl> user = userService.getUserByEmail("student@university.edu");
-     * // 이메일로 사용자 정보 조회
-     */
+
     public Optional<UserTbl> getUserByEmail(String email) {
         return userTblRepository.findByUserEmail(email);
     }
-    
-    /**
-     * 새로운 사용자 계정을 생성하는 메서드
-     * 회원가입 프로세스의 핵심 로직으로, 중복 검사를 수행한 후 계정을 생성
-     *
-     * 처리 단계:
-     * 1. 이메일과 전화번호 중복 검사 수행
-     * 2. 중복이 없으면 데이터베이스에 저장
-     * 3. 생성된 사용자 정보 반환
-     *
-     * 비즈니스 규칙:
-     * - 이메일과 전화번호는 시스템 전체에서 유니크해야 함
-     * - 중복 발견 시 DuplicateResourceException 발생
-     *
-     * @param user 생성할 사용자 정보 (UserTbl 객체)
-     * @return UserTbl 생성된 사용자 정보 (ID가 자동 할당됨)
-     * @throws DuplicateResourceException 이메일 또는 전화번호가 이미 존재하는 경우
-     *
-     * 사용 예시:
-     * UserTbl newUser = new UserTbl("user@example.com", "password", "홍길동", "01012345678", "1990-01-01", 1);
-     * UserTbl createdUser = userService.createUser(newUser);
-     * // 회원가입 완료 처리
-     */
-    public UserTbl createUser(UserTbl user) {
-        validateUserUniqueness(user.getUserEmail(), user.getUserPhone());
-        return userTblRepository.save(user);
+
+    public UserTbl createUser(UserCreationRequestDTO dto) {
+        validateUserUniqueness(dto.getUserEmail(), dto.getUserPhone());
+
+        UserTbl user = dto.toUserTblEntity();
+        user.setUserPw(passwordEncoder.encode(user.getUserPw()));
+        user.setUserReg(LocalDateTime.now().format(REG_TIMESTAMP_FORMATTER));
+
+        String userCode = generateUserCode(dto);
+        user.setUserCode(userCode);
+
+        UserTbl savedUser = userTblRepository.save(user);
+
+        if (savedUser.getUserStudent() == 0) {
+            persistSerialCode(savedUser, dto);
+            persistRegistry(savedUser, userCode, dto);
+        }
+
+        return savedUser;
     }
+
+    private void persistSerialCode(UserTbl savedUser, UserCreationRequestDTO dto) {
+        if (!hasText(dto.getMajorFacultyCode()) || !hasText(dto.getMajorDeptCode())) {
+            throw new IllegalArgumentException("학생 전공 정보가 누락되었습니다.");
+        }
+
+        SerialCodeTable serialCode = new SerialCodeTable();
+        serialCode.setUserIdx(savedUser.getUserIdx());
+        serialCode.setSerialCode(dto.getMajorFacultyCode());
+        serialCode.setSerialSub(dto.getMajorDeptCode());
+
+        if (hasText(dto.getMinorFacultyCode()) && hasText(dto.getMinorDeptCode())) {
+            serialCode.setSerialCodeNd(dto.getMinorFacultyCode());
+            serialCode.setSerialSubNd(dto.getMinorDeptCode());
+        }
+
+        serialCodeTableRepository.save(serialCode);
+    }
+
+    private void persistRegistry(UserTbl savedUser, String userCode, UserCreationRequestDTO dto) {
+        RegistryTbl registry = new RegistryTbl();
+        registry.setUser(savedUser);
+        registry.setUserCode(userCode);
+
+        if (hasText(dto.getJoinPath())) {
+            registry.setJoinPath(dto.getJoinPath());
+        }
+        if (hasText(dto.getStdStat())) {
+            registry.setStdStat(dto.getStdStat());
+        } else {
+            registry.setStdStat("재학");
+        }
+
+        registry.setCntTerm(dto.getCntTerm() != null ? dto.getCntTerm() : 0);
+        registry.setStdRestDate(dto.getStdRestDate());
+        registry.setAdminName(dto.getAdminName());
+        registry.setAdminIp(dto.getAdminIp());
+        registry.setAdminReg(LocalDateTime.now());
+
+        registryRepository.save(registry);
+    }
+
+    private String generateUserCode(UserCreationRequestDTO dto) {
+        UserCodeGenerator.UserType userType = resolveUserType(dto.getUserStudent());
+        int facultyCode = parseTwoDigitCode(dto.getMajorFacultyCode());
+        int departmentCode = parseTwoDigitCode(dto.getMajorDeptCode());
+
+        Integer admissionYear = dto.getAdmissionYear();
+        if (admissionYear != null) {
+            return userCodeGenerator.generateUserCode(
+                admissionYear,
+                userType,
+                facultyCode,
+                departmentCode
+            );
+        }
+
+        return userCodeGenerator.generateUserCode(userType, facultyCode, departmentCode);
+    }
+
+    private UserCodeGenerator.UserType resolveUserType(int userStudentFlag) {
+        return userStudentFlag == 0
+            ? UserCodeGenerator.UserType.STUDENT
+            : UserCodeGenerator.UserType.PROFESSOR;
+    }
+
+    private int parseTwoDigitCode(String code) {
+        if (!hasText(code)) {
+            return 0;
+        }
+        try {
+            return Integer.parseInt(code);
+        } catch (NumberFormatException ex) {
+            throw new IllegalArgumentException("전공 코드는 숫자 2자리여야 합니다: " + code);
+        }
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.trim().isEmpty();
+    }
+
     
     /**
      * 기존 사용자 정보를 수정하는 메서드

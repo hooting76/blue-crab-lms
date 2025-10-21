@@ -3,7 +3,7 @@
     "name": "로그인",
     "category": "인증 · 계정",
     "description": "아이디/비밀번호로 JWT 발급",
-    "auth": false,
+    "auth": true,
     "method": "POST",
     "endpoint": "/api/auth/login",
     "params": [],
@@ -808,6 +808,36 @@
       "includeTemporary": true
     }
   },
+  "testUserBootstrap": {
+    "name": "🧪 테스트 사용자 자동 생성",
+    "category": "테스트",
+    "description": "USER/Serial/Registry 동시 생성 확인",
+    "auth": false,
+    "method": "POST",
+    "endpoint": "/api/test/users/bootstrap",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "userEmail": "freshman01@bluecrab.edu",
+      "userPw": "TempPass123!",
+      "userName": "김신입",
+      "userPhone": "01012345678",
+      "userBirth": "2006-03-15",
+      "userStudent": 0,
+      "userZip": 12345,
+      "userFirstAdd": "서울시 성동구 1",
+      "userLastAdd": "101동 202호",
+      "userRegIp": "127.0.0.1",
+      "admissionYear": 2025,
+      "majorFacultyCode": "01",
+      "majorDeptCode": "02",
+      "minorFacultyCode": "03",
+      "minorDeptCode": "04",
+      "joinPath": "정시",
+      "stdStat": "재학",
+      "cntTerm": 0
+    }
+  },
   "apiPing": {
     "name": "Ping",
     "category": "시스템",
@@ -848,6 +878,28 @@
     "auth": true,
     "method": "GET",
     "endpoint": "/api/database/info",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "testAutoRefresh": {
+    "name": "🔄 자동 토큰 리프레시 테스트",
+    "category": "테스트",
+    "description": "토큰 만료 시뮬레이션 및 자동 갱신 확인",
+    "auth": true,
+    "method": "GET",
+    "endpoint": "/api/auth/validate",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "testMultipleRequests": {
+    "name": "🚀 동시 다발 요청 테스트",
+    "category": "테스트",
+    "description": "10개의 동시 API 호출로 리프레시 중복 방지 확인",
+    "auth": true,
+    "method": "GET",
+    "endpoint": "/api/auth/validate",
     "params": [],
     "headers": [],
     "bodyTemplate": null

@@ -1,6 +1,7 @@
 package BlueCrab.com.example.controller;
 
 import BlueCrab.com.example.dto.ApiResponse;
+import BlueCrab.com.example.dto.UserCreationRequestDTO;
 import BlueCrab.com.example.entity.UserTbl;
 import BlueCrab.com.example.service.UserTblService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.validation.Valid;
 
 /**
  * 사용자 관리를 위한 REST API 컨트롤러
@@ -116,8 +118,8 @@ public class UserController {
      * @return 생성된 사용자 정보
      */
     @PostMapping
-    public ResponseEntity<ApiResponse<UserTbl>> createUser(@RequestBody UserTbl user) {
-        UserTbl createdUser = userTblService.createUser(user);
+    public ResponseEntity<ApiResponse<UserTbl>> createUser(@Valid @RequestBody UserCreationRequestDTO request) {
+        UserTbl createdUser = userTblService.createUser(request);
         ApiResponse<UserTbl> response = ApiResponse.success("사용자가 성공적으로 생성되었습니다.", createdUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
