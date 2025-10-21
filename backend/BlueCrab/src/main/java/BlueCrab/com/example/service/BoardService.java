@@ -58,6 +58,15 @@ public class BoardService {
         return results.map(this::convertObjectArrayToMap);
     }   // getBoardsByCodeForList 끝
 
+    // 코드 + 강의 코드별 게시글 목록 조회 (강의 공지 전용)
+    @Transactional(readOnly = true)
+    public Page<Map<String, Object>> getBoardsByCodeAndLecSerialForList(Integer boardCode, String lecSerial, Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Object[]> results = boardRepository.findBoardListByCodeAndLecSerialWithoutContent(BOARD_ACTIVE, boardCode, lecSerial, pageable);
+        
+        return results.map(this::convertObjectArrayToMap);
+    }   // getBoardsByCodeAndLecSerialForList 끝
+
     // Object[] 결과를 Map으로 변환하는 헬퍼 메서드 (본문 제외 버전)
     private Map<String, Object> convertObjectArrayToMap(Object[] result) {
         Map<String, Object> map = new HashMap<>();

@@ -6,13 +6,129 @@
 
 ---
 
+## Project Overview
+
+**Blue Crab LMS (Learning Management System)**
+
+This is a **portfolio project** developing a comprehensive LMS platform for a fictional university called "Blue Crab University". The system provides:
+
+- **Lecture Management**: Course creation, assignment submission, attendance tracking, grade calculation
+- **Facility Reservation**: Reading room and facility booking system
+- **User Management**: Authentication, authorization, and profile management
+- **Push Notifications**: Firebase-based real-time notifications
+- **Admin Features**: System administration and monitoring tools
+
+**Project Context:**
+- **Purpose**: Portfolio demonstration project
+- **Scope**: Full-stack web application (Backend + Frontend)
+- **Tech Philosophy**: Production-quality code with modern best practices
+- **Standards**: Korean e-Government Framework (eGovFrame) compliance
+- **Target Audience**: Educational institutions, portfolio reviewers, potential employers
+
+**Quality Expectations:**
+- Clean, maintainable code suitable for portfolio presentation
+- Comprehensive documentation and testing
+- Security best practices (JWT, BCrypt, secure credential management)
+- Performance optimization and monitoring
+- Professional API design and error handling
+
+**Development Status:**
+- Active development phase
+- Backend: eGovFrame Boot 4.3.0 + Spring Boot
+- Frontend: React-based SPA (separate codebase)
+- Integration: RESTful APIs with JWT authentication
+
+**Infrastructure Architecture:**
+
+```
+┌─────────────────────────────┐       ┌──────────────────────────────┐
+│   Backend Server            │       │   Frontend Server            │
+│                             │       │                              │
+│  ┌──────────────────────┐   │       │  ┌───────────────────────┐   │
+│  │   Apache Tomcat      │   │       │  │   Apache Web Server   │   │
+│  │   (WAR Deployment)   │   │       │  │   (React SPA)         │   │
+│  └──────────────────────┘   │       │  └───────────────────────┘   │
+│                             │       │                              │
+│  ┌──────────────────────┐   │       │  ┌───────────────────────┐   │
+│  │   Redis              │   │       │  │   MariaDB             │   │
+│  │   (Cache/Session)    │   │       │  │   (Primary DB)        │   │
+│  └──────────────────────┘   │       │  └───────────────────────┘   │
+│                             │       │                              │
+│  ┌──────────────────────┐   │       └──────────────────────────────┘
+│  │   MinIO              │   │
+│  │   (Object Storage)   │   │              REST API
+│  └──────────────────────┘   │       ◄─────────────────►
+│                             │
+└─────────────────────────────┘
+```
+
+**Key Infrastructure Details:**
+- **Backend Server**: Hosts Tomcat (Spring Boot app), Redis, MinIO
+- **Frontend Server**: Hosts Apache (React app), MariaDB database
+- **Separation**: Backend and frontend are deployed on separate servers
+- **Communication**: RESTful APIs over HTTP/HTTPS with JWT authentication
+
+---
+
 ## 1. Onboarding Checklist
 
-- Review root `README.md` and `docs/agent-readme.md` to understand the overall repository context and common working principles.
-- Familiarize yourself with environment variables, Firebase setup, and deployment workflows from `backend/BlueCrab/README.md`.
-- Check the current branch status with `git status` and review diffs to avoid overwriting existing changes.
-- Define the scope and impact of the task, and establish a standard plan (≥2 steps).
-- Secure access to external resources (MariaDB, Firebase, etc.) or prepare mock value replacement strategies.
+### Quick Start Steps
+1. **Read Documentation First**
+   - Review root `README.md` and `docs/agent-readme.md` to understand the overall repository context and common working principles
+   - Familiarize yourself with `backend/BlueCrab/README.md` for environment variables, Firebase setup, and deployment workflows
+
+2. **Check Git Status**
+   - Run `git status` to check current branch status
+   - Review `git diff` to avoid overwriting existing changes
+   - Verify you're not on `main`/`master` branch directly
+
+3. **Understand Tech Stack** (See Section 2 for details)
+   - eGovFrame Boot 4.3.0 (Korean e-Government Framework)
+   - MariaDB database
+   - JWT authentication
+   - Redis, Firebase, MinIO integrations
+
+4. **Set Up Local Environment** (if needed for verification)
+   ```bash
+   # Verify Java version
+   java -version  # Should be 11+ or 17+
+
+   # Verify Maven
+   mvn -version   # Should be 3.6+
+
+   # Check database connectivity (optional)
+   # See Section 9 for MCP SSH access to remote DB
+   ```
+
+5. **Environment Variables Reference**
+   Key environment variables you may need to know about (DO NOT set these locally as agent):
+   ```bash
+   # Database (handled by dev team)
+   SPRING_DATASOURCE_URL=jdbc:mariadb://121.165.24.26:55511/blue_crab
+   SPRING_DATASOURCE_USERNAME=KDT_project
+   SPRING_DATASOURCE_PASSWORD=<see_secure_storage>
+
+   # Firebase (if enabled)
+   FIREBASE_ENABLED=true
+   FIREBASE_CREDENTIALS_JSON=<json_string_or_file_path>
+   FIREBASE_DATABASE_URL=https://<project-id>.firebaseio.com
+
+   # Redis (if needed)
+   SPRING_REDIS_HOST=localhost
+   SPRING_REDIS_PORT=6379
+
+   # MinIO (if used)
+   MINIO_ENDPOINT=http://localhost:9000
+   MINIO_ACCESS_KEY=<access_key>
+   MINIO_SECRET_KEY=<secret_key>
+   ```
+   **Note**: Actual credentials are managed by the dev team in Eclipse. Agents work with code only.
+
+6. **Plan Your Work**
+   - Define the scope and impact of the task
+   - Establish a standard plan (≥2 steps)
+   - Identify external resources needed (MariaDB, Firebase, etc.)
+   - Prepare mock value strategies if live services are unavailable
 
 ## 2. Development Environment & Essential Tools
 
@@ -101,6 +217,36 @@ The project consists of the following major functional areas:
 - **Repositories**: `FcmTokenRepository`
 - **Features**: FCM token management, push notification delivery
 
+### Shared Utilities & Components
+Re-use the established helpers below before adding new infrastructure code:
+
+**Response & Error Handling**
+- `src/main/java/BlueCrab/com/example/dto/ApiResponse.java` — Standard success/error wrapper. Always return controllers with this helper instead of ad-hoc `Map`/`ResponseEntity`.
+- `src/main/java/BlueCrab/com/example/exception/GlobalExceptionHandler.java` — Centralized exception mapping. Prefer throwing domain-specific exceptions (`DuplicateResourceException`, `ResourceNotFoundException`, etc.) and let the handler shape the response.
+
+**Authentication & Verification**
+- `src/main/java/BlueCrab/com/example/util/JwtUtil.java` — Token generation/validation. Relies on `AppConfig.jwt.*` values; do not cache the signing key yourself.
+- `src/main/java/BlueCrab/com/example/util/UserVerificationUtils.java` — Common identity checks (학번·이름·전화). Use in account recovery flows to avoid duplicated repository queries.
+- `src/main/java/BlueCrab/com/example/util/MailAuthRateLimitUtils.java` & `src/main/java/BlueCrab/com/example/util/PasswordResetRedisUtil.java` — Redis-backed throttling and recovery session helpers. Require `RedisConfig` and running Redis; guard calls in tests with Redis availability checks.
+- `src/main/java/BlueCrab/com/example/util/SHA256Util.java` — Legacy SHA-256 password checker for 관리자 콘솔. For new features prefer Spring `PasswordEncoder`, but keep this for backward compatibility.
+- `src/main/java/BlueCrab/com/example/util/Base64ValidationUtil.java` — Length validation + Base64 encoding for 게시판 제목/본문. Returns `null` when validation fails; surface user-friendly messages using the provided error builders.
+
+**Email & Notification**
+- `src/main/java/BlueCrab/com/example/util/EmailTemplateUtils.java` — HTML template builder for 학생/관리자 인증 메일. Extensible via helper methods (e.g., `buildAuthCodeSection`). Update constants here instead of duplicating inline HTML.
+
+**Request & Rate Limiting**
+- Annotation: `src/main/java/BlueCrab/com/example/annotation/RateLimit.java`
+- Interceptors: `src/main/java/BlueCrab/com/example/interceptor/RateLimitInterceptor.java`, `src/main/java/BlueCrab/com/example/interceptor/RequestTrackingInterceptor.java`
+- Config: `src/main/java/BlueCrab/com/example/config/RateLimitConfig.java`, `src/main/java/BlueCrab/com/example/config/WebConfig.java`
+  - Use `@RateLimit` on controller methods needing throttling; the interceptors handle keying (IP/user). Request tracking interceptor auto-populates MDC (`requestId`, URI, method) for log correlation—no manual UUID handling needed.
+- `src/main/java/BlueCrab/com/example/util/RequestUtils.java` — Extracts client IP respecting proxy headers; use inside controllers/services instead of duplicating header parsing.
+
+**Storage & External Services**
+- `src/main/java/BlueCrab/com/example/util/MinIOFileUtil.java` — Upload/delete helpers. Bucket name comes from `app.minio.board-bucket-name`; catch `RuntimeException` wrappers to translate into API errors.
+- Config classes under `src/main/java/BlueCrab/com/example/config/` (`AppConfig`, `FirebaseConfig`, `ObjectStorageConfig`, `RedisConfig`, `AsyncConfig`) centralize property binding and bean setup. Reference these rather than instantiating SDK clients manually.
+
+> ⚠️ When touching these helpers, update this table and note any new prerequisites (env vars, beans) so incoming agents know the expected setup.
+
 ### Layer Responsibilities
 Follow these layer rules when adding new classes:
 - **Controller**: Handle HTTP request/response, input validation (@Valid), return unified ApiResponse format
@@ -109,36 +255,143 @@ Follow these layer rules when adding new classes:
 - **Entity**: Database table mapping, leverage Lombok
 - **DTO**: API request/response objects, separated from entities
 
+### API Design Standards
+
+**⚠️ Architecture Decision: POST-Only API Pattern**
+
+**Team Policy (Team Leader Decision):**
+All authenticated API endpoints must use the **POST method** for consistency and security.
+
+**Implementation Rules:**
+1. **Method Standardization**: Use `@PostMapping` for all authenticated user operations
+2. **Authentication Required**: All business APIs require JWT authentication via `Authorization: Bearer <token>` header
+3. **Request Body**: Send all parameters via request body (JSON format), not query strings
+4. **Response Format**: Return standardized `ApiResponse<T>` wrapper for all endpoints
+
+**Example Pattern:**
+```java
+@RestController
+@RequestMapping("/api/lectures")
+public class LectureController {
+
+    // ✅ Correct: POST with authentication
+    @PostMapping("/list")
+    public ResponseEntity<ApiResponse<List<LectureDTO>>> getLectureList(
+        @RequestBody LectureSearchRequest request) {
+        // Implementation
+    }
+
+    // ✅ Correct: POST for creation
+    @PostMapping("/create")
+    public ResponseEntity<ApiResponse<LectureDTO>> createLecture(
+        @Valid @RequestBody LectureCreateRequest request) {
+        // Implementation
+    }
+
+    // ✅ Correct: POST for updates
+    @PostMapping("/update")
+    public ResponseEntity<ApiResponse<LectureDTO>> updateLecture(
+        @Valid @RequestBody LectureUpdateRequest request) {
+        // Implementation
+    }
+
+    // ✅ Correct: POST for deletion
+    @PostMapping("/delete")
+    public ResponseEntity<ApiResponse<Void>> deleteLecture(
+        @RequestBody LectureDeleteRequest request) {
+        // Implementation
+    }
+}
+```
+
+**Exceptions (Public Endpoints):**
+- `/api/test/**` - Test endpoints (no authentication)
+- `/api/auth/login` - Login endpoint (public access)
+- Health check or status monitoring endpoints
+
+**Rationale:**
+- **Security Consistency**: Uniform authentication mechanism across all endpoints
+- **CSRF Protection**: POST methods work naturally with CSRF token validation
+- **Data Privacy**: No sensitive data exposed in URL parameters or browser history
+- **Cache Control**: POST requests prevent unintended caching of authenticated data
+- **Simplified Configuration**: Single security policy in Spring Security configuration
+
+**Agent Guidelines:**
+- When creating new controller methods, default to `@PostMapping` unless explicitly instructed otherwise
+- Always include JWT authentication checks for business logic endpoints
+- Document any public endpoints clearly with security annotations
+- Follow the request/response pattern shown in existing controllers
+
 ## 4. Testing & Build Environment
 
-### ⚠️ Important: Local Testing/Build Restrictions
-**Testing and building for this project are conducted separately in Eclipse IDE.**
-- Agents should **NOT execute `mvn test`, `mvn clean install`, etc. in local environments.**
-- If code verification is needed, perform static analysis (code review) only and delegate actual builds to the development team.
+### ⚠️ Important: Development Workflow
+**This project follows a separated build and test workflow:**
+
+#### Local Environment (Developer/Agent)
+- **Purpose**: Code development and local builds only
+- **Activities**:
+  - Write/modify code in Eclipse IDE
+  - Build WAR file locally (`mvn clean install`)
+  - Static code analysis and review
+- **Restrictions**:
+  - **DO NOT run `mvn test` locally** (limited local infrastructure)
+  - **DO NOT start local Tomcat/Redis/MinIO** (use server environment)
+
+#### Server Environment (Deployment & Testing)
+**Testing is performed on actual servers after deployment:**
+
+1. **Build Locally**
+   ```bash
+   # In Eclipse or via Maven
+   mvn clean install
+   # Produces: target/BlueCrab-1.0.0.war
+   ```
+
+2. **Deploy to Backend Server**
+   ```bash
+   # Deploy WAR to Backend Server's Tomcat
+   # Backend Server has: Tomcat + Redis + MinIO
+   ```
+
+3. **Test on Server**
+   - Access deployed application via browser or API client
+   - Use `/status` test page for API testing
+   - Check MCP SSH logs for debugging
+   - Verify integration with MariaDB (on Frontend Server)
+
+**Why This Workflow?**
+- Backend and Frontend servers are separate
+- Redis, MinIO are only on Backend Server
+- MariaDB is only on Frontend Server
+- Full integration testing requires server environment
 
 ### Reference Maven Commands (For Development Team)
 ```bash
-# Download dependencies and build with static analysis
-mvn clean install
+# Local build only (no testing)
+mvn clean install -DskipTests
 
-# Run application with dev profile (default)
+# Run application locally (limited functionality)
 mvn spring-boot:run -Dspring.profiles.active=dev
+# Note: Redis, MinIO connections will fail without server infrastructure
 
-# Unit tests
-mvn test
-
-# Integration tests if needed (environment variables required)
-mvn integration-test
+# Testing (only on server after deployment)
+# Access: http://backend-server:8080/status
 ```
-- To run specific tests, use the `-Dtest=ClassNameTest` flag.
-- Firebase integration tests require both FCM tokens and credentials (see README).
+
+**Agent Workflow Summary:**
+1. ✅ Write/modify code locally
+2. ✅ Build WAR locally (`mvn clean install -DskipTests`)
+3. ✅ Review code via static analysis
+4. ❌ DO NOT run `mvn test` locally
+5. ✅ Request deployment to server for testing
+6. ✅ Test on server via `/status` page or MCP SSH
 
 ## 5. Standard Work Procedures
 
 - **Analysis**: Use `rg`, `mvn dependency:tree`, etc. to identify affected packages and define the scope of changes.
 - **Design**: Review data flow, transaction boundaries, and exception handling to maintain the principle of minimal change.
 - **Implementation**: Match existing code style and logging conventions (Log4j2); add brief comments for complex logic.
-- **Verification**: Write/update relevant tests and run `mvn test`. If execution is not feasible, specify the reason and manual verification procedures.
+- **Verification**: Write/update relevant tests. **Agents should NOT run `mvn test` locally** (testing is done in Eclipse by the dev team). If verification is needed, perform static analysis (code review) and specify manual verification procedures.
 - **Documentation**: Keep `backend/BlueCrab/docs/` and `api-endpoints-documentation.json` up to date when APIs or processes change.
 - **Reporting**: Briefly summarize changes, impact, and follow-up suggestions (e.g., additional tests, deployment checklists).
 

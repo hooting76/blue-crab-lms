@@ -59,12 +59,37 @@ public class BoardController {
 
     // 전체 게시글 목록 조회 (본문 제외, 성능 최적화용)
     @PostMapping("/list")
-    public ResponseEntity<?> getAllBoards(@RequestBody java.util.Map<String, Integer> request) {
-        Integer page = request.getOrDefault("page", 0);
-        Integer size = request.getOrDefault("size", 10);
+    public ResponseEntity<?> getAllBoards(@RequestBody java.util.Map<String, Object> request) {
+        Integer boardCode = request.get("boardCode") != null ? 
+            Integer.parseInt(request.get("boardCode").toString()) : null;
+        String lecSerial = request.get("lecSerial") != null ? 
+            request.get("lecSerial").toString() : null;
+        Integer page = request.get("page") != null ? 
+            Integer.parseInt(request.get("page").toString()) : 0;
+        Integer size = request.get("size") != null ? 
+            Integer.parseInt(request.get("size").toString()) : 10;
         
         try {
-            Page<java.util.Map<String, Object>> result = boardService.getAllBoardsForList(page, size);
+            Page<java.util.Map<String, Object>> result;
+            
+            // boardCode와 lecSerial 모두 있으면 강의 공지 필터링
+            if (boardCode != null && boardCode == 3 && lecSerial != null) {
+                result = boardService.getBoardsByCodeAndLecSerialForList(boardCode, lecSerial, page, size);
+                logger.info("강의 공지 목록 조회 - boardCode: {}, lecSerial: {}, page: {}, size: {}", 
+                           boardCode, lecSerial, page, size);
+            }
+            // boardCode만 있으면 코드별 필터링
+            else if (boardCode != null) {
+                result = boardService.getBoardsByCodeForList(boardCode, page, size);
+                logger.info("코드별 게시글 목록 조회 - boardCode: {}, page: {}, size: {}", 
+                           boardCode, page, size);
+            }
+            // 둘 다 없으면 전체 조회
+            else {
+                result = boardService.getAllBoardsForList(page, size);
+                logger.info("전체 게시글 목록 조회 - page: {}, size: {}", page, size);
+            }
+            
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             logger.error("Error occurred while fetching board list: {}", e.getMessage(), e);

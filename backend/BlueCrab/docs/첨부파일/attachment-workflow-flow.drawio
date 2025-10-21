@@ -1,0 +1,314 @@
+<mxfile host="app.diagrams.net" modified="2025-10-21T00:00:00.000Z" agent="5.0" version="22.1.11" etag="attachment-workflow" type="device">
+  <diagram name="첨부파일 3단계 워크플로우" id="attachment-workflow-diagram">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="1654" math="0" shadow="0" background="#FFFFFF">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" style="fillColor=#FFFFFF;" />
+        
+        <!-- 배경 -->
+        <mxCell id="bg" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="0" y="0" width="1169" height="1654" as="geometry" />
+        </mxCell>
+        
+        <!-- 제목 -->
+        <mxCell id="title" value="첨부파일 3단계 워크플로우" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="334.5" y="30" width="500" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 1단계: 게시글 생성 -->
+        <mxCell id="stage1-box" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1f5fe;strokeColor=#01579b;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="120" width="340" height="400" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="stage1-title" value="1단계: 게시글 생성" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;spacingLeft=10;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="80" y="120" width="340" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="stage1-start" value="클라이언트 요청" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="120" y="180" width="260" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="stage1-api" value="POST /api/boards/create" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="120" y="250" width="260" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" edge="1" parent="1" source="stage1-start" target="stage1-api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="stage1-data" value="JSON 데이터&#xa;{&#xa;  boardCode: 0,&#xa;  boardTitle: &quot;제목&quot;,&#xa;  boardContent: &quot;내용&quot;&#xa;}" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=10;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="120" y="310" width="260" height="90" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" edge="1" parent="1" source="stage1-api" target="stage1-data">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="stage1-result" value="✅ 응답&#xa;{ boardIdx: 123 }" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="120" y="420" width="260" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" edge="1" parent="1" source="stage1-data" target="stage1-result">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- 2단계: 파일 업로드 -->
+        <mxCell id="stage2-box" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#e65100;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="460" y="120" width="340" height="400" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="stage2-title" value="2단계: 파일 업로드" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;spacingLeft=10;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="460" y="120" width="340" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="stage2-optional" value="(선택사항)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=2;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="600" y="120" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="stage2-start" value="파일 선택 (최대 5개)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="500" y="180" width="260" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="stage2-api" value="POST /api/board-attachments/upload/{boardIdx}" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="500" y="250" width="260" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" edge="1" parent="1" source="stage2-start" target="stage2-api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="stage2-data" value="FormData&#xa;files: [File, File, ...]&#xa;&#xa;⚠️ JSON 아님!&#xa;Content-Type 생략" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;spacingLeft=10;fontFamily=Courier New;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="500" y="310" width="260" height="90" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" edge="1" parent="1" source="stage2-api" target="stage2-data">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="stage2-result" value="✅ 응답&#xa;{ attachments: [&#xa;  { attachmentIdx: 45, ... }&#xa;]}" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=12;align=left;spacingLeft=10;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="500" y="420" width="260" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" edge="1" parent="1" source="stage2-data" target="stage2-result">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- 3단계: 첨부파일 연결 -->
+        <mxCell id="stage3-box" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#4a148c;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="840" y="120" width="340" height="400" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="stage3-title" value="3단계: 첨부파일 연결" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;spacingLeft=10;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="840" y="120" width="340" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="stage3-start" value="attachmentIdx 수집" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="880" y="180" width="260" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="stage3-api" value="POST /api/boards/link-attachments/{boardIdx}" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="880" y="250" width="260" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" edge="1" parent="1" source="stage3-start" target="stage3-api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="stage3-data" value="JSON 데이터&#xa;{&#xa;  attachmentIdxList: [45, 46]&#xa;}" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=10;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="880" y="310" width="260" height="90" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" edge="1" parent="1" source="stage3-api" target="stage3-data">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="stage3-result" value="✅ 완료!" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="880" y="420" width="260" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" edge="1" parent="1" source="stage3-data" target="stage3-result">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- 단계 연결 화살표 -->
+        <mxCell id="arrow-stage1-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#FF6B6B;dashed=1;dashPattern=8 8;" edge="1" parent="1" source="stage1-result" target="stage2-start">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="540" />
+              <mxPoint x="630" y="540" />
+              <mxPoint x="630" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow-stage1-2-label" value="boardIdx 전달" style="text;html=1;strokeColor=none;fillColor=#FFFFFF;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#FF6B6B;" vertex="1" parent="1">
+          <mxGeometry x="560" y="520" width="100" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-stage2-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#4CAF50;dashed=1;dashPattern=8 8;" edge="1" parent="1" source="stage2-result" target="stage3-start">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="630" y="540" />
+              <mxPoint x="1010" y="540" />
+              <mxPoint x="1010" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow-stage2-3-label" value="attachmentIdx 전달" style="text;html=1;strokeColor=none;fillColor=#FFFFFF;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#4CAF50;" vertex="1" parent="1">
+          <mxGeometry x="900" y="520" width="130" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- 하단: 조회/다운로드/삭제 -->
+        <mxCell id="bottom-title" value="기타 API 기능" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="434.5" y="600" width="300" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- 조회 -->
+        <mxCell id="read-box" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="680" width="300" height="280" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="read-title" value="📖 조회 (인증 불필요)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;spacingLeft=10;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="80" y="680" width="300" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="read-1" value="게시글 상세 조회&#xa;POST /api/boards/detail" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#388e3c;align=left;spacingLeft=10;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="100" y="740" width="260" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="read-2" value="첨부파일 정보 조회&#xa;POST /api/board-attachments/info" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#388e3c;align=left;spacingLeft=10;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="100" y="810" width="260" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="read-3" value="✅ attachmentDetails 배열&#xa;   - originalFileName&#xa;   - fileSize, mimeType" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f1f8e9;strokeColor=#689f38;align=left;spacingLeft=10;fontSize=11;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="100" y="880" width="260" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 다운로드 -->
+        <mxCell id="download-box" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e3f2fd;strokeColor=#0d47a1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="420" y="680" width="300" height="280" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="download-title" value="💾 다운로드 (인증 불필요)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;spacingLeft=10;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="420" y="680" width="300" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="download-1" value="파일 다운로드&#xa;POST /api/board-attachments/download" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;align=left;spacingLeft=10;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="440" y="740" width="260" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="download-2" value="요청: { attachmentIdx: 45 }" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1f5fe;strokeColor=#0277bd;align=left;spacingLeft=10;fontSize=11;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="440" y="810" width="260" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="download-3" value="✅ 브라우저 자동 처리&#xa;   1. fetch → blob&#xa;   2. createObjectURL&#xa;   3. a.download = filename&#xa;   4. a.click()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1f5fe;strokeColor=#0277bd;align=left;spacingLeft=10;fontSize=11;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="440" y="870" width="260" height="70" as="geometry" />
+        </mxCell>
+        
+        <!-- 삭제 -->
+        <mxCell id="delete-box" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffebee;strokeColor=#b71c1c;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="760" y="680" width="380" height="280" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="delete-title" value="🗑️ 삭제 (JWT 필수)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;spacingLeft=10;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="760" y="680" width="380" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="delete-1" value="단일 삭제&#xa;POST /api/board-attachments/delete/{attachmentIdx}" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#c62828;align=left;spacingLeft=10;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="780" y="740" width="340" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="delete-2" value="다중 삭제&#xa;POST /api/board-attachments/delete-multiple" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#c62828;align=left;spacingLeft=10;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="780" y="810" width="340" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="delete-3" value="전체 삭제 (게시글별)&#xa;POST /api/board-attachments/delete-all/{boardIdx}" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#c62828;align=left;spacingLeft=10;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="780" y="880" width="340" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 파일 제한 -->
+        <mxCell id="limits-box" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f57f17;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="1000" width="1060" height="140" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="limits-title" value="⚠️ 파일 제한 사항" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;spacingLeft=10;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="80" y="1000" width="1060" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="limits-1" value="최대 개수: 5개/게시글" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;spacingLeft=30;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1050" width="300" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="limits-2" value="최대 크기: 10MB/파일" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;spacingLeft=30;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1090" width="300" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="limits-3" value="허용 형식: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, JPG, JPEG, PNG, GIF" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;spacingLeft=30;" vertex="1" parent="1">
+          <mxGeometry x="420" y="1050" width="700" height="70" as="geometry" />
+        </mxCell>
+        
+        <!-- 주의사항 -->
+        <mxCell id="notes-box" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fce4ec;strokeColor=#880e4f;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="1180" width="1060" height="200" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="notes-title" value="🔴 중요 주의사항" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;spacingLeft=10;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="80" y="1180" width="1060" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="notes-1" value="1. 파일 업로드는 반드시 FormData 사용 (JSON ❌)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontStyle=1;spacingLeft=30;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1230" width="500" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="notes-2" value="2. FormData 전송 시 Content-Type 헤더 생략 (자동 설정)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontStyle=1;spacingLeft=30;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1265" width="500" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="notes-3" value="3. 3단계 순서를 반드시 지킬 것 (생성 → 업로드 → 연결)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontStyle=1;spacingLeft=30;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1300" width="500" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="notes-4" value="4. 다운로드는 브라우저가 자동 처리 (fetch → blob → createObjectURL)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontStyle=1;spacingLeft=30;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1335" width="600" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- 범례 -->
+        <mxCell id="legend-box" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="1420" width="1060" height="180" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-title" value="범례" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;spacingLeft=10;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="80" y="1420" width="1060" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-1" value="시작/완료" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="120" y="1470" width="140" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-2" value="API 엔드포인트" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="290" y="1470" width="140" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-3" value="데이터" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="460" y="1470" width="140" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-4" value="에러/주의" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="630" y="1470" width="140" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-5" value="1단계 박스" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1f5fe;strokeColor=#01579b;fontSize=12;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="120" y="1530" width="140" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-6" value="2단계 박스" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#e65100;fontSize=12;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="290" y="1530" width="140" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-7" value="3단계 박스" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#4a148c;fontSize=12;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="460" y="1530" width="140" height="40" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
