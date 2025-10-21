@@ -808,11 +808,38 @@
       "includeTemporary": true
     }
   },
+  "fcmSendDataOnlyBroadcast": {
+    "name": "FCM Data-only 브로드캐스트",
+    "category": "알림 · 푸시",
+    "description": "전체 사용자에게 Data-only 방식 전송 (백그라운드 업데이트용)",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/fcm/send/broadcast/data-only",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "title": "Data-only 브로드캐스트",
+      "body": "전체 사용자에게 Data-only 방식으로 전송됩니다",
+      "platforms": [
+        "ANDROID",
+        "IOS",
+        "WEB"
+      ],
+      "data": {
+        "type": "system_update",
+        "action": "refresh_cache",
+        "timestamp": "2025-01-20T10:00:00Z"
+      },
+      "filter": {
+        "userType": "ALL"
+      }
+    }
+  },
   "testUserBootstrap": {
     "name": "🧪 테스트 사용자 자동 생성",
     "category": "테스트",
     "description": "USER/Serial/Registry 동시 생성 확인",
-    "auth": false,
+    "auth": true,
     "method": "POST",
     "endpoint": "/api/test/users/bootstrap",
     "params": [],

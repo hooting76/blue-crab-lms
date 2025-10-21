@@ -12,7 +12,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage }) {
     const userId = user?.data?.user?.id;
     const isProf = user?.data?.user?.userStudent === 1;
 
-    const [selectedLectureId, setSelectedLectureId] = useState(null);
+    const [selectedLectureSerial, setSelectedLectureSerial] = useState(null);
     const [lectureList, setLectureList] = useState([]);
     const [noticeList, setNoticeList] = useState([]);
     const [selectedIdx, setSelectedIdx] = useState(null);
@@ -39,12 +39,14 @@ function ClassAttendingNotice({ currentPage, setCurrentPage }) {
             if (!response.ok) throw new Error('강의 목록 조회 실패');
             const data = await response.json();
             setLectureList(data);
-            if (data.length > 0) setSelectedLectureId(data[0].lecIdx); // 첫 강의 선택
+            if (data.length > 0) setSelectedLectureSerial(data[0].lecIdx); // 첫 강의 선택
         } catch (error) {
             console.error('강의 목록 에러:', error);
             setLectureList([]);
         }
     };
+
+    console.log("lectureList : ", lectureList);
 
     const fetchAllNotices = async () => {
         try {
@@ -54,7 +56,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage }) {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ page: 0, size: 1000, boardCode: NOTICE_BOARD_CODE }),
+                body: JSON.stringify({ page: 0, size: 20, boardCode: NOTICE_BOARD_CODE, lecSerial: selectedLectureSerial }),
             });
 
             if (!response.ok) throw new Error('공지사항 조회 실패');
@@ -107,15 +109,10 @@ function ClassAttendingNotice({ currentPage, setCurrentPage }) {
         return `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')} ${formatted}`;
     };
 
-    const filteredNotices = useMemo(() => {
-    if (!selectedLectureId) return [];
-    return noticeList.filter((notice) => notice.lecIdx === Number(selectedLectureId));
-}, [noticeList, selectedLectureId]);
-
 
     /** ========== Event Handlers ========== */
     const handleLectureChange = (e) => {
-        setSelectedLectureId(e.target.value);
+        setSelectedLectureSerial(e.target.value);
     };
 
     const handleNoticeClick = (boardIdx) => {
@@ -138,15 +135,17 @@ function ClassAttendingNotice({ currentPage, setCurrentPage }) {
         return <ProfNoticeWritingPage currentPage={currentPage} setCurrentPage={setCurrentPage} />;
     }
 
+    console.log("selectedLectureSerial : ", selectedLectureSerial);
+
     /** ========== Render ========== */
     return (
         <>
             {/* 강의 선택 드롭다운 */}
-            <select className="lectureName" onChange={handleLectureChange} value={selectedLectureId || ''}>
+            <select className="lectureName" onChange={handleLectureChange} value={selectedLectureSerial}>
                 {lectureList.length > 0 ? (
-                    lectureList.map((cls) => (
-                        <option key={cls.lecIdx} value={cls.lecIdx}>
-                            {cls.lecTit}
+                    lectureList.map((lecture) => (
+                        <option key={lecture.lecIdx} value={lecture.lecSerial}>
+                            {lecture.lecTit}
                         </option>
                     ))
                 ) : (
@@ -173,8 +172,8 @@ function ClassAttendingNotice({ currentPage, setCurrentPage }) {
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredNotices.length > 0 ? (
-                        filteredNotices.map((notice) => {
+                    {noticeList.length > 0 ? (
+                        noticeList.map((notice) => {
                             const isSelected = notice.boardIdx === selectedIdx;
                             const boardView = isSelected && fetchedNotice
                                 ? fetchedNotice.boardView

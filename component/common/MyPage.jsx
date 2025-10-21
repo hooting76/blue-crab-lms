@@ -15,6 +15,8 @@ import { useState } from "react";
 function MyPage({ currentPage, setCurrentPage }) {
     //수강중인 과목 화면 내에서만 쓰는 진행사항 표시용 선택 과목
     const [selectedCourseId, setSelectedCourseId] = useState("");
+    const [lectureToEdit, setLectureToEdit] = useState(null);
+
 
     const handleSelectCourse = (courseId) => {
         setSelectedCourseId(courseId); // 같은 화면 하단에 진행사항 표시
@@ -40,9 +42,11 @@ function MyPage({ currentPage, setCurrentPage }) {
         case "과목별 공지 작성":
             return <ProfNoticeWritingPage currentPage={currentPage} setCurrentPage={setCurrentPage} />;
         case "강의 수정":
-            return <CourseList currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
+            return <CourseList currentPage={currentPage} setCurrentPage={setCurrentPage} setLectureToEdit={setLectureToEdit}/>;
         case "강의 수정 상세 페이지":
-            return <CourseDetailEdit currentPage={currentPage} setCurrentPage={setCurrentPage}/>;
+            return <CourseDetailEdit lectureDetails={lectureToEdit} currentPage={currentPage} setCurrentPage={setCurrentPage}
+        />;
+
         case "실시간 상담":
             return <Consult />;
         default:

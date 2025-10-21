@@ -2,28 +2,25 @@ import { useState, useEffect } from "react";
 import { UseUser } from "../../../hook/UseUser";
 import CourseList from "./CourseList";
 
-function CourseDetailEdit({ lecture, currentPage, setCurrentPage }) {
-    console.log("CourseDetailEdit lecture:", lecture);
+function CourseDetailEdit({ lectureDetails, currentPage, setCurrentPage }) {
 
-    if (!lecture) return <div>강의 정보를 불러오는 중입니다...</div>;
+    if (!lectureDetails) return <div>강의 정보를 불러오는 중입니다...</div>;
 
-    const [lecTit, setLecTit] = useState(lecture.lecTit);
-    const [lecSummary, setLecSummary] = useState(lecture.lecSummary);
-    const [lecMany, setLecMany] = useState(lecture.lecMany);
-    const [lecPoint, setLecPoint] = useState(lecture.lecPoint);
-    const [lecTime, setLecTime] = useState(lecture.lecTime);
-    const [lecMin, setLecMin] = useState(lecture.lecMin);
+    const [lecTit, setLecTit] = useState("");
+    const [lecSummary, setLecSummary] = useState("");
+    const [lecMany, setLecMany] = useState();
+    const [lecPoint, setLecPoint] = useState();
+    const [lecTime, setLecTime] = useState("");
+    const [lecMin, setLecMin] = useState();
 
     useEffect(() => {
-        if (lecture) {
-            setLecTit(lecture.lecTit);
-            setLecSummary(lecture.lecSummary);
-            setLecMany(lecture.lecMany);
-            setLecPoint(lecture.lecPoint);
-            setLecTime(lecture.lecTime);
-            setLecMin(lecture.lecMin);
-        }
-    }, [lecture]);
+            setLecTit(lectureDetails.lecTit);
+            setLecSummary(lectureDetails.lecSummary);
+            setLecMany(lectureDetails.lecMany);
+            setLecPoint(lectureDetails.lecPoint);
+            setLecTime(lectureDetails.lecTime);
+            setLecMin(lectureDetails.lecMin);
+    }, []);
 
     const { user } = UseUser();
     const accessToken = user?.data?.accessToken;
@@ -31,7 +28,7 @@ function CourseDetailEdit({ lecture, currentPage, setCurrentPage }) {
 
     const submitCourseEdit = async () => {
         const requestBody = {
-            lecSerial: lecture.lecSerial,
+            lecSerial: lectureDetails.lecSerial,
             lecTit,
             lecMany,
             lecTime,
@@ -52,6 +49,12 @@ function CourseDetailEdit({ lecture, currentPage, setCurrentPage }) {
 
             if (!response.ok) throw new Error('서버 에러가 발생했습니다.');
             alert('강의가 성공적으로 수정되었습니다!');
+            setLecTit("");
+            setLecMany();
+            setLecTime("");
+            setLecPoint();
+            setLecMin();
+            setLecSummary("");
             setCurrentPage("강의 수정");
         } catch (error) {
             alert(error.message);

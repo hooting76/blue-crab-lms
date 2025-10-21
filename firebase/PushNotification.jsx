@@ -94,42 +94,54 @@ class PushNotificationService {
                     platform: platform
                 })
             });
-            // console.log(response);
 
             if (response.ok) {
                 const data = await response.json();
-                // console.log('✅ 백엔드에 토큰 저장 성공:', data);
-                // status : registered/renewed/conflict/temporary/replaced
-                // keepSignedIn : null(default)
-                // console.log(data.data);
                 
                 // resister status cntlr
-                const status = ['registered', 'renewed', 'conflict', 'temporary', 'replaced'];
+                const status = ['registered', 'renewed', 'conflict', 'replaced'];
 
                 if(status.includes(data.data.status)){
                     let listNum = status.indexOf(data.data.status) + 1;
-                    // console.log(listNum);
                     switch(listNum){
                         case 1 : 
-                            // console.log('registered');
                             break;
                         case 2 :
-                            // console.log('renewed');
+                            console.log("알림이 갱신되었습니다.");
                             break;
                         case 3 :
-                            // 다른 기기 토큰과 충돌 발생 (이미 다른기기가 등록됨)
-                            // console.log('conflict');
-                            break;
+                            if(confirm('이전에 등록한 기기 정보가 존재합니다.\n 지금 사용중인 기기로 새로 정보 등록 할까요?')){
+                                const response = await fetch(`${BACKEND_API_URL}fcm/register/force`,{
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${authTk}`,                                        
+                                    },
+                                    body: JSON.stringify({
+                                        fcmToken: token,
+                                        platform: platform
+                                    })
+                                });
+
+                                if(response.ok){
+                                    const dataTxt = await response.json();
+                                    console.log(dataTxt);
+
+                                    alert("등록되었습니다.");
+                                    return;
+                                }else{
+                                    return;
+                                }
+                            }else{
+                                return;
+                            }
                         case 4 :
-                            // 로그인 동안만 알림 수신(임시)temporaryOnly: true 전달 필요
-                            // console.log('temporary');
-                            break;
-                        case 5 :
-                            // 기존 토큰 제거 후 현재 기기로 강제 교체
                             // console.log('replaced');
                             break;
                         default : 
                             // console.log('비 정상적인 리턴');
+                            alert(`${error}!! \n 알수없는 오류입니다. \n관리자에게 문의하세요.`);
+                            console.log('error : ',error);
                     } // switch end
                 }else{
                     // alert('웹서버 통신 오류!');

@@ -1,21 +1,26 @@
 import { useEffect, useState } from 'react';
 import { UseUser } from '../../../hook/UseUser';
 import CourseDetail from './CourseDetail';
-import CourseDetailEdit from './CourseDetailEdit';
 
-function CourseList({ currentPage, setCurrentPage }) {
+function CourseList({ currentPage, setCurrentPage, setLectureToEdit }) {
     const { user } = UseUser();
     const [lectureList, setLectureList] = useState([]);
     const [selectedLecture, setSelectedLecture] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
     const accessToken = user?.data?.accessToken;
 
-    const fetchLectureData = async (page = 0) => {
+    const fetchLectureData = async (user, accessToken) => {
+        if (!accessToken) return;
+
+        setLoading(true);
+        setError(null);
         try {
             const requestBody = {
-                page,
+                page: 0,
                 size: 20,
                 professor: String(user.data.user.id),
             };
@@ -34,14 +39,19 @@ function CourseList({ currentPage, setCurrentPage }) {
             setLectureList(data);
         } catch (error) {
             console.error('강의 목록 조회 에러:', error);
+            setError(error.message || '알 수 없는 에러가 발생했습니다.');
+            setLectureList([]);
+        } finally {
+            setLoading(false);
         }
     };
 
     useEffect(() => {
-        if (accessToken) {
-            fetchLectureData(currentPage - 1 || 0);
-        }
-    }, [accessToken, currentPage]);
+    if (accessToken) {
+        fetchLectureData(user, accessToken);
+    }
+}, [user, accessToken, currentPage]); // 🔄 currentPage도 의존성에 추가
+
 
     const openModal = (lecture) => {
         setSelectedLecture(lecture);
@@ -53,54 +63,49 @@ function CourseList({ currentPage, setCurrentPage }) {
         setIsModalOpen(false);
     };
 
-    // 강의 수정 상세 페이지 렌더링
-    if (currentPage === "강의 수정 상세 페이지") {
-        if (!selectedLecture) {
-            return <div>강의 상세 정보를 불러오는 중입니다...</div>;
-        }
-
-        return (
-            <CourseDetailEdit
-                lecture={selectedLecture}
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
-            />
-        );
-    }
 
     return (
         <>
             <h2>강의 목록</h2>
 
-            <table>
-                <tbody>
-                    {lectureList.length > 0 ? (
-                        lectureList.map((lecture) => (
-                            <tr key={lecture.lecIdx} onClick={() => openModal(lecture)}>
-                                <td>{lecture.lecTit}</td>
-                            </tr>
-                        ))
-                    ) : (
-                        <tr><td>강의 목록 없음</td></tr>
-                    )}
-                </tbody>
-            </table>
+            {loading && <div>강의 목록을 불러오는 중입니다...</div>}
+            {error && <div style={{ color: 'red' }}>에러: {error}</div>}
 
-            {isModalOpen && (
+            {!loading && !error && (
+                <table>
+                    <tbody>
+                        {lectureList.length > 0 ? (
+                            lectureList.map((lecture) => (
+                                <tr
+                                    key={lecture.lecIdx}
+                                    onClick={() => openModal(lecture)}
+                                    style={{ cursor: 'pointer' }}
+                                >
+                                    <td>{lecture.lecTit}</td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td>강의 목록 없음</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            )}
+
+            {isModalOpen && selectedLecture && (
                 <div className="modal-overlay" onClick={closeModal}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <button className="modal-close" onClick={closeModal}>✖</button>
+                        <button className="modal-close" onClick={closeModal}>
+                            ✖
+                        </button>
 
                         <CourseDetail
-                            lecture={selectedLecture}
-                            onFetchComplete={(data) => setSelectedLecture(data)}
-                            onEditClick={(course) => {
-                                setSelectedLecture(course); // 수정할 강의 데이터 설정
-                                setIsModalOpen(false);      // 모달 닫기
-                                setCurrentPage("강의 수정 상세 페이지"); // 페이지 전환
-                            }}
-                            closeModal={closeModal}
+                            lectureDetails={selectedLecture}
+                            setIsModalOpen={setIsModalOpen}
+                            currentPage={currentPage}
                             setCurrentPage={setCurrentPage}
+                            setLectureToEdit={setLectureToEdit}
                         />
 
                     </div>

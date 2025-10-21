@@ -933,6 +933,80 @@ public class FcmTokenService {
     }
 
     /**
+     * 전체 사용자에게 Data-only 브로드캐스트 알림 전송
+     * 알림 표시 없이 데이터만 전송 (백그라운드 업데이트용)
+     */
+    public FcmDataOnlyBroadcastResponse sendDataOnlyBroadcast(FcmDataOnlyBroadcastRequest request) {
+        logger.info("FCM Data-only 브로드캐스트 알림 전송 요청 - 제목: {}", request.getTitle());
+
+        List<String> targetPlatforms = resolvePlatforms(request.getPlatforms());
+
+        // 필터 적용
+        List<FcmToken> allTokens = fcmTokenRepository.findAll();
+        if (request.getFilter() != null && request.getFilter().getUserType() != null) {
+            String userType = request.getFilter().getUserType().toUpperCase();
+            if (!"ALL".equals(userType)) {
+                Integer userStudent = "STUDENT".equals(userType) ? 0 : 1;
+                allTokens = filterTokensByUserType(allTokens, userStudent);
+            }
+        }
+
+        LinkedHashSet<String> allValidTokens = new LinkedHashSet<>();
+
+        // 플랫폼별로 토큰 수집
+        // 브로드캐스트는 DB에 등록된 영구 토큰만 사용 (임시 토큰 제외하여 중복 방지)
+        for (FcmToken fcmToken : allTokens) {
+            for (String platform : targetPlatforms) {
+                String token = fcmToken.getTokenByPlatform(platform);
+                if (token != null) {
+                    allValidTokens.add(token);
+                }
+            }
+        }
+
+        if (allValidTokens.isEmpty()) {
+            logger.warn("FCM Data-only 브로드캐스트 전송할 토큰이 없습니다");
+            return new FcmDataOnlyBroadcastResponse("success", 0, 0, 0, new ArrayList<>());
+        }
+
+        logger.info("📤 Sending data-only broadcast to {} tokens", allValidTokens.size());
+
+        // Data-only 배치 전송 사용
+        BatchSendResponse batchResponse = firebasePushService.sendDataOnlyNotificationBatch(
+                new ArrayList<>(allValidTokens),
+                request.getTitle(),
+                request.getBody(),
+                request.getData()
+        );
+
+        int successCount = batchResponse.getSuccessCount();
+        int failureCount = batchResponse.getFailureCount();
+        List<String> invalidTokens = new ArrayList<>();
+
+        // 실패한 토큰 중 무효화된 토큰 처리
+        if (batchResponse.getResponses() != null) {
+            for (TokenSendResult result : batchResponse.getResponses()) {
+                if (!result.isSuccess()) {
+                    String error = result.getError();
+                    if (error != null && (error.contains("NOT_FOUND") ||
+                                         error.contains("INVALID_ARGUMENT") ||
+                                         error.contains("REGISTRATION_TOKEN_NOT_REGISTERED") ||
+                                         error.contains("UNREGISTERED"))) {
+                        invalidTokens.add(result.getToken());
+                        removeInvalidToken(result.getToken());
+                    }
+                }
+            }
+        }
+
+        logger.info("✅ FCM Data-only 브로드캐스트 전송 완료 - 총 토큰: {}, 성공: {}, 실패: {}, 무효화: {}",
+                allValidTokens.size(), successCount, failureCount, invalidTokens.size());
+
+        return new FcmDataOnlyBroadcastResponse("success", allValidTokens.size(), successCount,
+                failureCount, invalidTokens);
+    }
+
+    /**
      * 전체 사용자에게 브로드캐스트 알림 전송
      */
     public FcmBroadcastResponse sendBroadcast(FcmBroadcastRequest request) {

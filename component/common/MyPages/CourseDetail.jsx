@@ -1,65 +1,63 @@
 import { useEffect, useState } from 'react';
 import { UseUser } from '../../../hook/UseUser';
+import CourseDetailEdit from './CourseDetailEdit';
 import "../../../css/MyPages/CourseDetail.css";
 
-function CourseDetail({ lecture, onFetchComplete, onEditClick, closeModal, setCurrentPage }) {
+// CourseDetail.jsx
+function CourseDetail({ lectureDetails, setIsModalOpen, currentPage, setCurrentPage, setLectureToEdit }) {
+
     const { user } = UseUser();
-    const [course, setCourse] = useState(null);
+    const [lectureDetail, setLectureDetail] = useState(lectureDetails);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
-    const getAccessToken = () => {
-        return user?.data?.accessToken || localStorage.getItem('accessToken') || null;
-    };
+ useEffect(() => {
+  if (!lectureDetails?.lecSerial) return;
 
-    const fetchCourseDetail = async (accessToken, lecSerial) => {
-        try {
-            const response = await fetch(`${BASE_URL}/lectures/detail`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ lecSerial }),
-            });
+  const accessToken = user?.data?.accessToken || localStorage.getItem('accessToken');
+  if (!accessToken) return;
 
-            if (!response.ok) {
-                throw new Error('강의 상세 정보를 불러오는데 실패했습니다.');
-            }
+  const fetchCourseDetail = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${BASE_URL}/lectures/detail`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ lecSerial: lectureDetails.lecSerial }),
+      });
 
-            return await response.json();
-        } catch (error) {
-            console.error('강의 상세 조회 에러:', error);
-            return null;
-        }
-    };
+      if (!response.ok) throw new Error('강의 상세 정보를 불러오는데 실패했습니다.');
 
-    useEffect(() => {
-        if (!lecture) {
-            setCourse(null);
-            return;
-        }
+      const data = await response.json();
+      setLectureDetail(data);
+    } catch (err) {
+      setError(err.message);
+      setLectureDetail(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        const token = getAccessToken();
-        if (!token || !lecture.lecSerial) {
-            setCourse(null);
-            return;
-        }
+  fetchCourseDetail();
+}, [lectureDetails?.lecSerial, user]);
 
-        fetchCourseDetail(token, lecture.lecSerial).then((data) => {
-            if (data) {
-                setCourse(data);
-                if (onFetchComplete) {
-                    onFetchComplete(data);
-                }
-            } else {
-                setCourse(null);
-            }
-        });
-    }, [lecture]);
 
-    if (!course) {
+    if (loading) {
         return <div className="courseDetailContainer">강의 정보를 불러오는 중입니다...</div>;
+    }
+
+    if (error) {
+        return <div className="courseDetailContainer">에러: {error}</div>;
+    }
+
+    if (!lectureDetail) {
+        return <div className="courseDetailContainer">강의 정보를 불러올 수 없습니다.</div>;
     }
 
     // 유틸 함수들
@@ -100,40 +98,63 @@ function CourseDetail({ lecture, onFetchComplete, onEditClick, closeModal, setCu
     const formatOpen = (lecOpen) => (lecOpen === 1 ? "열림" : "닫힘");
 
 
+   const onEditClick = (lectureDetail) => {
+        setIsModalOpen(false);
+        setLectureToEdit(lectureDetail);
+        setCurrentPage("강의 수정 상세 페이지");
+    };
+
+
+    // 페이지가 '강의 수정 상세 페이지'일 경우
+    if (currentPage === "강의 수정 상세 페이지") {
+        if (!lectureDetail) {
+            return <div>강의 상세 정보를 불러오는 중입니다...</div>;
+        }
+
+        return (
+            <CourseDetailEdit
+                lectureDetails={lectureDetail}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+            />
+        );
+    }
+
+
     return (
         <div className="courseDetailContainer">
             <div className="courseDetailTitleCode">
-                <span>강의 제목 : {course.lecTit}</span>
-                <span>강의 코드 : {course.lecSerial}</span>
+                <span>강의 제목 : {lectureDetail.lecTit}</span>
+                <span>강의 코드 : {lectureDetail.lecSerial}</span>
             </div>
 
             <div className="courseDetailProfMax">
-                <span>담당 교수 : {course.lecProfName}</span>
-                <span>최대 수강 인원 : {course.lecMany}</span>
+                <span>담당 교수 : {lectureDetail.lecProfName}</span>
+                <span>최대 수강 인원 : {lectureDetail.lecMany}</span>
             </div>
 
             <div className='courseSummary'>
-                강의 개요 : {course.lecSummary}
+                강의 개요 : {lectureDetail.lecSummary}
             </div>
 
             <div className="coursePointTimeMcodeDep">
-                <span>학점 : {course.lecPoint}</span>
-                <span>강의시간 : {course.lecTime}</span>
-                <span>학부 : {formatMcode(course.lecMcode)}</span>
-                <span>학과 : {formatMcodeDep(course.lecMcode, course.lecMcodeDep)}</span>
+                <span>학점 : {lectureDetail.lecPoint}</span>
+                <span>강의시간 : {lectureDetail.lecTime}</span>
+                <span>학부 : {formatMcode(lectureDetail.lecMcode)}</span>
+                <span>학과 : {formatMcodeDep(lectureDetail.lecMcode, lectureDetail.lecMcodeDep)}</span>
             </div>
 
             <div className="courseTearSemesterMinOpen">
-                <span>대상 학년 : {course.lecYear}</span>
-                <span>학기 : {course.lecSemester}</span>
-                <span>수강 최저 학년 : {course.lecMin}</span>
-                <span>열림 여부 : {formatOpen(course.lecOpen)}</span>
+                <span>대상 학년 : {lectureDetail.lecYear}</span>
+                <span>학기 : {lectureDetail.lecSemester}</span>
+                <span>수강 최저 학년 : {lectureDetail.lecMin}</span>
+                <span>열림 여부 : {formatOpen(lectureDetail.lecOpen)}</span>
             </div>
 
             <div style={{ marginTop: '20px' }}>
                 <button
                     className="courseEditButton"
-                    onClick={() => onEditClick(course)}
+                    onClick={() => onEditClick(lectureDetail)}
                 >
                     강의 수정
                 </button>

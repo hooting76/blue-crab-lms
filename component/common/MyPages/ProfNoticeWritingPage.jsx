@@ -20,7 +20,7 @@ function ProfNoticeWritingPage({ notice, accessToken: propToken, currentPage, se
   const editorRef = useRef();
   const [boardTitle, setBoardTitle] = useState('');
   const [boardCode, setBoardCode] = useState(3);
-  const [selectedLectureId, setSelectedLectureId] = useState('');
+  const [selectedLectureSerial, setSelectedLectureSerial] = useState('');
   const [existingAttachments, setExistingAttachments] = useState([]);
   const [deletedAttachments, setDeletedAttachments] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -157,24 +157,25 @@ useEffect(() => {
     e.preventDefault();
 
     const boardContent = editorRef.current.getInstance().getMarkdown();
-    if (!boardTitle || boardCode === null || !boardContent.trim()) {
+    if (!boardTitle || selectedLectureSerial === "" || !boardContent.trim()) {
       alert('모든 필드를 입력해주세요.');
       return;
     }
 
-    const date = new Date().toLocaleString("sv-SE", {
-      timeZone: "Asia/Seoul",
-      hour12: false,
-    });
-    const boardReg = date.replace(" ", "T");
+    // const date = new Date().toLocaleString("sv-SE", {
+    //   timeZone: "Asia/Seoul",
+    //   hour12: false,
+    // });
+    // const boardReg = date.replace(" ", "T");
 
     const NoticeByProf = {
       boardTitle,
       boardCode: 3,
       boardContent,
-      boardWriterIdx: String(user.data.user.id),
-      boardReg,
-      boardOn: 1
+      // boardWriterIdx: String(user.data.user.id),
+      // boardReg,
+      // boardOn: 1,
+      lecSerial: selectedLectureSerial
     };
 
     try {
@@ -250,17 +251,18 @@ useEffect(() => {
       return;
     }
 
-    const date = new Date().toLocaleString("sv-SE", {
-      timeZone: "Asia/Seoul",
-      hour12: false,
-    });
-    const boardLast = date.replace(" ", "T");
+    // const date = new Date().toLocaleString("sv-SE", {
+    //   timeZone: "Asia/Seoul",
+    //   hour12: false,
+    // });
+    // const boardLast = date.replace(" ", "T");
 
     const updatedNotice = {
       boardTitle,
       boardCode: 3,
       boardContent,
-      boardLast
+      // boardLast,
+      lecSerial: selectedLectureSerial
     };
 
     try {
@@ -340,10 +342,10 @@ useEffect(() => {
 
       <div>
         <label>과목</label><br />
-        <select value={selectedLectureId} onChange={(e) => setSelectedLectureId(e.target.value)}>
+        <select value={selectedLectureSerial} onChange={(e) => setSelectedLectureSerial(e.target.value)}>
             {lectureList.length > 0 ? (
                 lectureList.map((cls) => (
-                    <option key={cls.lecIdx} value={cls.lecIdx}>
+                    <option key={cls.lecIdx} value={cls.lecSerial}>
                         {cls.lecTit}
                     </option>
                   ))
