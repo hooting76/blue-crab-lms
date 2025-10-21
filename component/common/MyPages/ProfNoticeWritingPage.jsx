@@ -157,7 +157,7 @@ useEffect(() => {
     e.preventDefault();
 
     const boardContent = editorRef.current.getInstance().getMarkdown();
-    if (!boardTitle || lecSerial === "" || !boardContent.trim()) {
+    if (!boardTitle || selectedLectureSerial === "" || !boardContent.trim()) {
       alert('모든 필드를 입력해주세요.');
       return;
     }
