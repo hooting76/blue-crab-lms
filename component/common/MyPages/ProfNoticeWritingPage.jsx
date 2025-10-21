@@ -20,7 +20,7 @@ function ProfNoticeWritingPage({ notice, accessToken: propToken, currentPage, se
   const editorRef = useRef();
   const [boardTitle, setBoardTitle] = useState('');
   const [boardCode, setBoardCode] = useState(3);
-  const [selectedLectureId, setSelectedLectureId] = useState('');
+  const [selectedLectureSerial, setSelectedLectureSerial] = useState('');
   const [existingAttachments, setExistingAttachments] = useState([]);
   const [deletedAttachments, setDeletedAttachments] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -174,7 +174,8 @@ useEffect(() => {
       boardContent,
       boardWriterIdx: String(user.data.user.id),
       boardReg,
-      boardOn: 1
+      boardOn: 1,
+      lecSerial: selectedLectureSerial
     };
 
     try {
@@ -260,7 +261,8 @@ useEffect(() => {
       boardTitle,
       boardCode: 3,
       boardContent,
-      boardLast
+      boardLast,
+      lecSerial: selectedLectureSerial
     };
 
     try {
@@ -340,10 +342,10 @@ useEffect(() => {
 
       <div>
         <label>과목</label><br />
-        <select value={selectedLectureId} onChange={(e) => setSelectedLectureId(e.target.value)}>
+        <select value={selectedLectureSerial} onChange={(e) => setSelectedLectureSerial(e.target.value)}>
             {lectureList.length > 0 ? (
                 lectureList.map((cls) => (
-                    <option key={cls.lecIdx} value={cls.lecIdx}>
+                    <option key={cls.lecIdx} value={cls.lecSerial}>
                         {cls.lecTit}
                     </option>
                   ))
