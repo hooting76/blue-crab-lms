@@ -116,7 +116,7 @@ function CourseList({ currentPage, setCurrentPage }) {
                         </button>
 
                         <CourseDetail
-                            lecture={selectedLectureDetail}
+                            lectureDetail={selectedLectureDetail}
                             onFetchComplete={(data) => setSelectedLecture(data)}
                             onEditClick={(lectureDetail) => {
                                 setSelectedLectureDetail(lectureDetail);

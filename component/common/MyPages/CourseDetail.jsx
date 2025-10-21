@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { UseUser } from '../../../hook/UseUser';
 import "../../../css/MyPages/CourseDetail.css";
 
-function CourseDetail({ lecture, onFetchComplete, onEditClick }) {
+function CourseDetail({ lectureDetail, onFetchComplete, onEditClick }) {
     const { user } = UseUser();
-    const [lectureDetail, setLectureDetail] = useState(null);
+    const [lectureDetail, setLectureDetail] = useState(lectureDetail);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
