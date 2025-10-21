@@ -37,7 +37,7 @@ function ProfNoticeWritingPage({ notice, currentPage, setCurrentPage }) {
     return null;
   };
 
-  const accessToken = propToken || getAccessToken();
+  const accessToken = getAccessToken();
 
 
   const fetchLectureList = async (accessToken, user) => {
