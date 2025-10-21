@@ -14,6 +14,17 @@ function CourseDetailEdit({ lecture, currentPage, setCurrentPage }) {
     const [lecTime, setLecTime] = useState(lecture.lecTime);
     const [lecMin, setLecMin] = useState(lecture.lecMin);
 
+    useEffect(() => {
+    if (lecture) {
+      setLecTit(lecture.lecTit);
+      setLecSummary(lecture.lecSummary);
+      setLecMany(lecture.lecMany);
+      setLecPoint(lecture.lecPoint);
+      setLecTime(lecture.lecTime);
+      setLecMin(lecture.lecMin);
+    }
+  }, [lecture]);
+
     const { user } = UseUser();
     const accessToken = user?.data?.accessToken;
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
