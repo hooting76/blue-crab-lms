@@ -5,7 +5,7 @@ import CourseDetail from './CourseDetail';
 function CourseList({ currentPage, setCurrentPage }) {
     const { user } = UseUser();
     const [lectureList, setLectureList] = useState([]);
-    const [selectedLecture, setSelectedLecture] = useState(null);s
+    const [selectedLecture, setSelectedLecture] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
