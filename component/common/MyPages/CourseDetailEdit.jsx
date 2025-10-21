@@ -15,6 +15,7 @@ function CourseDetailEdit({lecture, currentPage, setCurrentPage}) {
 
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
+    console.log("lecture : ", lecture);
 
 
     const submitCourseEdit = async(e) => {
