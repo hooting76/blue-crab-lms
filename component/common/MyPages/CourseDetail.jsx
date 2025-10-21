@@ -3,7 +3,9 @@ import { UseUser } from '../../../hook/UseUser';
 import CourseDetailEdit from './CourseDetailEdit';
 import "../../../css/MyPages/CourseDetail.css";
 
-function CourseDetail({ lectureDetails, setIsModalOpen, currentPage, setCurrentPage }) {
+// CourseDetail.jsx
+function CourseDetail({ lectureDetails, setIsModalOpen, currentPage, setCurrentPage, setLectureToEdit }) {
+
     const { user } = UseUser();
     const [lectureDetail, setLectureDetail] = useState(lectureDetails);
     const [loading, setLoading] = useState(true);
@@ -96,11 +98,12 @@ function CourseDetail({ lectureDetails, setIsModalOpen, currentPage, setCurrentP
     const formatOpen = (lecOpen) => (lecOpen === 1 ? "열림" : "닫힘");
 
 
-    const onEditClick=(lectureDetail) => {
-                                setLectureDetail(lectureDetail);
-                                setIsModalOpen(false);
-                                setCurrentPage("강의 수정 상세 페이지");
-                            };
+   const onEditClick = (lectureDetail) => {
+        setIsModalOpen(false);
+        setLectureToEdit(lectureDetail);
+        setCurrentPage("강의 수정 상세 페이지");
+    };
+
 
     // 페이지가 '강의 수정 상세 페이지'일 경우
     if (currentPage === "강의 수정 상세 페이지") {

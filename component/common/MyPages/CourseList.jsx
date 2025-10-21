@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { UseUser } from '../../../hook/UseUser';
 import CourseDetail from './CourseDetail';
 
-function CourseList({ currentPage, setCurrentPage }) {
+function CourseList({ currentPage, setCurrentPage, setLectureToEdit }) {
     const { user } = UseUser();
     const [lectureList, setLectureList] = useState([]);
     const [selectedLecture, setSelectedLecture] = useState(null);
@@ -105,6 +105,7 @@ function CourseList({ currentPage, setCurrentPage }) {
                             setIsModalOpen={setIsModalOpen}
                             currentPage={currentPage}
                             setCurrentPage={setCurrentPage}
+                            setLectureToEdit={setLectureToEdit}
                         />
 
                     </div>
