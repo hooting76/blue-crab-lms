@@ -1,6 +1,12 @@
 .blueCrabOrganization {
     width: 600px;
-    margin-top: 50px;
+}
+
+.blueCrabOrganization > img{
+    padding: 15px;
+    box-sizing: border-box;
+    background: #fff;
+    border-radius: 10px;
 }
 
 @media (max-width: 600px) {
