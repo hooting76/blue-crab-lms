@@ -9,6 +9,8 @@ function CourseDetail({lecture, onFetchComplete}) {
 
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
     const lecSerial = lecture.lecSerial;
+    const lecMcode = lecture.lecMcode;
+    const lecMcodeDep = lecture.lecMcodeDep;
 
     const getAccessToken = () => {
         const storedToken = localStorage.getItem('accessToken');
@@ -64,7 +66,7 @@ function CourseDetail({lecture, onFetchComplete}) {
 };
 
 const formatMcodeDep = (lecMcode, lecMcodeDep) => {
-    if (lecMcode = "01") {
+    if (lecMcode === "01") {
         switch (lecMcodeDep) {
             case "01": return "항해학과";
             case "02": return "해양경찰";
@@ -73,20 +75,20 @@ const formatMcodeDep = (lecMcode, lecMcodeDep) => {
             case "05": return "해양수산학";
             case "06": return "조선학과";
         }
-    } else if (lecMcode = "02") {
+    } else if (lecMcode === "02") {
         switch (lecMcodeDep) {
             case "01": return "간호학";
             case "02": return "치위생";
             case "03": return "약학과";
             case "04": return "보건정책학";
         }
-    } else if (lecMcode = "03") {
+    } else if (lecMcode === "03") {
         switch (lecMcodeDep) {
             case "01": return "물리학";
             case "02": return "수학";
             case "03": return "분자화학";
         }
-    } else if (lecMcode = "04") {
+    } else if (lecMcode === "04") {
         switch (lecMcodeDep) {
             case "01": return "철학";
             case "02": return "국어국문";
@@ -96,7 +98,7 @@ const formatMcodeDep = (lecMcode, lecMcodeDep) => {
             case "06": return "정치외교";
             case "07": return "영어영문";
         }
-    } else if (lecMcode = "05") {
+    } else if (lecMcode === "05") {
         switch (lecMcodeDep) {
             case "01": return "컴퓨터공학";
             case "02": return "기계공학";
@@ -104,6 +106,10 @@ const formatMcodeDep = (lecMcode, lecMcodeDep) => {
             case "04": return "ICT융합";
         }
     } else return "기타"
+}
+
+const formatOpen = (lecOpen) => {
+    if (lecOpen === 1) {return "열림"} else {return "닫힘"};
 }
 
 
@@ -130,15 +136,15 @@ const formatMcodeDep = (lecMcode, lecMcodeDep) => {
                     <div className="coursePointTimeMcodeDep">
                         <span>학점 : {course.lecPoint}</span>
                         <span>강의시간 : {course.lecTime}</span>
-                        <span>학부 : {formatMcode(course.lecMcode)}</span>
-                        <span>학과 : {formatMcodeDep(course.lecMcode, course.lecMcodeDep)}</span>
+                        <span>학부 : {formatMcode(lecMcode)}</span>
+                        <span>학과 : {formatMcodeDep(lecMcode, lecMcodeDep)}</span>
                     </div>
 
                     <div className="courseTearSemesterMinOpen">
                         <span>대상 학년 : {course.lecYear}</span>
                         <span>학기 : {course.lecSemester}</span>
                         <span>수강 최저 학년 : {course.lecMin}</span>
-                        <span>열림 여부 : {course.lecOpen}</span>
+                        <span>열림 여부 : {formatOpen(course.lecOpen)}</span>
                     </div>
                 </div>
             }
