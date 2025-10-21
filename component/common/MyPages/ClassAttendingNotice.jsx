@@ -39,7 +39,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage }) {
             if (!response.ok) throw new Error('강의 목록 조회 실패');
             const data = await response.json();
             setLectureList(data);
-            if (data.length > 0) setSelectedLectureSerial(data[0].lecIdx); // 첫 강의 선택
+            if (data.length > 0) setSelectedLectureSerial(data[0].lecSerial); // 첫 강의 선택
         } catch (error) {
             console.error('강의 목록 에러:', error);
             setLectureList([]);
@@ -48,7 +48,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage }) {
 
     console.log("lectureList : ", lectureList);
 
-    const fetchAllNotices = async () => {
+    const fetchNotices = async () => {
         try {
             const response = await fetch(`${BASE_URL}/boards/list`, {
                 method: 'POST',
@@ -73,9 +73,14 @@ function ClassAttendingNotice({ currentPage, setCurrentPage }) {
     useEffect(() => {
         if (accessToken && userId) {
             fetchLectureList();
-            fetchAllNotices();
         }
     }, [accessToken, userId]);
+
+    useEffect(() => {
+        if (accessToken, selectedLectureSerial) {
+            fetchNotices();
+        }
+    }, [accessToken, selectedLectureSerial]);
 
     /** ========== Helpers ========== */
     const decodeBase64 = (str) => {
