@@ -13,11 +13,7 @@
 
 .courseDetailTitleCode span,
 .courseDetailProfMax span,
+.coursePointTimeMcodeDep span,
 .courseTearSemesterMinOpen span {
     flex: 1;
-}
-
-
-.coursePointTimeMcodeDep span {
-    flex : 4 5 4 4;
 }

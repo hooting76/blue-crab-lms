@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { UseUser } from "../../../hook/UseUser";
 import CourseList from "./CourseList";
 
@@ -7,12 +7,23 @@ function CourseDetailEdit({ lectureDetails, currentPage, setCurrentPage }) {
 
     if (!lectureDetails) return <div>강의 정보를 불러오는 중입니다...</div>;
 
-    const [lecTit, setLecTit] = useState(lectureDetails.lecTit);
-    const [lecSummary, setLecSummary] = useState(lectureDetails.lecSummary);
-    const [lecMany, setLecMany] = useState(lectureDetails.lecMany);
-    const [lecPoint, setLecPoint] = useState(lectureDetails.lecPoint);
-    const [lecTime, setLecTime] = useState(lectureDetails.lecTime);
-    const [lecMin, setLecMin] = useState(lectureDetails.lecMin);
+    const [lecTit, setLecTit] = useState("");
+    const [lecSummary, setLecSummary] = useState("");
+    const [lecMany, setLecMany] = useState();
+    const [lecPoint, setLecPoint] = useState();
+    const [lecTime, setLecTime] = useState("");
+    const [lecMin, setLecMin] = useState();
+
+    useEffect(() => {
+        if (lectureDetails) {
+            setLecTit(lectureDetails.lecTit);
+            setLecSummary(lectureDetails.lecSummary);
+            setLecMany(lectureDetails.lecMany);
+            setLecPoint(lectureDetails.lecPoint);
+            setLecTime(lectureDetails.lecTime);
+            setLecMin(lectureDetails.lecMin);
+        }
+    }, []);
 
     const { user } = UseUser();
     const accessToken = user?.data?.accessToken;
