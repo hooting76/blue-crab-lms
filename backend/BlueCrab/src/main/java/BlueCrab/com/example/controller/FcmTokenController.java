@@ -138,6 +138,20 @@ public class FcmTokenController {
     }
 
     /**
+     * 전체 사용자에게 Data-only 브로드캐스트 알림 전송 (관리자용)
+     * POST /api/fcm/send/broadcast/data-only
+     */
+    @PostMapping("/send/broadcast/data-only")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<FcmDataOnlyBroadcastResponse>> sendDataOnlyBroadcast(
+            @Valid @RequestBody FcmDataOnlyBroadcastRequest request) {
+
+        FcmDataOnlyBroadcastResponse result = fcmTokenService.sendDataOnlyBroadcast(request);
+        ApiResponse<FcmDataOnlyBroadcastResponse> response = ApiResponse.success("Data-only 브로드캐스트 알림 전송이 완료되었습니다.", result);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
      * FCM 토큰 통계 조회 (관리자용)
      * GET /api/fcm/stats
      */
