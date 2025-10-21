@@ -11,52 +11,40 @@ function CourseDetail({ lectureDetails, onFetchComplete, onEditClick }) {
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
     useEffect(() => {
-        if (!lectureDetail) {
+    if (!lectureDetails || !lectureDetails.lecSerial) return;
+
+    const accessToken = user?.data?.accessToken || localStorage.getItem('accessToken');
+    if (!accessToken) return;
+
+    const fetchCourseDetail = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await fetch(`${BASE_URL}/lectures/detail`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ lecSerial: lectureDetails.lecSerial }),
+            });
+
+            if (!response.ok) throw new Error('강의 상세 정보를 불러오는데 실패했습니다.');
+
+            const data = await response.json();
+            setLectureDetail(data);
+            if (onFetchComplete) onFetchComplete(data);
+        } catch (err) {
+            setError(err.message);
             setLectureDetail(null);
+        } finally {
             setLoading(false);
-            return;
         }
+    };
 
-        const accessToken = user?.data?.accessToken || localStorage.getItem('accessToken');
-        if (!accessToken || !lectureDetail.lecSerial) {
-            setLectureDetail(null);
-            setLoading(false);
-            return;
-        }
+    fetchCourseDetail();
+}, [lectureDetails, user]);
 
-        const fetchCourseDetail = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const response = await fetch(`${BASE_URL}/lectures/detail`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ lecSerial: lectureDetail.lecSerial }),
-                });
-
-                if (!response.ok) {
-                    throw new Error('강의 상세 정보를 불러오는데 실패했습니다.');
-                }
-
-                const data = await response.json();
-                setLectureDetail(data);
-                if (onFetchComplete) {
-                    onFetchComplete(data);
-                }
-            } catch (err) {
-                setError(err.message);
-                setLectureDetail(null);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchCourseDetail();
-
-    }, [lectureDetail, user]);
 
     if (loading) {
         return <div className="courseDetailContainer">강의 정보를 불러오는 중입니다...</div>;

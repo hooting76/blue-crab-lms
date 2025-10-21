@@ -117,7 +117,7 @@ function CourseList({ currentPage, setCurrentPage }) {
                         </button>
 
                         <CourseDetail
-                            lectureDetails={selectedLecture}
+                            lectureDetails={selectedLectureDetail}
                             onFetchComplete={(data) => {
                                 setSelectedLecture(data);
                                 setSelectedLectureDetail(data);
