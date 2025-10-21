@@ -5,7 +5,7 @@ import { postFacilities } from "../../../src/api/facility";
 import "../../../css/Facilities/FacilityReserve.css";
 import ReservationModal from "./ReservationModal";
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 6;
 
 export default function FacilityRequest({ currentPage, setCurrentPage }) {
   const [list, setList] = useState([]);
@@ -31,7 +31,6 @@ export default function FacilityRequest({ currentPage, setCurrentPage }) {
         setLoading(false);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const total = list.length;
@@ -105,7 +104,7 @@ export default function FacilityRequest({ currentPage, setCurrentPage }) {
 
                   <div className="fc-meta">
                     <span>위치: {f.location || "-"}</span>
-                    <span>수용 인원: {typeof f.capacity === "number" ? f.capacity : "-"}</span>
+                    <span>수용 인원: {typeof f.capacity === "number" ? f.capacity : "-"} 명</span>
                   </div>
 
                   {!!f.isBlocked && f.blockReason && (
