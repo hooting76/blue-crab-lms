@@ -142,7 +142,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, setNoticeToEdit }) 
         return <ProfNoticeWritingPage notice={noticeToEdit} currentPage={currentPage} setCurrentPage={setCurrentPage} />;
     }
 
-    console.log("fetchedNotice : ", fetchedNotice);
+    
 
     /** ========== Render ========== */
     return (
@@ -214,11 +214,9 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, setNoticeToEdit }) 
                             setCurrentPage={setCurrentPage}
                             onFetchComplete={(notice) => {setFetchedNotice(notice); setNoticeToEdit(notice);}}
                         />
-                        {fetchedNotice.boardWriter === user.data.user.name &&
-                            <button className="noticeEditButton" onClick={handleEdit}>
-                                공지 수정
-                            </button>
-                        }
+                        <button className="noticeEditButton" onClick={handleEdit}>
+                            공지 수정
+                        </button>
                     </div>
                 </div>
             )}
