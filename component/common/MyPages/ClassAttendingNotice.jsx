@@ -71,11 +71,16 @@ function ClassAttendingNotice({ currentPage, setCurrentPage }) {
 
     /** ========== useEffect ========== */
     useEffect(() => {
-        if (accessToken && userId && selectedLectureSerial) {
+        if (accessToken && userId) {
             fetchLectureList();
+        }
+    }, [accessToken, userId]);
+
+    useEffect(() => {
+        if (accessToken, selectedLectureSerial) {
             fetchNotices();
         }
-    }, [accessToken, userId, selectedLectureSerial]);
+    }, [accessToken, selectedLectureSerial]);
 
     /** ========== Helpers ========== */
     const decodeBase64 = (str) => {
