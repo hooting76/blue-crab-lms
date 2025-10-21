@@ -4,91 +4,75 @@ import CourseDetail from './CourseDetail';
 import CourseDetailEdit from './CourseDetailEdit';
 
 function CourseList({ currentPage, setCurrentPage }) {
-
     const { user } = UseUser();
     const [lectureList, setLectureList] = useState([]);
     const [selectedLecture, setSelectedLecture] = useState(null);
-    const [fetchedLecture, setFetchedLecture] = useState(null);
+    const [detailedLecture, setDetailedLecture] = useState(null); // ✅ 통합된 상세 상태
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
-    const openModal = (lecture) => {
-    setSelectedLecture(lecture);
-    setIsModalOpen(true);
+    const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
+    const accessToken = user?.data?.accessToken;
+
+    const fetchLectureData = async () => {
+        try {
+            const requestBody = {
+                page: 0,
+                size: 20,
+                professor: String(user.data.user.id),
+            };
+
+            const response = await fetch(`${BASE_URL}/lectures`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            });
+
+            if (!response.ok) throw new Error('강의 목록을 불러오는 데 실패했습니다.');
+            const data = await response.json();
+            setLectureList(data);
+        } catch (error) {
+            console.error('강의 목록 조회 에러:', error);
+        }
     };
 
+    useEffect(() => {
+        if (accessToken) fetchLectureData();
+    }, [accessToken]);
+
+    const openModal = (lecture) => {
+        setSelectedLecture(lecture);
+        setIsModalOpen(true);
+        setDetailedLecture(null); // 새로운 강의 선택 시 이전 데이터 초기화
+    };
 
     const closeModal = () => {
         setSelectedLecture(null);
         setIsModalOpen(false);
+        setDetailedLecture(null);
     };
-
-    const accessToken = user?.data?.accessToken;
-    console.log("user : ", user);
-    console.log("accessToken : ", accessToken);
-
-
-const fetchLectureData = async (accessToken, user) => {
-  try {
-    const requestBody = {
-          page: 0,
-          size: 20,
-          professor: String(user.data.user.id),
-        };
-
-    const url = `${BASE_URL}/lectures`;
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody),
-    });
-
-    if (!response.ok) {
-      throw new Error('강의 목록을 불러오는 데 실패했습니다.');
-    }
-
-    const data = await response.json();
-    setLectureList(data);
-  } catch (error) {
-    console.error('강의 목록 조회 에러:', error);
-  }
-};
-
-    
-        useEffect(() => {
-                fetchLectureData(accessToken, user);
-            }, [accessToken, user]); // ✅ accessToken이 생겼을 때 호출
-    
-            console.log("lectureList : ", lectureList);
-
-
 
     const handleEdit = () => {
-        if (!fetchedLecture) {
-        alert("강의 상세 정보 데이터를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
-        return;
+        if (!detailedLecture) {
+            alert("강의 상세 정보를 불러오는 중입니다.");
+            return;
         }
-
-    setSelectedLecture(fetchedLecture);
-    setIsModalOpen(false);
-    setCurrentPage("강의 수정 상세 페이지");
+        setCurrentPage("강의 수정 상세 페이지");
+        setIsModalOpen(false);
     };
 
+    // 페이지 전환
     if (currentPage === "강의 수정 상세 페이지") {
-    return (
-        <CourseDetailEdit
-            lecture={selectedLecture}
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-        />
-    );
-}
-
-
+        return (
+            <CourseDetailEdit
+                lecture={detailedLecture} // ✅ 항상 상세 정보 사용
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+            />
+        );
+    }
 
     return (
         <>
@@ -108,30 +92,23 @@ const fetchLectureData = async (accessToken, user) => {
                 </tbody>
             </table>
 
-
             {isModalOpen && (
                 <div className="modal-overlay" onClick={closeModal}>
-                    <div
-                        className="modal-content"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <button className="modal-close" onClick={closeModal}>
-                            ✖
-                        </button>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <button className="modal-close" onClick={closeModal}>✖</button>
+
                         <CourseDetail
-                        lecture={selectedLecture}
-                        onFetchComplete={(lecture) => {
-                            setFetchedLecture(lecture);        // 업데이트된 강의 상세 정보
-                            setSelectedLecture(lecture);
-                        }}
+                            lecture={selectedLecture}
+                            onFetchComplete={(data) => setDetailedLecture(data)}
                         />
 
-                            <button
+                        <button
                             className="courseEditButton"
                             onClick={handleEdit}
-                            >
+                            disabled={!detailedLecture} // ✅ 상세 정보 없으면 비활성화
+                        >
                             강의 수정
-                            </button>
+                        </button>
                     </div>
                 </div>
             )}
