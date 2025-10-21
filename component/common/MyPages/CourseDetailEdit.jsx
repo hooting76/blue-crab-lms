@@ -2,26 +2,26 @@ import { useState, useEffect } from "react";
 import { UseUser } from "../../../hook/UseUser";
 import CourseList from "./CourseList";
 
-function CourseDetailEdit({ lectureDetail, currentPage, setCurrentPage }) {
-    console.log("CourseDetailEdit lectureDetail:", lectureDetail);
+function CourseDetailEdit({ lectureDetails, currentPage, setCurrentPage }) {
+    console.log("CourseDetailEdit lectureDetails:", lectureDetails);
 
     if (!lecture) return <div>강의 정보를 불러오는 중입니다...</div>;
 
-    const [lecTit, setLecTit] = useState(lectureDetail.lecTit);
-    const [lecSummary, setLecSummary] = useState(lectureDetail.lecSummary);
-    const [lecMany, setLecMany] = useState(lectureDetail.lecMany);
-    const [lecPoint, setLecPoint] = useState(lectureDetail.lecPoint);
-    const [lecTime, setLecTime] = useState(lectureDetail.lecTime);
-    const [lecMin, setLecMin] = useState(lectureDetail.lecMin);
+    const [lecTit, setLecTit] = useState(lectureDetails.lecTit);
+    const [lecSummary, setLecSummary] = useState(lectureDetails.lecSummary);
+    const [lecMany, setLecMany] = useState(lectureDetails.lecMany);
+    const [lecPoint, setLecPoint] = useState(lectureDetails.lecPoint);
+    const [lecTime, setLecTime] = useState(lectureDetails.lecTime);
+    const [lecMin, setLecMin] = useState(lectureDetails.lecMin);
 
     useEffect(() => {
         if (lectureDetail) {
-            setLecTit(lectureDetail.lecTit);
-            setLecSummary(lectureDetail.lecSummary);
-            setLecMany(lectureDetail.lecMany);
-            setLecPoint(lectureDetail.lecPoint);
-            setLecTime(lectureDetail.lecTime);
-            setLecMin(lectureDetail.lecMin);
+            setLecTit(lectureDetails.lecTit);
+            setLecSummary(lectureDetails.lecSummary);
+            setLecMany(lectureDetails.lecMany);
+            setLecPoint(lectureDetails.lecPoint);
+            setLecTime(lectureDetails.lecTime);
+            setLecMin(lectureDetails.lecMin);
         }
     }, [lectureDetail]);
 
