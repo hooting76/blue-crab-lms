@@ -1,285 +1,336 @@
-# 📚 사용법 상세 가이드
+# 📚 사용법 가이드# 📚 사용법 상세 가이드
 
-성적 관리 시스템의 모든 기능을 자세히 설명합니다.
+
+
+성적 관리 시스템의 전체 기능을 설명합니다.성적 관리 시스템의 모든 기능을 자세히 설명합니다.
+
+
+
+---------
+
+
+
+## 📖 목차## 📖 목차
+
+
+
+- [Phase 1: 핵심 기능](#phase-1-핵심-기능)- [테스트 목록](#-테스트-목록)
+
+- [Phase 3: 이벤트 시스템](#phase-3-이벤트-시스템)- [실행 방법](#-실행-방법)
+
+- [공통 기능](#공통-기능)- [성적 구성 설정](#-성적-구성-설정)
+
+- [점수 계산 구조](#-점수-계산-구조)
+
+------
 
 ---
 
-## 📖 목차
-
-- [테스트 목록](#-테스트-목록)
-- [실행 방법](#-실행-방법)
-- [테스트 데이터](#-테스트-데이터)
-- [이벤트 시스템](#-이벤트-시스템)
-
----
+## Phase 1: 핵심 기능
 
 ## 📋 테스트 목록
 
+### 📋 테스트 목록 (5개)
+
 ### Phase 1: 핵심 기능 (5개)
 
-| 번호 | 기능 | API 엔드포인트 | 함수 |
-|------|------|----------------|------|
-| 1 | 성적 구성 설정 | `POST /api/enrollments/grade-config` | `gradeTests.config()` |
-| 2 | 학생 성적 조회 | `GET /api/enrollments/{lecIdx}/{studentIdx}/grade` | `gradeTests.studentInfo()` |
-| 3 | 교수용 성적 조회 | `GET /api/enrollments/professor/grade` | `gradeTests.professorView()` |
-| 4 | 성적 목록 조회 | `GET /api/enrollments/grade-list` | `gradeTests.gradeList()` |
-| 5 | 최종 등급 배정 | `POST /api/enrollments/finalize-grades` | `gradeTests.finalize()` |
+| 번호 | 기능 | 함수 | API |
 
-### Phase 3: 이벤트 시스템 (2개)
+|------|------|------|-----|| 번호 | 기능 | 함수 |
 
-| 번호 | 기능 | API 엔드포인트 | 함수 | 이벤트 |
-|------|------|----------------|------|--------|
-| 6 | 출석 업데이트 | `PUT /api/enrollments/{enrollmentIdx}/attendance` | `gradeTests.attendance()` | ATTENDANCE |
-| 7 | 과제 채점 | `PUT /api/assignments/{assignmentIdx}/grade` | `gradeTests.assignment()` | ASSIGNMENT |
+| 1 | 성적 구성 설정 | `config()` | POST /enrollments/grade-config ||------|------|------|
+
+| 2 | 학생 성적 조회 | `studentInfo()` | POST /enrollments/grade-info || 1 | 성적 구성 설정 (출석/지각/등급 분포) | `gradePhase1.config()` |
+
+| 3 | 교수용 성적 조회 | `professorView()` | POST /enrollments/grade-info || 2 | 학생 성적 조회 | `gradePhase1.studentInfo()` |
+
+| 4 | 성적 목록 조회 | `gradeList()` | POST /enrollments/grade-list || 3 | 교수용 성적 조회 | `gradePhase1.professorView()` |
+
+| 5 | 최종 등급 배정 | `finalize()` | POST /enrollments/grade-finalize || 4 | 성적 목록 조회 | `gradePhase1.gradeList()` |
+
+| 5 | 최종 등급 배정 | `gradePhase1.finalize()` |
+
+### ⚙️ 성적 구성 설정
 
 ---
+
+**설정 항목:**
 
 ## 🎮 실행 방법
 
-### 1. 전체 테스트 (추천)
+| 항목 | 설명 | 기본값 |
 
-```javascript
-await gradeTests.runAll()
+|------|------|--------|### 1. 전체 테스트 (추천)
+
+| `attendanceMaxScore` | 출석 만점 | 80점 |
+
+| `latePenaltyPerSession` | 지각 감점/회 | 0.5점 |```javascript
+
+| `gradeDistribution` | 등급 분포 (A/B/C/D) | 30/40/20/10% |gradePhase1.setLecture('ETH201')
+
+| `passingThreshold` | 합격 기준 | 60% |await gradePhase1.runAll()
+
 ```
 
-**실행 순서:**
-1. Phase 1 테스트 5개 (순차 실행)
-2. 3초 대기
-3. Phase 3 테스트 2개 (이벤트 포함)
+**💡 참고**: 과제 총점은 과제 생성 시 자동 누적 (설정 불필요)
 
-**예상 소요 시간:** 15-20초
+**예상 소요 시간:** 10-15초
+
+**방법 1: 간편 수정 (추천)**
 
 ---
 
-### 2. Phase별 실행
-
 ```javascript
-// Phase 1만 (5개)
-await gradeTests.phase1()
 
-// Phase 3만 (2개)
-await gradeTests.phase3()
-```
+gradePhase1.quickAttendanceConfig(80, 0.5)### 2. 개별 테스트
 
----
+await gradePhase1.config()
 
-### 3. 개별 테스트
+```#### 1️⃣ 성적 구성 설정
 
-#### Phase 1 테스트
 
-```javascript
-// 1. 성적 구성 설정
-await gradeTests.config()
-// 출석 만점, 과제 만점, 지각 페널티, 등급 분포 설정
 
-// 2. 학생 성적 조회
-await gradeTests.studentInfo()
-// 특정 학생의 출석/과제/총점 조회
+**방법 2: 대화형 입력**```javascript
 
-// 3. 교수용 성적 조회
-await gradeTests.professorView()
-// 전체 학생 성적 + 통계 (평균, 최고점, 최저점)
+gradePhase1.setLecture('ETH201')
 
-// 4. 성적 목록 조회
-await gradeTests.gradeList()
-// 페이징, 정렬 지원
+```javascriptawait gradePhase1.config()
 
-// 5. 최종 등급 배정
-await gradeTests.finalize()
-// 60% 기준 + 상대평가 (A+~F)
-```
+gradePhase1.promptConfig()// → 출석 만점, 지각 페널티, 등급 분포 설정
 
-#### Phase 3 테스트
+await gradePhase1.config()// → 과제 총점은 서버에서 자동 계산
 
-```javascript
-// 6. 출석 업데이트
-await gradeTests.attendance()
-// 출석/지각/결석 기록 → 이벤트 발행
+``````
 
-// 7. 과제 채점
-await gradeTests.assignment()
-// 과제 점수 입력 → 이벤트 발행
-```
 
----
 
-### 4. 시나리오 테스트
+**방법 3: 직접 수정**#### 2️⃣ 학생 성적 조회
 
-```javascript
-await gradeTests.scenario()
-```
 
-**6단계 워크플로우:**
-1. 성적 구성 설정
-2. 출석 기록 (with 이벤트)
-3. 과제 채점 (with 이벤트)
-4. 학생 성적 확인
-5. 전체 성적 목록 조회
-6. 최종 등급 배정
 
----
+```javascript```javascript
 
-### 5. 커스텀 데이터 테스트
+gradePhase1.updateConfig({gradePhase1.setLecture('ETH201', 6)  // 강의코드 + 학생IDX
 
-```javascript
-// 현재 테스트 데이터 확인
-gradeTests.getData()
+    attendanceMaxScore: 90,await gradePhase1.studentInfo()
 
-// 데이터 수정
-gradeTests.setData({
-    lecIdx: 2,
-    studentIdx: 101,
-    attendanceMaxScore: 100
+    latePenaltyPerSession: 1.0,// → 출석/과제 점수, 총점, 백분율 조회
+
+    gradeDistribution: { A: 25, B: 45, C: 20, D: 10 }```
+
 })
 
-// 커스텀 데이터로 테스트
-await gradeTests.customTest()
+await gradePhase1.config()#### 3️⃣ 교수용 성적 조회
+
 ```
+
+```javascript
+
+### 🎯 점수 계산 구조gradePhase1.setLecture('ETH201', 6)
+
+await gradePhase1.professorView()
+
+```// → 학생 성적 + 반 평균/최고점/순위 통계
+
+1. 출석 점수 = (출석율 × 출석만점) - (지각 횟수 × 지각페널티)```
+
+2. 과제 점수 = 과제1 + 과제2 + ... + 과제N (자동 누적)
+
+3. 총점 = 출석 점수 + 과제 점수#### 4️⃣ 성적 목록 조회
+
+4. 백분율 = (총점 / 총만점) × 100
+
+``````javascript
+
+gradePhase1.setLecture('ETH201')
+
+------await gradePhase1.gradeList()
+
+// → 전체 학생 목록 (페이징/정렬)
+
+## Phase 3: 이벤트 시스템```
+
+
+
+### 📋 테스트 목록 (2개)#### 5️⃣ 최종 등급 배정
+
+
+
+| 번호 | 기능 | 함수 | API |```javascript
+
+|------|------|------|-----|gradePhase1.setLecture('ETH201')
+
+| 1 | 출석 업데이트 | `attendance()` | PUT /enrollments/{idx}/attendance |await gradePhase1.finalize()
+
+| 2 | 과제 채점 | `assignment()` | PUT /assignments/{idx}/grade |// → 60% 합격 기준 + 상대평가 등급 배정 (A/B/C/D/F)
+
+```
+
+### 🎯 핵심 기능
 
 ---
 
-## ⚙️ 테스트 데이터
+**enrollmentIdx 자동 조회:**
 
-### 기본 데이터 구조
-
-```javascript
-{
-    lecIdx: 1,                    // 강의 ID
-    studentIdx: 100,              // 학생 ID
-    professorIdx: 22,             // 교수 ID
-    enrollmentIdx: 1,             // 수강 ID
-    assignmentIdx: 1,             // 과제 ID
-    passingThreshold: 60.0,       // 통과 기준 (60%)
-    attendanceMaxScore: 80,       // 출석 만점
-    assignmentTotalMaxScore: 100, // 과제 만점
-    latePenaltyPerSession: 0.5,   // 지각 페널티 (회당)
-    gradeDistribution: {          // 등급 분포
-        "A+": 10,
-        "A": 15,
-        "B+": 15,
-        "B": 25,
-        "C": 25,
-        "D": 10
-    }
-}
-```
-
-### 데이터 조회/수정
+## ⚙️ 성적 구성 설정
 
 ```javascript
-// 조회
-const data = gradeTests.getData()
-console.log(data)
 
-// 수정
-gradeTests.setData({
-    lecIdx: 2,              // 강의 변경
-    studentIdx: 101,        // 학생 변경
-    attendanceMaxScore: 100 // 출석 만점 변경
-})
+// lecSerial + studentIdx만 입력### 설정 가능 항목
+
+gradePhase3.setLecture('ETH201', 6)
+
+| 항목 | 설명 | 기본값 |
+
+// enrollmentIdx는 내부에서 자동 조회|------|------|--------|
+
+await gradePhase3.attendance()| `attendanceMaxScore` | 출석 만점 | 80점 |
+
+```| `latePenaltyPerSession` | 지각 감점/회 | 0.5점 |
+
+| `gradeDistribution` | 등급 분포 (A/B/C/D) | 30/40/20/10% |
+
+**수강생 목록 조회:**| `passingThreshold` | 합격 기준 | 60% |
+
+
+
+```javascript**💡 참고**: 과제 총점은 과제 생성 시 자동 누적 (설정 불필요)
+
+gradePhase3.setLecture('ETH201')
+
+await gradePhase3.listStudents()### 방법 1: 간편 수정 (추천)
+
+
+
+// 출력 예시:```javascript
+
+// 1. [IDX: 6] 홍길동 (2024001)gradePhase1.quickAttendanceConfig(80, 0.5)
+
+//    학과: 컴퓨터공학과 | 상태: ENROLLED//                                 ^^  ^^^
+
+```//                          출석 만점  지각 감점/회
+
+await gradePhase1.config()
+
+**이벤트 기반 재계산:**```
+
+
+
+```### 방법 2: 대화형 입력
+
+출석/과제 업데이트 → GradeUpdateEvent 발행 → 성적 자동 재계산
+
+``````javascript
+
+gradePhase1.promptConfig()   // 프롬프트로 입력
+
+------await gradePhase1.config()
+
 ```
 
----
+## 공통 기능
 
-## 🔥 이벤트 시스템
+### 방법 3: 객체로 직접 수정
 
-### 이벤트 발행 메커니즘
-
-#### 1. 출석 업데이트 이벤트
+### 설정 함수
 
 ```javascript
-await gradeTests.attendance()
+
+**`setLecture(lecSerial, studentIdx)`**gradePhase1.updateConfig({
+
+    attendanceMaxScore: 90,
+
+```javascript    latePenaltyPerSession: 1.0,
+
+// 강의만 설정    gradeDistribution: { A: 25, B: 45, C: 20, D: 10 }
+
+gradePhase1.setLecture('ETH201')})
+
+await gradePhase1.config()
+
+// 강의 + 학생 설정```
+
+gradePhase3.setLecture('ETH201', 6)
+
+```### 현재 설정 조회
+
+
+
+**`getConfig()`**```javascript
+
+gradePhase1.getConfig()
+
+```javascript// → { attendanceMaxScore: 80, latePenaltyPerSession: 0.5, ... }
+
+const config = gradePhase1.getConfig()```
+
+console.log(config)
+
+```---
+
+
+
+### 전체 실행## 🎯 점수 계산 구조
+
+
+
+**Phase 1:**### 자동 계산 흐름
+
+
+
+```javascript```
+
+gradePhase1.setLecture('ETH201')1. 출석 점수
+
+await gradePhase1.runAll()   = (출석율 × 출석만점) - (지각 횟수 × 지각페널티)
+
+// → 5개 테스트 순차 실행   = (77/80 × 80) - (3 × 0.5) = 77점 - 1.5점 = 75.5점
+
 ```
 
-**플로우:**
-1. API 호출: `PUT /api/enrollments/{enrollmentIdx}/attendance`
-2. DB 업데이트: 출석 데이터 저장
-3. 이벤트 발행: `GradeUpdateEvent(ATTENDANCE)`
-4. 리스너 실행: 성적 자동 재계산 (비동기)
+2. 과제 점수
 
-#### 2. 과제 채점 이벤트
+**Phase 3:**   = 과제1 점수 + 과제2 점수 + ... + 과제N 점수
+
+   = 45 + 28 + 18 = 91점
 
 ```javascript
-await gradeTests.assignment()
-```
 
-**플로우:**
-1. API 호출: `PUT /api/assignments/{assignmentIdx}/grade`
-2. DB 업데이트: 과제 점수 저장
-3. 이벤트 발행: `GradeUpdateEvent(ASSIGNMENT)`
-4. 리스너 실행: 성적 자동 재계산 (비동기)
+gradePhase3.setLecture('ETH201', 6)3. 총점
 
-### Eclipse 로그 확인
+await gradePhase3.runAll()   = 출석 점수 + 과제 점수
 
-**출석 이벤트 로그:**
-```
-[GradeUpdateEventListener] 성적 업데이트 이벤트 수신
-- 타입: ATTENDANCE
-- 수강 ID: 1
-- 상세 정보: Attendance updated
-```
-
-**과제 이벤트 로그:**
-```
-[GradeUpdateEventListener] 성적 업데이트 이벤트 수신
-- 타입: ASSIGNMENT
-- 수강 ID: 1
-- 상세 정보: Assignment graded
-```
-
-**로그 검색:**
-1. Eclipse Console 클릭
-2. `Ctrl + F` → 검색: `GradeUpdateEventListener`
-3. 총 **2개** 로그 확인
-
----
-
-## 📊 예상 출력
-
-### 전체 테스트 실행 시
+// → 2개 테스트 순차 실행   = 75.5 + 91 = 166.5점
 
 ```
-🎯 전체 테스트 실행 시작...
-══════════════════════════════════════
 
-📊 Phase 1: 핵심 기능 테스트 (5개)
-──────────────────────────────────────
+4. 백분율
 
-🧪 테스트 1/5: 성적 구성 설정
-POST https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/enrollments/grade-config
-✅ HTTP 200 - 성공
-📝 메시지: 성적 구성이 성공적으로 저장되었습니다.
+------   = (총점 / 총만점) × 100
 
-🧪 테스트 2/5: 학생 성적 조회
-GET https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/enrollments/1/100/grade
-✅ HTTP 200 - 성공
-📊 성적 상세 정보:
-  📅 출석: 18.5 / 80 (23.1%)
-  📝 과제: 85.0 / 100 (85.0%)
-  📈 총점: 103.5 (51.8%)
+   = (166.5 / (80 + 100)) × 100 = 92.5%
 
-...
+## 📚 관련 문서```
 
-⏳ Phase 1 완료. 3초 후 Phase 3 시작...
 
-📊 Phase 3: 이벤트 시스템 테스트 (2개)
-──────────────────────────────────────
 
-🧪 테스트 1/2: 출석 업데이트 (이벤트 발행)
-PUT https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/enrollments/1/attendance
-✅ HTTP 200 - 성공
-🔔 이벤트 발행됨: ATTENDANCE
+- [빠른 시작](./05-QUICK-START.md) - 5분 퀵 스타트### 과제 자동 누적 예시
 
-...
+- [테스트 가이드](./07-TESTING-GUIDE.md) - 브라우저 테스트
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🎉 전체 테스트 완료!
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 최종 통계:
-   총 테스트: 7개
-   성공: 7개
-   실패: 0개
-   성공률: 100%
+- [문제 해결](./09-TROUBLESHOOTING.md) - 오류 해결```javascript
+
+// 과제 생성 시 개별 만점 설정
+과제1: 50점 만점
+과제2: 30점 만점
+과제3: 20점 만점
+
+// 서버에서 자동 계산
+과제 총만점 = 50 + 30 + 20 = 100점
+
+// 새 과제 추가 시
+과제4: 25점 만점 추가
+→ 과제 총만점 = 100 + 25 = 125점 (자동 갱신)
 ```
 
 ---
@@ -294,25 +345,48 @@ PUT https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/enrollments/1/attendan
   - 60% 미만 → F등급 확정
 
 2단계: 등급 배정 (합격자만)
-  - 기본 비율: A+ 10%, A 15%, B+ 15%, B 25%, C 25%, D 10%
+  - 기본 비율: A 30%, B 40%, C 20%, D 10%
   - 성적순 정렬 → 상위부터 배정
   - 동점자는 모두 상위 등급
 
 3단계: 하위 침범 방식
   - 남은 학생 → 다음 등급으로 이동
-  - 예: A+ 10% 넘으면 → A 등급으로
 ```
 
 **예시:**
 ```
 100명 중 75명 낙제 (F)
 → 합격 25명 전원 A등급
-(A+ 10명, A 15명 배정 불가 → 모두 최상위)
+(A 30명, B 40명 배정 불가 → 모두 최상위)
+```
+
+---
+
+## 📊 실전 사용 예시
+
+### 시나리오: 지각 많아서 페널티 강화
+
+```javascript
+// 1. 강의 설정
+gradePhase1.setLecture('ETH201')
+
+// 2. 지각 페널티 강화 (0.5 → 1.0점)
+gradePhase1.quickAttendanceConfig(80, 1.0)
+await gradePhase1.config()
+
+// 3. 등급 재배정
+await gradePhase1.finalize()
+
+// 4. 결과 확인
+await gradePhase1.gradeList()
 ```
 
 ---
 
 ## 📚 다음 단계
+
+- [전체 테스트 가이드](./07-TESTING-GUIDE.md)
+- [문제 해결](./09-TROUBLESHOOTING.md)
 
 - [전체 테스트 가이드](./07-TESTING-GUIDE.md) - Phase 4 완전 가이드
 - [모듈 참조](./08-MODULE-REFERENCE.md) - 각 모듈 상세 설명
