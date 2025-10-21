@@ -94,7 +94,10 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         String algorithm = appConfig.getSecurity().getPasswordEncodingAlgorithm();
         // TODO: Spring Security 6.0 업그레이드 시 BCryptPasswordEncoder로 교체
-        return new MessageDigestPasswordEncoder(algorithm);
+        // MessageDigestPasswordEncoder를 직접 사용하여 {algorithm}prefix 없이 순수 해시만 저장
+        MessageDigestPasswordEncoder encoder = new MessageDigestPasswordEncoder(algorithm);
+        encoder.setEncodeHashAsBase64(false); // Base64 인코딩 비활성화 (HEX 사용)
+        return encoder;
     }
 
     /**
