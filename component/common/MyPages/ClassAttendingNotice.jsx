@@ -46,6 +46,8 @@ function ClassAttendingNotice({ currentPage, setCurrentPage }) {
         }
     };
 
+    console.log("lectureList : ", lectureList);
+
     const fetchAllNotices = async () => {
         try {
             const response = await fetch(`${BASE_URL}/boards/list`, {
@@ -137,7 +139,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage }) {
     return (
         <>
             {/* 강의 선택 드롭다운 */}
-            <select className="lectureName" onChange={handleLectureChange} value={selectedLectureSerial || ''}>
+            <select className="lectureName" onChange={handleLectureChange} value={selectedLectureSerial}>
                 {lectureList.length > 0 ? (
                     lectureList.map((cls) => (
                         <option key={cls.lecIdx} value={cls.lecSerial}>
