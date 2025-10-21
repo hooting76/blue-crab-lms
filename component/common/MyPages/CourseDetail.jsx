@@ -56,7 +56,7 @@ function CourseDetail({ lectureDetails, onFetchComplete, onEditClick }) {
 
         fetchCourseDetail();
 
-    }, [lecture, user]);
+    }, [lectureDetail, user]);
 
     if (loading) {
         return <div className="courseDetailContainer">강의 정보를 불러오는 중입니다...</div>;
