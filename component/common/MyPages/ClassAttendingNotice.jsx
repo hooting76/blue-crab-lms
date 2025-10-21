@@ -107,11 +107,6 @@ function ClassAttendingNotice({ currentPage, setCurrentPage }) {
         return `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')} ${formatted}`;
     };
 
-    const filteredNotices = useMemo(() => {
-    if (!selectedLectureSerial) return [];
-    return noticeList.filter((notice) => notice.lecSerial === selectedLectureSerial);
-}, [noticeList, selectedLectureSerial]);
-
 
     /** ========== Event Handlers ========== */
     const handleLectureChange = (e) => {
@@ -173,8 +168,8 @@ function ClassAttendingNotice({ currentPage, setCurrentPage }) {
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredNotices.length > 0 ? (
-                        filteredNotices.map((notice) => {
+                    {noticeList.length > 0 ? (
+                        noticeList.map((notice) => {
                             const isSelected = notice.boardIdx === selectedIdx;
                             const boardView = isSelected && fetchedNotice
                                 ? fetchedNotice.boardView
