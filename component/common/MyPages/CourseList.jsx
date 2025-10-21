@@ -15,14 +15,14 @@ function CourseList({ currentPage, setCurrentPage }) {
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
     const accessToken = user?.data?.accessToken;
 
-    const fetchLectureData = async (page = 0) => {
+    const fetchLectureData = async (user, accessToken) => {
         if (!accessToken) return;
 
         setLoading(true);
         setError(null);
         try {
             const requestBody = {
-                page,
+                page: 0,
                 size: 20,
                 professor: String(user.data.user.id),
             };
@@ -49,10 +49,10 @@ function CourseList({ currentPage, setCurrentPage }) {
     };
 
     useEffect(() => {
-        if (accessToken && currentPage === PAGE.LIST) {
-            fetchLectureData(currentPage.pageIndex ?? 0);
+        if (accessToken) {
+            fetchLectureData(user, accessToken);
         }
-    }, [accessToken, currentPage]);
+    }, [user, accessToken]);
 
     const openModal = (lecture) => {
         setSelectedLecture(lecture);
