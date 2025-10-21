@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { UseUser } from '../../../hook/UseUser';
 import "../../../css/MyPages/CourseDetail.css";
 
-function CourseDetail({ lecture, onFetchComplete, closeModal, setCurrentPage }) {
+function CourseDetail({ lecture, onFetchComplete, onEditClick, closeModal, setCurrentPage }) {
     const { user } = UseUser();
     const [course, setCourse] = useState(null);
 
@@ -143,7 +143,7 @@ function CourseDetail({ lecture, onFetchComplete, closeModal, setCurrentPage }) 
             <div style={{ marginTop: '20px' }}>
                 <button
                     className="courseEditButton"
-                    onClick={handleEditClick}
+                    onClick={onEditClick}
                 >
                     강의 수정
                 </button>
