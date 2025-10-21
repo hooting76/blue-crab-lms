@@ -142,7 +142,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, setNoticeToEdit }) 
         return <ProfNoticeWritingPage notice={noticeToEdit} currentPage={currentPage} setCurrentPage={setCurrentPage} />;
     }
 
-    console.log("selectedLectureSerial : ", selectedLectureSerial);
+    
 
     /** ========== Render ========== */
     return (
