@@ -111,8 +111,6 @@ const handleDownload = async (attachmentIdx, fileName) => {
 
 const markdown = decodeBase64(notice.boardContent);
 
-console.log("notice.boardWriter : ", notice.boardWriter);
-console.log("user : ", user);
 
  return (
   <div className="noticeDetailContainer">

@@ -115,16 +115,12 @@ useEffect(() => {
     if (notice?.boardTitle) {
       setBoardTitle(decodeBase64(notice.boardTitle));
     }
-   // if (typeof notice?.boardContent === 'string' && editorRef.current) {
-    //  editorRef.current.getInstance().setMarkdown(decodeBase64(notice.boardContent));
-   // }
-    if (typeof notice?.boardCode === 'number') {
-      setBoardCode(notice.boardCode);
-    }
-    if (notice?.boardIdx) {
-      setBoardIdx(notice.boardIdx); // 🔧 초기 진입 시 boardIdx 설정
-    }
+   if (typeof notice?.boardContent === 'string' && editorRef.current) {
+     editorRef.current.getInstance().setMarkdown(decodeBase64(notice.boardContent));
+   }
   }, [notice]);
+
+  console.log("notice : ", notice);
 
   if (!isAuthenticated) {
     return <p>교수 인증 정보를 불러오는 중입니다...</p>;
@@ -245,8 +241,7 @@ useEffect(() => {
     const updatedNotice = {
       boardTitle,
       boardCode: 3,
-      boardContent,
-      lecSerial: selectedLectureSerial
+      boardContent
     };
 
     try {
