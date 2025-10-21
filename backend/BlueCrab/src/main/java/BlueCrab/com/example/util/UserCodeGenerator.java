@@ -7,10 +7,10 @@ import java.time.LocalDate;
 
 /**
  * 사용자 코드 생성 유틸리티
- * 
+ *
  * 학번/교직원번호를 자동 생성하는 클래스
- * 
- * 코드 형식: YYYY-ABC-DE-FGH
+ *
+ * 코드 형식: YYYYABCDEFGH (12자리, 하이픈 없음)
  * - YYYY: 입학년도 또는 임용년도 (4자리)
  * - A: 학생/교수 구분값 (1자리)
  *   * 0: 학생
@@ -22,13 +22,13 @@ import java.time.LocalDate;
  *   * 00: 미지정
  *   * 01~99: 각 학과 코드
  * - FGH: 고유 난수 (3자리, 000~999)
- * 
+ *
  * 예시:
- * - 2025-001-05-847: 2025학번 학생, 01학부, 05학과, 난수 847
- * - 2024-110-02-321: 2024년 임용 교수, 10학부, 02학과, 난수 321
- * 
+ * - 202500105847: 2025학번 학생, 01학부, 05학과, 난수 847
+ * - 202411002321: 2024년 임용 교수, 10학부, 02학과, 난수 321
+ *
  * @author BlueCrab Development Team
- * @version 1.0.0
+ * @version 2.0.0
  * @since 2025-10-14
  */
 @Component
@@ -56,25 +56,25 @@ public class UserCodeGenerator {
     
     /**
      * 사용자 코드 생성
-     * 
+     *
      * @param year 입학년도 또는 임용년도 (예: 2025)
      * @param userType 사용자 유형 (학생/교수)
      * @param facultyCode 학부/단과대학 코드 (00~99)
      * @param departmentCode 학과 코드 (00~99)
-     * @return 생성된 사용자 코드 (예: "2025-001-05-847")
+     * @return 생성된 사용자 코드 (예: "202500105847")
      */
     public String generateUserCode(int year, UserType userType, int facultyCode, int departmentCode) {
         validateInput(year, facultyCode, departmentCode);
         
         // 고유 난수 생성 (000~999)
         int uniqueNumber = RANDOM.nextInt(1000);
-        
-        // 형식: YYYY-ABC-DE-FGH
-        return String.format("%04d-%d%02d-%02d-%03d", 
-            year, 
-            userType.getCode(), 
-            facultyCode, 
-            departmentCode, 
+
+        // 형식: YYYYABCDEFGH (하이픈 없음)
+        return String.format("%04d%d%02d%02d%03d",
+            year,
+            userType.getCode(),
+            facultyCode,
+            departmentCode,
             uniqueNumber
         );
     }
@@ -131,24 +131,23 @@ public class UserCodeGenerator {
     
     /**
      * 사용자 코드 파싱 (디버깅/검증용)
-     * 
-     * @param userCode 사용자 코드
-     * @return 파싱된 정보를 담은 맵
+     *
+     * @param userCode 사용자 코드 (형식: YYYYABCDEFGH, 12자리)
+     * @return 파싱된 정보를 담은 객체
      */
     public static UserCodeInfo parseUserCode(String userCode) {
-        if (userCode == null || !userCode.matches("\\d{4}-\\d{3}-\\d{2}-\\d{3}")) {
-            throw new IllegalArgumentException("올바른 사용자 코드 형식이 아닙니다: " + userCode);
+        if (userCode == null || !userCode.matches("\\d{12}")) {
+            throw new IllegalArgumentException("올바른 사용자 코드 형식이 아닙니다 (12자리 숫자 필요): " + userCode);
         }
-        
-        String[] parts = userCode.split("-");
-        int year = Integer.parseInt(parts[0]);
-        int userTypeCode = Integer.parseInt(parts[1].substring(0, 1));
-        int facultyCode = Integer.parseInt(parts[1].substring(1, 3));
-        int departmentCode = Integer.parseInt(parts[2]);
-        int uniqueNumber = Integer.parseInt(parts[3]);
-        
+
+        int year = Integer.parseInt(userCode.substring(0, 4));
+        int userTypeCode = Integer.parseInt(userCode.substring(4, 5));
+        int facultyCode = Integer.parseInt(userCode.substring(5, 7));
+        int departmentCode = Integer.parseInt(userCode.substring(7, 9));
+        int uniqueNumber = Integer.parseInt(userCode.substring(9, 12));
+
         UserType userType = userTypeCode == 0 ? UserType.STUDENT : UserType.PROFESSOR;
-        
+
         return new UserCodeInfo(year, userType, facultyCode, departmentCode, uniqueNumber);
     }
     
