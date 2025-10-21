@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getMyProfile, getMyProfileImage } from '../../../src/api/profileApi';
 import { getMyRegistry } from '../../../src/api/registryApi';
+import { FaUser } from 'react-icons/fa';
 import '../../../css/Certificates/Certificates.css';
 
 export default function CertEnrollOrGrad() {
@@ -97,10 +98,10 @@ export default function CertEnrollOrGrad() {
           <div className="label">성명</div>
           <div className="value">{userName}</div>
           <div className="photo" aria-hidden="true">
-            <img
-              src={imageUrl || '/assets/default-profile.png'}
-              alt="증명용 사진"
-            />
+            {imageUrl 
+              ? (<img src={imageUrl} alt={userName + ' 사진'} />)
+              : (<FaUser alt='이미지 없음' className='non_CertImg'/>)
+            }
           </div>
         </div>
 
@@ -110,7 +111,7 @@ export default function CertEnrollOrGrad() {
         </div>
 
         <div className="row">
-          <div className="label">학번/교번</div>
+          <div className="label">학번</div>
           <div className="value">{idText}</div>
         </div>
 
