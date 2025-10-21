@@ -94,9 +94,15 @@ function CourseList({ currentPage, setCurrentPage }) {
                         <CourseDetail
                             lecture={selectedLecture}
                             onFetchComplete={(data) => setSelectedLecture(data)}
+                            onEditClick={(course) => {
+                                setSelectedLecture(course); // 수정할 강의 데이터 설정
+                                setIsModalOpen(false);      // 모달 닫기
+                                setCurrentPage("강의 수정 상세 페이지"); // 페이지 전환
+                            }}
                             closeModal={closeModal}
                             setCurrentPage={setCurrentPage}
                         />
+
                     </div>
                 </div>
             )}
