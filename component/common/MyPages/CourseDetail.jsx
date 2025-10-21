@@ -11,14 +11,14 @@ function CourseDetail({ lectureDetails, onFetchComplete, onEditClick }) {
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
     useEffect(() => {
-        if (!lecture) {
+        if (!lectureDetail) {
             setLectureDetail(null);
             setLoading(false);
             return;
         }
 
         const accessToken = user?.data?.accessToken || localStorage.getItem('accessToken');
-        if (!accessToken || !lecture.lecSerial) {
+        if (!accessToken || !lectureDetail.lecSerial) {
             setLectureDetail(null);
             setLoading(false);
             return;
@@ -34,7 +34,7 @@ function CourseDetail({ lectureDetails, onFetchComplete, onEditClick }) {
                         'Authorization': `Bearer ${accessToken}`,
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ lecSerial: lecture.lecSerial }),
+                    body: JSON.stringify({ lecSerial: lectureDetail.lecSerial }),
                 });
 
                 if (!response.ok) {
