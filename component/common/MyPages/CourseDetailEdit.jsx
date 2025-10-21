@@ -3,7 +3,6 @@ import { UseUser } from "../../../hook/UseUser";
 import CourseList from "./CourseList";
 
 function CourseDetailEdit({ lectureDetails, currentPage, setCurrentPage }) {
-    console.log("CourseDetailEdit lectureDetails:", lectureDetails);
 
     if (!lectureDetails) return <div>강의 정보를 불러오는 중입니다...</div>;
 
@@ -15,14 +14,12 @@ function CourseDetailEdit({ lectureDetails, currentPage, setCurrentPage }) {
     const [lecMin, setLecMin] = useState();
 
     useEffect(() => {
-        if (lectureDetails) {
             setLecTit(lectureDetails.lecTit);
             setLecSummary(lectureDetails.lecSummary);
             setLecMany(lectureDetails.lecMany);
             setLecPoint(lectureDetails.lecPoint);
             setLecTime(lectureDetails.lecTime);
             setLecMin(lectureDetails.lecMin);
-        }
     }, []);
 
     const { user } = UseUser();
@@ -52,6 +49,12 @@ function CourseDetailEdit({ lectureDetails, currentPage, setCurrentPage }) {
 
             if (!response.ok) throw new Error('서버 에러가 발생했습니다.');
             alert('강의가 성공적으로 수정되었습니다!');
+            setLecTit("");
+            setLecMany();
+            setLecTime("");
+            setLecPoint();
+            setLecMin();
+            setLecSummary("");
             setCurrentPage("강의 수정");
         } catch (error) {
             alert(error.message);
