@@ -153,7 +153,7 @@ console.log("user : ", user);
       <Viewer initialValue={markdown} />
     </div>
 
-    {notice.boardWriter === user.data.user.id &&
+    {notice.boardWriter === user.data.user.name &&
       <button className="noticeDeleteButton" onClick={() => handleDelete(accessToken, notice.boardIdx)}>
         공지 삭제
       </button>
