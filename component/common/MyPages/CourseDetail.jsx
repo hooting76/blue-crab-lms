@@ -1,159 +1,126 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { UseUser } from '../../../hook/UseUser';
 import "../../../css/MyPages/CourseDetail.css";
 
-function CourseDetail({lecture, onFetchComplete}) {
-
+function CourseDetail({ lecture, onFetchComplete }) {
     const { user } = UseUser();
     const [course, setCourse] = useState(null);
 
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
-    const lecSerial = lecture.lecSerial;
-    const lecMcode = lecture.lecMcode;
-    const lecMcodeDep = lecture.lecMcodeDep;
 
     const getAccessToken = () => {
-        const storedToken = localStorage.getItem('accessToken');
-        if (storedToken) return storedToken;
-        if (user && user.data && user.data.accessToken) return user.data.accessToken;
-        return null;
+        return user?.data?.accessToken || localStorage.getItem('accessToken') || null;
     };
 
-
-    const getCourseDetail = async (accessToken, lecSerial) => {
-      try {
-        const url = `${BASE_URL}/lectures/detail`;
-        
-        const response = await fetch(url, {
-          method: 'POST', // POST 방식 명시
-          headers: {
+    const fetchCourseDetail = async (accessToken, lecSerial) => {
+        try {
+            const response = await fetch(`${BASE_URL}/lectures/detail`, {
+                method: 'POST',
+                headers: {
                     'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
-          body: JSON.stringify({ lecSerial })
-        });
-    
-        if (!response.ok) throw new Error('강의 상세 정보를 불러오는데 실패했습니다.');
-        return await response.json();
-      } catch (error) {
-        console.error('강의 상세 조회 에러:', error);
-        throw error;
-      }
+                body: JSON.stringify({ lecSerial }),
+            });
+
+            if (!response.ok) {
+                throw new Error('강의 상세 정보를 불러오는데 실패했습니다.');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('강의 상세 조회 에러:', error);
+            return null;
+        }
     };
 
-    
     useEffect(() => {
+        if (!lecture) return;
+
         const token = getAccessToken();
-        if (token && lecSerial) {
-            getCourseDetail(token, lecSerial).then((data) => {
+        if (!token || !lecture.lecSerial) return;
+
+        fetchCourseDetail(token, lecture.lecSerial).then((data) => {
+            if (data) {
                 setCourse(data);
-                onFetchComplete?.(data);
-            });
-        }
+                onFetchComplete?.(data); // ✅ 콜백으로 부모에 전달
+            }
+        });
     }, [lecture]);
 
-
-    // 학부 함수
-    const formatMcode = (lecMcode) => {
-    switch (lecMcode) {
-        case "01": return "해양학부";
-        case "02": return "보건학부";
-        case "03": return "자연과학부";
-        case "04": return "인문학부";
-        case "05": return "공학부";
-        default: return "기타";
+    if (!course) {
+        return <div className="courseDetailContainer">강의 정보를 불러오는 중입니다...</div>;
     }
-};
 
+    // 유틸: 학부 이름
+    const formatMcode = (code) => {
+        const map = {
+            "01": "해양학부",
+            "02": "보건학부",
+            "03": "자연과학부",
+            "04": "인문학부",
+            "05": "공학부",
+        };
+        return map[code] || "기타";
+    };
 
-// 학과 함수
-const formatMcodeDep = (lecMcode, lecMcodeDep) => {
-    if (lecMcode === "01") {
-        switch (lecMcodeDep) {
-            case "01": return "항해학과";
-            case "02": return "해양경찰";
-            case "03": return "해군사관";
-            case "04": return "도선학과";
-            case "05": return "해양수산학";
-            case "06": return "조선학과";
-        }
-    } else if (lecMcode === "02") {
-        switch (lecMcodeDep) {
-            case "01": return "간호학";
-            case "02": return "치위생";
-            case "03": return "약학과";
-            case "04": return "보건정책학";
-        }
-    } else if (lecMcode === "03") {
-        switch (lecMcodeDep) {
-            case "01": return "물리학";
-            case "02": return "수학";
-            case "03": return "분자화학";
-        }
-    } else if (lecMcode === "04") {
-        switch (lecMcodeDep) {
-            case "01": return "철학";
-            case "02": return "국어국문";
-            case "03": return "역사학";
-            case "04": return "경영";
-            case "05": return "경제";
-            case "06": return "정치외교";
-            case "07": return "영어영문";
-        }
-    } else if (lecMcode === "05") {
-        switch (lecMcodeDep) {
-            case "01": return "컴퓨터공학";
-            case "02": return "기계공학";
-            case "03": return "전자공학";
-            case "04": return "ICT융합";
-        }
-    } else return "기타"
-}
+    // 유틸: 학과 이름
+    const formatMcodeDep = (mcode, dep) => {
+        const depMap = {
+            "01": {
+                "01": "항해학과", "02": "해양경찰", "03": "해군사관",
+                "04": "도선학과", "05": "해양수산학", "06": "조선학과"
+            },
+            "02": {
+                "01": "간호학", "02": "치위생", "03": "약학과", "04": "보건정책학"
+            },
+            "03": {
+                "01": "물리학", "02": "수학", "03": "분자화학"
+            },
+            "04": {
+                "01": "철학", "02": "국어국문", "03": "역사학", "04": "경영",
+                "05": "경제", "06": "정치외교", "07": "영어영문"
+            },
+            "05": {
+                "01": "컴퓨터공학", "02": "기계공학", "03": "전자공학", "04": "ICT융합"
+            }
+        };
+        return depMap[mcode]?.[dep] || "기타";
+    };
 
-
-// 열림 여부 함수
-const formatOpen = (lecOpen) => {
-    if (lecOpen === 1) {return "열림"} else {return "닫힘"};
-}
-
-
-
+    const formatOpen = (lecOpen) => (lecOpen === 1 ? "열림" : "닫힘");
 
     return (
-        <>
-            {course &&
-                <div className="courseDetailContainer">
-                    <div className="courseDetailTitleCode">
-                        <span>강의 제목 : {course.lecTit}</span>
-                        <span>강의 코드 : {course.lecSerial}</span>
-                    </div>
+        <div className="courseDetailContainer">
+            <div className="courseDetailTitleCode">
+                <span>강의 제목 : {course.lecTit}</span>
+                <span>강의 코드 : {course.lecSerial}</span>
+            </div>
 
-                    <div className="courseDetailProfMax">
-                        <span>담당 교수 : {course.lecProfName}</span>
-                        <span>최대 수강 인원 : {course.lecMany}</span>
-                    </div>
+            <div className="courseDetailProfMax">
+                <span>담당 교수 : {course.lecProfName}</span>
+                <span>최대 수강 인원 : {course.lecMany}</span>
+            </div>
 
-                    <div className='courseSummary'>
-                        강의 개요 : {course.lecSummary}
-                    </div>
+            <div className='courseSummary'>
+                강의 개요 : {course.lecSummary}
+            </div>
 
-                    <div className="coursePointTimeMcodeDep">
-                        <span>학점 : {course.lecPoint}</span>
-                        <span>강의시간 : {course.lecTime}</span>
-                        <span>학부 : {formatMcode(lecMcode)}</span>
-                        <span>학과 : {formatMcodeDep(lecMcode, lecMcodeDep)}</span>
-                    </div>
+            <div className="coursePointTimeMcodeDep">
+                <span>학점 : {course.lecPoint}</span>
+                <span>강의시간 : {course.lecTime}</span>
+                <span>학부 : {formatMcode(course.lecMcode)}</span>
+                <span>학과 : {formatMcodeDep(course.lecMcode, course.lecMcodeDep)}</span>
+            </div>
 
-                    <div className="courseTearSemesterMinOpen">
-                        <span>대상 학년 : {course.lecYear}</span>
-                        <span>학기 : {course.lecSemester}</span>
-                        <span>수강 최저 학년 : {course.lecMin}</span>
-                        <span>열림 여부 : {formatOpen(course.lecOpen)}</span>
-                    </div>
-                </div>
-            }
-        </>
-    )
+            <div className="courseTearSemesterMinOpen">
+                <span>대상 학년 : {course.lecYear}</span>
+                <span>학기 : {course.lecSemester}</span>
+                <span>수강 최저 학년 : {course.lecMin}</span>
+                <span>열림 여부 : {formatOpen(course.lecOpen)}</span>
+            </div>
+        </div>
+    );
 }
 
 export default CourseDetail;
