@@ -172,15 +172,25 @@ async function getBoardListByCode(boardCode, page = 0, size = 10) {
 
 /**
  * 4. 특정 강의 공지 조회
+ * 주의: lecSerial은 실제로 String이지만, 백엔드 API가 현재 버그로 Integer를 요구할 수 있음
  */
 async function getLectureNotices(lecSerial, page = 0, size = 10) {
+    if (!lecSerial) {
+        lecSerial = prompt('조회할 강의 코드를 입력하세요 (예: ETH201 또는 1):', 'ETH201');
+    }
+    
     console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log(`🎓 강의 공지 조회 (강의: ${lecSerial})`);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
+    // 백엔드 버그 우회: lecSerial이 숫자로 변환 가능하면 숫자로, 아니면 문자열로 전송
+    const lecSerialValue = isNaN(lecSerial) ? lecSerial : parseInt(lecSerial);
+    
+    console.log(`💡 lecSerial 타입: ${typeof lecSerialValue} (원본: "${lecSerial}")`);
+
     const result = await apiRequest(`${API_BASE_URL}/api/boards/list`, 'POST', { 
         boardCode: 3,
-        lecSerial,
+        lecSerial: lecSerialValue,
         page,
         size 
     });

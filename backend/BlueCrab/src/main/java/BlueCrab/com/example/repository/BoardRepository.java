@@ -51,6 +51,18 @@ public interface BoardRepository extends JpaRepository<BoardTbl, Integer> {
     // 위와 동일하지만 boardCode 조건 추가
     // WHERE 절에 b.boardCode = :boardCode 조건 추가
 
+    // 코드 + 강의코드별 미삭제 게시글 목록 조회 (본문 제외, 최신순, 강의 공지 전용)
+    @Query("SELECT b.boardIdx, b.boardCode, b.boardOn, b.boardWriter, " +
+           "b.boardTitle, b.boardImg, b.boardFile, b.boardView, " +
+           "b.boardReg, b.boardLast, b.boardIp, b.boardWriterIdx, b.boardWriterType " +
+           "FROM BoardTbl b WHERE b.boardOn = :boardOn AND b.boardCode = :boardCode AND b.lecSerial = :lecSerial ORDER BY b.boardReg DESC")
+    Page<Object[]> findBoardListByCodeAndLecSerialWithoutContent(@Param("boardOn") Integer boardOn, 
+                                                                  @Param("boardCode") Integer boardCode,
+                                                                  @Param("lecSerial") String lecSerial,
+                                                                  Pageable pageable);
+    // 위와 동일하지만 lecSerial 조건 추가
+    // WHERE 절에 b.lecSerial = :lecSerial 조건 추가 (특정 강의의 공지만 조회)
+
     // // 미삭제(활성화) 개시글 만을 조회(최신순)
     // @Query("SELECT b FROM BoardTbl b WHERE b.boardOn = :boardOn ORDER BY b.boardReg DESC")
     // Page<BoardTbl> findByBoardOnOrderByBoardRegDesc(@Param("boardOn") Integer boardOn, Pageable pageable);
