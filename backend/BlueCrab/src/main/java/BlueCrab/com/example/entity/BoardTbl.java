@@ -41,7 +41,7 @@ public class BoardTbl {
     @Max(value = 3, message = "게시글 코드는 3 이하여야 합니다")
     @Column(name = "BOARD_CODE", length = 5, columnDefinition = "INTEGER", nullable = false)
     private Integer boardCode;
-    // 개시글 코드(0 : 학교공지 / 1 : 학사공지 / 2 : 학과공지 / 3 : 교수공지)
+    // 개시글 코드(0 : 학사공지 / 1 : 행정공지 / 2 : 기타공지 / 3 : 강의공지)
 
     @Column(name = "BOARD_ON", length = 10, columnDefinition = "INTEGER", nullable = false)
     private Integer boardOn;
@@ -98,6 +98,11 @@ public class BoardTbl {
     @Column(name = "BOARD_WRITER_TYPE", length = 11, columnDefinition = "INTEGER", nullable = false)
     private Integer boardWriterType;
     // 개시글 작성자 유형 (0: 일반 사용자(교수), 1: 관리자)
+
+    @Column(name = "LEC_SERIAL", length = 10, columnDefinition = "VARCHAR", nullable = true)
+    private String lecSerial;
+    // 강의 별 전용 게시글 (BOARD_CODE = 3일 때 필수)
+    // LEC_TBL의 LEC_SERIAL과 연결되어 특정 강의 전용 공지사항으로 사용
 
     // ========== Getter & Setter ==========
     public Integer getBoardIdx() {
@@ -269,6 +274,15 @@ public class BoardTbl {
     // 첨부파일이 있는지 확인
     public boolean hasAttachments() {
         return boardFile != null && !boardFile.trim().isEmpty();
+    }
+
+    // LEC_SERIAL getter/setter
+    public String getLecSerial() {
+        return lecSerial;
+    }
+
+    public void setLecSerial(String lecSerial) {
+        this.lecSerial = lecSerial;
     }
 
     // ========== 첨부파일 상세 정보 필드 (DB 저장 안함) ==========

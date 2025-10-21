@@ -98,7 +98,7 @@ public interface BoardRepository extends JpaRepository<BoardTbl, Integer> {
     // 특정 종류(코드)의 미삭제(활성화) 게시글 개수
     long countByBoardOnAndBoardCode(Integer boardOn, Integer boardCode);
     // countByBoardOnAndBoardCode : Spring Data JPA의 메서드 네이밍 규칙을 활용한 카운트 메서드
-    // Integer boardCode : 게시글 코드 (0: 학교공지, 1: 학사공지, 2: 학과공지, 3: 교수공지)
+    // Integer boardCode : 게시글 코드 (0: 학사공지, 1: 행정공지, 2: 기타공지, 3: 강의공지)
 
     // ========== 제어/관리 관련 메서드 ==========
     // 향후 필요시 작성
