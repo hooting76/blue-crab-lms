@@ -52,7 +52,6 @@ function CourseList({ currentPage, setCurrentPage }) {
     const closeModal = () => {
         setSelectedLecture(null);
         setIsModalOpen(false);
-        setDetailedLecture(null);
     };
 
     const handleEdit = () => {
