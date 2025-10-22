@@ -23,6 +23,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
 
     // 학생 목록 불러오기
     const fetchStudentList = async (accessToken) => {
+        console.log("accessToken : ", accessToken);
             if (!accessToken) return;
     
             setLoading(true);
