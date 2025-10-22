@@ -3,9 +3,11 @@ package BlueCrab.com.example.controller;
 import BlueCrab.com.example.dto.ApiResponse;
 import BlueCrab.com.example.dto.ImageRequest;
 import BlueCrab.com.example.entity.ProfileView;
+import BlueCrab.com.example.exception.ResourceNotFoundException;
 import BlueCrab.com.example.service.ProfileService;
 import BlueCrab.com.example.service.MinIOService;
 import BlueCrab.com.example.service.ImageCacheService;
+import BlueCrab.com.example.service.UserTblService;
 import BlueCrab.com.example.util.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.InputStream;
@@ -59,6 +62,9 @@ public class ProfileController {
 
     @Autowired
     private ImageCacheService imageCacheService;
+
+    @Autowired
+    private UserTblService userTblService;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -195,6 +201,76 @@ public class ProfileController {
         } catch (Exception e) {
             logger.error("프로필 완성도 체크 중 시스템 오류 발생: {}", e.getMessage(), e);
             ApiResponse<Map<String, Object>> response = ApiResponse.failure("프로필 완성도 확인 중 오류가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    /**
+     * 프로필 이미지 업로드
+     * JWT 인증된 사용자의 프로필 이미지를 업로드하고 기존 이미지를 교체
+     *
+     * @param file 업로드할 이미지 파일 (multipart/form-data)
+     * @param request HTTP 요청 (Authorization 헤더에서 토큰 추출)
+     * @return 업로드 결과 (신규 이미지 키 포함)
+     */
+    @PostMapping("/me/upload-image")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> uploadProfileImage(
+            @RequestParam("file") MultipartFile file,
+            HttpServletRequest request) {
+
+        String userEmail;
+        try {
+            userEmail = extractUserEmailFromToken(request);
+        } catch (RuntimeException authException) {
+            logger.warn("프로필 이미지 업로드 실패 - 인증 오류: {}", authException.getMessage());
+            ApiResponse<Map<String, Object>> response = ApiResponse.failure(authException.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        try {
+            logger.info("프로필 이미지 업로드 요청 - 사용자: {}, 파일: {}, 크기: {}",
+                    userEmail,
+                    file != null ? file.getOriginalFilename() : "null",
+                    file != null ? file.getSize() : 0);
+
+            String imageKey = userTblService.updateProfileImage(userEmail, file);
+
+            Map<String, Object> responseData = Map.of(
+                "imageKey", imageKey,
+                "hasImage", true
+            );
+
+            ApiResponse<Map<String, Object>> response = ApiResponse.success(
+                "프로필 이미지가 성공적으로 업로드되었습니다.", responseData);
+
+            return ResponseEntity.ok(response);
+
+        } catch (IllegalArgumentException invalidRequest) {
+            logger.warn("프로필 이미지 업로드 실패(잘못된 요청) - 사용자: {}, 오류: {}",
+                    userEmail, invalidRequest.getMessage());
+            ApiResponse<Map<String, Object>> response = ApiResponse.failure(invalidRequest.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+
+        } catch (ResourceNotFoundException notFound) {
+            logger.warn("프로필 이미지 업로드 실패(사용자 없음) - 사용자: {}, 오류: {}",
+                    userEmail, notFound.getMessage());
+            ApiResponse<Map<String, Object>> response = ApiResponse.failure(notFound.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+
+        } catch (RuntimeException runtimeException) {
+            logger.error("프로필 이미지 업로드 실패 - 사용자: {}, 오류: {}",
+                    userEmail, runtimeException.getMessage(), runtimeException);
+            String message = runtimeException.getMessage() != null
+                ? runtimeException.getMessage()
+                : "프로필 이미지 업로드 중 오류가 발생했습니다.";
+            ApiResponse<Map<String, Object>> response = ApiResponse.failure(message);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+
+        } catch (Exception e) {
+            logger.error("프로필 이미지 업로드 중 시스템 오류 - 사용자: {}, 오류: {}",
+                    userEmail, e.getMessage(), e);
+            ApiResponse<Map<String, Object>> response = ApiResponse.failure(
+                "프로필 이미지 업로드 중 오류가 발생했습니다.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }

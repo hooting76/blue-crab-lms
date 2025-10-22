@@ -210,8 +210,13 @@
                     </div>
                 </div>
 
-                <label for="requestBody">요청 본문 (JSON):</label>
+                <label for="requestBody" id="requestBodyLabel">요청 본문 (JSON):</label>
                 <textarea id="requestBody" rows="6" placeholder='{"key": "value"}'></textarea>
+
+                <div id="formDataContainer" class="form-data-container" style="display: none;">
+                    <div id="formDataNote" class="form-data-note"></div>
+                    <div id="formDataFields"></div>
+                </div>
 
                 <div class="button-group">
                     <button onclick="sendRequest()" class="primary">API 호출</button>

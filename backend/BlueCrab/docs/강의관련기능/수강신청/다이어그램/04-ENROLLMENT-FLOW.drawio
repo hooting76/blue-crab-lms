@@ -1,0 +1,156 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" version="28.2.7">
+  <diagram name="Enrollment Flow" id="enrollment-flow-diagram">
+    <mxGraphModel dx="1678" dy="914" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="light-dark(#FFFFFF,#FFFFFF)" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="🎓 수강신청 플로우 다이어그램 (v2.0)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;labelBackgroundColor=default;" parent="1" vertex="1">
+          <mxGeometry x="490" y="20" width="369" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="student" value="👨‍🎓 학생" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontColor=light-dark(#000000,#000000);" parent="1" vertex="1">
+          <mxGeometry x="80" y="100" width="40" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="frontend-lane" value="💻 프론트엔드" style="swimlane;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;startSize=30;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="200" y="80" width="280" height="760" as="geometry" />
+        </mxCell>
+        <mxCell id="step0" value="📢 0. 안내문 조회 API:&#xa;POST /notice/course-apply/view" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="frontend-lane" vertex="1">
+          <mxGeometry x="40" y="40" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step0-1" value="📄 0-1. 안내문 표시" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="frontend-lane" vertex="1">
+          <mxGeometry x="40" y="110" width="200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="step1" value="🏠 1. 강의 목록 페이지 로드" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="frontend-lane" vertex="1">
+          <mxGeometry x="40" y="160" width="200" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="step2" value="📡 2. API 호출:&#xa;POST /api/lectures/eligible" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="frontend-lane" vertex="1">
+          <mxGeometry x="40" y="240" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step3" value="📋 3. 강의 목록 표시&#xa;(필터링된 결과)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="frontend-lane" vertex="1">
+          <mxGeometry x="40" y="330" width="200" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="step4" value="👆 4. 사용자 강의 선택" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="frontend-lane" vertex="1">
+          <mxGeometry x="40" y="400" width="200" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="step5" value="🔍 5. 중복 확인&#xa;(선택사항)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;dashed=1;" parent="frontend-lane" vertex="1">
+          <mxGeometry x="40" y="470" width="200" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="step6" value="📡 6. API 호출:&#xa;POST /api/enrollments/enroll" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="frontend-lane" vertex="1">
+          <mxGeometry x="40" y="540" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step7" value="✅ 7. 결과 표시&#xa;(성공/실패)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="frontend-lane" vertex="1">
+          <mxGeometry x="40" y="630" width="200" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="step8" value="🔄 8. 수강목록 새로고침" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="frontend-lane" vertex="1">
+          <mxGeometry x="40" y="700" width="200" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="backend-lane" value="⚙️ 백엔드 (Spring Boot)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;startSize=30;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="520" y="80" width="320" height="760" as="geometry" />
+        </mxCell>
+        <mxCell id="backend0" value="📢 NoticeController&#xa;/notice/course-apply/view&#xa;🔓 (public - 인증 불필요)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="backend-lane" vertex="1">
+          <mxGeometry x="40" y="40" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="backend1" value="📚 LectureController&#xa;/api/lectures/eligible" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="backend-lane" vertex="1">
+          <mxGeometry x="40" y="240" width="240" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="backend2" value="🔧 LectureService&#xa;- 학생 정보 조회&#xa;- 0-value rule 적용&#xa;- 학부/학과 매칭" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="backend-lane" vertex="1">
+          <mxGeometry x="40" y="310" width="240" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="backend3" value="✏️ EnrollmentController&#xa;/api/enrollments/enroll" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="backend-lane" vertex="1">
+          <mxGeometry x="40" y="540" width="240" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="backend4" value="🔧 EnrollmentService&#xa;- ✓ 자격 검증&#xa;- ✓ 정원 확인&#xa;- ✓ 중복 확인&#xa;- ✓ 수강신청 처리" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="backend-lane" vertex="1">
+          <mxGeometry x="40" y="610" width="240" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="database-lane" value="🗄️ 데이터베이스" style="swimlane;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;startSize=30;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="880" y="80" width="240" height="760" as="geometry" />
+        </mxCell>
+        <mxCell id="db0" value="📢 COURSE_APPLY_NOTICE&#xa;- notice_idx (PK)&#xa;- message (TEXT)&#xa;- updated_at&#xa;- updated_by" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="database-lane" vertex="1">
+          <mxGeometry x="20" y="40" width="200" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="db1" value="📚 Lecture 테이블&#xa;- lecSerial&#xa;- lecMcode&#xa;- lecMcodeDep&#xa;- lecCurrent/lecMany" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="database-lane" vertex="1">
+          <mxGeometry x="20" y="240" width="200" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="db2" value="👤 User 테이블&#xa;- userIdx&#xa;- userMajorFacultyCode&#xa;- userMajorDeptCode" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="database-lane" vertex="1">
+          <mxGeometry x="20" y="350" width="200" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="db3" value="✏️ EnrollmentExtendedTbl&#xa;- enrollmentIdx&#xa;- studentIdx&#xa;- lecIdx&#xa;- enrollmentData" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="database-lane" vertex="1">
+          <mxGeometry x="20" y="540" width="200" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow0" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" source="step0" target="backend0" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow0-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;dashed=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" source="backend0" target="db0" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow0-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fillColor=#e1d5e7;strokeColor=#9673a6;dashed=1;" parent="1" source="backend0" target="step0-1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" source="step2" target="backend1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" source="backend1" target="backend2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;dashed=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" source="backend2" target="db1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;dashed=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" source="backend2" target="db2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fillColor=#d5e8d4;strokeColor=#82b366;dashed=1;" parent="1" source="backend2" target="step3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" source="step6" target="backend3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" source="backend3" target="backend4" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;dashed=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" source="backend4" target="db3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fillColor=#f8cecc;strokeColor=#b85450;dashed=1;" parent="1" source="backend4" target="step7" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="student-arrow1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.3;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" source="student" target="step1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="student-arrow2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.7;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" source="student" target="step4" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="160" y="156" />
+              <mxPoint x="160" y="500" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend" value="📖 범례" style="swimlane;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="1140" y="80" width="200" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="legend0" value="📢 안내문 API (NEW!)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;fontStyle=1;" parent="legend" vertex="1">
+          <mxGeometry x="10" y="30" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend1" value="💻 프론트엔드 작업" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" parent="legend" vertex="1">
+          <mxGeometry x="10" y="55" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend2" value="📡 API 호출" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" parent="legend" vertex="1">
+          <mxGeometry x="10" y="80" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend3" value="⚙️ 백엔드 로직" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" parent="legend" vertex="1">
+          <mxGeometry x="10" y="105" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend4" value="🗄️ 데이터베이스" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" parent="legend" vertex="1">
+          <mxGeometry x="10" y="130" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend5" value="❓ 선택사항" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;dashed=1;fontSize=10;" parent="legend" vertex="1">
+          <mxGeometry x="10" y="155" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="note1" value="⚠️ 주의사항:&#xa;- 🔐 JWT Token 필수 (수강신청 API만)&#xa;- 🔓 안내문 조회는 인증 불필요 (public)&#xa;- 🆔 studentId/studentIdx 일관성 주의&#xa;- 0️⃣ 0-value rule 적용 (lecMcode=&#39;0&#39;, lecMcodeDep=&#39;0&#39;)&#xa;- ❌ 정원 초과/중복 신청 체크" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="200" y="860" width="450" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="note2" value="📢 안내문 API 특징 (2025.01.05 완료 ✅):&#xa;- 📝 단일 레코드 관리 (최신 안내문 1개만)&#xa;- 🔓 공개 조회 (인증 불필요)&#xa;- 🔐 수정은 ADMIN/PROFESSOR만 가능&#xa;- ⏰ 자동 타임스탬프 관리" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;verticalAlign=top;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="680" y="860" width="440" height="100" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

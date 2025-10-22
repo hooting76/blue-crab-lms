@@ -12,13 +12,17 @@ import BlueCrab.com.example.repository.SerialCodeTableRepository;
 import BlueCrab.com.example.repository.UserTblRepository;
 import BlueCrab.com.example.util.SlowQueryLogger;
 import BlueCrab.com.example.util.UserCodeGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +34,16 @@ public class UserTblService {
 
     private static final DateTimeFormatter REG_TIMESTAMP_FORMATTER =
         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    private static final Logger logger = LoggerFactory.getLogger(UserTblService.class);
+
+    private static final long PROFILE_IMAGE_MAX_SIZE = 15L * 1024 * 1024;
+
+    private static final List<String> ALLOWED_IMAGE_EXTENSIONS =
+        Arrays.asList("jpg", "jpeg", "png", "gif");
+
+    private static final List<String> ALLOWED_IMAGE_MIME_TYPES =
+        Arrays.asList("image/jpeg", "image/png", "image/gif", "image/jpg");
 
     @Autowired
     private UserTblRepository userTblRepository;
@@ -45,6 +59,12 @@ public class UserTblService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private MinIOService minioService;
+
+    @Autowired
+    private ImageCacheService imageCacheService;
 
     public List<UserTbl> getAllUsers() {
         return SlowQueryLogger.measureAndLog("getAllUsers",
@@ -261,6 +281,53 @@ public class UserTblService {
         user.setUserStudent(user.getUserStudent() == 1 ? 0 : 1);
         return userTblRepository.save(user);
     }
+
+    /**
+     * 프로필 이미지 업로드 및 교체
+     *
+     * @param userEmail 프로필을 수정할 사용자 이메일
+     * @param file      업로드할 이미지 파일
+     * @return 신규 프로필 이미지 키
+     */
+    public String updateProfileImage(String userEmail, MultipartFile file) {
+        validateImageFile(file);
+
+        UserTbl user = userTblRepository.findByUserEmail(userEmail)
+            .orElseThrow(() -> ResourceNotFoundException.forField("사용자", "userEmail", userEmail));
+
+        Integer userIdx = user.getUserIdx();
+        if (userIdx == null) {
+            throw new IllegalStateException("사용자 식별자가 존재하지 않습니다.");
+        }
+
+        String oldImageKey = user.getProfileImageKey();
+        String newImageKey = generateProfileImageKey(userIdx, file);
+
+        logger.info("프로필 이미지 업로드 시작 - 사용자: {}, 기존 이미지: {}", userEmail, oldImageKey);
+
+        minioService.uploadProfileImage(file, newImageKey);
+
+        try {
+            user.setProfileImageKey(newImageKey);
+            userTblRepository.save(user);
+        } catch (RuntimeException ex) {
+            logger.error("프로필 이미지 DB 업데이트 실패 - 사용자: {}, 오류: {}", userEmail, ex.getMessage());
+            rollbackUploadedProfileImage(newImageKey, userEmail);
+            throw ex;
+        }
+
+        // 기존 이미지 캐시 및 파일 정리
+        if (oldImageKey != null && !oldImageKey.trim().isEmpty()) {
+            imageCacheService.evictImageCache(oldImageKey);
+            deleteOldProfileImage(oldImageKey, userEmail);
+        }
+
+        // 사용자 캐시 전체 무효화
+        imageCacheService.evictUserImageCache(userEmail);
+
+        logger.info("프로필 이미지 업로드 완료 - 사용자: {}, 신규 이미지: {}", userEmail, newImageKey);
+        return newImageKey;
+    }
     
     /**
      * 이름으로 사용자들을 검색하는 메서드
@@ -380,6 +447,64 @@ public class UserTblService {
                 .orElseThrow(() -> ResourceNotFoundException.forId("사용자", id));
     }
     
+    private void validateImageFile(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("업로드할 파일이 없습니다.");
+        }
+
+        if (file.getSize() > PROFILE_IMAGE_MAX_SIZE) {
+            throw new IllegalArgumentException("파일 크기는 15MB를 초과할 수 없습니다.");
+        }
+
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || originalFilename.trim().isEmpty()) {
+            throw new IllegalArgumentException("파일명이 유효하지 않습니다.");
+        }
+
+        String extension = getFileExtension(originalFilename).toLowerCase();
+        if (!ALLOWED_IMAGE_EXTENSIONS.contains(extension)) {
+            throw new IllegalArgumentException("허용되지 않는 파일 형식입니다. (jpg, jpeg, png, gif만 가능)");
+        }
+
+        String contentType = file.getContentType();
+        String mimeType = contentType != null ? contentType.toLowerCase() : "";
+        if (!ALLOWED_IMAGE_MIME_TYPES.contains(mimeType)) {
+            throw new IllegalArgumentException("허용되지 않는 이미지 형식입니다. (JPEG, PNG, GIF만 가능)");
+        }
+    }
+
+    private String generateProfileImageKey(Integer userIdx, MultipartFile file) {
+        String extension = getFileExtension(file.getOriginalFilename()).toLowerCase();
+        long timestamp = System.currentTimeMillis();
+        return String.format("profile_%d_%d.%s", userIdx, timestamp, extension);
+    }
+
+    private String getFileExtension(String filename) {
+        int lastDotIndex = filename != null ? filename.lastIndexOf('.') : -1;
+        if (lastDotIndex == -1 || lastDotIndex == filename.length() - 1) {
+            throw new IllegalArgumentException("파일 확장자를 찾을 수 없습니다.");
+        }
+        return filename.substring(lastDotIndex + 1);
+    }
+
+    private void deleteOldProfileImage(String oldImageKey, String userEmail) {
+        try {
+            minioService.deleteProfileImage(oldImageKey);
+            logger.info("기존 프로필 이미지 삭제 완료 - 사용자: {}, 이미지: {}", userEmail, oldImageKey);
+        } catch (RuntimeException ex) {
+            logger.warn("기존 프로필 이미지 삭제 실패 - 사용자: {}, 이미지: {}, 오류: {}", userEmail, oldImageKey, ex.getMessage());
+        }
+    }
+
+    private void rollbackUploadedProfileImage(String imageKey, String userEmail) {
+        try {
+            minioService.deleteProfileImage(imageKey);
+            logger.info("신규 프로필 이미지 롤백 완료 - 사용자: {}, 이미지: {}", userEmail, imageKey);
+        } catch (RuntimeException ex) {
+            logger.warn("신규 프로필 이미지 롤백 실패 - 사용자: {}, 이미지: {}, 오류: {}", userEmail, imageKey, ex.getMessage());
+        }
+    }
+
     /**
      * 사용자 생성 시 중복 검사를 수행하는 내부 헬퍼 메서드
      * 이메일과 전화번호의 유니크성을 검증
