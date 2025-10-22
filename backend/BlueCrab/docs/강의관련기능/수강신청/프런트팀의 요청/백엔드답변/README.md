@@ -12,8 +12,8 @@
 | 기본 필터링 | ✅ 완료 | 즉시 |
 | 취소 API | ✅ 완료 | 즉시 |
 | 학부/학과명 | ✅ 완료 | 즉시 |
+| 안내문 API | ✅ 완료 | [📄 ../안내문/](../안내문/) |
 | 추가 검색 | ⏳ 구현 중 | 오늘(10/22) 중 |
-| 안내문 | ⏳ 구현 중 | 오늘(10/22) 중 |
 
 ---
 
@@ -49,6 +49,60 @@ fetch(`/api/enrollments/${enrollmentIdx}`, {
 ```
 
 자세히: [02-취소API사용법.md](./02-취소API사용법.md)
+
+---
+
+## ✅ 안내문 API
+
+```javascript
+// 조회 (공개 - 인증 불필요)
+fetch('http://localhost:8090/notice/course-apply/view', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' }
+});
+
+// 저장 (관리자/교수 - JWT 필요)
+fetch('http://localhost:8090/notice/course-apply/save', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  body: JSON.stringify({ message: "수강신청 안내 메시지" })
+});
+```
+
+**구현 완료**:
+
+- Entity: `entity/Lecture/CourseApplyNotice.java`
+- Repository: `repository/Lecture/CourseApplyNoticeRepository.java`
+- Controller: `controller/Lecture/NoticeController.java`
+- DTOs: 3개 (ViewResponse, SaveRequest, SaveResponse)
+- DDL: `docs/ddl/course_apply_notice.sql` (테이블 생성 완료)
+- Security: `/view` 공개, `/save` 인증 필요
+
+자세히: [07-안내문API구현가이드.md](./07-안내문API구현가이드.md)
+
+---
+
+## ⏳ 안내문 (오늘 중 구현 예정)
+
+```javascript
+// 조회 (공개)
+fetch('/notice/course-apply/view', {
+  method: 'POST',
+  body: JSON.stringify({})
+});
+
+// 저장 (관리자/교수)
+fetch('/notice/course-apply/save', {
+  method: 'POST',
+  headers: { 'Authorization': `Bearer ${token}` },
+  body: JSON.stringify({ message: "..." })
+});
+```
+
+자세히: [03-안내문API명세.md](./03-안내문API명세.md)
 
 ---
 
