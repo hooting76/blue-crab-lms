@@ -48,7 +48,7 @@ async function testSaveNotice(message) {
     console.log(message);
     console.log('\n📡 요청 전송 중...');
 
-    const response = await fetch(`${API_BASE_URL}/api/notice/course-apply/save`, {
+    const response = await fetch(`${API_BASE_URL}/notice/course-apply/save`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ async function saveAndViewNotice(message) {
   
   // 2. 조회
   console.log('\n📢 저장된 안내문 조회 중...\n');
-  const response = await fetch(`${API_BASE_URL}/api/notice/course-apply/view`, {
+  const response = await fetch(`${API_BASE_URL}/notice/course-apply/view`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'

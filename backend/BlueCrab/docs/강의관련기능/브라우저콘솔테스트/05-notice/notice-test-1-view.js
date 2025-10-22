@@ -17,7 +17,7 @@ async function testViewNotice() {
   console.log('🔍 안내문 조회 테스트 시작...\n');
   
   try {
-    const response = await fetch(`${API_BASE_URL}/api/notice/course-apply/view`, {
+    const response = await fetch(`${API_BASE_URL}/notice/course-apply/view`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
