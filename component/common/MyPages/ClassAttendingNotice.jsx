@@ -7,7 +7,7 @@ import ProfNoticeDetail from './ProfNoticeDetail.jsx';
 const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 const NOTICE_BOARD_CODE = 3;
 
-function ClassAttendingNotice({ page, currentPage, setCurrentPage, noticeToEdit, setNoticeToEdit }) {
+function ClassAttendingNotice({ currentPage, setCurrentPage, noticeToEdit, setNoticeToEdit }) {
     const { user } = UseUser();
     const accessToken = user?.data?.accessToken;
     const userId = user?.data?.user?.id;
@@ -20,6 +20,8 @@ function ClassAttendingNotice({ page, currentPage, setCurrentPage, noticeToEdit,
     const [fetchedNotice, setFetchedNotice] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [page, setPage] = useState(1);
+    const [totalNotices, setTotalNotices] = useState(0); // 전체 공지 수
+
 
     /** ========== Fetch ========== */
     const fetchLectureList = async (accessToken, page, userId) => {
@@ -68,6 +70,7 @@ function ClassAttendingNotice({ page, currentPage, setCurrentPage, noticeToEdit,
             if (!response.ok) throw new Error('공지사항 조회 실패');
             const data = await response.json();
             setNoticeList(data.content);
+            setTotalNotices(data.length || 0);
         } catch (error) {
             console.error('공지사항 에러:', error);
             setNoticeList([]);
@@ -219,7 +222,7 @@ function ClassAttendingNotice({ page, currentPage, setCurrentPage, noticeToEdit,
             <Pagination
                 page={page}
                 size={10}
-                total={noticeList.length}
+                total={totalNotices}
                 onChange={handlePageChange}
             />
 
