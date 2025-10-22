@@ -136,10 +136,6 @@ const fetchLectureData = async (accessToken, user, isProf) => {
     return <ProfNoticeWritingPage currentPage={currentPage} setCurrentPage={setCurrentPage} />;
   }
 
-  console.log("lectureList : ", lectureList);
-  console.log("assignmentList : ", assignmentList);
-
-
 
   return (
     <div className="classAttending_list_container">
