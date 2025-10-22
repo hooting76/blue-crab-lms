@@ -71,7 +71,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, noticeToEdit, setNo
             const data = await response.json();
             setNoticeList(data.content);
             console.log("data : ", data);
-            setTotalNotices(data.content.length);
+            setTotalNotices(data.totalElements);
         } catch (error) {
             console.error('공지사항 에러:', error);
             setNoticeList([]);
