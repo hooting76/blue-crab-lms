@@ -70,7 +70,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, noticeToEdit, setNo
             if (!response.ok) throw new Error('공지사항 조회 실패');
             const data = await response.json();
             setNoticeList(data.content);
-            setTotalNotices(data.length || 0);
+            setTotalNotices(data.content.length || 0);
         } catch (error) {
             console.error('공지사항 에러:', error);
             setNoticeList([]);
