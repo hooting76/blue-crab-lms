@@ -6,10 +6,11 @@ Blue Crab LMS 강의 관련 기능을 브라우저 콘솔에서 테스트하기 
 
 ```
 브라우저콘솔테스트/
-├── README.md              # 이 파일
-├── TEST_GUIDE.md          # 완전한 테스트 가이드 (v6.0)
-├── TEST_REVIEW.md         # 성적 관리 테스트 검토 리포트
-├── usage-diagram.drawio   # 테스트 흐름도
+├── 전체가이드/             # 📖 종합 가이드 문서
+│   ├── README.md              # 이 파일
+│   ├── TEST_GUIDE.md          # 완전한 테스트 가이드 (v6.0)
+│   ├── usage-diagram.drawio   # 테스트 흐름도
+│   └── usage-diagram.drawio.png
 │
 ├── 00-login/              # 🔐 로그인
 │   ├── admin-login.js                     # 관리자 로그인
@@ -43,8 +44,9 @@ Blue Crab LMS 강의 관련 기능을 브라우저 콘솔에서 테스트하기 
 ## 🚀 빠른 시작
 
 ### 1. 테스트 가이드 확인
+
 ```markdown
-👉 TEST_GUIDE.md를 먼저 읽어보세요!
+👉 전체가이드/TEST_GUIDE.md를 먼저 읽어보세요!
 - 전체 시나리오별 가이드
 - 역할별 테스트 순서
 - 트러블슈팅 방법
