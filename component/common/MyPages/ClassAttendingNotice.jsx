@@ -7,7 +7,7 @@ import ProfNoticeDetail from './ProfNoticeDetail.jsx';
 const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 const NOTICE_BOARD_CODE = 3;
 
-function ClassAttendingNotice({ currentPage, setCurrentPage, noticeToEdit, setNoticeToEdit }) {
+function ClassAttendingNotice({ page, currentPage, setCurrentPage, noticeToEdit, setNoticeToEdit }) {
     const { user } = UseUser();
     const accessToken = user?.data?.accessToken;
     const userId = user?.data?.user?.id;
