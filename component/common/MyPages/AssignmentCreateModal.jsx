@@ -23,9 +23,6 @@ const AssignmentCreateModal = ({ onClose, lecSerial, lecTitle }) => {
 
     const submitAssignmentCreate = async (e) => {
 
-        console.log("user:", user);
-        console.log("accessToken:", accessToken);
-
 
         if (!title || !description || !dueDate) {
             alert("모든 필드를 입력해주세요");
@@ -49,7 +46,6 @@ const AssignmentCreateModal = ({ onClose, lecSerial, lecTitle }) => {
                 },
                 body: JSON.stringify(assignmentData)
             });
-            console.log("assignmentData :", assignmentData);
 
             if (!response.ok) throw new Error('과제 생성에 실패했습니다.');
             alert('과제가 성공적으로 생성되었습니다!');

@@ -120,7 +120,6 @@ useEffect(() => {
    }
   }, [notice]);
 
-  console.log("notice : ", notice);
 
   if (!isAuthenticated) {
     return <p>교수 인증 정보를 불러오는 중입니다...</p>;
@@ -196,7 +195,6 @@ useEffect(() => {
         const attachmentIdxs = Array.isArray(uploadResult.attachments)
           ? uploadResult.attachments.map(att => att.attachmentIdx)
           : [];
-          console.log("📂 uploadResult:", uploadResult);
 
 
 
@@ -218,7 +216,6 @@ useEffect(() => {
       setBoardCode(null);
       setSelectedFiles([]);
       editorRef.current.getInstance().setMarkdown('');
-      console.log("currentPage : ", currentPage);
     } catch (error) {
       alert(error.message);
     }
@@ -272,7 +269,6 @@ useEffect(() => {
         const attachmentIdxs = Array.isArray(uploadResult.attachments)
           ? uploadResult.attachments.map(att => att.attachmentIdx)
           : [];
-          console.log("📂 uploadResult:", uploadResult);
 
 
         await fetch(`https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/boards/link-attachments/${boardIdx}`, {

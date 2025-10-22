@@ -221,7 +221,7 @@ const fetchLectureData = async (accessToken, user, isProf) => {
               </button>
             )}
           </div>
-          {isAttendanceModalOpen && <ApproveAttendanceModal onClose={closeAttendanceModal} />}
+          {isAttendanceModalOpen && <ApproveAttendanceModal onClose={closeAttendanceModal} lecSerial={selectedLecSerial}/>}
         </div>
 
         <div className="testAssignment">
