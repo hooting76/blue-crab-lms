@@ -1,10 +1,13 @@
 package BlueCrab.com.example.security;
 
+import BlueCrab.com.example.dto.ApiResponse;
 import BlueCrab.com.example.util.JwtUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -51,8 +54,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 logger.warn("JWT Token has expired: {}", e.getMessage());
                 response.setHeader("X-Token-Expired", "true");
                 isTokenExpired = true;
-                // username은 만료된 토큰에서도 추출 가능
-                username = e.getClaims().getSubject();
+                writeExpiredTokenResponse(request, response);
+                return;
             } catch (Exception e) {
                 logger.error("Unable to get JWT Token", e);
             }
@@ -87,5 +90,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
         chain.doFilter(request, response);
+    }
+
+    private void writeExpiredTokenResponse(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        applyCorsHeaders(request, response);
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
+
+        ApiResponse<Object> errorResponse = ApiResponse.failure(
+            "토큰이 만료되었습니다. 리프레시 토큰을 사용하여 새 토큰을 발급받아주세요."
+        );
+
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(response.getOutputStream(), errorResponse);
+    }
+
+    private void applyCorsHeaders(HttpServletRequest request, HttpServletResponse response) {
+        String origin = request.getHeader("Origin");
+        if (origin != null && !origin.isEmpty()) {
+            response.setHeader("Access-Control-Allow-Origin", origin);
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+            response.setHeader("Vary", "Origin");
+        }
     }
 }
