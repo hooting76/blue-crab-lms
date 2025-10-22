@@ -1,0 +1,53 @@
+@charset "utf-8";
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+/* modal layer */
+.modal{
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    background: rgba(0,0,0, .1);
+    z-index: 9999;
+}
+
+.profileModalWrap{
+    width: 100%;
+    height: 100%;
+}
+/* modal layer end*/
+
+/* modal inner start */
+/* header init */
+.modalHeader{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modalHeader > h5{
+    display: block;
+    padding-right: 15px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #777;
+    font-weight: bold;
+    font-size: 18px;
+}
+.closeBtn{
+    cursor: pointer;
+    background: #fff;
+}
+.closeBtn > svg{
+    font-size: 24px;
+}
+/* header end */
+
+
+/* main init */
+.modalMain{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+/* main end */
+
+/* modal inner end */

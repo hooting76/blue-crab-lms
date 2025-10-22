@@ -1,3 +1,4 @@
+@charset "utf-8";
 /* ============ BlueCrab MyPage Profile  ============ */
 
 /* 안전한 기본 변수(fallback) */
@@ -89,7 +90,7 @@
 #bc-profile .field {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 5px;
 }
 
 #bc-profile .field > span {
@@ -146,7 +147,29 @@
   gap: 8px;
   align-items: stretch;
 }
-#bc-profile .addr-group .zip,
+
+.zipWrap{
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  gap: 5px;
+}
+
+#bc-profile .addr-group .zip{
+  display: inline-block;
+  width: max-content;
+}
+#bc-profile .addr-group button{
+  width: fit-content;
+  border-radius: 10px;
+  padding: 7.5px;
+  font-weight: bold;
+  font-size: 18px;
+  box-sizing: border-box;
+  background: #2563eb;
+  color: #fff;
+}
+
 #bc-profile .addr-group .addr-main,
 #bc-profile .addr-group .addr-detail {
   width: 100%;
@@ -185,8 +208,26 @@
   border-color: #94a3b8;
 }
 
+.avatar-col{
+  position: relative;
+  cursor: pointer;
+}
+
 .avatar-col > svg {
   font-size: 32px;
+}
+.avatar-col::after{
+  content: '+';
+  display: block;
+  width: 25px;
+  height: 25px;
+  color: #333;
+  position: absolute;
+  font-size: 21px;
+  font-weight: bold;
+  top: 0;
+  left: 50%;
+  transform: translateX(50%);
 }
 
 /* 반응형 */
