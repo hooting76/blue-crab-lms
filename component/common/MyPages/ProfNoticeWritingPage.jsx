@@ -62,6 +62,11 @@ function ProfNoticeWritingPage({ notice, currentPage, setCurrentPage }) {
 
         const data = await response.json();
         setLectureList(data); // ✅ 받아온 데이터 저장
+
+        if (data.length > 0 && !selectedLectureSerial) { // 과목 미선택시 첫 과목으로 자동 선택됨
+          setSelectedLectureSerial(data[0].lecSerial);
+        }
+
     } catch (error) {
         console.error('강의 목록 조회 에러:', error);
     }
