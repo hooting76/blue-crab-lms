@@ -19,6 +19,7 @@ function ClassAttending({ currentPage, setCurrentPage }) {
   const [selectedLecSerial, setSelectedLecSerial] = useState("");
 
   // 모달 상태들
+  const [isEvaluationModalOpen, setIsEvaluationModalOpen] = useState(false);
   const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
   const [isTestModalOpen, setIsTestModalOpen] = useState(false);
   const [isAssignmentCreateModalOpen, setIsAssignmentCreateModalOpen] = useState(false);
@@ -122,6 +123,8 @@ const fetchLectureData = async (accessToken, user, isProf) => {
   };
 
   // 모달 오픈/클로즈 핸들러
+  const openEvaluationModal = () => setIsEvaluationModalOpen(true);
+  const closeEvaluationModal = () => setIsEvaluationModalOpen(false);
   const openAttendanceModal = () => setIsAttendanceModalOpen(true);
   const closeAttendanceModal = () => setIsAttendanceModalOpen(false);
   const openTestModal = () => setIsTestModalOpen(true);
@@ -164,11 +167,18 @@ const fetchLectureData = async (accessToken, user, isProf) => {
               </button>
             </div>
           ) : (
-            <div className="studentClassDetailBtnArea">
-              <button className="studentClassDetailBtn" onClick={openClassDetailModal}>
-                강의 상세 정보
-              </button>
-            </div>
+            <>
+              <div className="studentClassDetailBtnArea">
+                <button className="studentClassDetailBtn" onClick={openClassDetailModal}>
+                  강의 상세 정보
+                </button>
+              </div>
+              <div className="studentEvaluationBtnArea">
+                <button className="studentEvaluationBtn" onClick={openEvaluationModal}>
+                  강의 평가
+                </button>
+              </div>
+            </>
           )}
 
           {/* 강의 상세 모달 */}
@@ -179,10 +189,23 @@ const fetchLectureData = async (accessToken, user, isProf) => {
                   ✖
                 </button>
                 <CourseDetail
-                  lecture={lectureList.find((lec) => lec.lecSerial === selectedLecSerial)}
+                  lectureDetails={lectureList.find((lec) => lec.lecSerial === selectedLecSerial)}
                   currentPage={currentPage}
                   setCurrentPage={setCurrentPage}
                 />
+              </div>
+            </div>
+          )}
+
+
+          {/* 강의 평가 모달 */}
+          {isEvaluationModalOpen && (
+            <div className="modal-overlay" onClick={closeEvaluationModal}>
+              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <button className="modal-close" onClick={closeEvaluationModal}>
+                  ✖
+                </button>
+                
               </div>
             </div>
           )}
