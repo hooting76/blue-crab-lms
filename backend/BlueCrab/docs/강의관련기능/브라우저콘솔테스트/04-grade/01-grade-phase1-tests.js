@@ -1,50 +1,22 @@
 /**
- * Phase 1: 핵심 성적 관리 기능 테스트 (완전 독립 버전)
+ * 📊 Phase 1: 성적 관리 테스트 (독립 실행)
  * 
- * 🎯 완전 독립 실행 가능 - 다른 파일 필요 없음!
- * 🔐 lecSerial + studentIdx + JWT 토큰 인증 방식
+ * 🚀 사용법:
+ *    gradePhase1.setLecture('ETH201')         // 강의 지정
+ *    await gradePhase1.runAll()               // 전체 테스트 (5개)
  * 
- * ============================================
- * 🚀 사용법
- * ============================================
+ * ⚙️  로컬 설정 변경 (서버 전송 전):
+ *    gradePhase1.quickAttendanceConfig(80, 0.5)  // 출석 만점, 지각 페널티 변경
+ *    gradePhase1.promptConfig()                  // 대화형 입력으로 변경
+ *    gradePhase1.updateConfig({...})             // 객체로 직접 변경
+ *    gradePhase1.getConfig()                     // 현재 로컬 설정 조회
  * 
- * 1단계: 교수 계정으로 로그인
- *    await login()
- * 
- * 2단계: 이 파일 전체 복사 → 브라우저 콘솔 붙여넣기
- * 
- * 3단계: 강의 설정
- *    gradePhase1.setLecture('ETH201')  // 강의 코드만
- * 
- * 4단계: 테스트 실행
- *    await gradePhase1.config()  - 성적 구성 설정 (강의 단위)
- * 
- * ============================================
- * 💡 개별 테스트
- * ============================================
- * 
- *    await gradePhase1.config()        - 성적 구성 설정 (강의 단위)
- *    await gradePhase1.studentInfo()   - 학생 성적 조회 (lecSerial + studentIdx 필요)
- *    await gradePhase1.professorView() - 교수용 조회 (lecSerial + studentIdx 필요)
- *    await gradePhase1.gradeList()     - 성적 목록 (lecSerial만 필요)
- *    await gradePhase1.finalize()      - 최종 등급 배정 (lecSerial만 필요)
- * 
- * ============================================
- * ⚙️  점수 구성 변경
- * ============================================
- * 
- *    // 방법 1: 프롬프트로 입력
- *    gradePhase1.promptConfig()
- *    await gradePhase1.config()  // 서버에 반영
- * 
- *    // 방법 2: 직접 수정
- *    gradePhase1.updateConfig({
- *        attendanceMaxScore: 90,
- *        assignmentTotalMaxScore: 120,
- *        latePenaltyPerSession: 1.0,
- *        gradeDistribution: { A: 25, B: 45, C: 20, D: 10 }
- *    })
- *    await gradePhase1.config()  // 서버에 반영
+ * 📋 개별 API 테스트:
+ *    gradePhase1.config()        // 로컬 설정을 서버에 저장
+ *    gradePhase1.studentInfo()   // 학생 성적 조회
+ *    gradePhase1.professorView() // 교수용 성적 조회
+ *    gradePhase1.gradeList()     // 성적 목록 조회
+ *    gradePhase1.finalize()      // 최종 등급 배정
  */
 
 (function() {
@@ -61,7 +33,7 @@
         studentIdx: null,  // USER_IDX
         passingThreshold: 60.0,
         attendanceMaxScore: 80,
-        assignmentTotalMaxScore: 100,
+        assignmentTotalMaxScore: 100,  // 🔒 읽기 전용 - 과제 생성 시 자동 누적 (서버에서 계산)
         latePenaltyPerSession: 0.5,
         gradeDistribution: {
             "A": 30,  // 상위 30%
@@ -144,9 +116,10 @@
     function promptConfig() {
         console.log('\n⚙️  성적 구성 설정 입력');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('💡 과제 총점은 과제 생성 시 자동 누적되므로 설정 불필요');
+        console.log('');
         
         const attendance = prompt('출석 만점 (기본: 80):', config.attendanceMaxScore);
-        const assignment = prompt('과제 총점 (기본: 100):', config.assignmentTotalMaxScore);
         const latePenalty = prompt('지각 감점/회 (기본: 0.5):', config.latePenaltyPerSession);
         
         console.log('\n📊 등급 분포 설정 (합계 100%)');
@@ -156,7 +129,6 @@
         const gradeD = prompt('D 등급 비율 (기본: 10%):', config.gradeDistribution.D);
         
         if (attendance) config.attendanceMaxScore = parseInt(attendance);
-        if (assignment) config.assignmentTotalMaxScore = parseInt(assignment);
         if (latePenalty) config.latePenaltyPerSession = parseFloat(latePenalty);
         
         if (gradeA || gradeB || gradeC || gradeD) {
@@ -175,13 +147,13 @@
             }
         }
         
-        console.log('✅ 성적 구성 업데이트:', {
-            attendanceMaxScore: config.attendanceMaxScore,
-            assignmentTotalMaxScore: config.assignmentTotalMaxScore,
-            latePenaltyPerSession: config.latePenaltyPerSession,
-            gradeDistribution: config.gradeDistribution,
-            total: config.attendanceMaxScore + config.assignmentTotalMaxScore
-        });
+        console.log('\n✅ 성적 구성 업데이트:');
+        console.log(`   출석 만점: ${config.attendanceMaxScore}점`);
+        console.log(`   지각 페널티: ${config.latePenaltyPerSession}점/회`);
+        console.log(`   등급 분포:`, config.gradeDistribution);
+        console.log('');
+        console.log('💡 과제 총점은 서버에서 자동 계산됩니다.');
+        console.log('   최종 점수 = (출석율 × 출석만점) + (과제점수합계)');
         
         return config;
     }
@@ -191,6 +163,8 @@
             config.attendanceMaxScore = updates.attendanceMaxScore;
         }
         if (updates.assignmentTotalMaxScore !== undefined) {
+            console.warn('⚠️  assignmentTotalMaxScore는 과제 생성 시 자동 누적됩니다.');
+            console.warn('   이 값은 참고용이며 서버로 전송되지 않습니다.');
             config.assignmentTotalMaxScore = updates.assignmentTotalMaxScore;
         }
         if (updates.latePenaltyPerSession !== undefined) {
@@ -204,14 +178,28 @@
         return config;
     }
     
+    // 출석 관련 설정만 빠르게 변경 (가장 자주 수정하는 항목)
+    function quickAttendanceConfig(maxScore = null, latePenalty = null) {
+        if (maxScore !== null) config.attendanceMaxScore = maxScore;
+        if (latePenalty !== null) config.latePenaltyPerSession = latePenalty;
+        
+        console.log('✅ 출석 설정 업데이트:');
+        console.log(`   - 출석 만점: ${config.attendanceMaxScore}점`);
+        console.log(`   - 지각 페널티: ${config.latePenaltyPerSession}점/회`);
+        console.log('');
+        console.log('💡 서버에 반영하려면: await gradePhase1.config()');
+        
+        return config;
+    }
+    
     // ============================================
-    // 1. 성적 구성 설정
+    // 1. 성적 구성 설정을 서버에 저장
     // POST /enrollments/grade-config
     // ============================================
     
     async function testGradeConfig() {
         console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('⚙️  성적 구성 설정 (강의 단위)');
+        console.log('⚙️  성적 구성 설정 → 서버 저장');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
         if (!config.lecSerial) {
@@ -223,16 +211,17 @@
             action: 'set-config',
             lecSerial: config.lecSerial,
             attendanceMaxScore: config.attendanceMaxScore,
-            assignmentTotalMaxScore: config.assignmentTotalMaxScore,
+            // assignmentTotalMaxScore 제외 - 과제 생성 시 자동 누적
             latePenaltyPerSession: config.latePenaltyPerSession,
             gradeDistribution: config.gradeDistribution
         };
         
         console.log(`📤 강의 코드: ${config.lecSerial}`);
-        console.log(`   출석: ${data.attendanceMaxScore}점`);
-        console.log(`   과제: ${data.assignmentTotalMaxScore}점`);
+        console.log(`   출석 만점: ${data.attendanceMaxScore}점`);
         console.log(`   지각 페널티: ${data.latePenaltyPerSession}점/회`);
         console.log(`   등급 분포:`, data.gradeDistribution);
+        console.log('');
+        console.log('💡 과제 총점은 서버에서 자동 계산 (과제 생성 시 누적)');
         
         const result = await apiCall(`/enrollments/grade-config`, data);
         
@@ -473,10 +462,10 @@
         
         try {
             const tests = [
-                { name: '성적 구성 설정', fn: testGradeConfig },
+                { name: '설정 서버 저장', fn: testGradeConfig },
                 { name: '학생 성적 조회', fn: testStudentGradeInfo },
                 { name: '교수용 조회', fn: testProfessorGradeView },
-                { name: '성적 목록', fn: testGradeList },
+                { name: '성적 목록 조회', fn: testGradeList },
                 { name: '최종 등급 배정', fn: testGradeFinalize }
             ];
             
@@ -517,6 +506,7 @@
         promptStudent,
         promptConfig,
         updateConfig,
+        quickAttendanceConfig,  // 출석 설정 빠른 변경
         getConfig: () => config,
         
         // 개별 테스트
@@ -534,21 +524,22 @@
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('🎯 완전 독립 실행 - 다른 파일 불필요!');
     console.log('');
-    console.log('📝 시작하기:');
-    console.log('   1. gradePhase1.setLecture("ETH201")     - 강의 설정');
-    console.log('   2. await gradePhase1.config()           - 성적 구성 설정 (강의 단위)');
+    console.log('📝 기본 사용:');
+    console.log('   1. gradePhase1.setLecture("ETH201")     - 강의 지정');
+    console.log('   2. await gradePhase1.runAll()           - 전체 테스트 (5개)');
     console.log('');
-    console.log('💡 학생 성적 조회:');
-    console.log('   1. gradePhase1.setLecture("ETH201", 6)  - 강의+학생 설정');
-    console.log('   2. await gradePhase1.studentInfo()      - 학생 성적 조회');
+    console.log('⚙️  설정 변경 (3가지 방법):');
+    console.log('   방법 1: gradePhase1.quickAttendanceConfig(80, 0.5)  - 출석+지각만 변경');
+    console.log('   방법 2: gradePhase1.promptConfig()                  - 대화형 입력');
+    console.log('   방법 3: gradePhase1.updateConfig({...})             - 객체로 변경');
+    console.log('   → 변경 후: await gradePhase1.config()               - 서버에 저장');
     console.log('');
-    console.log('⚙️  점수 구성 변경 (2가지 방법):');
-    console.log('   방법 1: gradePhase1.promptConfig()                          - 프롬프트로 입력');
-    console.log('   방법 2: gradePhase1.updateConfig({attendanceMaxScore: 90})  - 직접 수정');
-    console.log('   그 후: await gradePhase1.config()                           - 서버에 반영');
-    console.log('');
-    console.log('🚀 전체 테스트:');
-    console.log('   await gradePhase1.runAll()  - 5개 API 전체 실행');
+    console.log('📋 개별 API:');
+    console.log('   await gradePhase1.config()          - 설정 서버 저장');
+    console.log('   await gradePhase1.studentInfo()     - 학생 성적 조회');
+    console.log('   await gradePhase1.professorView()   - 교수용 성적 조회');
+    console.log('   await gradePhase1.gradeList()       - 성적 목록 조회');
+    console.log('   await gradePhase1.finalize()        - 최종 등급 배정');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
 })();

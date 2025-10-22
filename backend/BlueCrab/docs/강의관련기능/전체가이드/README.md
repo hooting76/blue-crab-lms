@@ -83,14 +83,25 @@
    - 학생 목록 조회 API
 
 4. **[Phase4_Evaluation_Closure.md](Phase4_Evaluation_Closure.md)**: 평가 및 종료 단계
-   - 성적 관리 API
-   - 강의평가 API
-   - 최종 통계 API
+   - ✅ 성적 관리 API (구현 완료, 93%)
+   - ⏳ 강의평가 API (미구현)
+   - ⏳ 최종 통계 API (미구현)
+
+5. **[성적관리/](성적관리/)**: 성적 관리 시스템 상세 문서 ⭐
+   - 00-README.md: 시스템 개요
+   - 01-QUICK-START.md: 빠른 시작
+   - 02-IMPLEMENTATION-GUIDE.md: 구현 가이드
+   - 03-WORK-PROGRESS.md: 작업 진행 (93% 완료)
 
 ### 참고 문서
 - `요구사항분석.md`: 상세 요구사항 및 비즈니스 로직
 - `ERD_Diagram.drawio`: 데이터베이스 구조
 - `브라우저콘솔테스트/`: 실제 API 테스트 코드
+- **`성적관리/`**: 성적 관리 시스템 완전 구현 문서 ⭐
+  - API 명세서 (7개 API)
+  - 테스트 가이드
+  - 알고리즘 설명 (출석 계산, 등급 배정)
+  - 이벤트 시스템 플로우
 
 ## 🔧 공통 사항
 

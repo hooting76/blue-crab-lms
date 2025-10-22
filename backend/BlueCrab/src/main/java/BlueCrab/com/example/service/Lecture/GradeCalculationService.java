@@ -109,6 +109,7 @@ public class GradeCalculationService {
             return Map.of(
                 "lecIdx", lecIdx,
                 "studentIdx", studentIdx,
+                "enrollmentIdx", enrollment.getEnrollmentIdx(),  // enrollmentIdx 추가
                 "grade", gradeData,
                 "updatedAt", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
             );

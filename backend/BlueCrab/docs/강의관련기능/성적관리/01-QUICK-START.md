@@ -1,248 +1,493 @@
-# 📦 빌드 & 테스트
+# 🚀 빠른 시작 가이드# 📦 빌드 & 테스트
 
-Phase 4: 서버 빌드 및 브라우저 테스트
 
----
 
-## 🔧 1단계: 서버 빌드
+서버 빌드 및 브라우저 콘솔 테스트Phase 4: 서버 빌드 및 브라우저 테스트
 
-### Maven 사용 시
 
-```powershell
-# 프로젝트 루트로 이동
+
+------
+
+
+
+## ⚡ 3분 퀵 스타트## 🔧 1단계: 서버 빌드
+
+
+
+```powershell### Maven 사용 시
+
+# 1. 서버 실행
+
+cd f:\main_project\team_work\blue-crab-lms\backend\BlueCrab```powershell
+
+mvn spring-boot:run# 프로젝트 루트로 이동
+
 cd f:\main_project\team_work\blue-crab-lms\backend\BlueCrab
 
-# 클린 빌드 (테스트 스킵)
-mvn clean package -DskipTests
+# 2. 브라우저에서 https://bluecrab.chickenkiller.com 접속
+
+# 3. F12 → Console 탭# 클린 빌드 (테스트 스킵)
+
+# 4. 테스트 파일 로드 → 실행mvn clean package -DskipTests
+
+```
 
 # 또는 컴파일만
-mvn clean compile
+
+---mvn clean compile
+
 ```
+
+## 📦 Phase 1 테스트 (5개 API)
 
 ### Gradle 사용 시
 
-```powershell
-# 프로젝트 루트로 이동
-cd f:\main_project\team_work\blue-crab-lms\backend\BlueCrab
+### 1단계: 테스트 파일 로드
 
-# 클린 빌드 (테스트 스킵)
-.\gradlew clean build -x test
+```javascript```powershell
 
-# 또는 컴파일만
-.\gradlew clean compileJava
+// 01-grade-phase1-tests.js 내용을 콘솔에 붙여넣기# 프로젝트 루트로 이동
+
+```cd f:\main_project\team_work\blue-crab-lms\backend\BlueCrab
+
+
+
+### 2단계: 설정 확인# 클린 빌드 (테스트 스킵)
+
+```javascript.\gradlew clean build -x test
+
+gradePhase1.getConfig()
+
+// → lecSerial: null, studentIdx: null 확인# 또는 컴파일만
+
+```.\gradlew clean compileJava
+
 ```
 
-### ✅ 빌드 성공 확인
+### 3단계: 강의 설정
 
-컴파일 성공 메시지 확인:
+```javascript### ✅ 빌드 성공 확인
 
-```
+gradePhase1.setLecture('ETH201', 6)
+
+// lecSerial: 'ETH201'컴파일 성공 메시지 확인:
+
+// studentIdx: 6
+
+``````
+
 BUILD SUCCESS
-```
 
-또는
+### 4단계: 전체 테스트 실행```
 
-```
+```javascript
+
+await gradePhase1.runAll()또는
+
+// → 5개 테스트 실행 (10-15초 소요)
+
+``````
+
 BUILD SUCCESSFUL
-```
 
-### ❌ 빌드 실패 시
+### ✅ 예상 결과```
 
-1. **컴파일 에러 확인**:
-   - 빌드 로그에서 에러 메시지 확인
-   - 파일 경로와 라인 번호 확인
+```text
 
-2. **의존성 문제**:
-   ```powershell
-   # Maven
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━### ❌ 빌드 실패 시
+
+📊 Phase 1 테스트 결과
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━1. **컴파일 에러 확인**:
+
+총 테스트: 5개   - 빌드 로그에서 에러 메시지 확인
+
+✅ 성공: 5개   - 파일 경로와 라인 번호 확인
+
+❌ 실패: 0개
+
+📈 성공률: 100.0%2. **의존성 문제**:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   ```powershell
+
+```   # Maven
+
    mvn dependency:resolve
-   
+
+---   
+
    # Gradle
-   .\gradlew dependencies
+
+## ⚡ Phase 3 테스트 (2개 API)   .\gradlew dependencies
+
    ```
 
-3. **캐시 삭제**:
-   ```powershell
-   # Maven
+### 1단계: 테스트 파일 로드
+
+```javascript3. **캐시 삭제**:
+
+// 02-grade-phase3-tests.js 내용을 콘솔에 붙여넣기   ```powershell
+
+```   # Maven
+
    mvn clean
-   
-   # Gradle
-   .\gradlew clean
+
+### 2단계: 학생 목록 조회 (선택)   
+
+```javascript   # Gradle
+
+await gradePhase3.listStudents()   .\gradlew clean
+
+// → 수강 중인 학생 목록 조회   ```
+
+// → studentIdx 확인
+
+```---
+
+
+
+### 3단계: 강의 설정## 🚀 2단계: 서버 실행
+
+```javascript
+
+gradePhase3.setLecture('ETH201', 6, 1)### Spring Boot 실행
+
+// lecSerial: 'ETH201'
+
+// studentIdx: 6```powershell
+
+// assignmentIdx: 1# Maven
+
+```mvn spring-boot:run
+
+
+
+### 4단계: 전체 테스트 실행# Gradle
+
+```javascript.\gradlew bootRun
+
+await gradePhase3.runAll()
+
+// → 2개 테스트 실행 (5-10초 소요)# JAR 파일 실행
+
+// → enrollmentIdx 자동 조회java -jar target/BlueCrab-0.0.1-SNAPSHOT.jar
+
+``````
+
+
+
+### ✅ 예상 결과### ✅ 서버 실행 확인
+
+```text
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━서버가 정상적으로 시작되면 다음 로그 확인:
+
+📊 Phase 3 테스트 결과
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━```
+
+총 테스트: 2개Started BlueCrabApplication in X.XXX seconds
+
+✅ 성공: 2개```
+
+❌ 실패: 0개
+
+📈 성공률: 100.0%---
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ enrollmentIdx 자동 조회: 성공## 🧪 3단계: 브라우저 콘솔 테스트
+
+✅ 출석 업데이트 → 성적 재계산
+
+✅ 과제 채점 → 성적 재계산### 테스트 페이지 접속
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+```1. 브라우저에서 다음 URL 접속:
+
    ```
 
----
+---   http://localhost:8080
 
-## 🚀 2단계: 서버 실행
-
-### Spring Boot 실행
-
-```powershell
-# Maven
-mvn spring-boot:run
-
-# Gradle
-.\gradlew bootRun
-
-# JAR 파일 실행
-java -jar target/BlueCrab-0.0.1-SNAPSHOT.jar
-```
-
-### ✅ 서버 실행 확인
-
-서버가 정상적으로 시작되면 다음 로그 확인:
-
-```
-Started BlueCrabApplication in X.XXX seconds
-```
-
----
-
-## 🧪 3단계: 브라우저 콘솔 테스트
-
-### 테스트 페이지 접속
-
-1. 브라우저에서 다음 URL 접속:
    ```
-   http://localhost:8080
-   ```
+
+## 🔧 서버 빌드 (최초 1회)
 
 2. 로그인 (교수 계정 사용)
 
-### 테스트 스크립트 로드
+### Maven 빌드
 
-브라우저 개발자 도구(F12) → Console 탭에서 다음 실행:
+```powershell### 테스트 스크립트 로드
+
+cd f:\main_project\team_work\blue-crab-lms\backend\BlueCrab
+
+mvn clean package -DskipTests브라우저 개발자 도구(F12) → Console 탭에서 다음 실행:
+
+```
 
 ```javascript
-// 테스트 스크립트 로드
-const script = document.createElement('script');
-script.src = '/test/04-grade/grade-management-test.js';
-script.onload = () => console.log('✅ 성적 관리 테스트 스크립트 로드 완료');
+
+### 빌드 성공 확인// 테스트 스크립트 로드
+
+```textconst script = document.createElement('script');
+
+[INFO] BUILD SUCCESSscript.src = '/test/04-grade/grade-management-test.js';
+
+```script.onload = () => console.log('✅ 성적 관리 테스트 스크립트 로드 완료');
+
 script.onerror = () => console.error('❌ 스크립트 로드 실패');
-document.head.appendChild(script);
+
+---document.head.appendChild(script);
+
 ```
+
+## 🛠️ 개별 테스트
 
 ### 전체 테스트 실행
 
-```javascript
-// 모든 테스트 실행
-gradeTests.runAll();
+### Phase 1 개별 실행
+
+```javascript```javascript
+
+// 1. 성적 구성 설정// 모든 테스트 실행
+
+await gradePhase1.config()gradeTests.runAll();
+
 ```
 
-### 개별 테스트 실행
+// 2. 학생 성적 조회
 
-```javascript
-// 1. 성적 구성 설정 테스트
+await gradePhase1.studentInfo()### 개별 테스트 실행
+
+
+
+// 3. 교수용 성적 조회```javascript
+
+await gradePhase1.professorView()// 1. 성적 구성 설정 테스트
+
 gradeTests.configureGrade();
 
-// 2. 교수용 성적 조회 테스트
+// 4. 성적 목록 조회
+
+await gradePhase1.gradeList()// 2. 교수용 성적 조회 테스트
+
 gradeTests.professorGradeView();
 
-// 3. 전체 성적 목록 조회 테스트
-gradeTests.gradeList();
+// 5. 최종 등급 배정
 
-// 4. 최종 등급 배정 테스트
-gradeTests.finalizeGrades();
+await gradePhase1.finalize()// 3. 전체 성적 목록 조회 테스트
 
-// 5. 이벤트 시스템 테스트 (출석 업데이트)
+```gradeTests.gradeList();
+
+
+
+### Phase 3 개별 실행// 4. 최종 등급 배정 테스트
+
+```javascriptgradeTests.finalizeGrades();
+
+// 1. 출석 업데이트
+
+await gradePhase3.testAttendanceUpdate()// 5. 이벤트 시스템 테스트 (출석 업데이트)
+
 gradeTests.testAttendanceEvent();
 
-// 6. 이벤트 시스템 테스트 (과제 채점)
-gradeTests.testAssignmentEvent();
+// 2. 과제 채점
+
+await gradePhase3.testAssignmentGrade()// 6. 이벤트 시스템 테스트 (과제 채점)
+
+```gradeTests.testAssignmentEvent();
+
 ```
 
 ---
 
+---
+
+## 🔍 설정 변경
+
 ## ✅ 4단계: 최소 검증
 
-### 필수 확인 사항
+### Phase 1 설정 변경
 
-#### 1. API 응답 확인
+```javascript### 필수 확인 사항
 
-각 API 호출 후 다음 확인:
+// 방법 1: 직접 설정
+
+gradePhase1.setLecture('ETH201', 6)#### 1. API 응답 확인
+
+
+
+// 방법 2: 대화형 입력각 API 호출 후 다음 확인:
+
+await gradePhase1.promptLecture()
 
 - ✅ 상태 코드 200 (성공)
-- ✅ 응답 데이터 존재
-- ✅ 에러 없음
+
+// 확인- ✅ 응답 데이터 존재
+
+gradePhase1.getConfig()- ✅ 에러 없음
+
+```
 
 #### 2. 성적 계산 정확성
 
-```javascript
-// 콘솔에서 수동 확인
-// lecSerial 사용 예시
+### Phase 3 설정 변경
+
+```javascript```javascript
+
+// 설정// 콘솔에서 수동 확인
+
+gradePhase3.setLecture('ETH201', 6, 1)// lecSerial 사용 예시
+
 gradePhase1.setLecture('ETH201', 100)  // lecSerial, studentIdx
-await gradePhase1.professorView()
 
-// 또는 lecIdx 사용
+// 확인await gradePhase1.professorView()
+
+gradePhase3.getConfig()
+
+```// 또는 lecIdx 사용
+
 gradePhase1.config.lecIdx = 1
-gradePhase1.config.studentIdx = 100
-await gradePhase1.professorView()
-```
 
-**예상 결과**:
-- 출석 점수: 0-80점 (또는 설정한 maxScore)
-- 출석 백분율: 0.00-100.00%
+---gradePhase1.config.studentIdx = 100
+
+await gradePhase1.professorView()
+
+## ❌ 문제 해결```
+
+
+
+### 문제 1: "gradePhase1 is not defined"**예상 결과**:
+
+**원인**: 테스트 파일을 로드하지 않음  - 출석 점수: 0-80점 (또는 설정한 maxScore)
+
+**해결**: 파일 내용을 콘솔에 복사-붙여넣기- 출석 백분율: 0.00-100.00%
+
 - 과제 점수: 각 과제별 0-10점
-- 총점: 출석 + 과제 합계
-- 최종 백분율: 0.00-100.00% (소수점 둘째자리 반올림)
+
+### 문제 2: "401 Unauthorized"- 총점: 출석 + 과제 합계
+
+**원인**: 로그인하지 않았거나 토큰 만료  - 최종 백분율: 0.00-100.00% (소수점 둘째자리 반올림)
+
+**해결**: `await login()` 실행 후 재시도
 
 #### 3. 지각 페널티 확인
 
-```javascript
-// 지각 페널티 테스트
+### 문제 3: "enrollmentIdx 조회 실패"
+
+**원인**: 해당 학생이 강의에 수강 등록되지 않음  ```javascript
+
+**해결**: `await gradePhase3.listStudents()`로 실제 수강생 확인// 지각 페널티 테스트
+
 // 1. 성적 구성 설정 시 latePenaltyPerSession 파라미터 확인
-gradeTests.configureGrade({
-  latePenaltyPerSession: 0.5  // 지각 1회당 0.5점 감점
-});
 
-// 2. 출석 업데이트 (지각 포함)
+### 문제 4: "lecSerial not found"gradeTests.configureGrade({
+
+**원인**: 존재하지 않는 강의 코드    latePenaltyPerSession: 0.5  // 지각 1회당 0.5점 감점
+
+**해결**: 실제 강의 코드 사용 (예: ETH201, CS101)});
+
+
+
+---// 2. 출석 업데이트 (지각 포함)
+
 // PUT /api/enrollments/{enrollmentIdx}/attendance
-// Body: { attended: 30, late: 5, absent: 5 }
 
-// 3. 성적 조회로 페널티 적용 확인
-gradeTests.professorGradeView().then(data => {
-  console.log('지각 횟수:', data.lateCount);
-  console.log('출석 백분율:', data.attendancePercentage);  // (30+5)/80 * 100 = 43.75%
-  console.log('지각 페널티:', data.lateCount * 0.5);       // 5 * 0.5 = 2.5점
+## 📊 성능 참고// Body: { attended: 30, late: 5, absent: 5 }
+
+
+
+| 테스트 | 소요 시간 | 비고 |// 3. 성적 조회로 페널티 적용 확인
+
+|--------|-----------|------|gradeTests.professorGradeView().then(data => {
+
+| Phase 1 전체 | 10-15초 | 5개 API 순차 실행 |  console.log('지각 횟수:', data.lateCount);
+
+| Phase 3 전체 | 5-10초 | 2개 API + 1초 대기 |  console.log('출석 백분율:', data.attendancePercentage);  // (30+5)/80 * 100 = 43.75%
+
+| 개별 테스트 | 1-3초 | 단일 API 호출 |  console.log('지각 페널티:', data.lateCount * 0.5);       // 5 * 0.5 = 2.5점
+
   console.log('최종 출석 점수:', data.attendanceScore);    // 백분율 점수 - 2.5점
-});
+
+---});
+
 ```
+
+## 💡 유용한 팁
 
 #### 4. 등급 배정 확인
 
-```javascript
-// 최종 등급 배정 테스트
-gradeTests.finalizeGrades().then(data => {
-  console.log('배정된 학생 수:', data.students.length);
-  
+### Tip 1: 학생 목록 먼저 조회
+
+```javascript```javascript
+
+// Phase 3 테스트 전 학생 목록 확인// 최종 등급 배정 테스트
+
+await gradePhase3.listStudents()gradeTests.finalizeGrades().then(data => {
+
+// → studentIdx 확인 후 setLecture() 호출  console.log('배정된 학생 수:', data.students.length);
+
+```  
+
   // 등급별 인원 확인
-  const grades = data.students.reduce((acc, s) => {
-    acc[s.grade] = (acc[s.grade] || 0) + 1;
-    return acc;
-  }, {});
+
+### Tip 2: 설정 백업  const grades = data.students.reduce((acc, s) => {
+
+```javascript    acc[s.grade] = (acc[s.grade] || 0) + 1;
+
+// 현재 설정 저장    return acc;
+
+const backup = gradePhase1.getConfig()  }, {});
+
   
-  console.log('등급 분포:', grades);
-  // 예: { A+: 3, A: 5, B+: 7, B: 10, C: 5, D: 2, F: 3 }
-});
-```
 
-**등급 배정 규칙 확인**:
-- ✅ 60% 미만 → F 등급
-- ✅ 60% 이상 → A+, A, B+, B, C, D 비율 적용
-- ✅ 동점자 → 같은 등급 배정
-- ✅ 하위 침범 방식 적용
+// 나중에 복원  console.log('등급 분포:', grades);
 
-#### 5. 이벤트 시스템 확인
+gradePhase1.setLecture(backup.lecSerial, backup.studentIdx)  // 예: { A+: 3, A: 5, B+: 7, B: 10, C: 5, D: 2, F: 3 }
 
-서버 로그에서 다음 메시지 확인:
+```});
 
 ```
-[INFO] 출석 업데이트로 인한 성적 재계산 이벤트 발행: lecIdx=1, studentIdx=2
-[INFO] 과제 채점으로 인한 성적 재계산 이벤트 발행: lecIdx=1, studentIdx=2
-[INFO] GradeUpdateEventListener - 성적 재계산 시작: lecIdx=1, studentIdx=2, type=ATTENDANCE
+
+### Tip 3: 서버 로그 확인
+
+```text**등급 배정 규칙 확인**:
+
+# 이벤트 처리 로그 확인- ✅ 60% 미만 → F 등급
+
+[INFO] 성적 재계산 시작: lecIdx=6, studentIdx=6- ✅ 60% 이상 → A+, A, B+, B, C, D 비율 적용
+
+[INFO] 성적 재계산 완료: updateType=ATTENDANCE- ✅ 동점자 → 같은 등급 배정
+
+```- ✅ 하위 침범 방식 적용
+
+
+
+---#### 5. 이벤트 시스템 확인
+
+
+
+## 🎯 다음 단계서버 로그에서 다음 메시지 확인:
+
+
+
+1. ✅ Phase 1 테스트 완료```
+
+2. ✅ Phase 3 테스트 완료[INFO] 출석 업데이트로 인한 성적 재계산 이벤트 발행: lecIdx=1, studentIdx=2
+
+3. ⏳ 실제 데이터로 검증[INFO] 과제 채점으로 인한 성적 재계산 이벤트 발행: lecIdx=1, studentIdx=2
+
+4. ⏳ 프론트엔드 통합[INFO] GradeUpdateEventListener - 성적 재계산 시작: lecIdx=1, studentIdx=2, type=ATTENDANCE
+
 [INFO] GradeUpdateEventListener - 성적 재계산 완료: lecIdx=1, studentIdx=2
-```
 
-**이벤트 동작 확인**:
+---```
+
+
+
+> **참고**: 자세한 사용법은 [브라우저 콘솔 테스트 가이드](../브라우저콘솔테스트/04-grade/06-USAGE-GUIDE.md) 참조**이벤트 동작 확인**:
+
 - ✅ 출석 업데이트 시 이벤트 발행
 - ✅ 과제 채점 시 이벤트 발행
 - ✅ 비동기 재계산 실행

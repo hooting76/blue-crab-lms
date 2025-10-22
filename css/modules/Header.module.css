@@ -116,6 +116,7 @@ header{
     background-color: var(--white-color);
     border-radius: 5px;
     padding: 5px;
+    border: 1px solid #aaa;
 }
 
 .navSubMenu1 td:hover {
@@ -127,6 +128,7 @@ header{
     background-color: var(--white-color);
     border-radius: 5px;
     padding: 5px;
+    border: 1px solid #aaa;
 }
 
 .navSubMenu2 td:hover {
@@ -138,6 +140,7 @@ header{
     background-color: var(--white-color);
     border-radius: 5px;
     padding: 5px;
+    border: 1px solid #aaa;
 }
 
 .navSubMenu3 td:hover {

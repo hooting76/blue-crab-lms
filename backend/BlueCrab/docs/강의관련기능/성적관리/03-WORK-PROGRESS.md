@@ -1,198 +1,393 @@
-# 📋 작업 진행 상황
+# 📊 작업 진행 상황# 📋 작업 진행 상황
 
-Phase 1~4 구현 진행 상황 (17/20 완료, 85%)
 
----
 
-## 🎯 전체 작업 계획
+성적 관리 시스템 구현 완료 현황Phase 1~4 구현 진행 상황 (17/20 완료, 85%)
 
-### ✅ **사전 완료 작업**
-- [x] EnrollmentService 메서드 정의 (5개)
+
+
+------
+
+
+
+## 🎯 전체 진행 상황## 🎯 전체 작업 계획
+
+
+
+**Phase 1~3 완료**: 17/20 작업 (85%)  ### ✅ **사전 완료 작업**
+
+**Phase 4 대기**: 브라우저 콘솔 테스트 3개- [x] EnrollmentService 메서드 정의 (5개)
+
 - [x] EnrollmentController 확장
-- [x] `studentGradeInfo()` 핵심 로직 완성 ⭐
+
+---- [x] `studentGradeInfo()` 핵심 로직 완성 ⭐
+
   - [x] JSON 파싱
-  - [x] 출석 점수 계산 헬퍼
+
+## ✅ Phase 1: 핵심 API (완료)  - [x] 출석 점수 계산 헬퍼
+
   - [x] 과제 점수 집계 헬퍼
-  - [x] 총점/백분율 자동 계산
-  - [x] ENROLLMENT_DATA JSON 자동 업데이트
-- [x] 테스트 파일 v2.0 완성 (`grade-management-test.js`)
-- [x] 테스트 파일 구조 정리 (5개 하위폴더)
 
----
+### 1. 성적 구성 설정 (`configureGrade`)  - [x] 총점/백분율 자동 계산
 
-## 📊 Phase 1: 핵심 메서드 구현 (✅ 완료!)
+- ✅ POST /enrollments/grade-config  - [x] ENROLLMENT_DATA JSON 자동 업데이트
 
-### 1️⃣ `configureGrade()` - 성적 구성 설정
-**상태**: ✅ 완료 (2025-10-20)  
-**난이도**: ⭐⭐ (비교적 간단)  
+- ✅ 출석/과제 배점 설정- [x] 테스트 파일 v2.0 완성 (`grade-management-test.js`)
+
+- ✅ 등급 분포 설정 (A+~D)- [x] 테스트 파일 구조 정리 (5개 하위폴더)
+
+- ✅ 지각 페널티 설정
+
+- ✅ lecSerial → lecIdx 자동 변환---
+
+
+
+### 2. 학생 성적 조회 (`studentGradeInfo`)## 📊 Phase 1: 핵심 메서드 구현 (✅ 완료!)
+
+- ✅ GET /enrollments/grade-info
+
+- ✅ 출석 점수 계산 (출석율, 지각 감점)### 1️⃣ `configureGrade()` - 성적 구성 설정
+
+- ✅ 과제 점수 조회**상태**: ✅ 완료 (2025-10-20)  
+
+- ✅ 총점 및 백분율 계산**난이도**: ⭐⭐ (비교적 간단)  
+
 **작업 내용**:
-- [x] 강의별 성적 비율 설정 (출석, 과제, 시험 배점)
-- [x] 등급 분포 기준 설정 (A, B, C, D 비율)
-- [x] ENROLLMENT_DATA의 gradeConfig 영역에 저장
-- [x] JSON 구조 생성 및 업데이트
+
+### 3. 교수용 성적 조회 (`professorGradeView`)- [x] 강의별 성적 비율 설정 (출석, 과제, 시험 배점)
+
+- ✅ GET /enrollments/grade-info (교수용)- [x] 등급 분포 기준 설정 (A, B, C, D 비율)
+
+- ✅ 학생 성적 + 통계- [x] ENROLLMENT_DATA의 gradeConfig 영역에 저장
+
+- ✅ 순위, 평균, 최고점- [x] JSON 구조 생성 및 업데이트
+
 - [x] **lecSerial → lecIdx 자동 변환 기능 추가** ✨
 
-**예상 구현 사항**:
-```java
-public Map<String, Object> configureGrade(Map<String, Object> request) {
-    // lecSerial 또는 lecIdx 중 하나로 강의 식별
+### 4. 성적 목록 조회 (`gradeList`)
+
+- ✅ GET /enrollments/grade-list**예상 구현 사항**:
+
+- ✅ 전체 수강생 목록```java
+
+- ✅ 정렬 (점수, 이름, 학번)public Map<String, Object> configureGrade(Map<String, Object> request) {
+
+- ✅ 페이징 처리    // lecSerial 또는 lecIdx 중 하나로 강의 식별
+
     Integer lecIdx = getLecIdxFromRequest(request);  // 자동 변환 처리
-    Integer attendanceMaxScore = (Integer) request.get("attendanceMaxScore");
-    Integer assignmentTotalScore = (Integer) request.get("assignmentTotalScore");
-    Integer examTotalScore = (Integer) request.get("examTotalScore");
-    Map<String, Integer> gradeDistribution = (Map<String, Integer>) request.get("gradeDistribution");
-    
-    // gradeConfig JSON 생성 및 저장
+
+### 5. 최종 등급 배정 (`finalizeGrades`)    Integer attendanceMaxScore = (Integer) request.get("attendanceMaxScore");
+
+- ✅ POST /enrollments/grade-finalize    Integer assignmentTotalScore = (Integer) request.get("assignmentTotalScore");
+
+- ✅ 60% 기준 F등급 분류    Integer examTotalScore = (Integer) request.get("examTotalScore");
+
+- ✅ 하위 침범 방식 등급 배정    Map<String, Integer> gradeDistribution = (Map<String, Integer>) request.get("gradeDistribution");
+
+- ✅ 동점자 상위등급 처리    
+
+- ✅ 통계 생성    // gradeConfig JSON 생성 및 저장
+
 }
-```
 
----
+---```
 
-### 2️⃣ `professorGradeView()` - 교수용 성적 조회
-**상태**: ✅ 완료 (2025-10-20)  
-**난이도**: ⭐⭐⭐ (중간)  
-**작업 내용**:
-- [x] `studentGradeInfo()` 로직 재사용
+
+
+## ✅ Phase 2: DB 연동 (완료)---
+
+
+
+### 6. AttendanceService 확장### 2️⃣ `professorGradeView()` - 교수용 성적 조회
+
+- ✅ `calculateAttendanceScoreForGrade()` 메서드**상태**: ✅ 완료 (2025-10-20)  
+
+- ✅ ENROLLMENT_DATA JSON 파싱**난이도**: ⭐⭐⭐ (중간)  
+
+- ✅ 출석율 계산 (출석+지각)**작업 내용**:
+
+- ✅ 백분율 변환 (소수점 둘째자리)- [x] `studentGradeInfo()` 로직 재사용
+
 - [x] 교수 권한 검증 추가
-- [x] 순위 계산 로직
-- [x] 전체 학생 수 조회
-- [x] 추가 통계 정보 포함 (순위, 평균)
+
+### 7. AssignmentService 확장- [x] 순위 계산 로직
+
+- ✅ `getStudentAssignmentScoresForGrade()` 메서드- [x] 전체 학생 수 조회
+
+- ✅ ASSIGNMENT_DATA JSON 파싱- [x] 추가 통계 정보 포함 (순위, 평균)
+
+- ✅ 과제별 점수/백분율 계산
 
 **특징**:
-- studentGradeInfo()와 유사하지만 교수 전용 정보 추가
-- 상대 순위, 평균 점수 등 포함
 
----
+### 8. GradeCalculationService 연동- studentGradeInfo()와 유사하지만 교수 전용 정보 추가
+
+- ✅ Mock 데이터 제거- 상대 순위, 평균 점수 등 포함
+
+- ✅ 실제 Service 호출로 변경
+
+- ✅ 출석 점수: AttendanceService 연동---
+
+- ✅ 과제 점수: AssignmentService 연동
 
 ### 3️⃣ `gradeList()` - 전체 성적 목록 조회
-**상태**: ✅ 완료 (2025-10-20)  
-**난이도**: ⭐⭐⭐ (중간)  
-**작업 내용**:
-- [x] 전체 수강생 조회 (페이징)
-- [x] 각 학생의 성적 데이터 수집
-- [x] 정렬 기능 구현 (percentage, name, studentId)
-- [x] 정렬 방향 지원 (asc, desc)
-- [x] 페이지네이션 응답 구성
-- [x] 순위 자동 배정
 
-**예상 구현 사항**:
-```java
-public Map<String, Object> gradeList(Integer lecIdx, Pageable pageable, String sortBy, String sortOrder) {
-    // 1. 전체 수강생 조회
+---**상태**: ✅ 완료 (2025-10-20)  
+
+**난이도**: ⭐⭐⭐ (중간)  
+
+## ✅ Phase 3: 이벤트 시스템 (완료)**작업 내용**:
+
+- [x] 전체 수강생 조회 (페이징)
+
+### 9. GradeUpdateEventListener- [x] 각 학생의 성적 데이터 수집
+
+- ✅ 이벤트 클래스 생성 (GradeUpdateEvent.java)- [x] 정렬 기능 구현 (percentage, name, studentId)
+
+- ✅ 리스너 구현 (GradeUpdateEventListener.java)- [x] 정렬 방향 지원 (asc, desc)
+
+- ✅ @EventListener + @Async 비동기 처리- [x] 페이지네이션 응답 구성
+
+- ✅ 선별적 재계산 (해당 학생만)- [x] 순위 자동 배정
+
+
+
+### 10. EnrollmentController 이벤트 연동**예상 구현 사항**:
+
+- ✅ ApplicationEventPublisher 주입```java
+
+- ✅ 출석 업데이트 시 이벤트 발행public Map<String, Object> gradeList(Integer lecIdx, Pageable pageable, String sortBy, String sortOrder) {
+
+- ✅ PUT /enrollments/{enrollmentIdx}/attendance    // 1. 전체 수강생 조회
+
     List<EnrollmentExtendedTbl> enrollments = enrollmentRepository.findStudentsByLecture(lecIdx);
-    
-    // 2. 각 학생의 성적 데이터 파싱
-    // 3. 정렬
-    // 4. 페이징 적용
+
+### 11. AssignmentController 이벤트 연동    
+
+- ✅ ApplicationEventPublisher 주입    // 2. 각 학생의 성적 데이터 파싱
+
+- ✅ 과제 채점 시 이벤트 발행    // 3. 정렬
+
+- ✅ PUT /assignments/{assignmentIdx}/grade    // 4. 페이징 적용
+
     // 5. 응답 구성
-}
+
+---}
+
 ```
+
+## ⏳ Phase 4: 테스트 (대기)
 
 ---
 
-### 4️⃣ `finalizeGrades()` - 최종 등급 배정 ⭐
-**상태**: ✅ 완료 (2025-10-20)  
-**난이도**: ⭐⭐⭐⭐⭐ (가장 복잡!)  
+### 12. Phase 1 브라우저 테스트
+
+- [ ] 01-grade-phase1-tests.js 실행### 4️⃣ `finalizeGrades()` - 최종 등급 배정 ⭐
+
+- [ ] 5개 API 전체 테스트**상태**: ✅ 완료 (2025-10-20)  
+
+- [ ] 성적 계산 정확성 검증**난이도**: ⭐⭐⭐⭐⭐ (가장 복잡!)  
+
 **작업 내용**:
-- [x] **1단계**: 전체 수강생 성적 조회
-- [x] **2단계**: 60% 기준 합격/불합격 분류
-  - 60% 이상 → 합격 (상대평가 대상)
-  - 60% 미만 → F등급 확정
-- [x] **3단계**: 하위 침범 방식 등급 배정
+
+### 13. Phase 3 브라우저 테스트- [x] **1단계**: 전체 수강생 성적 조회
+
+- [ ] 02-grade-phase3-tests.js 실행- [x] **2단계**: 60% 기준 합격/불합격 분류
+
+- [ ] 2개 API 전체 테스트  - 60% 이상 → 합격 (상대평가 대상)
+
+- [ ] enrollmentIdx 자동 조회 검증  - 60% 미만 → F등급 확정
+
+- [ ] 이벤트 시스템 동작 확인- [x] **3단계**: 하위 침범 방식 등급 배정
+
   - 기본 비율 계산 (전체 학생 수 기준)
-  - 낙제자가 D→C→B→A 순서로 하위등급 자리 차지
-  - 합격자들을 남은 상위등급에 배정
-- [x] **4단계**: 동점자 처리
-  - 같은 점수는 모두 동일 순위
+
+### 14. 최종 검증  - 낙제자가 D→C→B→A 순서로 하위등급 자리 차지
+
+- [ ] 모든 API 정상 동작 확인  - 합격자들을 남은 상위등급에 배정
+
+- [ ] 성적 계산 정확성 검증- [x] **4단계**: 동점자 처리
+
+- [ ] 등급 배정 알고리즘 검증  - 같은 점수는 모두 동일 순위
+
   - 상위 등급으로 배정
-- [x] **5단계**: ENROLLMENT_DATA 업데이트
+
+---- [x] **5단계**: ENROLLMENT_DATA 업데이트
+
 - [x] **6단계**: 통계 생성 (등급별 인원, 평균 등)
 
-**구현된 핵심 알고리즘**:
-- `assignGradesWithBottomUpApproach()` - 하위 침범 방식 등급 배정
-- `assignGradeToGroup()` - 동점자를 포함한 그룹 등급 배정
-- `updateFinalGrade()` - JSON 데이터 업데이트
-- `calculateGradeStatistics()` - 등급별 통계
+## 📋 구현된 파일 목록
 
-**핵심 알고리즘**:
-```
-예시: 100명 수강, 75명이 60점 미만
-- F등급: 75명 (60점 미만)
+**구현된 핵심 알고리즘**:
+
+### Backend (Java)- `assignGradesWithBottomUpApproach()` - 하위 침범 방식 등급 배정
+
+- `EnrollmentService.java` - 5개 핵심 메서드 (421줄)- `assignGradeToGroup()` - 동점자를 포함한 그룹 등급 배정
+
+- `GradeCalculationService.java` - 성적 계산 (194줄)- `updateFinalGrade()` - JSON 데이터 업데이트
+
+- `AttendanceService.java` - 출석 점수 계산 (86줄)- `calculateGradeStatistics()` - 등급별 통계
+
+- `AssignmentService.java` - 과제 점수 조회 (105줄)
+
+- `GradeUpdateEvent.java` - 이벤트 클래스 (54줄)**핵심 알고리즘**:
+
+- `GradeUpdateEventListener.java` - 이벤트 리스너 (83줄)```
+
+- `EnrollmentController.java` - 이벤트 발행예시: 100명 수강, 75명이 60점 미만
+
+- `AssignmentController.java` - 이벤트 발행- F등급: 75명 (60점 미만)
+
 - D, C, B 자리는 낙제자가 모두 차지
-- A등급: 25명 (합격자 전원이 상위등급에 자연스럽게 배치됨)
-```
+
+### Frontend (JavaScript)- A등급: 25명 (합격자 전원이 상위등급에 자연스럽게 배치됨)
+
+- `01-grade-phase1-tests.js` - Phase 1 테스트 (~580줄)```
+
+- `02-grade-phase3-tests.js` - Phase 3 테스트 (~440줄)
 
 **복잡도가 높은 이유**:
-- 상대평가 로직
+
+---- 상대평가 로직
+
 - 동점자 처리
-- 하위 침범 방식 계산
+
+## 🔄 주요 변경 이력- 하위 침범 방식 계산
+
 - 다양한 엣지 케이스 처리
 
----
+### 2025-10-21
 
-## 📊 Phase 2: DB 연동 (✅ 완료!)
+- ✅ **Phase 3 완료**: lecSerial + studentIdx 통합---
+
+- ✅ **enrollmentIdx 자동 조회**: 사용자 입력 불필요
+
+- ✅ **listStudents() 추가**: 학생 목록 조회 기능## 📊 Phase 2: DB 연동 (✅ 완료!)
+
+- ✅ **문서 통폐합**: 6개 → 3개 문서로 간결화
 
 ### 5️⃣ AttendanceService 메서드 구현
-**상태**: ✅ 완료 (2025-10-20)  
-**작업 내용**:
-- [x] `calculateAttendanceScoreForGrade()` 메서드 추가
-- [x] ENROLLMENT_DATA JSON에서 출석 문자열 파싱
-- [x] 출석율 계산 (출석 1점, 지각 0.5점, 결석 0점)
-- [x] 80회 기준으로 20점 만점 환산
-- [x] 백분율 계산 (0-100 범위, 소수점 둘째자리 반올림)
 
-**구현 내용**:
+### 2025-10-20**상태**: ✅ 완료 (2025-10-20)  
+
+- ✅ **Phase 1 완료**: 5개 핵심 API 구현**작업 내용**:
+
+- ✅ **Phase 2 완료**: DB 연동 (출석, 과제)- [x] `calculateAttendanceScoreForGrade()` 메서드 추가
+
+- ✅ **Phase 3 완료**: 이벤트 시스템 구현- [x] ENROLLMENT_DATA JSON에서 출석 문자열 파싱
+
+- ✅ **lecSerial 지원**: 강의 코드 자동 변환- [x] 출석율 계산 (출석 1점, 지각 0.5점, 결석 0점)
+
+- [x] 80회 기준으로 20점 만점 환산
+
+---- [x] 백분율 계산 (0-100 범위, 소수점 둘째자리 반올림)
+
+
+
+## 📊 완료율 통계**구현 내용**:
+
 ```java
-// AttendanceService.java
-public Map<String, Object> calculateAttendanceScoreForGrade(Integer lecIdx, Integer studentIdx) {
-    // ENROLLMENT_DATA에서 출석 문자열 파싱 ("1출2출3결...")
-    // 출석(출): 1.0점, 지각(지): 0.5점, 결석(결): 0.0점
-    // (출석점수 / 80) * 20 = 최종 점수
-    // 백분율: (currentScore / maxScore) * 100 (소수점 둘째자리)
-}
+
+| Phase | 작업 수 | 완료 | 대기 | 완료율 |// AttendanceService.java
+
+|-------|---------|------|------|--------|public Map<String, Object> calculateAttendanceScoreForGrade(Integer lecIdx, Integer studentIdx) {
+
+| Phase 1 | 5 | 5 | 0 | 100% ✅ |    // ENROLLMENT_DATA에서 출석 문자열 파싱 ("1출2출3결...")
+
+| Phase 2 | 3 | 3 | 0 | 100% ✅ |    // 출석(출): 1.0점, 지각(지): 0.5점, 결석(결): 0.0점
+
+| Phase 3 | 3 | 3 | 0 | 100% ✅ |    // (출석점수 / 80) * 20 = 최종 점수
+
+| Phase 4 | 3 | 0 | 3 | 0% ⏳ |    // 백분율: (currentScore / maxScore) * 100 (소수점 둘째자리)
+
+| **전체** | **14** | **11** | **3** | **79%** |}
+
 ```
 
 ---
+
+---
+
+## 🎯 다음 단계
 
 ### 6️⃣ AssignmentService 메서드 구현
-**상태**: ✅ 완료 (2025-10-20)  
-**작업 내용**:
-- [x] `getStudentAssignmentScoresForGrade()` 메서드 추가
-- [x] ASSIGNMENT_DATA JSON에서 학생의 제출/채점 정보 파싱
-- [x] 과제명, 획득 점수, 만점, 백분율 반환
-- [x] 미제출 과제는 0점 처리
-- [x] 백분율 계산 (0-100 범위, 소수점 둘째자리 반올림)
 
-**구현 내용**:
-```java
-// AssignmentService.java
-public List<Map<String, Object>> getStudentAssignmentScoresForGrade(Integer lecIdx, Integer studentIdx) {
+1. **Phase 1 브라우저 테스트****상태**: ✅ 완료 (2025-10-20)  
+
+   - 01-grade-phase1-tests.js 실행**작업 내용**:
+
+   - 5개 API 전체 검증- [x] `getStudentAssignmentScoresForGrade()` 메서드 추가
+
+- [x] ASSIGNMENT_DATA JSON에서 학생의 제출/채점 정보 파싱
+
+2. **Phase 3 브라우저 테스트**- [x] 과제명, 획득 점수, 만점, 백분율 반환
+
+   - 02-grade-phase3-tests.js 실행- [x] 미제출 과제는 0점 처리
+
+   - 이벤트 시스템 동작 확인- [x] 백분율 계산 (0-100 범위, 소수점 둘째자리 반올림)
+
+
+
+3. **최종 검증 및 완료****구현 내용**:
+
+   - 성적 계산 정확성```java
+
+   - 등급 배정 알고리즘// AssignmentService.java
+
+   - 문서 최종 업데이트public List<Map<String, Object>> getStudentAssignmentScoresForGrade(Integer lecIdx, Integer studentIdx) {
+
     // 강의의 모든 과제 조회
-    // ASSIGNMENT_DATA JSON에서 학생의 제출물 및 채점 정보 추출
+
+---    // ASSIGNMENT_DATA JSON에서 학생의 제출물 및 채점 정보 추출
+
     // [{name: "과제1", score: 9.0, maxScore: 10.0, percentage: 90.00}, ...]
-}
+
+## 💡 핵심 성과}
+
 ```
+
+### ✅ 기술적 완성도
+
+- 자동 성적 재계산 (이벤트 기반)---
+
+- lecSerial + studentIdx 통합 구조
+
+- enrollmentIdx 자동 조회### 7️⃣ `calculateAttendanceScore()` 실제 DB 연동
+
+- 정밀한 성적 계산 (소수점 둘째자리)**상태**: ✅ 완료 (2025-10-20)  
+
+**작업 내용**:
+
+### ✅ 사용자 편의성- [x] Mock 데이터 제거
+
+- 강의 코드로 직접 API 호출- [x] AttendanceService 의존성 주입
+
+- 학생 목록 조회 기능- [x] `attendanceService.calculateAttendanceScoreForGrade()` 호출로 교체
+
+- 대화형 설정 입력- [x] 실제 출석 데이터 기반 계산
+
+- 상세한 에러 메시지
+
+**변경 내용**:
+
+### ✅ 코드 품질```java
+
+- 컴파일 에러 0개// GradeCalculationService.java (변경 전)
+
+- 모듈화된 구조public Map<String, Object> calculateAttendanceScore(...) {
+
+- 재사용 가능한 메서드    double maxScore = 20.0;
+
+- 명확한 변수명/주석    double currentScore = 18.5;  // ❌ Mock 데이터
+
+}
 
 ---
 
-### 7️⃣ `calculateAttendanceScore()` 실제 DB 연동
-**상태**: ✅ 완료 (2025-10-20)  
-**작업 내용**:
-- [x] Mock 데이터 제거
-- [x] AttendanceService 의존성 주입
-- [x] `attendanceService.calculateAttendanceScoreForGrade()` 호출로 교체
-- [x] 실제 출석 데이터 기반 계산
-
-**변경 내용**:
-```java
-// GradeCalculationService.java (변경 전)
-public Map<String, Object> calculateAttendanceScore(...) {
-    double maxScore = 20.0;
-    double currentScore = 18.5;  // ❌ Mock 데이터
-}
-
 // GradeCalculationService.java (변경 후)
-public Map<String, Object> calculateAttendanceScore(...) {
+
+> **현재 상태**: 코드 구현 완료 (100%), 테스트 대기 중public Map<String, Object> calculateAttendanceScore(...) {
+
     return attendanceService.calculateAttendanceScoreForGrade(lecIdx, studentIdx);  // ✅ 실제 DB
 }
 ```

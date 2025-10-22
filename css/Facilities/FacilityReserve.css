@@ -88,19 +88,16 @@ button.link{ background:none; border:none; color:var(--primary); padding:0; curs
   margin:12px auto 20px; max-width:1120px;
 }
 .page-head h2{ text-align:center; font-size:28px; margin:0 0 8px; color:#234; letter-spacing:.02em; font-weight:bold;}
-.page-head .sub{ text-align:center; color:#5c6773; margin:0;}
+.page-head .sub{ text-align:center; color:#5c6773; margin:0; word-break: keep-all;}
 .page-head .sub b{display: block; font-weight: bold;}
 
 .content-grid{
   display:grid; grid-template-columns:1fr 360px; gap:24px; align-items:start;
   max-width:1120px; margin:0 auto;
 }
-@media (max-width:1024px){
-  .content-grid{ grid-template-columns:1fr; max-width:100% }
-}
 
 /* ===== 카드 리스트/카드 ===== */
-.card-list{ display:grid; grid-template-columns:1fr; gap:14px }
+.card-list{ display:grid; grid-template-columns:1fr 1fr; gap:14px }
 
 .facility-card{
   width:100%; text-align:left; background:#fff;
@@ -117,7 +114,7 @@ button.link{ background:none; border:none; color:var(--primary); padding:0; curs
 .facility-card .badge.warn{ background:#fff2cc; color:#6b5600 }
 .facility-card .badge.danger{ background:#ffe0e0; color:#a11 }
 
-.fc-meta{ display:flex; gap:14px; color:#64748b; font-size:14px }
+.fc-meta{ display:flex; color:#64748b; font-size:14px; flex-wrap: wrap; flex-direction: column;}
 .fc-note{ margin-top:8px; color:#a11; font-size:13px }
 
 /* ===== 사이드 고정 ===== */
@@ -141,4 +138,12 @@ button.secondary{
 button.secondary:hover{ background:#d1d5db }
 button.secondary:active{ transform:scale(0.98) }
 
+@media (max-width:1024px){
+  .content-grid{ grid-template-columns:1fr; max-width:100% }
+}
 
+@media (max-width:768px){
+  .card-list{
+    grid-template-columns: 1fr;
+  }
+}
