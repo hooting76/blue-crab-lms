@@ -3,7 +3,6 @@ import ClassAttending from "./MyPages/ClassAttending";
 import ClassAttendingNotice from "./MyPages/ClassAttendingNotice";
 import Consult from "./MyPages/Consult";
 import UserDashboard from "../auth/UserDashboard";
-import ClassAttendingProgress from "./MyPages/ClassAttendingProgress";
 import ProfileEdit from "./MyPages/ProfileEdit"; // 개인정보 페이지
 import MyPageSidebar from "./MyPages/MyPageSidebar"; // 사이드탭
 import ProfNoticeWritingPage from "./MyPages/ProfNoticeWritingPage";
@@ -31,11 +30,6 @@ function MyPage({ currentPage, setCurrentPage }) {
             return (
         <>
             <ClassAttending currentPage={currentPage} setCurrentPage={setCurrentPage} onSelectCourse={handleSelectCourse} />
-            {selectedCourseId && (
-            <div style={{ marginTop: 16 }}>
-                <ClassAttendingProgress courseId={selectedCourseId} />
-            </div>
-            )}
         </>
         );
         case "수강/강의과목 공지사항":
