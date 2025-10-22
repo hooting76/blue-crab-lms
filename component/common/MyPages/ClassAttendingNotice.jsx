@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UseUser } from '../../../hook/UseUser';
+import Pagination from '../notices/Pagination.jsx';
 import ProfNoticeWritingPage from './ProfNoticeWritingPage.jsx';
-import ProfNoticeDetail from './ProfNoticeDetail.jsx'; // 누락된 import 추가
+import ProfNoticeDetail from './ProfNoticeDetail.jsx';
 
 const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 const NOTICE_BOARD_CODE = 3;
 
-function ClassAttendingNotice({ currentPage, setCurrentPage, setNoticeToEdit }) {
+function ClassAttendingNotice({ currentPage, setCurrentPage, noticeToEdit, setNoticeToEdit }) {
     const { user } = UseUser();
     const accessToken = user?.data?.accessToken;
     const userId = user?.data?.user?.id;
@@ -18,13 +19,16 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, setNoticeToEdit }) 
     const [selectedIdx, setSelectedIdx] = useState(null);
     const [fetchedNotice, setFetchedNotice] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [page, setPage] = useState(1);
+    const [totalNotices, setTotalNotices] = useState(0); // 전체 공지 수
+
 
     /** ========== Fetch ========== */
-    const fetchLectureList = async () => {
+    const fetchLectureList = async (accessToken, page, userId) => {
         const endpoint = isProf ? '/lectures' : '/enrollments/list';
         const requestBody = isProf
-            ? { page: 0, size: 20, professor: String(userId) }
-            : { page: 0, size: 20, studentIdx: String(userId), enrolled: true };
+            ? { page: page - 1, size: 10, professor: String(userId) }
+            : { page: page - 1, size: 10, studentIdx: String(userId), enrolled: true };
 
         try {
             const response = await fetch(`${BASE_URL}${endpoint}`, {
@@ -39,15 +43,15 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, setNoticeToEdit }) 
             if (!response.ok) throw new Error('강의 목록 조회 실패');
             const data = await response.json();
             setLectureList(data);
-            if (data.length > 0) setSelectedLectureSerial(data[0].lecSerial); // 첫 강의 선택
+            if (data.length > 0) setSelectedLectureSerial(data[0].lecSerial);
         } catch (error) {
             console.error('강의 목록 에러:', error);
             setLectureList([]);
         }
     };
 
-
     const fetchNotices = async () => {
+        if (!accessToken || !selectedLectureSerial) return;
         try {
             const response = await fetch(`${BASE_URL}/boards/list`, {
                 method: 'POST',
@@ -55,12 +59,18 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, setNoticeToEdit }) 
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ page: 0, size: 20, boardCode: NOTICE_BOARD_CODE, lecSerial: selectedLectureSerial }),
+                body: JSON.stringify({
+                    page: page - 1,
+                    size: 10,
+                    boardCode: NOTICE_BOARD_CODE,
+                    lecSerial: selectedLectureSerial
+                }),
             });
 
             if (!response.ok) throw new Error('공지사항 조회 실패');
             const data = await response.json();
             setNoticeList(data.content);
+            setTotalNotices(data.totalElements);
         } catch (error) {
             console.error('공지사항 에러:', error);
             setNoticeList([]);
@@ -70,15 +80,13 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, setNoticeToEdit }) 
     /** ========== useEffect ========== */
     useEffect(() => {
         if (accessToken && userId) {
-            fetchLectureList();
+            fetchLectureList(accessToken, 1, userId);
         }
     }, [accessToken, userId]);
 
     useEffect(() => {
-        if (accessToken, selectedLectureSerial) {
-            fetchNotices();
-        }
-    }, [accessToken, selectedLectureSerial]);
+        fetchNotices();
+    }, [accessToken, selectedLectureSerial, page]);
 
     /** ========== Helpers ========== */
     const decodeBase64 = (str) => {
@@ -112,10 +120,10 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, setNoticeToEdit }) 
         return `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')} ${formatted}`;
     };
 
-
     /** ========== Event Handlers ========== */
     const handleLectureChange = (e) => {
         setSelectedLectureSerial(e.target.value);
+        setPage(1); // 강의 바뀌면 페이지 초기화
     };
 
     const handleNoticeClick = (boardIdx) => {
@@ -130,23 +138,31 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, setNoticeToEdit }) 
     };
 
     const handleEdit = () => {
-    if (fetchedNotice) {
-        setNoticeToEdit(fetchedNotice); // notice 상태 설정
-        setCurrentPage("과목별 공지 작성"); // 페이지 전환
-    }
-};
+        if (fetchedNotice) {
+            setNoticeToEdit(fetchedNotice);
+            setCurrentPage("과목별 공지 작성");
+        }
+    };
 
+    const handlePageChange = (newPage) => {
+        setPage(newPage);
+    };
 
     /** ========== Page Change ========== */
     if (currentPage === "과목별 공지 작성") {
-        return <ProfNoticeWritingPage notice={noticeToEdit} currentPage={currentPage} setCurrentPage={setCurrentPage} />;
+        return (
+            <ProfNoticeWritingPage
+                notice={noticeToEdit}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+            />
+        );
     }
 
     /** ========== Render ========== */
     return (
         <>
-            {/* 강의 선택 드롭다운 */}
-            <select className="lectureName" onChange={handleLectureChange} value={selectedLectureSerial}>
+            <select className="lectureName" onChange={handleLectureChange} value={selectedLectureSerial || ''}>
                 {lectureList.length > 0 ? (
                     lectureList.map((lecture) => (
                         <option key={lecture.lecIdx} value={lecture.lecSerial}>
@@ -160,13 +176,15 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, setNoticeToEdit }) 
 
             {isProf && (
                 <div className="profNoticeWriteBtnArea">
-                    <button className="profNoticeWriteBtn" onClick={handleEdit}>
+                    <button className="profNoticeWriteBtn" onClick={() => {
+                        setNoticeToEdit(null);
+                        setCurrentPage("과목별 공지 작성");
+                    }}>
                         과목별 공지 작성
                     </button>
                 </div>
             )}
 
-            {/* 공지 테이블 */}
             <table className="notice-table">
                 <thead>
                     <tr>
@@ -201,7 +219,13 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, setNoticeToEdit }) 
                 </tbody>
             </table>
 
-            {/* 공지 모달 */}
+            <Pagination
+                page={page}
+                size={10}
+                total={totalNotices}
+                onChange={handlePageChange}
+            />
+
             {isModalOpen && (
                 <div className="modal-overlay" onClick={handleModalClose}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -210,10 +234,12 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, setNoticeToEdit }) 
                             boardIdx={selectedIdx}
                             currentPage={currentPage}
                             setCurrentPage={setCurrentPage}
-                            onFetchComplete={(notice) => {setFetchedNotice(notice); setNoticeToEdit(notice);}}
+                            onFetchComplete={(notice) => {
+                                setFetchedNotice(notice);
+                                setNoticeToEdit(notice);
+                            }}
                         />
-
-                        {fetchedNotice && fetchedNotice.boardWriter === user.data.user.name &&
+                        {fetchedNotice && fetchedNotice.boardWriter === user?.data?.user?.name &&
                             <button className="noticeEditButton" onClick={handleEdit}>
                                 공지 수정
                             </button>

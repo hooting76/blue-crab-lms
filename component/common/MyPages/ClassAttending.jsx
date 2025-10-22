@@ -45,12 +45,12 @@ const fetchLectureData = async (accessToken, user, isProf) => {
     const requestBody = isProf
       ? {
           page: 0,
-          size: 20,
+          size: 100,
           professor: String(user.data.user.id),
         }
       : {
           page: 0,
-          size: 20,
+          size: 100,
           studentIdx: String(user.data.user.id),
           enrolled: true,
         };
@@ -82,7 +82,7 @@ const fetchLectureData = async (accessToken, user, isProf) => {
 
   // 과제 목록 불러오기
   const getAssignments = async(accessToken, selectedLecSerial) => {
-    const requestBody = {lecSerial: selectedLecSerial, page: 0, size: 20, action: "list"}
+    const requestBody = {lecSerial: selectedLecSerial, page: 0, size: 100, action: "list"}
     try {
         const response = await fetch(`${BASE_URL}/assignments/list`, {
             method: "POST",
@@ -160,13 +160,13 @@ const fetchLectureData = async (accessToken, user, isProf) => {
         <div className="noticeAndChat">
           <div className="lectureNotice">과목별 공지사항</div>
 
-          {isProf ? (
+          {isProf ? ( // 교수
             <div className="profNoticeWriteBtnArea">
               <button className="profNoticeWriteBtn" onClick={profNoticeWrite}>
                 과목별 공지 작성
               </button>
             </div>
-          ) : (
+          ) : ( // 학생
             <>
               <div className="studentClassDetailBtnArea">
                 <button className="studentClassDetailBtn" onClick={openClassDetailModal}>
@@ -215,7 +215,7 @@ const fetchLectureData = async (accessToken, user, isProf) => {
 
         <div className="attendanceStatus">
           출결
-          {!isProf && (
+          {!isProf && ( // 학생
             <>
               <div className="attendance">
                 출석일수
@@ -234,11 +234,11 @@ const fetchLectureData = async (accessToken, user, isProf) => {
             </>
           )}
           <div className="attendanceCall">
-            {!isProf ? (
+            {!isProf ? ( // 학생
               <button className="attendanceCallBtn" onClick={attendanceRequestSubmit}>
                 출석인정 신청
               </button>
-            ) : (
+            ) : ( // 교수
               <button className="attendanceCallBtn" onClick={openAttendanceModal}>
                 출석인정 승인
               </button>
@@ -249,7 +249,7 @@ const fetchLectureData = async (accessToken, user, isProf) => {
 
         <div className="testAssignment">
           시험 및 과제
-          {!isProf ? (
+          {!isProf ? ( // 학생
             <>
               <div className="studentTest">
                 중간고사 : 점
@@ -262,7 +262,7 @@ const fetchLectureData = async (accessToken, user, isProf) => {
                 과제2 : 점
               </div>
             </>
-          ) : (
+          ) : ( // 교수
             <>
               <div className="profTest">
                 <button className="testModalBtn" onClick={openTestModal}>
@@ -300,7 +300,7 @@ const fetchLectureData = async (accessToken, user, isProf) => {
                         return (
                             <tr key={assignment.assignmentIdx}>
                             <td>{index + 1}</td>
-                            <td>{title}</td>
+                            <td style={{wordBreak: "keep-all"}}>{title}</td>
                             <td>{formatDate(dueDate)}</td>
                             </tr>
                         );

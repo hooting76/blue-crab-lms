@@ -136,12 +136,18 @@
   font-size: var(--font-mid);
 }
 
-.profNoticeWriteBtn, .studentClassDetailBtn, .attendanceCallBtn, .testModalBtn, .assignmentCreateModalBtn {
+.profNoticeWriteBtn,
+.studentClassDetailBtn,
+.studentEvaluationBtn,
+.attendanceCallBtn,
+.testModalBtn,
+.assignmentCreateModalBtn {
   font-size: var(--font-mid);
 }
 
 .profNoticeWriteBtn:hover,
 .studentClassDetailBtn:hover,
+.studentEvaluationBtn:hover,
 .attendanceCallBtn:hover,
 .testModalBtn:hover,
 .assignmentCreateModalBtn:hover {
