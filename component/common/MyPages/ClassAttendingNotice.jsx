@@ -25,8 +25,8 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, noticeToEdit, setNo
     const fetchLectureList = async (accessToken, page, userId) => {
         const endpoint = isProf ? '/lectures' : '/enrollments/list';
         const requestBody = isProf
-            ? { page: page - 1, size: 20, professor: String(userId) }
-            : { page: page - 1, size: 20, studentIdx: String(userId), enrolled: true };
+            ? { page: page - 1, size: 10, professor: String(userId) }
+            : { page: page - 1, size: 10, studentIdx: String(userId), enrolled: true };
 
         try {
             const response = await fetch(`${BASE_URL}${endpoint}`, {
@@ -59,7 +59,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, noticeToEdit, setNo
                 },
                 body: JSON.stringify({
                     page: page - 1,
-                    size: 20,
+                    size: 10,
                     boardCode: NOTICE_BOARD_CODE,
                     lecSerial: selectedLectureSerial
                 }),
