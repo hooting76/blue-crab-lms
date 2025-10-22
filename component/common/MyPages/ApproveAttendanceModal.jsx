@@ -31,7 +31,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
             try {
     
                 const response = await fetch(`${BASE_URL}/lectures/${lecSerial}/students?page=${page - 1}&size=20`, {
-                    method: 'GET',
+                    method: 'POST',
                     headers: {
                         Authorization: `Bearer ${accessToken}`
                     }
