@@ -151,14 +151,16 @@ function CourseDetail({ lectureDetails, setIsModalOpen, currentPage, setCurrentP
                 <span>열림 여부 : {formatOpen(lectureDetail.lecOpen)}</span>
             </div>
 
-            <div style={{ marginTop: '20px' }}>
-                <button
-                    className="courseEditButton"
-                    onClick={() => onEditClick(lectureDetail)}
-                >
-                    강의 수정
-                </button>
-            </div>
+            {lectureDetail.lecProfName === user.data.user.name &&
+                <div style={{ marginTop: '20px' }}>
+                    <button
+                        className="courseEditButton"
+                        onClick={() => onEditClick(lectureDetail)}
+                    >
+                        강의 수정
+                    </button>
+                </div>
+            }
         </div>
     );
 }
