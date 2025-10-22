@@ -68,7 +68,6 @@ const NoticeDetail = ({ boardIdx, onFetchComplete }) => {
     const fetchData = async () => {
       try {
         const data = await getNoticeDetail(accessToken, boardIdx);
-        console.log("✅ 공지 fetch 완료:", data);
         setNotice(data);
         onFetchComplete?.(data);
       } catch (err) {

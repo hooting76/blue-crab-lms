@@ -57,8 +57,7 @@ useEffect(() => {
       });
 
       const attList = await attListRes.json();
-      console.log("📦 board detail 응답:", attList);
-
+    
       if (attListRes.ok) {
         // 확인: attachments가 어디에 있는지 로그로 체크
         setExistingAttachments(attList.attachmentDetails || []);

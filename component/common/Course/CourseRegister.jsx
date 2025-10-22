@@ -54,7 +54,6 @@ function CourseRegister() {
             lecOpen,
             lecReg
         }
-        console.log(("CourseRegisterDetails :"), CourseRegisterDetails);
         
                 try {const response = await fetch(`${BASE_URL}/lectures/create`, {
                 method: 'POST',
@@ -71,7 +70,6 @@ function CourseRegister() {
         alert(error.message);
         }
     }
-    console.log("Access Token:", accessToken);
 
 
     return (
