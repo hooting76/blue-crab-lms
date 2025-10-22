@@ -2,6 +2,7 @@ package BlueCrab.com.example.config;
 
 import BlueCrab.com.example.security.JwtAuthenticationEntryPoint;
 import BlueCrab.com.example.security.JwtAuthenticationFilter;
+import BlueCrab.com.example.security.PlainSha256PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +14,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.password.MessageDigestPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -92,12 +92,10 @@ public class SecurityConfig {
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
-        String algorithm = appConfig.getSecurity().getPasswordEncodingAlgorithm();
+        // 커스텀 PlainSha256PasswordEncoder 사용
+        // Salt 없이 순수 SHA-256 해시만 생성 (중괄호 prefix 없음)
         // TODO: Spring Security 6.0 업그레이드 시 BCryptPasswordEncoder로 교체
-        // MessageDigestPasswordEncoder를 직접 사용하여 {algorithm}prefix 없이 순수 해시만 저장
-        MessageDigestPasswordEncoder encoder = new MessageDigestPasswordEncoder(algorithm);
-        encoder.setEncodeHashAsBase64(false); // Base64 인코딩 비활성화 (HEX 사용)
-        return encoder;
+        return new PlainSha256PasswordEncoder();
     }
 
     /**
@@ -150,6 +148,7 @@ public class SecurityConfig {
                 // 📝 프로필 API (인증된 사용자만 접근 가능)
                 .requestMatchers(HttpMethod.POST, "/api/profile/me").authenticated() // 프로필 조회
                 .requestMatchers(HttpMethod.POST, "/api/profile/me/completeness").authenticated() // 프로필 완성도 체크
+                .requestMatchers(HttpMethod.POST, "/api/profile/me/upload-image").authenticated() // 프로필 이미지 업로드
                 .requestMatchers(HttpMethod.POST, "/api/profile/me/image").authenticated() // 프로필 이미지 URL 조회
                 .requestMatchers(HttpMethod.POST, "/api/profile/me/image/file").authenticated() // 프로필 이미지 파일 조회
                 .requestMatchers(HttpMethod.GET, "/api/profile/me/image/**").authenticated() // 프로필 이미지 조회 (레거시 - 제거 예정)

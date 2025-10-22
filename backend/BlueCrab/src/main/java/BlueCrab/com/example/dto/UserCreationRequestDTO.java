@@ -33,6 +33,7 @@ public class UserCreationRequestDTO {
     private String userPhone;
 
     @NotBlank
+    @Pattern(regexp = "\\d{8}|\\d{4}-\\d{2}-\\d{2}", message = "생년월일은 YYYYMMDD 또는 YYYY-MM-DD 형식이어야 합니다.")
     private String userBirth;
 
     @Min(0)
@@ -78,7 +79,8 @@ public class UserCreationRequestDTO {
         user.setUserPw(this.userPw);
         user.setUserName(this.userName);
         user.setUserPhone(this.userPhone);
-        user.setUserBirth(this.userBirth);
+        // 생년월일에서 하이픈 제거 (YYYY-MM-DD -> YYYYMMDD)
+        user.setUserBirth(this.userBirth != null ? this.userBirth.replace("-", "") : null);
         user.setUserStudent(this.userStudent);
         user.setUserZip(this.userZip);
         user.setUserFirstAdd(this.userFirstAdd);

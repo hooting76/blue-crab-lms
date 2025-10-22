@@ -143,6 +143,10 @@ function updateEndpointInfo() {
     const dynamicHeaders = document.getElementById('dynamicHeaders');
     const dynamicHeadersLabel = document.getElementById('dynamicHeadersLabel');
     const endpointSummary = document.getElementById('endpointSummary');
+    const requestBodyLabel = document.getElementById('requestBodyLabel');
+    const formDataContainer = document.getElementById('formDataContainer');
+    const formDataFields = document.getElementById('formDataFields');
+    const formDataNote = document.getElementById('formDataNote');
 
     // 커스텀 URL 표시/숨김
     if (endpoint === 'custom') {
@@ -167,18 +171,129 @@ function updateEndpointInfo() {
     if (template) {
         document.getElementById('httpMethod').value = template.method;
 
-        if (Object.prototype.hasOwnProperty.call(template, 'bodyTemplate')) {
-            if (template.bodyTemplate) {
-                requestBody.value = JSON.stringify(template.bodyTemplate, null, 2);
+        const hasFormData = template.bodyTemplate
+            && typeof template.bodyTemplate === 'object'
+            && template.bodyTemplate._formData;
+
+        if (hasFormData && formDataContainer && formDataFields) {
+            const formDataTemplate = template.bodyTemplate._formData;
+            const noteText = template.bodyTemplate._note || 'multipart/form-data 요청을 사용합니다.';
+
+            formDataContainer.style.display = 'block';
+            formDataFields.innerHTML = '';
+            if (formDataNote) {
+                formDataNote.textContent = noteText;
+                formDataNote.style.display = noteText ? 'block' : 'none';
+            }
+
+            Object.entries(formDataTemplate).forEach(([field, config]) => {
+                const fieldWrapper = document.createElement('div');
+                fieldWrapper.className = 'form-data-field';
+
+                const label = document.createElement('label');
+                const fieldId = `formData_${field}`;
+                let fieldType = 'text';
+                let placeholder = '';
+                let required = true;
+                let defaultValue = '';
+
+                if (typeof config === 'string') {
+                    placeholder = config;
+                    const lowered = config.toLowerCase();
+                    if (lowered.includes('파일')) {
+                        fieldType = 'file';
+                    } else if (lowered.includes('숫자')) {
+                        fieldType = 'number';
+                    }
+                } else if (config && typeof config === 'object') {
+                    fieldType = config.type || 'text';
+                    placeholder = config.placeholder || '';
+                    required = config.required !== false;
+                    if (Object.prototype.hasOwnProperty.call(config, 'value')) {
+                        defaultValue = config.value;
+                    }
+                }
+
+                if (field.toLowerCase().includes('file')) {
+                    fieldType = 'file';
+                }
+
+                label.setAttribute('for', fieldId);
+                label.textContent = required ? `${field} *` : `${field} (선택)`;
+
+                const input = document.createElement('input');
+                input.id = fieldId;
+                input.dataset.required = required ? 'true' : 'false';
+
+                if (fieldType === 'file') {
+                    input.type = 'file';
+                } else if (fieldType === 'number') {
+                    input.type = 'number';
+                    if (placeholder) {
+                        input.placeholder = placeholder;
+                    }
+                    if (defaultValue !== '') {
+                        input.value = defaultValue;
+                    }
+                } else {
+                    input.type = 'text';
+                    if (placeholder) {
+                        input.placeholder = placeholder;
+                    }
+                    if (defaultValue !== '') {
+                        input.value = defaultValue;
+                    }
+                }
+
+                if (required) {
+                    input.required = true;
+                }
+
+                fieldWrapper.appendChild(label);
+                fieldWrapper.appendChild(input);
+                formDataFields.appendChild(fieldWrapper);
+            });
+
+            if (requestBodyLabel) {
+                requestBodyLabel.style.display = 'none';
+            }
+            requestBody.style.display = 'none';
+            requestBody.value = '';
+        } else {
+            if (formDataContainer && formDataFields) {
+                formDataContainer.style.display = 'none';
+                formDataFields.innerHTML = '';
+                if (formDataNote) {
+                    formDataNote.textContent = '';
+                    formDataNote.style.display = 'none';
+                }
+            }
+            if (requestBodyLabel) {
+                requestBodyLabel.style.display = 'block';
+            }
+            requestBody.style.display = 'block';
+
+            if (Object.prototype.hasOwnProperty.call(template, 'bodyTemplate')) {
+                if (template.bodyTemplate) {
+                    if (typeof template.bodyTemplate === 'object' && !Array.isArray(template.bodyTemplate)) {
+                        const { _note, _formData, ...rest } = template.bodyTemplate;
+                        const keys = Object.keys(rest);
+                        requestBody.value = keys.length > 0
+                            ? JSON.stringify(rest, null, 2)
+                            : '';
+                    } else {
+                        requestBody.value = JSON.stringify(template.bodyTemplate, null, 2);
+                    }
+                } else {
+                    requestBody.value = '';
+                }
             } else {
                 requestBody.value = '';
             }
-        } else {
-            requestBody.value = '';
-        }
 
-        if (typeof autoResizeRequestBody === 'function') {
-            autoResizeRequestBody();
+            if (typeof autoResizeRequestBody === 'function') {
+                autoResizeRequestBody();
+            }
         }
 
         // 동적 파라미터 필드 생성
@@ -247,7 +362,8 @@ function updateEndpointInfo() {
             const requiresAuth = template.auth ? '🔐 인증 필요' : '🔓 인증 불필요';
             const methodLabel = template.method || 'GET';
             const description = template.description || '';
-            endpointSummary.textContent = `${requiresAuth} · ${methodLabel} ${template.endpoint} ${description ? '· ' + description : ''}`;
+            const payloadLabel = hasFormData ? ' · multipart/form-data' : '';
+            endpointSummary.textContent = `${requiresAuth} · ${methodLabel} ${template.endpoint}${payloadLabel}${description ? ' · ' + description : ''}`;
         }
     } else {
         if (dynamicHeaders) {
@@ -257,6 +373,19 @@ function updateEndpointInfo() {
         if (dynamicHeadersLabel) {
             dynamicHeadersLabel.style.display = 'none';
         }
+        if (formDataContainer && formDataFields) {
+            formDataContainer.style.display = 'none';
+            formDataFields.innerHTML = '';
+            if (formDataNote) {
+                formDataNote.textContent = '';
+                formDataNote.style.display = 'none';
+            }
+        }
+        if (requestBodyLabel) {
+            requestBodyLabel.style.display = 'block';
+        }
+        requestBody.style.display = 'block';
+        requestBody.value = '';
         if (endpointSummary) {
             endpointSummary.textContent = '';
         }
@@ -639,6 +768,10 @@ async function sendRequest() {
     const requestBody = document.getElementById('requestBody').value;
     const startTime = Date.now();
     const template = apiTemplates[endpoint];
+    const useFormData = template
+        && template.bodyTemplate
+        && typeof template.bodyTemplate === 'object'
+        && template.bodyTemplate._formData;
 
     if (!endpoint) {
         showResponse('먼저 테스트할 엔드포인트를 선택해주세요.', 'error');
@@ -696,7 +829,7 @@ async function sendRequest() {
 
     const headers = {};
 
-    if (method !== 'GET') {
+    if (!useFormData && method !== 'GET') {
         headers['Content-Type'] = 'application/json';
     }
 
@@ -728,7 +861,50 @@ async function sendRequest() {
         headers: headers,
     };
 
-    if (method !== 'GET' && requestBody.trim()) {
+    if (useFormData) {
+        const formData = new FormData();
+        const formDataTemplate = template.bodyTemplate._formData;
+        let formDataError = null;
+
+        Object.entries(formDataTemplate).forEach(([field]) => {
+            if (formDataError) {
+                return;
+            }
+
+            const input = document.getElementById(`formData_${field}`);
+            if (!input) {
+                return;
+            }
+
+            const isRequired = input.dataset.required !== 'false';
+
+            if (input.type === 'file') {
+                if (input.files.length === 0) {
+                    if (isRequired) {
+                        formDataError = `필수 파일 "${field}"을(를) 선택해주세요.`;
+                    }
+                    return;
+                }
+                formData.append(field, input.files[0]);
+            } else {
+                const value = input.value.trim();
+                if (!value) {
+                    if (isRequired) {
+                        formDataError = `필수 필드 "${field}"를 입력해주세요.`;
+                    }
+                    return;
+                }
+                formData.append(field, value);
+            }
+        });
+
+        if (formDataError) {
+            showResponse(formDataError, 'error');
+            return;
+        }
+
+        requestOptions.body = formData;
+    } else if (method !== 'GET' && requestBody.trim()) {
         try {
             JSON.parse(requestBody);
             requestOptions.body = requestBody;
@@ -739,7 +915,10 @@ async function sendRequest() {
     }
 
     try {
-        showResponse(`요청 전송 중...\nURL: ${url}\nMethod: ${method}\nHeaders: ${JSON.stringify(headers, null, 2)}`, 'info');
+        const bodyPreview = useFormData
+            ? '(form-data)'
+            : (requestBody.trim() ? requestBody : '(empty)');
+        showResponse(`요청 전송 중...\nURL: ${url}\nMethod: ${method}\nHeaders: ${JSON.stringify(headers, null, 2)}\nBody: ${bodyPreview}`, 'info');
 
         const response = await fetch(url, requestOptions);
         const parsed = await parseResponseBody(response);
@@ -754,7 +933,7 @@ async function sendRequest() {
         saveToHistory({
             method: method,
             endpoint: urlPath || url,
-            body: requestBody || null,
+            body: useFormData ? '(form-data)' : (requestBody || null),
             status: response.status,
             duration: duration,
             success: response.ok

@@ -376,6 +376,22 @@
     "headers": [],
     "bodyTemplate": null
   },
+  "profileUploadImage": {
+    "name": "프로필 이미지 업로드",
+    "category": "사용자 · 프로필",
+    "description": "프로필 사진을 업로드하여 변경 (기존 이미지 자동 삭제)",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/profile/me/upload-image",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "_note": "multipart/form-data 사용, file 필드에 이미지 첨부",
+      "_formData": {
+        "file": "(이미지 파일 선택)"
+      }
+    }
+  },
   "boardList": {
     "name": "게시판 목록",
     "category": "게시판",
@@ -838,7 +854,7 @@
   "testUserBootstrap": {
     "name": "🧪 테스트 사용자 자동 생성",
     "category": "테스트",
-    "description": "USER/Serial/Registry 동시 생성 확인",
+    "description": "USER/Serial/Registry 동시 생성 확인 (하이픈은 자동 제거됨)",
     "auth": true,
     "method": "POST",
     "endpoint": "/api/test/users/bootstrap",

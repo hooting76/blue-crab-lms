@@ -195,6 +195,39 @@ input:focus, select:focus, textarea:focus {
     border-color: #3498db;
 }
 
+.form-data-container {
+    border: 1px dashed #95a5a6;
+    background: #f4f9ff;
+    padding: 12px;
+    border-radius: 6px;
+    margin: 10px 0 20px 0;
+}
+
+.form-data-note {
+    font-size: 13px;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.form-data-field {
+    margin-bottom: 12px;
+}
+
+.form-data-field label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.form-data-field input[type="file"] {
+    padding: 6px 0;
+}
+
+.form-data-field input[type="text"],
+.form-data-field input[type="number"] {
+    width: 100%;
+}
+
 button {
     background: #3498db;
     color: white;

@@ -3,6 +3,9 @@ package BlueCrab.com.example.service;
 import io.minio.GetObjectArgs;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
+import io.minio.ObjectWriteResponse;
+import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
 import io.minio.StatObjectArgs;
 import io.minio.StatObjectResponse;
 import io.minio.errors.MinioException;
@@ -11,12 +14,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -130,6 +134,81 @@ public class MinIOService {
         } catch (Exception e) {
             logger.error("예상하지 못한 오류로 이미지 URL 생성 실패 - Key: {}, Error: {}", imageKey, e.getMessage(), e);
             return null;
+        }
+    }
+
+    /**
+     * 프로필 이미지를 MinIO에 업로드
+     *
+     * @param file     업로드할 이미지 파일
+     * @param imageKey MinIO에 저장될 이미지 키 (DB에 저장되는 값과 동일)
+     */
+    public void uploadProfileImage(MultipartFile file, String imageKey) {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("업로드할 이미지 파일이 비어 있습니다.");
+        }
+        if (imageKey == null || imageKey.trim().isEmpty()) {
+            throw new IllegalArgumentException("이미지 키가 비어 있습니다.");
+        }
+
+        String objectName = buildObjectName(imageKey);
+
+        try (InputStream inputStream = file.getInputStream()) {
+            String contentType = file.getContentType();
+            if (contentType == null || contentType.trim().isEmpty()) {
+                contentType = guessContentType(imageKey);
+            }
+
+            PutObjectArgs putObjectArgs = PutObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(objectName)
+                    .stream(inputStream, file.getSize(), -1)
+                    .contentType(contentType)
+                    .build();
+
+            ObjectWriteResponse response = minioClient.putObject(putObjectArgs);
+            logger.info("프로필 이미지 업로드 성공 - Object: {}, Bucket: {}, ETag: {}",
+                    objectName, bucketName, response.etag());
+
+        } catch (MinioException e) {
+            logger.error("MinIO 업로드 실패 - Object: {}, Error: {}", objectName, e.getMessage(), e);
+            throw new RuntimeException("프로필 이미지를 업로드하지 못했습니다.");
+        } catch (IOException e) {
+            logger.error("이미지 파일 읽기 실패 - Object: {}, Error: {}", objectName, e.getMessage(), e);
+            throw new RuntimeException("이미지 파일을 읽는 중 오류가 발생했습니다.");
+        } catch (Exception e) {
+            logger.error("프로필 이미지 업로드 중 예상치 못한 오류 - Object: {}, Error: {}", objectName, e.getMessage(), e);
+            throw new RuntimeException("프로필 이미지 업로드 중 오류가 발생했습니다.");
+        }
+    }
+
+    /**
+     * MinIO에서 프로필 이미지를 삭제
+     *
+     * @param imageKey 삭제할 이미지 키
+     */
+    public void deleteProfileImage(String imageKey) {
+        if (imageKey == null || imageKey.trim().isEmpty()) {
+            return;
+        }
+
+        String objectName = buildObjectName(imageKey);
+
+        try {
+            RemoveObjectArgs removeArgs = RemoveObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(objectName)
+                    .build();
+
+            minioClient.removeObject(removeArgs);
+            logger.info("프로필 이미지 삭제 성공 - Object: {}, Bucket: {}", objectName, bucketName);
+
+        } catch (MinioException e) {
+            logger.warn("MinIO에서 프로필 이미지 삭제 실패 - Object: {}, Error: {}", objectName, e.getMessage(), e);
+            throw new RuntimeException("프로필 이미지 삭제에 실패했습니다.");
+        } catch (Exception e) {
+            logger.warn("프로필 이미지 삭제 중 예상치 못한 오류 - Object: {}, Error: {}", objectName, e.getMessage(), e);
+            throw new RuntimeException("프로필 이미지 삭제 중 오류가 발생했습니다.");
         }
     }
 
