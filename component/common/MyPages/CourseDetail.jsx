@@ -120,6 +120,8 @@ function CourseDetail({ lectureDetails, setIsModalOpen, currentPage, setCurrentP
         );
     }
 
+    console.log("lectureDetail : ", lectureDetail);
+
 
     return (
         <div className="courseDetailContainer">
