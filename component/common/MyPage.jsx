@@ -16,7 +16,7 @@ function MyPage({ currentPage, setCurrentPage }) {
     const [selectedCourseId, setSelectedCourseId] = useState("");
     const [lectureToEdit, setLectureToEdit] = useState(null);
     const [noticeToEdit, setNoticeToEdit] = useState(null);
-    const [selectedLectureSerial, setSelectedLectureSerial] = useState(null);
+    const [selectedLectureSerial, setSelectedLectureSerial] = useState("");
 
 
     const handleSelectCourse = (courseId) => {
@@ -30,7 +30,8 @@ function MyPage({ currentPage, setCurrentPage }) {
         case "수강/강의중인 과목":
             return (
         <>
-            <ClassAttending currentPage={currentPage} setCurrentPage={setCurrentPage} onSelectCourse={handleSelectCourse} onSelectLectureSerial={setSelectedLectureSerial}/>
+            <ClassAttending currentPage={currentPage} setCurrentPage={setCurrentPage} onSelectCourse={handleSelectCourse} onSelectLectureSerial={setSelectedLectureSerial}
+                            selectedLectureSerial={selectedLectureSerial} setSelectedLectureSerial={setSelectedLectureSerial}/>
         </>
         );
         case "수강/강의과목 공지사항":

@@ -8,7 +8,7 @@ import AssignmentCreateModal from './AssignmentCreateModal.jsx';
 import ProfNoticeWritingPage from './ProfNoticeWritingPage.jsx';
 import CourseDetail from './CourseDetail';
 
-function ClassAttending({ currentPage, setCurrentPage }) {
+function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, setSelectedLectureSerial }) {
   const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
   const { user } = UseUser();
   const accessToken = user.data.accessToken;
