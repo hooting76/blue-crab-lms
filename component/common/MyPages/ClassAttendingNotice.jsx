@@ -7,7 +7,7 @@ import ProfNoticeDetail from './ProfNoticeDetail.jsx';
 const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 const NOTICE_BOARD_CODE = 3;
 
-function ClassAttendingNotice({ currentPage, setCurrentPage, selectedLectureSerial, noticeToEdit, setNoticeToEdit }) {
+function ClassAttendingNotice({ currentPage, setCurrentPage, selectedLecSerial, noticeToEdit, setNoticeToEdit }) {
     const { user } = UseUser();
     const accessToken = user?.data?.accessToken;
     const userId = user?.data?.user?.id;
@@ -44,7 +44,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, selectedLectureSeri
             const data = await response.json();
             setLectureList(data);
             if (data.length > 0) selectedLectureSerial ? 
-            setSelectedLectureSerial(selectedLectureSerial) : 
+            setSelectedLectureSerial(selectedLecSerial) : 
             setSelectedLectureSerial(data[0].lecSerial);
         } catch (error) {
             console.error('강의 목록 에러:', error);

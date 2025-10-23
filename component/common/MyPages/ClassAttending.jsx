@@ -206,7 +206,7 @@ const fetchNotices = async () => {
 
   // 과목별 공지 페이지 렌더링
   if (currentPage === "수강/강의과목 공지사항") {
-    return <ClassAttendingNotice currentPage={currentPage} setCurrentPage={setCurrentPage} selectedLectureSerial={selectedLectureSerial}/>
+    return <ClassAttendingNotice currentPage={currentPage} setCurrentPage={setCurrentPage} selectedLecSerial={selectedLectureSerial}/>
   }
   
   // 공지 작성 페이지 렌더링
