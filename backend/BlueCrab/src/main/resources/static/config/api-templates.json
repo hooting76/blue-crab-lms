@@ -392,6 +392,21 @@
       }
     }
   },
+  "profileUpdateAddress": {
+    "name": "주소 업데이트",
+    "category": "사용자 · 프로필",
+    "description": "현재 로그인한 사용자의 주소 정보 업데이트",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/profile/address/update",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "postalCode": "05852",
+      "roadAddress": "서울 송파구 위례광장로 120",
+      "detailAddress": "장지동, 위례중앙푸르지오1단지"
+    }
+  },
   "boardList": {
     "name": "게시판 목록",
     "category": "게시판",

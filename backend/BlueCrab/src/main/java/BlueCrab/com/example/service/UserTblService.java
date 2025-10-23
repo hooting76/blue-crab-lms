@@ -698,4 +698,73 @@ public class UserTblService {
         user.setUserFirstAdd(userDetails.getUserFirstAdd());
         user.setUserLastAdd(userDetails.getUserLastAdd());
     }
+
+    /**
+     * 사용자 주소 정보 업데이트
+     * JWT 인증된 사용자의 주소 정보를 업데이트하는 메서드
+     *
+     * 처리 단계:
+     * 1. 사용자 이메일로 UserTbl 조회
+     * 2. 우편번호를 String에서 Integer로 변환
+     * 3. 주소 필드 업데이트 (USER_ZIP, USER_FIRST_ADD, USER_LAST_ADD)
+     * 4. 데이터베이스에 저장 (dirty checking으로 자동 UPDATE)
+     *
+     * 데이터베이스 매핑:
+     * - postalCode (String) → USER_ZIP (Integer)
+     * - roadAddress (String) → USER_FIRST_ADD (VARCHAR 200)
+     * - detailAddress (String) → USER_LAST_ADD (VARCHAR 100)
+     *
+     * 비즈니스 규칙:
+     * - 우편번호는 5자리 숫자 문자열을 Integer로 변환
+     * - 상세주소는 선택 사항 (null 허용, 빈 문자열로 저장)
+     * - 트랜잭션 내에서 실행되어 롤백 가능
+     *
+     * @param userEmail 사용자 이메일 (JWT 토큰에서 추출)
+     * @param postalCode 우편번호 (5자리 숫자 문자열, 예: "05852")
+     * @param roadAddress 도로명주소 (예: "서울 송파구 위례광장로 120")
+     * @param detailAddress 상세주소 (선택, 예: "장지동, 위례중앙푸르지오1단지")
+     * @throws ResourceNotFoundException 사용자를 찾을 수 없는 경우
+     * @throws IllegalArgumentException 우편번호 형식이 잘못된 경우
+     *
+     * 사용 예시:
+     * userTblService.updateUserAddress(
+     *     "user@example.com",
+     *     "05852",
+     *     "서울 송파구 위례광장로 120",
+     *     "장지동, 위례중앙푸르지오1단지"
+     * );
+     * // 주소 업데이트 완료
+     */
+    @Transactional
+    public void updateUserAddress(String userEmail, String postalCode,
+                                  String roadAddress, String detailAddress) {
+
+        logger.info("주소 업데이트 시작 - 사용자: {}, 우편번호: {}", userEmail, postalCode);
+
+        // 1. 사용자 조회
+        UserTbl user = userTblRepository.findByUserEmail(userEmail)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                "사용자를 찾을 수 없습니다: " + userEmail));
+
+        // 2. 우편번호 변환 (String → Integer)
+        Integer zipCode = null;
+        try {
+            zipCode = Integer.parseInt(postalCode);
+        } catch (NumberFormatException e) {
+            logger.warn("유효하지 않은 우편번호 형식 - 사용자: {}, 우편번호: {}",
+                       userEmail, postalCode);
+            throw new IllegalArgumentException("유효하지 않은 우편번호 형식입니다: " + postalCode);
+        }
+
+        // 3. 주소 필드 업데이트
+        user.setUserZip(zipCode);
+        user.setUserFirstAdd(roadAddress);
+        user.setUserLastAdd(detailAddress != null ? detailAddress : "");
+
+        // 4. DB 저장 (dirty checking으로 자동 UPDATE)
+        userTblRepository.save(user);
+
+        logger.info("주소 업데이트 완료 - 사용자: {}, 우편번호: {}, 도로명: {}",
+                   userEmail, postalCode, roadAddress);
+    }
 }
