@@ -24,7 +24,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
     // 학생 목록 불러오기
     const fetchStudentList = async (accessToken) => {
         console.log("accessToken : ", accessToken);
-        console.log("URL : ", `${BASE_URL}/lectures/${lecSerial}/students`);
+        console.log("URL : ", `${BASE_URL}/lectures/${lecSerial}/students?page=${page - 1}&size=20`);
         console.log("lecSerial : ", lecSerial);
 
             if (!accessToken) return;
@@ -33,7 +33,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
             setError(null);
             try {
     
-                const response = await fetch(`${BASE_URL}/lectures/${lecSerial}/students`, {
+                const response = await fetch(`${BASE_URL}/lectures/${lecSerial}/students?page=${page - 1}&size=20`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${accessToken}`,
