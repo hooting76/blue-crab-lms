@@ -1,17 +1,26 @@
-// 수강신청 API 어댑터 (문서 스펙 준수 / timeout 미사용)
-// - 절대경로(BASE_API_ROOT) 사용
-// - Bearer 토큰: ensureAccessTokenOrRedirect() 사용
-// - 응답/에러: 문서 포맷에 맞춰 처리
+// 수강신청 API 어댑터 (문서 스펙 준수)
+// - BASE 절대경로 사용 (vite.config.js 수정 불가 환경)
+// - Bearer 토큰: ensureAccessTokenOrRedirect()
+// - eligible: lecYear/lecSemester/lecMajor (선택)만 전송, name 미전송
+// - 취소: DELETE /enrollments/{enrollmentIdx}
+// - 안내문: POST https://.../notice/course-apply/{view|save}
 
 import { ensureAccessTokenOrRedirect } from '../utils/authFlow';
 
 // 절대 베이스 URL 
-const BASE_API_ROOT = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
+const BASE_API_ROOT    = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
+const BASE_NOTICE_ROOT = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/notice';
 
 const BASE = {
-  eligible: `${BASE_API_ROOT}/lectures/eligible`,
-  enroll:   `${BASE_API_ROOT}/enrollments/enroll`,
-  list:     `${BASE_API_ROOT}/enrollments/list`,
+  eligible:   `${BASE_API_ROOT}/lectures/eligible`,
+  enroll:     `${BASE_API_ROOT}/enrollments/enroll`,
+  list:       `${BASE_API_ROOT}/enrollments/list`,
+  cancelById: (enrollmentIdx) => `${BASE_API_ROOT}/enrollments/${enrollmentIdx}`,
+};
+
+const NOTICE = {
+  view: `${BASE_NOTICE_ROOT}/course-apply/view`,
+  save: `${BASE_NOTICE_ROOT}/course-apply/save`,
 };
 
 const getHeaders = (token) => ({
@@ -19,12 +28,19 @@ const getHeaders = (token) => ({
   'Content-Type': 'application/json',
 });
 
-// 공통 JSON 파서(+에러 메시지 규격화)
+function compact(obj = {}) {
+  const out = {};
+  Object.keys(obj).forEach((k) => {
+    const v = obj[k];
+    if (v !== null && v !== undefined && v !== '') out[k] = v;
+  });
+  return out;
+}
+
 async function readJsonOrThrow(res) {
   let data = null;
-  try { data = await res.json(); } catch {/* empty */}
+  try { data = await res.json(); } catch {}
   if (!res.ok) {
-    // 문서: { success:false, message:"..." }
     const msg = (data && data.message) ? data.message : `HTTP_${res.status}`;
     const err = new Error(msg);
     err.status = res.status;
@@ -34,46 +50,48 @@ async function readJsonOrThrow(res) {
   return data ?? {};
 }
 
-/* ─────────────────────────────────────────────────────────
- * 1) 수강 가능 강의 조회: POST /api/lectures/eligible
- * Request: { studentId:number, page?:0, size?:20 }
- * Response: {
- *   eligibleLectures:[{lecSerial, lecTit, lecProf|lecProfName, lecPoint, lecTime, lecCurrent, lecMany, ...}],
- *   totalCount, eligibleCount, ineligibleCount,
- *   pagination:{ currentPage, pageSize, totalElements, totalPages },
- *   studentInfo:{ ... }
- * }
- * 프론트 표준형(list)도 함께 반환
- * ───────────────────────────────────────────────────────── */
-export async function fetchEligibleLectures({ studentId, page = 0, size = 20 }) {
+/** 1) 개설 강의(수강 가능) 조회 */
+export async function fetchEligibleLectures({
+  studentId,
+  page = 0,
+  size = 20,
+  lecYear = null,
+  lecSemester = null,
+  lecMajor = null,   // 1=전공, 0=교양, null=전체(전송X)
+} = {}) {
   const token = await ensureAccessTokenOrRedirect();
+
+  // name(교과목명) 검색은 백엔드 미지원 → 절대 전송 X
+  const payload = compact({ studentId, page, size, lecYear, lecSemester, lecMajor });
 
   const res = await fetch(BASE.eligible, {
     method: 'POST',
     headers: getHeaders(token),
-    body: JSON.stringify({ studentId, page, size }),
+    body: JSON.stringify(payload),
+    // credentials: 'include', // 필요 시
+    // mode: 'cors',           // 기본값 cors
   });
 
   const data = await readJsonOrThrow(res);
 
-  const list = Array.isArray(data.eligibleLectures) ? data.eligibleLectures.map((s) => ({
-    // 표준 DTO (UI 바인딩용)
-    id: s.lecSerial,
-    name: s.lecTit,
-    credit: s.lecPoint,
-    prof: s.lecProfName ?? s.lecProf ?? '',
-    time: s.lecTime,
-    enrolled: s.lecCurrent ?? 0,
-    capacity: s.lecMany ?? 0,
-    mcode: s.lecMcode,
-    mcodeDep: s.lecMcodeDep,
-    min: s.lecMin ?? 0,
-    eligible: s.isEligible ?? true,
-    eligibilityReason: s.eligibilityReason ?? '',
-  })) : [];
+  const list = Array.isArray(data.eligibleLectures)
+    ? data.eligibleLectures.map((s) => ({
+        id: s.lecSerial,
+        name: s.lecTit,
+        credit: s.lecPoint,
+        prof: s.lecProfName ?? s.lecProf ?? '',
+        time: s.lecTime,
+        enrolled: s.lecCurrent ?? 0,
+        capacity: s.lecMany ?? 0,
+        mcode: s.lecMcode,       // 학부 코드
+        mcodeDep: s.lecMcodeDep, // 학과 코드
+        eligible: s.isEligible ?? true,
+        eligibilityReason: s.eligibilityReason ?? '',
+      }))
+    : [];
 
   return {
-    list,                                   // UI 표준 리스트
+    list,
     counts: {
       totalCount: data.totalCount ?? list.length,
       eligibleCount: data.eligibleCount ?? 0,
@@ -86,37 +104,24 @@ export async function fetchEligibleLectures({ studentId, page = 0, size = 20 }) 
       totalPages: 1,
     },
     studentInfo: data.studentInfo ?? null,
-    raw: data,                               // 원본 그대로 필요 시 사용
+    raw: data,
   };
 }
 
-/* ─────────────────────────────────────────────────────────
- * 2) 수강신청: POST /api/enrollments/enroll
- * Request: { studentIdx:number, lecSerial:string }
- * Response(성공): EnrollmentExtendedTbl 엔티티 그대로
- * Response(에러): { success:false, message:"..." }
- * ───────────────────────────────────────────────────────── */
+/** 2) 수강신청 */
 export async function enrollLecture({ studentIdx, lecSerial }) {
   const token = await ensureAccessTokenOrRedirect();
-
   const res = await fetch(BASE.enroll, {
     method: 'POST',
     headers: getHeaders(token),
     body: JSON.stringify({ studentIdx, lecSerial }),
   });
-
-  // 성공 시 엔티티 그대로 반환 (래퍼 없음)
-  return readJsonOrThrow(res);
+  return readJsonOrThrow(res); // 성공 시 엔티티 그대로
 }
 
-/* ─────────────────────────────────────────────────────────
- * 3) 수강목록 조회: POST /api/enrollments/list
- * Request: { studentIdx:number, enrolled:true, page?:0, size?:20 }
- * Response(성공): Page 객체 { content:[], totalElements, totalPages, size, number }
- * ───────────────────────────────────────────────────────── */
+/** 3) 내 수강 목록 (페이지네이션) */
 export async function fetchMyEnrollments({ studentIdx, enrolled = true, page = 0, size = 20 }) {
   const token = await ensureAccessTokenOrRedirect();
-
   const res = await fetch(BASE.list, {
     method: 'POST',
     headers: getHeaders(token),
@@ -133,7 +138,7 @@ export async function fetchMyEnrollments({ studentIdx, enrolled = true, page = 0
     prof: s.lecProfName ?? '',
     time: s.lecTime,
     status: s.status ?? 'ACTIVE',
-    enrollmentIdx: s.enrollmentIdx,
+    enrollmentIdx: s.enrollmentIdx, // ← 취소에 쓰임
     enrollmentDate: s.enrollmentDate,
     lecIdx: s.lecIdx,
   }));
@@ -148,21 +153,14 @@ export async function fetchMyEnrollments({ studentIdx, enrolled = true, page = 0
   };
 }
 
-/* ─────────────────────────────────────────────────────────
- * 4) 수강신청 여부 확인 (중복확인): POST /api/enrollments/list
- * Request: { studentIdx:number, lecSerial:string, checkEnrollment:true }
- * Response(성공): { enrolled:boolean, studentIdx, lecSerial }
- * ───────────────────────────────────────────────────────── */
+/** 4) 중복 확인 */
 export async function checkEnrollment({ studentIdx, lecSerial }) {
   const token = await ensureAccessTokenOrRedirect();
-
   const res = await fetch(BASE.list, {
     method: 'POST',
     headers: getHeaders(token),
     body: JSON.stringify({ studentIdx, lecSerial, checkEnrollment: true }),
   });
-
-  // 문서상: 실패 시에도 200이 아닐 수 있으나, 안전하게 false로 처리할 수 있도록 try/catch
   try {
     const data = await readJsonOrThrow(res);
     return {
@@ -176,13 +174,33 @@ export async function checkEnrollment({ studentIdx, lecSerial }) {
   }
 }
 
-// 취소 (서버 스펙에 맞게 활성화)
-// export async function cancelEnrollment({ studentIdx, lecSerial }) {
-//   const token = await ensureAccessTokenOrRedirect();
-//   const res = await fetchWithTimeout(BASE.cancel, {
-//     method: 'POST', // 혹은 DELETE/PUT 등 서버 정의에 맞춤
-//     headers: getHeaders(token),
-//     body: JSON.stringify({ studentIdx, lecSerial }),
-//   });
-//   return ensureOkJson(res);
-// }
+/** 5) 수강신청 취소 (DELETE /enrollments/{enrollmentIdx}) */
+export async function cancelEnrollmentByIdx({ enrollmentIdx }) {
+  const token = await ensureAccessTokenOrRedirect();
+  const res = await fetch(BASE.cancelById(enrollmentIdx), {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return readJsonOrThrow(res);
+}
+
+/** 6) 안내문 조회/저장 (POST 기반) */
+export async function viewCourseApplyNotice() {
+  // 공개 API (토큰 불필요)
+  const res = await fetch(NOTICE.view, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({}),
+  });
+  return readJsonOrThrow(res); // { success, message, updatedAt, updatedBy }
+}
+
+export async function saveCourseApplyNotice({ message }) {
+  const token = await ensureAccessTokenOrRedirect();
+  const res = await fetch(NOTICE.save, {
+    method: 'POST',
+    headers: getHeaders(token),
+    body: JSON.stringify({ message }),
+  });
+  return readJsonOrThrow(res); // { success, message, data:{...} }
+}

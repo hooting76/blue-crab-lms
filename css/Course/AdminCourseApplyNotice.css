@@ -1,0 +1,8 @@
+/* css/Course/AdminCourseApplyNotice.css */
+.admin-notice-wrap{max-width:900px;margin:0 auto;padding:16px}
+.admin-notice-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:12px}
+.admin-notice-head h2{margin:0;font-size:20px;font-weight:800;color:#0f172a}
+.admin-notice-head .meta{font-size:13px;color:#64748b}
+.admin-notice-editor{background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 4px 16px rgba(2,6,23,.06);padding:12px}
+.notice-textarea{width:100%;border:none;outline:none;resize:vertical;font-size:14px;line-height:1.6}
+.admin-notice-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:12px}
