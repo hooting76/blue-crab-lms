@@ -1,5 +1,6 @@
 package BlueCrab.com.example.controller;
 
+import BlueCrab.com.example.dto.AddressUpdateRequest;
 import BlueCrab.com.example.dto.ApiResponse;
 import BlueCrab.com.example.dto.ImageRequest;
 import BlueCrab.com.example.entity.ProfileView;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.io.InputStream;
 import java.util.Map;
 
@@ -201,6 +203,89 @@ public class ProfileController {
         } catch (Exception e) {
             logger.error("프로필 완성도 체크 중 시스템 오류 발생: {}", e.getMessage(), e);
             ApiResponse<Map<String, Object>> response = ApiResponse.failure("프로필 완성도 확인 중 오류가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    /**
+     * 주소 정보 업데이트
+     * JWT 인증된 사용자의 주소 정보를 업데이트
+     *
+     * @param addressRequest 주소 업데이트 요청 정보
+     * @param request HTTP 요청 (Authorization 헤더에서 토큰 추출)
+     * @return 업데이트된 주소 정보
+     *
+     * 요청 예시:
+     * POST /api/profile/address/update
+     * Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+     * Content-Type: application/json
+     * {
+     *   "postalCode": "05852",
+     *   "roadAddress": "서울 송파구 위례광장로 120",
+     *   "detailAddress": "장지동, 위례중앙푸르지오1단지"
+     * }
+     *
+     * 응답 예시:
+     * {
+     *   "success": true,
+     *   "message": "주소가 성공적으로 업데이트되었습니다.",
+     *   "data": {
+     *     "zipCode": "05852",
+     *     "mainAddress": "서울 송파구 위례광장로 120",
+     *     "detailAddress": "장지동, 위례중앙푸르지오1단지"
+     *   },
+     *   "timestamp": "2025-10-23T15:30:00Z"
+     * }
+     */
+    @PostMapping("/address/update")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> updateAddress(
+            @Valid @RequestBody AddressUpdateRequest addressRequest,
+            HttpServletRequest request) {
+
+        try {
+            // JWT 토큰에서 사용자 이메일 추출
+            String userEmail = extractUserEmailFromToken(request);
+
+            logger.info("주소 업데이트 요청 - 사용자: {}, 우편번호: {}",
+                       userEmail, addressRequest.getPostalCode());
+
+            // 서비스 호출하여 주소 업데이트
+            userTblService.updateUserAddress(
+                userEmail,
+                addressRequest.getPostalCode(),
+                addressRequest.getRoadAddress(),
+                addressRequest.getDetailAddress()
+            );
+
+            // 업데이트된 주소 정보 응답
+            Map<String, Object> responseData = Map.of(
+                "zipCode", addressRequest.getPostalCode(),
+                "mainAddress", addressRequest.getRoadAddress(),
+                "detailAddress", addressRequest.getDetailAddress() != null
+                    ? addressRequest.getDetailAddress() : ""
+            );
+
+            ApiResponse<Map<String, Object>> response = ApiResponse.success(
+                "주소가 성공적으로 업데이트되었습니다.", responseData);
+
+            logger.info("주소 업데이트 성공 - 사용자: {}", userEmail);
+
+            return ResponseEntity.ok(response);
+
+        } catch (ResourceNotFoundException notFound) {
+            logger.warn("주소 업데이트 실패(사용자 없음) - 오류: {}", notFound.getMessage());
+            ApiResponse<Map<String, Object>> response = ApiResponse.failure(notFound.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+
+        } catch (IllegalArgumentException invalidRequest) {
+            logger.warn("주소 업데이트 실패(잘못된 요청) - 오류: {}", invalidRequest.getMessage());
+            ApiResponse<Map<String, Object>> response = ApiResponse.failure(invalidRequest.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+
+        } catch (Exception e) {
+            logger.error("주소 업데이트 중 시스템 오류 발생: {}", e.getMessage(), e);
+            ApiResponse<Map<String, Object>> response = ApiResponse.failure(
+                "주소 업데이트 중 오류가 발생했습니다.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -451,6 +536,26 @@ public class ProfileController {
     }
 
     /**
+     * 우편번호를 5자리 문자열로 포맷팅 (앞자리 0 패딩)
+     * DB에 Integer로 저장된 우편번호를 문자열로 변환 시 사용
+     *
+     * @param zipCode 우편번호 (Integer, 예: 5852)
+     * @return 5자리 문자열 (예: "05852")
+     *
+     * 예시:
+     * - formatPostalCode(5852) → "05852"
+     * - formatPostalCode(13529) → "13529"
+     * - formatPostalCode(null) → ""
+     */
+    private String formatPostalCode(Integer zipCode) {
+        if (zipCode == null) {
+            return "";
+        }
+        // %05d: 5자리로 포맷하고, 부족한 자리는 0으로 채움
+        return String.format("%05d", zipCode);
+    }
+
+    /**
      * 프로필 정보와 이미지 URL을 포함한 응답 데이터 생성
      *
      * @param profile 프로필 뷰 정보
@@ -459,7 +564,7 @@ public class ProfileController {
     private Map<String, Object> createProfileResponseWithImage(ProfileView profile) {
         // HashMap을 사용하여 가변 맵 생성 (Map.of()는 20개 항목 제한 및 불변)
         Map<String, Object> profileData = new java.util.HashMap<>();
-        
+
         // 기본 사용자 정보
         profileData.put("userEmail", profile.getUserEmail() != null ? profile.getUserEmail() : "");
         profileData.put("userName", profile.getUserName() != null ? profile.getUserName() : "");
@@ -467,9 +572,19 @@ public class ProfileController {
         profileData.put("userType", profile.getUserType() != null ? profile.getUserType() : 0);
         profileData.put("userTypeText", profile.getUserTypeText() != null ? profile.getUserTypeText() : "");
         profileData.put("majorCode", profile.getMajorCode() != null ? profile.getMajorCode() : "");
-        
-        // 주소 정보
-        profileData.put("zipCode", profile.getZipCode() != null ? profile.getZipCode() : "");
+
+        // 주소 정보 (우편번호는 0 패딩 처리)
+        String zipCodeStr = profile.getZipCode();
+        if (zipCodeStr != null && !zipCodeStr.trim().isEmpty()) {
+            try {
+                Integer zipCodeInt = Integer.parseInt(zipCodeStr);
+                profileData.put("zipCode", formatPostalCode(zipCodeInt));
+            } catch (NumberFormatException e) {
+                profileData.put("zipCode", zipCodeStr); // 변환 실패 시 원본 사용
+            }
+        } else {
+            profileData.put("zipCode", "");
+        }
         profileData.put("mainAddress", profile.getMainAddress() != null ? profile.getMainAddress() : "");
         profileData.put("detailAddress", profile.getDetailAddress() != null ? profile.getDetailAddress() : "");
         
