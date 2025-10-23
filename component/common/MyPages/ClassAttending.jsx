@@ -8,7 +8,7 @@ import AssignmentCreateModal from './AssignmentCreateModal.jsx';
 import ProfNoticeWritingPage from './ProfNoticeWritingPage.jsx';
 import CourseDetail from './CourseDetail';
 
-function ClassAttending({ currentPage, setCurrentPage }) {
+function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, setSelectedLectureSerial }) {
   const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
   const { user } = UseUser();
   const accessToken = user.data.accessToken;
@@ -18,9 +18,6 @@ function ClassAttending({ currentPage, setCurrentPage }) {
   const [noticeList, setNoticeList] = useState([]);
   const page = 0;
   const NOTICE_BOARD_CODE = 3;
-
-  // 1. 선택한 강의 ID 상태 추가
-  const [selectedLectureSerial, setSelectedLectureSerial] = useState("");
 
   // 모달 상태들
   const [isEvaluationModalOpen, setIsEvaluationModalOpen] = useState(false);
@@ -418,7 +415,7 @@ const fetchNotices = async () => {
               {isAssignmentCreateModalOpen && (
                 <AssignmentCreateModal
                     onClose={closeAssignmentCreateModal}
-                    lecSerial={selectedLecSerial}
+                    lecSerial={selectedLectureSerial}
                     lecTitle={lectureList.find(lec => lec.lecSerial === selectedLectureSerial)?.lecTit || ''}
                 />
                 )}

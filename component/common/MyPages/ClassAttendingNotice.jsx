@@ -43,9 +43,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, selectedLecSerial, 
             if (!response.ok) throw new Error('강의 목록 조회 실패');
             const data = await response.json();
             setLectureList(data);
-            if (data.length > 0) selectedLectureSerial ? 
-            setSelectedLectureSerial(selectedLecSerial) : 
-            setSelectedLectureSerial(data[0].lecSerial);
+            
         } catch (error) {
             console.error('강의 목록 에러:', error);
             setLectureList([]);
@@ -80,25 +78,38 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, selectedLecSerial, 
     };
 
     /** ========== useEffect ========== */
-    useEffect(() => {
-        if (accessToken && userId) {
-            fetchLectureList(accessToken, 1, userId);
-        }
-    }, [accessToken, userId]);
+    // prop이 바뀔 때 내부 상태 동기화
+useEffect(() => {
+    if (selectedLecSerial) {
+        setSelectedLectureSerial(selectedLecSerial);
+        setPage(1);
+    }
+}, [selectedLecSerial]);
 
-    useEffect(() => {
+// 처음 mount나 userId/accessToken 바뀔 때 강의 목록 fetch
+useEffect(() => {
+    if (accessToken && userId) {
+        fetchLectureList(accessToken, 1, userId);
+    }
+}, [accessToken, userId]);
+
+// lectureList가 변경되고 selectedLectureSerial이 없을 때 기본 선택
+useEffect(() => {
+    if (lectureList.length > 0 && !selectedLectureSerial) {
+        setSelectedLectureSerial(lectureList[0].lecSerial);
+    }
+}, [lectureList, selectedLectureSerial]);
+
+// selectedLectureSerial이 바뀔 때마다 공지 fetch
+useEffect(() => {
     if (accessToken && selectedLectureSerial) {
         fetchNotices();
     }
-    }, [accessToken, selectedLectureSerial, page, currentPage]);
+}, [accessToken, selectedLectureSerial, page, currentPage]);
 
-    useEffect(() => {
-    if (selectedLecSerial) {
-        setSelectedLectureSerial(selectedLecSerial);
-        setPage(1); // 페이지도 초기화
-        }
-    }, [selectedLecSerial]);
-
+useEffect(() => {
+    console.log('selectedLectureSerial updated:', selectedLectureSerial);
+}, [selectedLectureSerial]);
 
 
     /** ========== Helpers ========== */
@@ -175,7 +186,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, selectedLecSerial, 
     /** ========== Render ========== */
     return (
         <>
-            <select className="lectureName" onChange={handleLectureChange} value={selectedLectureSerial || ''}>
+            <select className="lectureName" onChange={handleLectureChange} value={selectedLectureSerial}>
                 {lectureList.length > 0 ? (
                     lectureList.map((lecture) => (
                         <option key={lecture.lecIdx} value={lecture.lecSerial}>
