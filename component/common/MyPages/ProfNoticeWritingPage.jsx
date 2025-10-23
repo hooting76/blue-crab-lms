@@ -374,7 +374,7 @@ useEffect(() => {
         <ul>
           {selectedFiles.map(file => (
             <li key={file.name}>
-              {file.originalFileName} ({(file.size / 1024).toFixed(1)} KB)
+              {file.name} ({(file.size / 1024).toFixed(1)} KB)
               <button type="button" onClick={() => handleDeleteSelectedFile(file.name)}>삭제</button>
             </li>
           ))}
