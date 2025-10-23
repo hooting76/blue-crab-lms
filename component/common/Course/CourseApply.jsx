@@ -13,6 +13,18 @@ import {
 
 import { mapListWithNames } from '../../../src/constants/facultyMapping';
 
+/** 간단 Sanitizer (스크립트/자바스크립트 링크 제거) */
+function sanitizeNoticeHTML(html = '') {
+  // <script> 태그 제거
+  let safe = html.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '');
+  // javascript: 링크 차단
+  safe = safe.replace(/href\s*=\s*"(javascript:[^"]*)"/gi, 'href="#"');
+  safe = safe.replace(/href\s*=\s*'(javascript:[^']*)'/gi, "href='#'");
+  // on* 핸들러 제거 (onclick 등)
+  safe = safe.replace(/\son\w+\s*=\s*(['"]).*?\1/gi, '');
+  return safe;
+}
+
 /** 로그인 정보 파서 (현재 프로젝트 저장방식 존중) */
 function resolveStudent() {
   try {
@@ -89,6 +101,19 @@ export default function CourseApply({ setCurrentPage }) {
     } catch {}
     return () => { try { bcRef.current?.close(); } catch {} };
   }, []);
+
+  // 안내문에 포함된 링크 보정(target, rel)
+  useEffect(() => {
+    const container = document.querySelector('.notice-body');
+    if (!container) return;
+    container.querySelectorAll('a').forEach(a => {
+      if (!a.getAttribute('target')) a.setAttribute('target', '_blank');
+      const rel = (a.getAttribute('rel') || '').split(/\s+/);
+      if (!rel.includes('noopener')) rel.push('noopener');
+      if (!rel.includes('noreferrer')) rel.push('noreferrer');
+      a.setAttribute('rel', rel.join(' ').trim());
+    });
+  }, [notice]);
 
   // 목록 로딩
   const refetch = async () => {
@@ -208,12 +233,19 @@ export default function CourseApply({ setCurrentPage }) {
   return (
     <div id="course-apply" className="course-apply-wrap">
 
-      {/* 안내문 카드 */}
+      {/* 안내문 카드 (HTML 렌더 + sanitizer) */}
       <section className="notice-card">
         <div className="notice-title">안내문</div>
-        <div className="notice-body">
-          {notice || '자세한 신청 관련 공지는 학사 공지사항을 확인해 주세요.'}
-        </div>
+        <div
+          className="notice-body"
+          dangerouslySetInnerHTML={{
+            __html: sanitizeNoticeHTML(
+              notice && notice.trim()
+                ? notice
+                : '자세한 신청 관련 공지는 학사 공지사항을 확인해 주세요.'
+            ),
+          }}
+        />
         <button className="btn ghost-link" onClick={() => setCurrentPage?.('학사공지')}>
           공지사항 바로가기
         </button>

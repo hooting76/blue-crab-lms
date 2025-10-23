@@ -1,9 +1,11 @@
-// component/common/Course/AdminCourseApplyNotice.jsx
 import React, { useEffect, useRef, useState } from 'react';
 import '../../../css/Course/AdminCourseApplyNotice.css';
 import { Editor } from '@toast-ui/react-editor';
 import '@toast-ui/editor/dist/toastui-editor.css';
-import { viewCourseApplyNotice, saveCourseApplyNotice } from '../../../src/api/courseRegistrationApi';
+import {
+  viewCourseApplyNotice,
+  saveCourseApplyNotice,
+} from '../../../src/api/courseRegistrationApi';
 
 export default function AdminCourseApplyNotice() {
   const [message, setMessage] = useState('');
@@ -13,9 +15,21 @@ export default function AdminCourseApplyNotice() {
   const editorRef = useRef(null);
   const bcRef = useRef(null);
 
-  const fmt = (ts) =>
-    ts ? new Date(ts).toISOString().slice(0, 10) : null;
+  // YYYY-MM-DD HH:MM:SS
+  const fmt = (ts) => {
+    if (!ts) return null;
+    const d = new Date(ts);
+    const pad = (n) => String(n).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    const mm = pad(d.getMonth() + 1);
+    const dd = pad(d.getDate());
+    const hh = pad(d.getHours());
+    const mi = pad(d.getMinutes());
+    const ss = pad(d.getSeconds());
+    return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+  };
 
+  // 최신 안내문 불러오기
   const loadNotice = async () => {
     try {
       const r = await viewCourseApplyNotice();
@@ -26,11 +40,15 @@ export default function AdminCourseApplyNotice() {
         editorRef.current?.getInstance().setHTML(msg);
         setDirty(false);
       });
-    } catch {}
+    } catch {
+      // noop
+    }
   };
 
+  // 저장 + 브로드캐스트
   const handleSave = async () => {
-    if (!message || !message.replace(/<[^>]*>/g, '').trim()) {
+    const plain = (message || '').replace(/<[^>]*>/g, '').trim();
+    if (!plain) {
       alert('안내문 내용을 입력해 주세요.');
       return;
     }
@@ -38,24 +56,43 @@ export default function AdminCourseApplyNotice() {
     try {
       const r = await saveCourseApplyNotice({ message });
       if (r?.success) {
-        setUpdatedAt(r?.data?.updatedAt ?? new Date().toISOString());
+        const ts = r?.data?.updatedAt ?? new Date().toISOString();
+        setUpdatedAt(ts);
         setDirty(false);
+
+        // 같은 탭
         try {
-          window.dispatchEvent(new CustomEvent('course-apply-notice-updated', { detail: { message } }));
+          window.dispatchEvent(
+            new CustomEvent('course-apply-notice-updated', { detail: { message } })
+          );
+        } catch {}
+
+        // 다른 탭/창
+        try {
           bcRef.current?.postMessage({ type: 'NOTICE_UPDATED', message });
         } catch {}
-        alert('저장되었습니다.');
+
+        // 저장 완료 알림
+        alert('안내문 작성이 완료되었습니다.');
       } else {
         alert(r?.message || '저장 실패');
       }
-    } finally { setSaving(false); }
+    } finally {
+      setSaving(false);
+    }
   };
 
-  // 초기 로드 + 채널
+  // 초기 로딩 + 채널 준비
   useEffect(() => {
     loadNotice();
-    bcRef.current = new BroadcastChannel('course-apply-notice');
-    return () => { try { bcRef.current?.close(); } catch{} };
+    try {
+      bcRef.current = new BroadcastChannel('course-apply-notice');
+    } catch {
+      bcRef.current = null;
+    }
+    return () => {
+      try { bcRef.current?.close(); } catch {}
+    };
   }, []);
 
   // 에디터 변경
@@ -65,25 +102,28 @@ export default function AdminCourseApplyNotice() {
     setDirty(true);
   };
 
-  // 맞춤법 밑줄 끄기
+  // 맞춤법 밑줄 끄기(WW/Md 모두)
   useEffect(() => {
-    const root = editorRef.current?.getRootElement?.() || editorRef.current?.getRootEl?.();
-    const ww = root?.querySelector('.toastui-editor-ww-container .ProseMirror');
-    ww?.setAttribute('spellcheck', 'false');
-    const md = root?.querySelector('.toastui-editor-md-container textarea');
-    md?.setAttribute('spellcheck', 'false');
+    try {
+      const root =
+        editorRef.current?.getRootElement?.() || editorRef.current?.getRootEl?.();
+      const ww = root?.querySelector('.toastui-editor-ww-container .ProseMirror');
+      ww?.setAttribute('spellcheck', 'false');
+      const md = root?.querySelector('.toastui-editor-md-container textarea');
+      md?.setAttribute('spellcheck', 'false');
+    } catch {}
   }, [message]);
 
   return (
     <div className="admin-notice-wrap">
-      {/* 제목 상자 */}
+      {/* 헤더 타이틀 */}
       <div className="admin-title-box">
         <div className="title-rail top" />
-        <h2 className="admin-notice-title">📣 수강신청 안내문 관리</h2>
+        <h2 className="admin-notice-title">📢 수강신청 안내문 관리</h2>
         <div className="title-rail bottom" />
       </div>
 
-      {/* 에디터 카드 */}
+      {/* 에디터 */}
       <section className="admin-notice-editor">
         <Editor
           ref={editorRef}
@@ -105,17 +145,19 @@ export default function AdminCourseApplyNotice() {
         />
       </section>
 
-      {/* 하단 회색 바 + 버튼 + 최근 수정 */}
+      {/* 하단 바: 저장 버튼만 유지 + 최근 수정 시간 HH:MM:SS 포함 */}
       <footer className="admin-actions-bar">
-        <div className="actions-left">
-          <button className="btn secondary" onClick={loadNotice} disabled={saving}>되돌리기</button>
+        <div className="actions-left" />
+        <div className="actions-right" style={{ gap: 12, display: 'flex', alignItems: 'center' }}>
+          <span>최근 수정 : {fmt(updatedAt) || '없음'}</span>
+          {dirty && (
+            <span className="dirty-dot" title="수정됨" style={{ color: '#ef4444' }}>
+              • 수정됨
+            </span>
+          )}
           <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
             {saving ? '저장 중…' : '저장'}
           </button>
-        </div>
-        <div className="actions-right">
-          <span>최근 수정 : {fmt(updatedAt) || '없음'}</span>
-          {dirty && <span className="dirty-dot" title="수정됨"> • 수정됨</span>}
         </div>
       </footer>
     </div>
