@@ -19,9 +19,6 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
   const page = 0;
   const NOTICE_BOARD_CODE = 3;
 
-  // 1. 선택한 강의 ID 상태 추가
-  const [selectedLectureSerial, setSelectedLectureSerial] = useState("");
-
   // 모달 상태들
   const [isEvaluationModalOpen, setIsEvaluationModalOpen] = useState(false);
   const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
