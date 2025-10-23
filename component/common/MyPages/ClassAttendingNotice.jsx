@@ -85,8 +85,11 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, noticeToEdit, setNo
     }, [accessToken, userId]);
 
     useEffect(() => {
+    if (accessToken && selectedLectureSerial) {
         fetchNotices();
-    }, [accessToken, selectedLectureSerial, page]);
+    }
+    }, [accessToken, selectedLectureSerial, page, currentPage]);
+
 
     /** ========== Helpers ========== */
     const decodeBase64 = (str) => {
@@ -237,6 +240,11 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, noticeToEdit, setNo
                             onFetchComplete={(notice) => {
                                 setFetchedNotice(notice);
                                 setNoticeToEdit(notice);
+                            }}
+                            // ✅ 삭제 성공 시 목록 갱신 + 모달 닫기
+                            onDeleteSuccess={() => {
+                            fetchNotices();
+                            setIsModalOpen(false);
                             }}
                         />
                         {fetchedNotice && fetchedNotice.boardWriter === user?.data?.user?.name &&
