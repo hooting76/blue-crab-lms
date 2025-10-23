@@ -14,7 +14,12 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
     const [error, setError] = useState(null);
     // const [page, setPage] = useState(1);
     // const [total, setTotal] = useState(0);
-    const accessToken = user.data.accessToken;
+    const getToken = () => {
+    return window.authToken || 
+           localStorage.getItem('accessToken') || 
+           sessionStorage.getItem('accessToken');
+};
+    const accessToken = getToken();
 
     //  const handlePageChange = (newPage) => {
     //     setPage(newPage);
