@@ -95,7 +95,7 @@ const fetchNotices = async () => {
                 },
                 body: JSON.stringify({
                     page: 0,
-                    size: 3,
+                    size: 5,
                     boardCode: NOTICE_BOARD_CODE,
                     lecSerial: selectedLectureSerial
                 }),
@@ -206,7 +206,7 @@ const fetchNotices = async () => {
 
   // 과목별 공지 페이지 렌더링
   if (currentPage === "수강/강의과목 공지사항") {
-    return <ClassAttendingNotice currentPage={currentPage} setCurrentPage={setCurrentPage}/>
+    return <ClassAttendingNotice currentPage={currentPage} setCurrentPage={setCurrentPage} selectedLectureSerial={selectedLectureSerial}/>
   }
   
   // 공지 작성 페이지 렌더링
@@ -290,7 +290,7 @@ const fetchNotices = async () => {
                   ✖
                 </button>
                 <CourseDetail
-                  lectureDetails={lectureList.find((lec) => lec.lecSerial === selectedLecSerial)}
+                  lectureDetails={lectureList.find((lec) => lec.lecSerial === selectedLectureSerial)}
                   currentPage={currentPage}
                   setCurrentPage={setCurrentPage}
                 />
@@ -345,7 +345,7 @@ const fetchNotices = async () => {
               </button>
             )}
           </div>
-          {isAttendanceModalOpen && <ApproveAttendanceModal onClose={closeAttendanceModal} lecSerial={selectedLecSerial}/>}
+          {isAttendanceModalOpen && <ApproveAttendanceModal onClose={closeAttendanceModal} lecSerial={selectedLectureSerial}/>}
         </div>
 
         <div className="testAssignment">
@@ -419,7 +419,7 @@ const fetchNotices = async () => {
                 <AssignmentCreateModal
                     onClose={closeAssignmentCreateModal}
                     lecSerial={selectedLecSerial}
-                    lecTitle={lectureList.find(lec => lec.lecSerial === selectedLecSerial)?.lecTit || ''}
+                    lecTitle={lectureList.find(lec => lec.lecSerial === selectedLectureSerial)?.lecTit || ''}
                 />
                 )}
             </>
