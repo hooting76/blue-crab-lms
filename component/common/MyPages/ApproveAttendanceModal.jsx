@@ -22,10 +22,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
 
 
     // 학생 목록 불러오기
-    const fetchStudentList = async (accessToken) => {
-        console.log("accessToken : ", accessToken);
-        console.log("URL : ", `${BASE_URL}/lectures/${lecSerial}/students?page=${page - 1}&size=20`);
-        console.log("lecSerial : ", lecSerial);
+    const fetchStudentList = async (accessToken, lecSerial) => {
 
             if (!accessToken) return;
     
@@ -33,12 +30,13 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
             setError(null);
             try {
     
-                const response = await fetch(`${BASE_URL}/lectures/${lecSerial}/students?page=${page - 1}&size=20`, {
+                const response = await fetch(`${BASE_URL}/attendance/professor/view`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${accessToken}`,
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify({lecSerial: lecSerial})
                 });
     
                 if (!response.ok) throw new Error('학생 목록을 불러오는 데 실패했습니다.');
