@@ -50,6 +50,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, selectedLecSerial, 
                     setSelectedLectureSerial(data[0].lecSerial);
                 }
             }
+            console.log("selectedLectureSerial : ", selectedLectureSerial);
 
         } catch (error) {
             console.error('강의 목록 에러:', error);
@@ -180,7 +181,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, selectedLecSerial, 
     /** ========== Render ========== */
     return (
         <>
-            <select className="lectureName" onChange={handleLectureChange} value={selectedLectureSerial || ''}>
+            <select className="lectureName" onChange={handleLectureChange} value={selectedLectureSerial}>
                 {lectureList.length > 0 ? (
                     lectureList.map((lecture) => (
                         <option key={lecture.lecIdx} value={lecture.lecSerial}>
