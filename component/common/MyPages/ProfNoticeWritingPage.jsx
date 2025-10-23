@@ -329,22 +329,37 @@ useEffect(() => {
 
       <div>
         <label>과목</label><br />
-          <select
-            value={selectedLectureSerial}
-            onChange={(e) => setSelectedLectureSerial(e.target.value)}
-            disabled={!!notice} // 🔒 수정 모드일 경우 비활성화
-          >
-            {lectureList.length > 0 ? (
-              lectureList.map((cls) => (
-                <option key={cls.lecIdx} value={cls.lecSerial}>
-                  {cls.lecTit}
-                </option>
-              ))
+
+        {/* ✅ 수정 모드일 때: 강의명만 표시 */}
+        {notice ? (
+          <div style={{ padding: '8px 0' }}>
+            <strong>
+              {
+                // lecSerial을 기반으로 강의명 찾아 표시
+                lectureList.find((cls) => cls.lecSerial === notice.lecSerial)?.lecTit ||
+                '강의 정보 없음'
+              }
+            </strong>
+          </div>
             ) : (
-              <option disabled>강의 목록 없음</option>
+              /* ✅ 새 공지 작성 모드일 때: 과목 선택 가능 */
+              <select
+                value={selectedLectureSerial}
+                onChange={(e) => setSelectedLectureSerial(e.target.value)}
+              >
+                {lectureList.length > 0 ? (
+                  lectureList.map((cls) => (
+                    <option key={cls.lecIdx} value={cls.lecSerial}>
+                      {cls.lecTit}
+                    </option>
+                  ))
+                ) : (
+                  <option disabled>강의 목록 없음</option>
+                )}
+              </select>
             )}
-          </select>
-      </div>
+        </div>
+
 
       <div>
         <label>본문</label>
