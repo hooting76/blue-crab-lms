@@ -117,7 +117,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
             professorIdx: user.data.user.userIdx,
             rejectReason,
         });
-        fetchStudentList(accessToken);
+        fetchStudentList(accessToken, lecSerial);
 
         // 상태 초기화
         setShowRejectPrompt(false);
@@ -132,7 +132,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
             professorIdx: user.data.user.userIdx,
         });
 
-        await fetchStudentList(accessToken); // 목록 다시 불러오기
+        await fetchStudentList(accessToken, lecSerial); // 목록 다시 불러오기
     };
 
 
