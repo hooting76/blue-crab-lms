@@ -24,7 +24,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, selectedLecSerial, 
 
 
     /** ========== Fetch ========== */
-    const fetchLectureList = async (accessToken, page, userId) => {
+    const fetchLectureList = async (accessToken, page, userId, selectedLecSerial) => {
         const endpoint = isProf ? '/lectures' : '/enrollments/list';
         const requestBody = isProf
             ? { page: page - 1, size: 10, professor: String(userId) }
