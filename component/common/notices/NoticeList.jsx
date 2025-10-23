@@ -16,7 +16,8 @@ export default function NoticeList({
     onWrite,
     currentPage,
     setCurrentPage,
-    setSelectedNotice
+    setSelectedNotice,
+    onDeleteSuccess
 }) {
 
 
@@ -120,7 +121,7 @@ export default function NoticeList({
         };
 
 
-        
+
         return(
             <>
             {/* 작성 버튼은 관리자만 노출 ->UI단계에서는 주석처리 */}
