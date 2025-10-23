@@ -12,16 +12,13 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [page, setPage] = useState(1);
-    const [total, setTotal] = useState(0);
+    // const [page, setPage] = useState(1);
+    // const [total, setTotal] = useState(0);
     const accessToken = user.data.accessToken;
 
-     const handlePageChange = (newPage) => {
-        setPage(newPage);
-    };
-
-
-    console.log("lecSerial:", lecSerial);
+    //  const handlePageChange = (newPage) => {
+    //     setPage(newPage);
+    // };
 
 
     // 학생 목록 불러오기
@@ -39,13 +36,13 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
                         'Authorization': `Bearer ${accessToken}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ lecSerial: String(lecSerial) })
+                    body: JSON.stringify({ lecSerial: lecSerial })
                 });
     
                 if (!response.ok) throw new Error('학생 목록을 불러오는 데 실패했습니다.');
                 const data = await response.json();
                 setStudentList(data.content);
-                setTotal(data.totalElements);
+                // setTotal(data.totalElements);
             } catch (error) {
                 console.error('학생 목록 조회 에러:', error);
                 setError(error.message || '알 수 없는 에러가 발생했습니다.');
@@ -59,7 +56,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
         if (accessToken && lecSerial) {
             fetchStudentList(accessToken, lecSerial);
         }
-    }, [accessToken, page, lecSerial]);
+    }, [accessToken, lecSerial]);
 
 
     // 출석 승인
@@ -160,12 +157,12 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
                     </tbody>
                 </table>
 
-                <Pagination
+                {/* <Pagination
                     page={page}
                     size={20}
                     total={total}
                     onChange={handlePageChange}
-                />
+                /> */}
 
                 <button onClick={onClose}>닫기</button>
             </div>
