@@ -1,13 +1,10 @@
 // 수강신청 API 어댑터 (문서 스펙 준수)
-// - BASE 절대경로 사용 (vite.config.js 수정 불가 환경)
+// - BASE 절대경로 사용 (vite.config.js 수정 불가)
 // - Bearer 토큰: ensureAccessTokenOrRedirect()
-// - eligible: lecYear/lecSemester/lecMajor (선택)만 전송, name 미전송
-// - 취소: DELETE /enrollments/{enrollmentIdx}
-// - 안내문: POST https://.../notice/course-apply/{view|save}
+// - "필요한 필드만" 정확히 전송 (studentId 제거)
 
 import { ensureAccessTokenOrRedirect } from '../utils/authFlow';
 
-// 절대 베이스 URL 
 const BASE_API_ROOT    = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 const BASE_NOTICE_ROOT = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/notice';
 
@@ -28,20 +25,23 @@ const getHeaders = (token) => ({
   'Content-Type': 'application/json',
 });
 
-function compact(obj = {}) {
-  const out = {};
-  Object.keys(obj).forEach((k) => {
-    const v = obj[k];
-    if (v !== null && v !== undefined && v !== '') out[k] = v;
-  });
-  return out;
-}
-
+// 500 에러 원인 메시지까지 보려고 text도 로깅
 async function readJsonOrThrow(res) {
+  const contentType = res.headers.get('content-type') || '';
   let data = null;
-  try { data = await res.json(); } catch {}
+
+  try {
+    if (contentType.includes('application/json')) {
+      data = await res.json();
+    } else {
+      // 서버가 500에서 text/html을 줄 수도 있음
+      const text = await res.text();
+      data = text ? { message: text } : null;
+    }
+  } catch { /* ignore */ }
+
   if (!res.ok) {
-    const msg = (data && data.message) ? data.message : `HTTP_${res.status}`;
+    const msg = (data && data.message) ? String(data.message) : `HTTP_${res.status}`;
     const err = new Error(msg);
     err.status = res.status;
     err.payload = data;
@@ -50,26 +50,25 @@ async function readJsonOrThrow(res) {
   return data ?? {};
 }
 
-/** 1) 개설 강의(수강 가능) 조회 */
+/** 1) 개설 강의 조회 (필터 선택값만 전송) */
 export async function fetchEligibleLectures({
   studentId,
-  page = 0,
-  size = 20,
-  lecYear = null,
-  lecSemester = null,
-  lecMajor = null,   // 1=전공, 0=교양, null=전체(전송X)
+  page = 0, size = 20,
+  lecYear = null, lecSemester = null, lecMajor = null,
 } = {}) {
   const token = await ensureAccessTokenOrRedirect();
-
-  // name(교과목명) 검색은 백엔드 미지원 → 절대 전송 X
-  const payload = compact({ studentId, page, size, lecYear, lecSemester, lecMajor });
+  const payload = {
+    studentId: Number(studentId),       // ← 이 엔드포인트는 studentId 사용
+    page, size,
+    ...(lecYear != null      ? { lecYear: Number(lecYear) }         : {}),
+    ...(lecSemester != null  ? { lecSemester: Number(lecSemester) } : {}),
+    ...(lecMajor != null     ? { lecMajor: Number(lecMajor) }       : {}),
+  };
 
   const res = await fetch(BASE.eligible, {
     method: 'POST',
     headers: getHeaders(token),
     body: JSON.stringify(payload),
-    // credentials: 'include', // 필요 시
-    // mode: 'cors',           // 기본값 cors
   });
 
   const data = await readJsonOrThrow(res);
@@ -83,8 +82,8 @@ export async function fetchEligibleLectures({
         time: s.lecTime,
         enrolled: s.lecCurrent ?? 0,
         capacity: s.lecMany ?? 0,
-        mcode: s.lecMcode,       // 학부 코드
-        mcodeDep: s.lecMcodeDep, // 학과 코드
+        mcode: s.lecMcode,
+        mcodeDep: s.lecMcodeDep,
         eligible: s.isEligible ?? true,
         eligibilityReason: s.eligibilityReason ?? '',
       }))
@@ -98,34 +97,39 @@ export async function fetchEligibleLectures({
       ineligibleCount: data.ineligibleCount ?? 0,
     },
     pagination: data.pagination ?? {
-      currentPage: page,
-      pageSize: size,
-      totalElements: list.length,
-      totalPages: 1,
+      currentPage: page, pageSize: size, totalElements: list.length, totalPages: 1,
     },
     studentInfo: data.studentInfo ?? null,
     raw: data,
   };
 }
 
-/** 2) 수강신청 */
+/** 2) 수강신청 (명세 그 자체: studentIdx + lecSerial 만) */
 export async function enrollLecture({ studentIdx, lecSerial }) {
   const token = await ensureAccessTokenOrRedirect();
   const res = await fetch(BASE.enroll, {
     method: 'POST',
     headers: getHeaders(token),
-    body: JSON.stringify({ studentIdx, lecSerial }),
+    body: JSON.stringify({
+      studentIdx: Number(studentIdx),
+      lecSerial: String(lecSerial).trim(),
+    }),
   });
-  return readJsonOrThrow(res); // 성공 시 엔티티 그대로
+  return readJsonOrThrow(res);
 }
 
-/** 3) 내 수강 목록 (페이지네이션) */
+/** 3) 내 수강 목록 (명세 그 자체: studentIdx, enrolled, page, size) */
 export async function fetchMyEnrollments({ studentIdx, enrolled = true, page = 0, size = 20 }) {
   const token = await ensureAccessTokenOrRedirect();
   const res = await fetch(BASE.list, {
     method: 'POST',
     headers: getHeaders(token),
-    body: JSON.stringify({ studentIdx, enrolled, page, size }),
+    body: JSON.stringify({
+      studentIdx: Number(studentIdx),
+      enrolled: !!enrolled,
+      page: Number(page),
+      size: Number(size),
+    }),
   });
 
   const data = await readJsonOrThrow(res);
@@ -138,7 +142,7 @@ export async function fetchMyEnrollments({ studentIdx, enrolled = true, page = 0
     prof: s.lecProfName ?? '',
     time: s.lecTime,
     status: s.status ?? 'ACTIVE',
-    enrollmentIdx: s.enrollmentIdx, // ← 취소에 쓰임
+    enrollmentIdx: s.enrollmentIdx,
     enrollmentDate: s.enrollmentDate,
     lecIdx: s.lecIdx,
   }));
@@ -153,28 +157,49 @@ export async function fetchMyEnrollments({ studentIdx, enrolled = true, page = 0
   };
 }
 
-/** 4) 중복 확인 */
+/** 4) 중복확인 (명세 그 자체: studentIdx + lecSerial + checkEnrollment) */
 export async function checkEnrollment({ studentIdx, lecSerial }) {
   const token = await ensureAccessTokenOrRedirect();
-  const res = await fetch(BASE.list, {
-    method: 'POST',
-    headers: getHeaders(token),
-    body: JSON.stringify({ studentIdx, lecSerial, checkEnrollment: true }),
-  });
+ // 1) 원래 문서대로 시도
   try {
+    const res = await fetch(`${BASE_API_ROOT}/enrollments/list`, {
+      method: 'POST',
+      headers: getHeaders(token),
+      body: JSON.stringify({ studentIdx, lecSerial, checkEnrollment: true }),
+    });
     const data = await readJsonOrThrow(res);
-    return {
-      enrolled: !!data.enrolled,
-      studentIdx: data.studentIdx ?? studentIdx,
-      lecSerial: data.lecSerial ?? lecSerial,
-      raw: data,
-    };
+    // 서버가 200을 주면 그대로 신뢰
+    if (typeof data.enrolled === 'boolean') {
+      return {
+        enrolled: data.enrolled,
+        studentIdx: data.studentIdx ?? studentIdx,
+        lecSerial: data.lecSerial ?? lecSerial,
+        raw: data,
+      };
+    }
+    // 형태가 다르면 아래 fallback으로
   } catch (e) {
-    return { enrolled: false, studentIdx, lecSerial, error: e.message };
+    // 500 등 서버 오류면 fallback
+  }
+
+  // 2) Fallback: 내 수강 목록을 가져와서 클라에서 중복판정
+  try {
+    const res2 = await fetch(`${BASE_API_ROOT}/enrollments/list`, {
+      method: 'POST',
+      headers: getHeaders(token),
+      body: JSON.stringify({ studentIdx, enrolled: true, page: 0, size: 200 }),
+    });
+    const data2 = await readJsonOrThrow(res2);
+    const items = Array.isArray(data2.content) ? data2.content : [];
+    const found = items.some((it) => it.lecSerial === lecSerial);
+    return { enrolled: found, studentIdx, lecSerial, raw: data2 };
+  } catch (e2) {
+    // 최종 실패 시에도 안전하게 false 반환
+    return { enrolled: false, studentIdx, lecSerial, error: e2.message };
   }
 }
 
-/** 5) 수강신청 취소 (DELETE /enrollments/{enrollmentIdx}) */
+/** 5) 취소 */
 export async function cancelEnrollmentByIdx({ enrollmentIdx }) {
   const token = await ensureAccessTokenOrRedirect();
   const res = await fetch(BASE.cancelById(enrollmentIdx), {
@@ -184,15 +209,14 @@ export async function cancelEnrollmentByIdx({ enrollmentIdx }) {
   return readJsonOrThrow(res);
 }
 
-/** 6) 안내문 조회/저장 (POST 기반) */
+/** 6) 안내문 (변경 없음) */
 export async function viewCourseApplyNotice() {
-  // 공개 API (토큰 불필요)
   const res = await fetch(NOTICE.view, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({}),
   });
-  return readJsonOrThrow(res); // { success, message, updatedAt, updatedBy }
+  return readJsonOrThrow(res);
 }
 
 export async function saveCourseApplyNotice({ message }) {
@@ -202,5 +226,5 @@ export async function saveCourseApplyNotice({ message }) {
     headers: getHeaders(token),
     body: JSON.stringify({ message }),
   });
-  return readJsonOrThrow(res); // { success, message, data:{...} }
+  return readJsonOrThrow(res);
 }

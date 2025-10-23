@@ -1,3 +1,4 @@
+//component/common/Course/CourseApply.jsx
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import '../../../css/Course/CourseApply.css';
 
@@ -145,21 +146,41 @@ export default function CourseApply({ setCurrentPage }) {
 
   const confirmApply = async () => {
     if (!pendingApply) return;
+    if (!pendingApply.id || typeof pendingApply.id !== 'string') {
+      setInfoMsg('과목 코드가 올바르지 않습니다.');
+      setInfoOpen(true);
+      setShowConfirm(false);
+      setPendingApply(null);
+      return;
+      }
     try {
       const { studentIdx } = resolveStudent();
-      const dup = await checkEnrollment({ studentIdx, lecSerial: pendingApply.id });
-      if (dup?.enrolled) { setInfoMsg('이미 신청완료된 과목입니다.'); setInfoOpen(true); }
-      else {
-        await enrollLecture({ studentIdx, lecSerial: pendingApply.id });
-        setOpenSheet(true);
-        await refetch();
-      }
-    } catch (e) {
-      setInfoMsg(e?.payload?.message || e.message || '신청 실패'); setInfoOpen(true);
-    } finally {
-      setShowConfirm(false); setPendingApply(null);
+          // ✅ (1) 선 중복확인 (서버 500이면 위에서 설명한 fallback 사용)
+    const dup = await checkEnrollment({ studentIdx, lecSerial: pendingApply.id });
+    if (dup?.enrolled) {
+      setInfoMsg('이미 신청완료된 과목입니다.');
+      setInfoOpen(true);
+      return;
     }
-  };
+
+    // ✅ (2) 실제 신청 호출
+    await enrollLecture({ studentIdx, lecSerial: pendingApply.id });
+
+    setOpenSheet(true);
+    await refetch();
+  } catch (e) {
+    // 500 포함 모든 에러 메시지 정리
+    const msg =
+      e?.payload?.message ||
+      (e.status === 500 ? '서버 내부 오류로 신청에 실패했습니다.' : e.message) ||
+      '신청 실패';
+    setInfoMsg(msg);
+    setInfoOpen(true);
+  } finally {
+    setShowConfirm(false);
+    setPendingApply(null);
+  }
+};
 
   // 취소(DELETE by enrollmentIdx)
   const cancelOne = async (enrollmentIdx) => {
