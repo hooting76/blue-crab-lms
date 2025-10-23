@@ -112,6 +112,15 @@ export default function NoticeList({
             if(onWrite) return onWrite();     // 외부핸들러있으면 호출
         };
 
+        const onDeleteSuccess = () => {
+          setSelectedNotice(null);
+          if (typeof onPageChange === "function") {
+            onPageChange(page); // 삭제 후 현재 페이지 다시 불러오기 (또는 1로 고정 가능)
+          }
+        };
+
+
+        
         return(
             <>
             {/* 작성 버튼은 관리자만 노출 ->UI단계에서는 주석처리 */}
