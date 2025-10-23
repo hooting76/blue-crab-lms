@@ -24,7 +24,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, selectedLecSerial, 
 
 
     /** ========== Fetch ========== */
-    const fetchLectureList = async (accessToken, page, userId, selectedLecSerial) => {
+    const fetchLectureList = async (accessToken, page, userId) => {
         const endpoint = isProf ? '/lectures' : '/enrollments/list';
         const requestBody = isProf
             ? { page: page - 1, size: 10, professor: String(userId) }
@@ -43,15 +43,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, selectedLecSerial, 
             if (!response.ok) throw new Error('강의 목록 조회 실패');
             const data = await response.json();
             setLectureList(data);
-            if (data.length > 0) {
-                if (selectedLecSerial) {
-                    setSelectedLectureSerial(selectedLecSerial);
-                } else {
-                    setSelectedLectureSerial(data[0].lecSerial);
-                }
-            }
-            console.log("selectedLectureSerial : ", selectedLectureSerial);
-
+            
         } catch (error) {
             console.error('강의 목록 에러:', error);
             setLectureList([]);
@@ -115,7 +107,9 @@ useEffect(() => {
     }
 }, [accessToken, selectedLectureSerial, page, currentPage]);
 
-
+useEffect(() => {
+    console.log('selectedLectureSerial updated:', selectedLectureSerial);
+}, [selectedLectureSerial]);
 
 
     /** ========== Helpers ========== */
