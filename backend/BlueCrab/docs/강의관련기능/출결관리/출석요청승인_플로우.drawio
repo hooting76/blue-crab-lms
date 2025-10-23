@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" version="28.2.7">
   <diagram name="전체 플로우" id="flow-page">
-    <mxGraphModel dx="1426" dy="777" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" background="light-dark(#FFFFFF,#FFFFFF)" math="0" shadow="0">
+    <mxGraphModel dx="1097" dy="598" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" background="light-dark(#FFFFFF,#FFFFFF)" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -116,7 +116,7 @@
         <mxCell id="scheduler-section" value="자동 처리 (스케줄러)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#F0F0F0;strokeColor=#757575;fontSize=16;fontStyle=1;strokeWidth=2;" parent="1" vertex="1">
           <mxGeometry x="1080" y="80" width="480" height="520" as="geometry" />
         </mxCell>
-        <mxCell id="sch1" value="매일 오전 3시&lt;br&gt;@Scheduled 실행" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0E0E0;strokeColor=#757575;strokeWidth=2;" parent="scheduler-section" vertex="1">
+        <mxCell id="sch1" value="매일 오전 5시&lt;br&gt;@Scheduled 실행" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0E0E0;strokeColor=#757575;strokeWidth=2;" parent="scheduler-section" vertex="1">
           <mxGeometry x="160" y="30" width="160" height="50" as="geometry" />
         </mxCell>
         <mxCell id="sch2" value="모든 ENROLLMENT_EXTENDED_TBL 조회" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0E0E0;strokeColor=#757575;strokeWidth=2;" parent="scheduler-section" vertex="1">
@@ -181,10 +181,10 @@
         <mxCell id="e-db2-db3" style="strokeWidth=2;" parent="db-section" source="db2" target="db3" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e-s6-db" value="저장" style="dashed=1;strokeColor=#4CAF50;strokeWidth=2;edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;" parent="1" source="s6" target="db1" edge="1">
+        <mxCell id="e-s6-db" value="저장" style="dashed=1;strokeColor=#4CAF50;strokeWidth=2;edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;spacing=2;" parent="1" source="s6" target="db1" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e-p7-db" value="업데이트" style="dashed=1;strokeColor=#4CAF50;strokeWidth=2;rounded=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="p7" target="db1" edge="1">
+        <mxCell id="e-p7-db" value="업데이트" style="dashed=1;strokeColor=#4CAF50;strokeWidth=2;rounded=0;edgeStyle=orthogonalEdgeStyle;spacing=2;spacingTop=0;textShadow=0;" parent="1" source="p7" target="db1" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="670" y="640" />
@@ -215,7 +215,7 @@
         <mxCell id="api4" value="POST /api/professor/attendance/approve&lt;br&gt;교수 출석 승인&lt;br&gt;Body: {lecSerial, approvalList: [{...}]}" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#C5CAE9;strokeColor=#3F51B5;fontFamily=Courier New;strokeWidth=2;" parent="api-summary" vertex="1">
           <mxGeometry x="420" y="120" width="380" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="api5" value="자동 승인 스케줄러&lt;br&gt;@Scheduled(cron=&quot;0 0 3 * * *&quot;)&lt;br&gt;매일 오전 3시 실행&lt;br&gt;만료된 출석 요청 자동 승인" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E0E0E0;strokeColor=#757575;fontFamily=Courier New;strokeWidth=2;" parent="api-summary" vertex="1">
+        <mxCell id="api5" value="자동 승인 스케줄러&lt;br&gt;@Scheduled(cron=&quot;0 0 3 * * *&quot;)&lt;br&gt;매일 오전 5시 실행&lt;br&gt;만료된 출석 요청 자동 승인&lt;div&gt;시간 기준점은 서버시간(GMT+9:00)&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E0E0E0;strokeColor=#757575;fontFamily=Courier New;strokeWidth=2;" parent="api-summary" vertex="1">
           <mxGeometry x="840" y="40" width="640" height="150" as="geometry" />
         </mxCell>
       </root>

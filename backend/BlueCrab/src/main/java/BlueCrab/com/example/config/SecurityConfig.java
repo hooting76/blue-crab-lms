@@ -156,6 +156,12 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/profile/me/image/file").authenticated() // 프로필 이미지 파일 조회
                 .requestMatchers(HttpMethod.GET, "/api/profile/me/image/**").authenticated() // 프로필 이미지 조회 (레거시 - 제거 예정)
                 
+                // 📋 출석 요청/승인 API (인증 및 권한 필요)
+                .requestMatchers("/api/attendance/request").authenticated() // 학생 출석 요청
+                .requestMatchers("/api/attendance/approve").hasAnyRole("PROFESSOR", "ADMIN") // 교수/관리자 출석 승인
+                .requestMatchers("/api/attendance/student/view").authenticated() // 학생 출석 조회
+                .requestMatchers("/api/attendance/professor/view").hasAnyRole("PROFESSOR", "ADMIN") // 교수 출석 조회
+                
                 // �🔧 관리자 전용 엔드포인트 (현재 임시로 개방)
                 .requestMatchers("/admin/logs/**").permitAll() // 로그 모니터링 (TODO: ADMIN 권한 필요)
                 .requestMatchers("/admin/metrics/**").permitAll() // 메트릭 정보 (TODO: ADMIN 권한 필요)
