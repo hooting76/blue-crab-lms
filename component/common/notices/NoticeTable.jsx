@@ -5,7 +5,7 @@ import "../../../css/Communities/NoticeDetailModal.css";
 import { UseAdmin } from "../../../hook/UseAdmin";
 import NoticeDetail from "../Communities/NoticeDetail";
 
-export default function NoticeTable({ rows, currentPage, setCurrentPage, setSelectedNotice }) {
+export default function NoticeTable({ rows, currentPage, setCurrentPage, setSelectedNotice, onDeleteSuccess }) {
     const [selectedIdx, setSelectedIdx] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [fetchedNotice, setFetchedNotice] = useState(null); // fetch된 진짜 notice
@@ -145,6 +145,10 @@ const handleEdit = () => {
                         onFetchComplete={(notice) => {
                             setFetchedNotice(notice);        // 업데이트된 공지
                             setSelectedNotice(notice);
+                        }}
+                        onDeleteSuccess={() => {
+                            closeModal();          // ✅ 모달 닫기
+                            onDeleteSuccess?.();   // ✅ 부모 새로고침 트리거
                         }}
                         />
 

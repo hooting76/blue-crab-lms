@@ -133,6 +133,7 @@ export default function NoticeList({
               setCurrentPage={setCurrentPage}
               selectedNotice={null}
               setSelectedNotice={setSelectedNotice}
+              onDeleteSuccess={onDeleteSuccess}
             />
 
 
