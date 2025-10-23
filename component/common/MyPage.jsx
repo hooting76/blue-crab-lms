@@ -30,7 +30,7 @@ function MyPage({ currentPage, setCurrentPage }) {
         case "수강/강의중인 과목":
             return (
         <>
-            <ClassAttending currentPage={currentPage} setCurrentPage={setCurrentPage} onSelectCourse={handleSelectCourse} />
+            <ClassAttending currentPage={currentPage} setCurrentPage={setCurrentPage} onSelectCourse={handleSelectCourse} onSelectLectureSerial={setSelectedLectureSerial}/>
         </>
         );
         case "수강/강의과목 공지사항":

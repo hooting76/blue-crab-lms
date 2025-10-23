@@ -418,7 +418,7 @@ const fetchNotices = async () => {
               {isAssignmentCreateModalOpen && (
                 <AssignmentCreateModal
                     onClose={closeAssignmentCreateModal}
-                    lecSerial={selectedLecSerial}
+                    lecSerial={selectedLectureSerial}
                     lecTitle={lectureList.find(lec => lec.lecSerial === selectedLectureSerial)?.lecTit || ''}
                 />
                 )}
