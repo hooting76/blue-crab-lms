@@ -92,6 +92,14 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, selectedLecSerial, 
     }
     }, [accessToken, selectedLectureSerial, page, currentPage]);
 
+    useEffect(() => {
+    if (selectedLecSerial) {
+        setSelectedLectureSerial(selectedLecSerial);
+        setPage(1); // 페이지도 초기화
+        }
+    }, [selectedLecSerial]);
+
+
 
     /** ========== Helpers ========== */
     const decodeBase64 = (str) => {
