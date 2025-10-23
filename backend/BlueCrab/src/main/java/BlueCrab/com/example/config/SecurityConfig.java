@@ -139,7 +139,10 @@ public class SecurityConfig {
                 // 🔓 수강신청 안내문 조회 (인증 불필요)
                 .requestMatchers("/notice/course-apply/view").permitAll() // 안내문 조회 (공개)
                 
-                // � 게시판 조회 API (임시로 모두 허용 - 디버깅용)
+                // 🔒 수강신청 안내문 저장 (관리자/교수만 가능)
+                .requestMatchers("/notice/course-apply/save").hasAnyRole("ADMIN", "PROFESSOR") // 안내문 저장 (권한 필요)
+                
+                // 📝 게시판 조회 API (임시로 모두 허용 - 디버깅용)
                 .requestMatchers("/api/boards/**").permitAll() //
                 
                 // 🌐 CORS Preflight 요청 허용 (중요!)
