@@ -17,6 +17,7 @@ function ClassAttending({ currentPage, setCurrentPage }) {
   const [assignmentList, setAssignmentList] = useState([]);
   const [noticeList, setNoticeList] = useState([]);
   const page = 0;
+  const NOTICE_BOARD_CODE = 3;
 
   // 1. 선택한 강의 ID 상태 추가
   const [selectedLectureSerial, setSelectedLectureSerial] = useState("");
