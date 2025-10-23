@@ -33,7 +33,7 @@ function MyPage({ currentPage, setCurrentPage }) {
         </>
         );
         case "수강/강의과목 공지사항":
-            return <ClassAttendingNotice currentPage={currentPage} setCurrentPage={setCurrentPage} setNoticeToEdit={setNoticeToEdit}/>;
+            return <ClassAttendingNotice currentPage={currentPage} setCurrentPage={setCurrentPage} selectedLecSerial={selectedLectureSerial} setNoticeToEdit={setNoticeToEdit}/>;
         case "과목별 공지 작성":
             return <ProfNoticeWritingPage notice={noticeToEdit} currentPage={currentPage} setCurrentPage={setCurrentPage} />;
         case "강의 수정":
