@@ -118,7 +118,9 @@ export async function enrollLecture({ studentIdx, lecSerial }) {
   return readJsonOrThrow(res);
 }
 
-/** 3) 내 수강 목록 (명세 그 자체: studentIdx, enrolled, page, size) */
+/** 3) 내 수강 목록
+ *    - 서버가 배열([]) 또는 객체({ content: [] })로 줄 수 있어 둘 다 대응
+ */
 export async function fetchMyEnrollments({ studentIdx, enrolled = true, page = 0, size = 20 }) {
   const token = await ensureAccessTokenOrRedirect();
   const res = await fetch(BASE.list, {
@@ -133,7 +135,11 @@ export async function fetchMyEnrollments({ studentIdx, enrolled = true, page = 0
   });
 
   const data = await readJsonOrThrow(res);
-  const items = Array.isArray(data.content) ? data.content : [];
+
+  // ✅ 응답 유연 처리
+  const items = Array.isArray(data)
+    ? data
+    : (Array.isArray(data.content) ? data.content : []);
 
   const list = items.map((s) => ({
     id: s.lecSerial,
@@ -147,29 +153,42 @@ export async function fetchMyEnrollments({ studentIdx, enrolled = true, page = 0
     lecIdx: s.lecIdx,
   }));
 
+  // 페이지 정보도 유연하게
+  const pg = Array.isArray(data)
+    ? { number: 0, size: list.length, totalElements: list.length, totalPages: 1 }
+    : {
+        number: data.number ?? page,
+        size: data.size ?? size,
+        totalElements: data.totalElements ?? list.length,
+        totalPages: data.totalPages ?? 1,
+      };
+
   return {
     list,
-    page: data.number ?? page,
-    size: data.size ?? size,
-    totalElements: data.totalElements ?? list.length,
-    totalPages: data.totalPages ?? 1,
+    page: pg.number,
+    size: pg.size,
+    totalElements: pg.totalElements,
+    totalPages: pg.totalPages,
     raw: data,
   };
 }
 
-/** 4) 중복확인 (명세 그 자체: studentIdx + lecSerial + checkEnrollment) */
+/** 4) 중복확인 (문서: studentIdx + lecSerial + checkEnrollment)
+ *    - 문서형 실패 시, 내 수강목록으로 Fallback
+ */
 export async function checkEnrollment({ studentIdx, lecSerial }) {
   const token = await ensureAccessTokenOrRedirect();
- // 1) 원래 문서대로 시도
+
+  // 1) 문서 스펙대로 시도
   try {
-    const res = await fetch(`${BASE_API_ROOT}/enrollments/list`, {
+    const res = await fetch(BASE.list, {
       method: 'POST',
       headers: getHeaders(token),
-      body: JSON.stringify({ studentIdx, lecSerial, checkEnrollment: true }),
+      body: JSON.stringify({ studentIdx: Number(studentIdx), lecSerial: String(lecSerial), checkEnrollment: true }),
     });
     const data = await readJsonOrThrow(res);
-    // 서버가 200을 주면 그대로 신뢰
-    if (typeof data.enrolled === 'boolean') {
+
+    if (typeof data?.enrolled === 'boolean') {
       return {
         enrolled: data.enrolled,
         studentIdx: data.studentIdx ?? studentIdx,
@@ -177,24 +196,27 @@ export async function checkEnrollment({ studentIdx, lecSerial }) {
         raw: data,
       };
     }
-    // 형태가 다르면 아래 fallback으로
-  } catch (e) {
-    // 500 등 서버 오류면 fallback
+    // 형태 다르면 아래 fallback 진행
+  } catch {
+    // ignore → fallback
   }
 
-  // 2) Fallback: 내 수강 목록을 가져와서 클라에서 중복판정
+  // 2) Fallback: 내 수강 목록으로 직접 판정
   try {
-    const res2 = await fetch(`${BASE_API_ROOT}/enrollments/list`, {
+    const res2 = await fetch(BASE.list, {
       method: 'POST',
       headers: getHeaders(token),
-      body: JSON.stringify({ studentIdx, enrolled: true, page: 0, size: 200 }),
+      body: JSON.stringify({ studentIdx: Number(studentIdx), enrolled: true, page: 0, size: 200 }),
     });
     const data2 = await readJsonOrThrow(res2);
-    const items = Array.isArray(data2.content) ? data2.content : [];
+
+    const items = Array.isArray(data2)
+      ? data2
+      : (Array.isArray(data2.content) ? data2.content : []);
+
     const found = items.some((it) => it.lecSerial === lecSerial);
     return { enrolled: found, studentIdx, lecSerial, raw: data2 };
   } catch (e2) {
-    // 최종 실패 시에도 안전하게 false 반환
     return { enrolled: false, studentIdx, lecSerial, error: e2.message };
   }
 }

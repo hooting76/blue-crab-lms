@@ -1,8 +1,58 @@
-/* css/Course/AdminCourseApplyNotice.css */
-.admin-notice-wrap{max-width:900px;margin:0 auto;padding:16px}
-.admin-notice-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:12px}
-.admin-notice-head h2{margin:0;font-size:20px;font-weight:800;color:#0f172a}
-.admin-notice-head .meta{font-size:13px;color:#64748b}
-.admin-notice-editor{background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 4px 16px rgba(2,6,23,.06);padding:12px}
-.notice-textarea{width:100%;border:none;outline:none;resize:vertical;font-size:14px;line-height:1.6}
-.admin-notice-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:12px}
+/* 레이아웃 */
+.admin-notice-wrap{
+  display:flex; flex-direction:column; align-items:center;
+  padding:20px 16px 28px; background:#eaf0f8;
+  min-height:calc(100vh - 160px);
+}
+
+/* 제목 상자 */
+.admin-title-box{
+  width:100%; max-width:860px;
+  background:#fff; border-radius:8px;
+  padding:14px 18px; margin:8px 0 12px;
+  box-shadow:0 1px 4px rgba(0,0,0,.08);
+  position:relative;
+}
+.admin-title-box .title-rail{
+  height:4px; background:#0f172a; border-radius:2px;
+}
+.admin-title-box .title-rail.top{ position:absolute; left:16px; right:16px; top:8px; }
+.admin-title-box .title-rail.bottom{ position:absolute; left:16px; right:16px; bottom:8px; }
+.admin-notice-title{
+  margin:10px 0; text-align:center; font-size:26px; font-weight:800; color:#0f172a;
+}
+
+/* 에디터 카드 */
+.admin-notice-editor{
+  width:100%; max-width:860px;
+  background:#fff; border:1px solid #e2e8f0; border-radius:12px;
+  box-shadow:0 2px 6px rgba(0,0,0,.08);
+  padding:12px; margin-bottom:0;
+}
+.toastui-editor-defaultUI{ border-radius:8px; overflow:hidden; }
+.toastui-editor-defaultUI-toolbar{ position:sticky; top:0; z-index:1; background:#fff; }
+
+/* 맞춤법 밑줄 보조 (spellcheck=false가 1차) */
+.toastui-editor-ww-container .ProseMirror{
+  -webkit-text-decoration-skip-ink: none;
+  text-decoration-skip-ink: none;
+}
+
+/* 하단 회색 바 */
+.admin-actions-bar{
+  width:100%; max-width:860px;
+  background:#bfc6cf; border-radius:6px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 18px; margin:8px 0 16px;
+  color:#0f172a;
+}
+.actions-left{ display:flex; gap:12px; }
+.actions-right{ font-size:14px; color:#0f172a; }
+.dirty-dot{ color:#ef4444; }
+
+/* 버튼 */
+.btn{ min-width:120px; padding:10px 16px; font-size:15px; border-radius:8px; cursor:pointer; border:none; }
+.btn.btn-primary{ background:#0075D4; color:#fff; }
+.btn.btn-primary:hover{ background:#0063b3; }
+.btn.secondary{ background:#e2e8f0; color:#1e293b; }
+.btn.secondary:hover{ background:#cbd5e1; }

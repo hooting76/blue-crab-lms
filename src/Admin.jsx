@@ -29,6 +29,9 @@ import AdminNoticeWritingPage from '../component/common/Communities/AdminNoticeW
 // 관리자 시설예약 페이지
 import AdminFacilityReservations from '../component/common/Facilities/AdminFacilityReservations';
 
+//관리자 강의 안내문
+import AdminCourseApplyNotice from '../component/common/Course/AdminCourseApplyNotice';
+
 // 강의 등록 페이지
 import CourseRegister from "../component/common/Course/CourseRegister";
 
@@ -78,6 +81,9 @@ const renderPage = () => {
           return <AdminFacilityReservations />;
         case '강의 등록':
           return <CourseRegister currentPage={currentPage} setCurrentPage={setCurrentPage}/>
+          
+        case '강의안내문':
+          return <AdminCourseApplyNotice />;
           
           default:
           return <AdminDashboard />;

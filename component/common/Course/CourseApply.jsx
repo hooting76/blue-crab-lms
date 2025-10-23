@@ -1,4 +1,4 @@
-//component/common/Course/CourseApply.jsx
+// component/common/Course/CourseApply.jsx
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import '../../../css/Course/CourseApply.css';
 
@@ -19,13 +19,13 @@ function resolveStudent() {
     const raw = JSON.parse(localStorage.getItem('user') || 'null');
     const u   = raw?.data?.user ?? raw?.user;
     const uid = Number(u?.id);
-    const roleFlag = Number(u?.userStudent); // 0=학생,1=교수
+    const roleFlag = Number(u?.userStudent); // 0=학생, 1=교수
     if (Number.isFinite(uid)) return { studentId: uid, studentIdx: uid, userStudent: roleFlag };
   } catch {}
   const sId  = Number(localStorage.getItem('studentId'));
   const sIdx = Number(localStorage.getItem('studentIdx'));
   const flag = Number(localStorage.getItem('userStudent'));
-  if (Number.isFinite(sId))  return { studentId: sId, studentIdx: sId, userStudent: flag };
+  if (Number.isFinite(sId))  return { studentId: sId,  studentIdx: sId,  userStudent: flag };
   if (Number.isFinite(sIdx)) return { studentId: sIdx, studentIdx: sIdx, userStudent: flag };
   throw new Error('학생 식별자(studentId/studentIdx)가 없습니다.');
 }
@@ -47,6 +47,7 @@ export default function CourseApply({ setCurrentPage }) {
   const [infoOpen, setInfoOpen] = useState(false);
   const [infoMsg, setInfoMsg] = useState('');
   const [openSheet, setOpenSheet] = useState(false);
+  const [applying, setApplying] = useState(false); // 신청 중 버튼 방지
 
   // 필터(백엔드와 합의된 것만)
   const years = useMemo(() => [2025, 2024, 2023], []);
@@ -78,21 +79,15 @@ export default function CourseApply({ setCurrentPage }) {
       try {
         const res = await viewCourseApplyNotice();
         if (res?.success) setNotice(res.message || '');
-      } catch { /* 공개 API 실패 시 무시 */ }
+      } catch {}
     })();
-
-    // 즉시 반영: BroadcastChannel 구독
     try {
       bcRef.current = new BroadcastChannel('course-apply-notice');
       bcRef.current.onmessage = (ev) => {
-        if (ev?.data?.type === 'NOTICE_UPDATED') {
-          setNotice(ev.data.message || '');
-        }
+        if (ev?.data?.type === 'NOTICE_UPDATED') setNotice(ev.data.message || '');
       };
     } catch {}
-    return () => {
-      try { bcRef.current?.close(); } catch {}
-    };
+    return () => { try { bcRef.current?.close(); } catch {} };
   }, []);
 
   // 목록 로딩
@@ -103,7 +98,6 @@ export default function CourseApply({ setCurrentPage }) {
       if (userStudent === 1) {
         setCourses([]); setMyEnrolls([]);
         setError('학생 계정이 아닙니다. 수강신청은 학생만 이용할 수 있습니다.');
-        setLoading(false);
         return;
       }
 
@@ -115,7 +109,6 @@ export default function CourseApply({ setCurrentPage }) {
         lecSemester,
         lecMajor,
       });
-
       const mapped = mapListWithNames(eligible.list);
 
       const mine = await fetchMyEnrollments({
@@ -145,52 +138,67 @@ export default function CourseApply({ setCurrentPage }) {
   const handleApplyClick = (e, c) => { e.stopPropagation(); handleRowClick(c); };
 
   const confirmApply = async () => {
-    if (!pendingApply) return;
-    if (!pendingApply.id || typeof pendingApply.id !== 'string') {
+    if (!pendingApply || applying) return;
+
+    const lecSerial = typeof pendingApply.id === 'string' ? pendingApply.id.trim() : '';
+    if (!lecSerial) {
       setInfoMsg('과목 코드가 올바르지 않습니다.');
       setInfoOpen(true);
       setShowConfirm(false);
       setPendingApply(null);
       return;
-      }
-    try {
-      const { studentIdx } = resolveStudent();
-          // ✅ (1) 선 중복확인 (서버 500이면 위에서 설명한 fallback 사용)
-    const dup = await checkEnrollment({ studentIdx, lecSerial: pendingApply.id });
-    if (dup?.enrolled) {
-      setInfoMsg('이미 신청완료된 과목입니다.');
-      setInfoOpen(true);
-      return;
     }
 
-    // ✅ (2) 실제 신청 호출
-    await enrollLecture({ studentIdx, lecSerial: pendingApply.id });
+    setApplying(true);
+    try {
+      const { studentIdx } = resolveStudent();
 
-    setOpenSheet(true);
-    await refetch();
-  } catch (e) {
-    // 500 포함 모든 에러 메시지 정리
-    const msg =
-      e?.payload?.message ||
-      (e.status === 500 ? '서버 내부 오류로 신청에 실패했습니다.' : e.message) ||
-      '신청 실패';
-    setInfoMsg(msg);
-    setInfoOpen(true);
-  } finally {
-    setShowConfirm(false);
-    setPendingApply(null);
-  }
-};
+      // (1) 중복확인 (서버가 미지원이면 내부 폴백 사용)
+      const dup = await checkEnrollment({ studentIdx, lecSerial });
+      if (dup?.enrolled) {
+        setInfoMsg('이미 신청완료된 과목입니다.');
+        setInfoOpen(true);
+        return;
+      }
+
+      // (2) 신청
+      await enrollLecture({ studentIdx, lecSerial });
+
+      // (3) 성공 UX – 시트 열고 내 목록/메인 재조회
+      setOpenSheet(true);
+      const mine = await fetchMyEnrollments({ studentIdx, enrolled: true, page: 0, size: pageSize });
+      setPage(0);
+      setMyEnrolls(mine.list || []);
+      setTotalPages(mine.totalPages || 1);
+
+      await refetch(); // 정원/버튼 상태 반영
+      setInfoMsg('신청이 완료되었습니다.');
+      setInfoOpen(true);
+    } catch (e) {
+      const msg =
+        e?.payload?.message ||
+        (e.status === 500 ? '서버 내부 오류로 신청에 실패했습니다.' : e.message) ||
+        '신청 실패';
+      setInfoMsg(msg);
+      setInfoOpen(true);
+    } finally {
+      setApplying(false);
+      setShowConfirm(false);
+      setPendingApply(null);
+    }
+  };
 
   // 취소(DELETE by enrollmentIdx)
   const cancelOne = async (enrollmentIdx) => {
     if (!window.confirm('정말 취소하시겠습니까?')) return;
     try {
       await cancelEnrollmentByIdx({ enrollmentIdx });
-      setInfoMsg('취소되었습니다.'); setInfoOpen(true);
+      setInfoMsg('취소되었습니다.');
+      setInfoOpen(true);
       await refetch();
     } catch (e) {
-      setInfoMsg(e?.payload?.message || e.message || '취소 실패'); setInfoOpen(true);
+      setInfoMsg(e?.payload?.message || e.message || '취소 실패');
+      setInfoOpen(true);
     }
   };
 
@@ -314,7 +322,7 @@ export default function CourseApply({ setCurrentPage }) {
                         <button
                           className="btn btn-primary sm"
                           onClick={(e) => handleApplyClick(e, c)}
-                          disabled={full || ineligible || loading}
+                          disabled={full || ineligible || loading || applying}
                           title={ineligible ? (c.eligibilityReason || '수강 자격이 없습니다.') : (full ? '정원 초과' : '')}
                         >신청</button>
                       )}
@@ -329,7 +337,7 @@ export default function CourseApply({ setCurrentPage }) {
           </table>
         </div>
 
-        {/* ✅ 메인 표 페이지네이션 (10개/페이지) */}
+        {/* 메인 표 페이지네이션 */}
         {cTotalPages > 1 && (
           <div className="pagination" style={{ marginTop: 12 }}>
             <button className="btn sm" disabled={cPage === 0} onClick={() => setCPage(cPage - 1)}>« 이전</button>
@@ -397,8 +405,7 @@ export default function CourseApply({ setCurrentPage }) {
                         <div className="title">{c.name}</div>
                         <div className="meta">{c.id} · {c.prof} · {c.time}</div>
                       </div>
-                      <button className="btn danger sm"
-                              onClick={() => cancelOne(c.enrollmentIdx)}>
+                      <button className="btn danger sm" onClick={() => cancelOne(c.enrollmentIdx)}>
                         취소
                       </button>
                     </li>

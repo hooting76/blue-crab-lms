@@ -59,7 +59,16 @@ function AdNav({currentPage, setCurrentPage}){
                 <ul>
                     <li>열람실</li>
                     <li>푸시알림</li>
-                    <li>강의</li>
+                    {/* 강의안내문, 클릭 시 관리자 안내문 폼으로 */}
+                    <li
+                        onClick={() => setCurrentPage('강의안내문')}
+                        className={currentPage === '강의안내문' ? AdNavCss.active : ''}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setCurrentPage('강의안내문')}
+                    >
+                        강의안내문
+                    </li>
                     <li onClick={() => setCurrentPage('강의 등록')}>
                         강의 등록
                     </li>
