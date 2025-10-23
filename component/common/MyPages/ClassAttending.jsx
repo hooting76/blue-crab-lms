@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../../../css/MyPages/ClassAttending.css';
 import { UseUser } from '../../../hook/UseUser';
+import ClassAttendingNotice from './ClassAttendingNotice.jsx';
 import ApproveAttendanceModal from './ApproveAttendanceModal.jsx';
 import TestModal from './TestModal.jsx';
 import AssignmentCreateModal from './AssignmentCreateModal.jsx';
@@ -14,9 +15,10 @@ function ClassAttending({ currentPage, setCurrentPage }) {
   const isProf = user.data.user.userStudent === 1;
   const [lectureList, setLectureList] = useState([]);
   const [assignmentList, setAssignmentList] = useState([]);
+  const [noticeList, setNoticeList] = useState([]);
 
   // 1. 선택한 강의 ID 상태 추가
-  const [selectedLecSerial, setSelectedLecSerial] = useState("");
+  const [selectedLectureSerial, setSelectedLectureSerial] = useState("");
 
   // 모달 상태들
   const [isEvaluationModalOpen, setIsEvaluationModalOpen] = useState(false);
@@ -29,13 +31,13 @@ function ClassAttending({ currentPage, setCurrentPage }) {
   // 강의 목록 받아올 때 첫 강의로 기본 선택 설정
   useEffect(() => {
     if (lectureList.length > 0) {
-      setSelectedLecSerial(lectureList[0].lecSerial);
+      setSelectedLectureSerial(lectureList[0].lecSerial);
     }
   }, [lectureList]);
 
   // 강의 선택 변경 핸들러
   const handleLectureChange = (e) => {
-  setSelectedLecSerial(e.target.value); // e.target.value = lecSerial
+  setSelectedLectureSerial(e.target.value); // e.target.value = lecSerial
 };
 
 
@@ -79,10 +81,71 @@ const fetchLectureData = async (accessToken, user, isProf) => {
   }
 };
 
+// 공지 목록 불러오기
+const fetchNotices = async () => {
+        if (!accessToken || !selectedLectureSerial) return;
+        try {
+            const response = await fetch(`${BASE_URL}/boards/list`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    page: 0,
+                    size: 3,
+                    boardCode: NOTICE_BOARD_CODE,
+                    lecSerial: selectedLectureSerial
+                }),
+            });
+
+            if (!response.ok) throw new Error('공지사항 조회 실패');
+            const data = await response.json();
+            setNoticeList(data.content);
+            setTotalNotices(data.totalElements);
+        } catch (error) {
+            console.error('공지사항 에러:', error);
+            setNoticeList([]);
+        }
+    };
+
+    // Base64 디코딩 함수
+    const decodeBase64 = (str) => {
+        try {
+            const cleanStr = str.replace(/\s/g, '');
+            const binary = atob(cleanStr);
+            return decodeURIComponent(
+                Array.prototype.map
+                    .call(binary, (ch) => '%' + ('00' + ch.charCodeAt(0).toString(16)).slice(-2))
+                    .join('')
+            );
+        } catch (e) {
+            console.error("Base64 디코딩 오류:", e);
+            return "";
+        }
+    };
+
+    // 공지 작성시간 변환 함수
+    const formatTime = (timeStr) => {
+        const date = new Date(timeStr);
+        const now = new Date();
+
+        const isToday =
+            date.getFullYear() === now.getFullYear() &&
+            date.getMonth() === now.getMonth() &&
+            date.getDate() === now.getDate();
+
+        const formatted = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+
+        if (isToday) return formatted;
+
+        return `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')} ${formatted}`;
+    };
+
 
   // 과제 목록 불러오기
-  const getAssignments = async(accessToken, selectedLecSerial) => {
-    const requestBody = {lecSerial: selectedLecSerial, page: 0, size: 100, action: "list"}
+  const getAssignments = async(accessToken, selectedLectureSerial) => {
+    const requestBody = {lecSerial: selectedLectureSerial, page: 0, size: 100, action: "list"}
     try {
         const response = await fetch(`${BASE_URL}/assignments/list`, {
             method: "POST",
@@ -105,10 +168,16 @@ const fetchLectureData = async (accessToken, user, isProf) => {
     fetchLectureData(accessToken, user, isProf);
   }, [accessToken, user, isProf]);
 
+  useEffect(() => {
+      if (accessToken && selectedLectureSerial) {
+          fetchNotices();
+      }
+      }, [accessToken, selectedLectureSerial, page, currentPage]);
+
 
   useEffect(() => {
-    getAssignments(accessToken, selectedLecSerial);
-  }, [accessToken, selectedLecSerial]);
+    getAssignments(accessToken, selectedLectureSerial);
+  }, [accessToken, selectedLectureSerial]);
 
 
   // 출석인정 신청
@@ -134,6 +203,11 @@ const fetchLectureData = async (accessToken, user, isProf) => {
   const openClassDetailModal = () => setIsClassDetailModalOpen(true);
   const closeClassDetailModal = () => setIsClassDetailModalOpen(false);
 
+  // 과목별 공지 페이지 렌더링
+  if (currentPage === "수강/강의과목 공지사항") {
+    return <ClassAttendingNotice currentPage={currentPage} setCurrentPage={setCurrentPage}/>
+  }
+  
   // 공지 작성 페이지 렌더링
   if (currentPage === '과목별 공지 작성') {
     return <ProfNoticeWritingPage currentPage={currentPage} setCurrentPage={setCurrentPage} />;
@@ -143,7 +217,7 @@ const fetchLectureData = async (accessToken, user, isProf) => {
   return (
     <div className="classAttending_list_container">
       {/* 강의 선택 박스 */}
-      <select className="lectureName" value={selectedLecSerial || ''} onChange={handleLectureChange}>
+      <select className="lectureName" value={selectedLectureSerial || ''} onChange={handleLectureChange}>
         {lectureList.length > 0 ? (
             lectureList.map((lec) => (
             <option key={lec.lecSerial} value={lec.lecSerial}>
@@ -158,7 +232,33 @@ const fetchLectureData = async (accessToken, user, isProf) => {
 
       <div className="classAttendingContent">
         <div className="noticeAndChat">
-          <div className="lectureNotice">과목별 공지사항</div>
+          <div className="lectureNotice">
+            과목별 공지사항
+             <table className="notice-table">
+                <thead>
+                    <tr>
+                        <th style={{ width: "70%" }}>제목</th>
+                        <th style={{ width: "30%" }}>작성일</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {noticeList.length > 0 ? (
+                        noticeList.map((notice) => {
+                            return (
+                                <tr key={notice.boardIdx} onClick={() => setCurrentPage("수강/강의과목 공지사항")} style={{ cursor: "pointer" }}>
+                                    <td>{decodeBase64(notice.boardTitle)}</td>
+                                    <td>{formatTime(notice.boardReg)}</td>
+                                </tr>
+                            );
+                        })
+                    ) : (
+                        <tr>
+                            <td colSpan="4">공지사항이 없습니다.</td>
+                        </tr>
+                    )}
+                </tbody>
+            </table>
+          </div>
 
           {isProf ? ( // 교수
             <div className="profNoticeWriteBtnArea">
