@@ -34,7 +34,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${accessToken}`
                     },
                     body: JSON.stringify({ lecSerial: lecSerial })
                 });
