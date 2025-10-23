@@ -43,9 +43,14 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, selectedLecSerial, 
             if (!response.ok) throw new Error('강의 목록 조회 실패');
             const data = await response.json();
             setLectureList(data);
-            if (data.length > 0) selectedLectureSerial ? 
-            setSelectedLectureSerial(selectedLecSerial) : 
-            setSelectedLectureSerial(data[0].lecSerial);
+            if (data.length > 0) {
+                if (selectedLecSerial) {
+                    setSelectedLectureSerial(selectedLecSerial);
+                } else {
+                    setSelectedLectureSerial(data[0].lecSerial);
+                }
+            }
+
         } catch (error) {
             console.error('강의 목록 에러:', error);
             setLectureList([]);
