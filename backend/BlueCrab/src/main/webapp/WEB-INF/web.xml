@@ -68,6 +68,12 @@
         <url-pattern>/api/*</url-pattern>
     </filter-mapping>
     
+    <!-- 수강신청 안내문 API에 CORS 적용 (프론트팀 요청: 2025-10-23) -->
+    <filter-mapping>
+        <filter-name>CorsFilter</filter-name>
+        <url-pattern>/notice/*</url-pattern>
+    </filter-mapping>
+    
     <!-- 모든 요청에 CORS 적용하려면 아래 주석 해제 -->
     <!--
     <filter-mapping>
