@@ -6,7 +6,7 @@ import { Viewer } from '@toast-ui/react-editor';
 import '@toast-ui/editor/dist/toastui-editor-viewer.css';
 
 
-const ProfNoticeDetail = ({ boardIdx, onFetchComplete }) => {
+const ProfNoticeDetail = ({ boardIdx, onFetchComplete, onDeleteSuccess }) => {
   const [notice, setNotice] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -50,14 +50,20 @@ const ProfNoticeDetail = ({ boardIdx, onFetchComplete }) => {
   if (error) return <div>오류: {error}</div>;
   if (!notice) return <div>데이터가 없습니다.</div>;
 
-  const handleDelete = async (accessToken, boardIdx) => {
-  try {
-    await deleteNotice(accessToken, boardIdx);
-    alert("삭제되었습니다.");
-  } catch (error) {
-    alert("삭제 중 오류 발생: " + error.message);
-  }
-};
+  const handleDelete = async () => {
+    if (!window.confirm("정말 이 공지를 삭제하시겠습니까?")) return;
+
+    try {
+      await deleteNotice(accessToken, notice.boardIdx);
+      alert("삭제되었습니다.");
+
+      // ✅ 부모에게 알림 (공지 목록 새로고침 유도)
+      onDeleteSuccess?.();
+    } catch (error) {
+      alert("삭제 중 오류 발생: " + error.message);
+      console.error(error);
+    }
+  };
 
 
 const decodeBase64 = (str) => {

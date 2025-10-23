@@ -106,10 +106,10 @@
 
 .lectureNotice {
   width: 330px;
-  height: 400px;
   background-color: lightyellow;
   border-radius: 10px;
   margin: 0 10px 10px;
+  padding: 5px;
 }
 
 .attendanceStatus {

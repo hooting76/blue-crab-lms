@@ -62,7 +62,6 @@ function AuthTof(){
   // currentPage가 바뀔 때 localStorage에 저장
   useEffect(() => {
     localStorage.setItem('currentPage', currentPage);
-    console.log("currentPage 변화 감지됨:", currentPage);
   }, [currentPage]);
 
 const renderPage = () => {

@@ -7,7 +7,7 @@ import ProfNoticeDetail from './ProfNoticeDetail.jsx';
 const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 const NOTICE_BOARD_CODE = 3;
 
-function ClassAttendingNotice({ currentPage, setCurrentPage, noticeToEdit, setNoticeToEdit }) {
+function ClassAttendingNotice({ currentPage, setCurrentPage, selectedLecSerial, noticeToEdit, setNoticeToEdit }) {
     const { user } = UseUser();
     const accessToken = user?.data?.accessToken;
     const userId = user?.data?.user?.id;
@@ -43,7 +43,9 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, noticeToEdit, setNo
             if (!response.ok) throw new Error('강의 목록 조회 실패');
             const data = await response.json();
             setLectureList(data);
-            if (data.length > 0) setSelectedLectureSerial(data[0].lecSerial);
+            if (data.length > 0) selectedLectureSerial ? 
+            setSelectedLectureSerial(selectedLecSerial) : 
+            setSelectedLectureSerial(data[0].lecSerial);
         } catch (error) {
             console.error('강의 목록 에러:', error);
             setLectureList([]);
@@ -85,8 +87,11 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, noticeToEdit, setNo
     }, [accessToken, userId]);
 
     useEffect(() => {
+    if (accessToken && selectedLectureSerial) {
         fetchNotices();
-    }, [accessToken, selectedLectureSerial, page]);
+    }
+    }, [accessToken, selectedLectureSerial, page, currentPage]);
+
 
     /** ========== Helpers ========== */
     const decodeBase64 = (str) => {
@@ -237,6 +242,11 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, noticeToEdit, setNo
                             onFetchComplete={(notice) => {
                                 setFetchedNotice(notice);
                                 setNoticeToEdit(notice);
+                            }}
+                            // ✅ 삭제 성공 시 목록 갱신 + 모달 닫기
+                            onDeleteSuccess={() => {
+                            fetchNotices();
+                            setIsModalOpen(false);
                             }}
                         />
                         {fetchedNotice && fetchedNotice.boardWriter === user?.data?.user?.name &&
