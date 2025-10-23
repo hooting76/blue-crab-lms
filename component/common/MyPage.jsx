@@ -16,6 +16,7 @@ function MyPage({ currentPage, setCurrentPage }) {
     const [selectedCourseId, setSelectedCourseId] = useState("");
     const [lectureToEdit, setLectureToEdit] = useState(null);
     const [noticeToEdit, setNoticeToEdit] = useState(null);
+    const [selectedLectureSerial, setSelectedLectureSerial] = useState(null);
 
 
     const handleSelectCourse = (courseId) => {
