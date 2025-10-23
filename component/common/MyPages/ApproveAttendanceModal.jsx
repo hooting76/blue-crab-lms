@@ -39,7 +39,12 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
                     body: JSON.stringify({ lecSerial: lecSerial })
                 });
     
-                if (!response.ok) throw new Error('학생 목록을 불러오는 데 실패했습니다.');
+                if (!response.ok) {
+                const errMsg = await response.text();
+                console.error("서버 에러 응답:", errMsg);
+                throw new Error(errMsg || "학생 목록 조회 실패");
+                }
+
                 const data = await response.json();
                 setStudentList(data.content);
                 // setTotal(data.totalElements);
