@@ -3,9 +3,11 @@
 
 const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0';
 
-// JWT 토큰 가져오기 (localStorage 또는 sessionStorage에서)
+// JWT 토큰 가져오기 (우선순위: window.authToken > localStorage > sessionStorage)
 const getToken = () => {
-    return localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
+    return window.authToken || 
+           localStorage.getItem('accessToken') || 
+           sessionStorage.getItem('accessToken');
 };
 
 // 출석 요청 테스트

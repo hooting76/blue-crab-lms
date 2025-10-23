@@ -3,9 +3,11 @@
 
 const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0';
 
-// JWT 토큰 가져오기 (localStorage 또는 sessionStorage에서)
+// JWT 토큰 가져오기 (우선순위: window.authToken > localStorage > sessionStorage)
 const getToken = () => {
-    return localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
+    return window.authToken || 
+           localStorage.getItem('accessToken') || 
+           sessionStorage.getItem('accessToken');
 };
 
 // 학생 출석 조회 테스트
@@ -65,7 +67,7 @@ async function testStudentAttendanceView() {
                     data.data.sessions.forEach(session => {
                         const statusEmoji = session.status === '출' ? '✅' : 
                                           session.status === '지' ? '⏰' : '❌';
-                        console.log(`  ${statusEmoji} ${session.sessionNumber}회차: ${session.status} (${session.recordedAt})`);
+                        console.log(`  ${statusEmoji} ${session.sessionNumber}회차: ${session.status} (${session.approvedDate || session.recordedAt})`);
                     });
                 } else {
                     console.log('  기록된 출석 내역이 없습니다.');
@@ -75,7 +77,7 @@ async function testStudentAttendanceView() {
                 console.log('⏳ 대기 중인 요청:');
                 if (data.data.pendingRequests && data.data.pendingRequests.length > 0) {
                     data.data.pendingRequests.forEach(req => {
-                        console.log(`  - ${req.sessionNumber}회차: 요청일 ${req.requestedAt}, 만료일 ${req.expiresAt}`);
+                        console.log(`  - ${req.sessionNumber}회차: 요청일 ${req.requestDate}, 만료일 ${req.expiresAt}`);
                         if (req.requestReason) {
                             console.log(`    사유: ${req.requestReason}`);
                         }
