@@ -16,4 +16,5 @@
 .coursePointTimeMcodeDep span,
 .courseTearSemesterMinOpen span {
     flex: 1;
+    word-break: keep-all;
 }

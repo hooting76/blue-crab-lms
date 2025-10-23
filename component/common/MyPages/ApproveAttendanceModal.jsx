@@ -12,20 +12,17 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [page, setPage] = useState(1);
-    const [total, setTotal] = useState(0);
+    // const [page, setPage] = useState(1);
+    // const [total, setTotal] = useState(0);
     const accessToken = user.data.accessToken;
 
-     const handlePageChange = (newPage) => {
-        setPage(newPage);
-    };
+    //  const handlePageChange = (newPage) => {
+    //     setPage(newPage);
+    // };
 
 
     // 학생 목록 불러오기
-    const fetchStudentList = async (accessToken) => {
-        console.log("accessToken : ", accessToken);
-        console.log("URL : ", `${BASE_URL}/lectures/${lecSerial}/students?page=${page - 1}&size=20`);
-        console.log("lecSerial : ", lecSerial);
+    const fetchStudentList = async (accessToken, lecSerial) => {
 
             if (!accessToken) return;
     
@@ -33,18 +30,24 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
             setError(null);
             try {
     
-                const response = await fetch(`${BASE_URL}/lectures/${lecSerial}/students?page=${page - 1}&size=20`, {
+                const response = await fetch(`${BASE_URL}/attendance/professor/view`, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json'
-                    }
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                    body: JSON.stringify({ lecSerial: lecSerial })
                 });
     
-                if (!response.ok) throw new Error('학생 목록을 불러오는 데 실패했습니다.');
+                if (!response.ok) {
+                const errMsg = await response.text();
+                console.error("서버 에러 응답:", errMsg);
+                throw new Error(errMsg || "학생 목록 조회 실패");
+                }
+
                 const data = await response.json();
                 setStudentList(data.content);
-                setTotal(data.totalElements);
+                // setTotal(data.totalElements);
             } catch (error) {
                 console.error('학생 목록 조회 에러:', error);
                 setError(error.message || '알 수 없는 에러가 발생했습니다.');
@@ -55,16 +58,16 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
         };
     
         useEffect(() => {
-        if (accessToken) {
-            fetchStudentList(accessToken);
+        if (accessToken && lecSerial) {
+            fetchStudentList(accessToken, lecSerial);
         }
-    }, [accessToken, page]);
+    }, [accessToken, lecSerial]);
 
 
     // 출석 승인
     const approveAttendance = async({accessToken, requestIdx, professorIdx}) => {
         try {
-            const approveResponse = await fetch(`/api/professor/attendance/requests/${requestIdx}/approve`, {
+            const approveResponse = await fetch(`${BASE_URL}/professor/attendance/requests/${requestIdx}/approve`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -83,7 +86,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
     // 결석 처리
     const rejectAttendance = async ({ accessToken, requestIdx, professorIdx, rejectReason }) => {
         try {
-            const rejectResponse = await fetch(`/api/professor/attendance/requests/${requestIdx}/reject`, {
+            const rejectResponse = await fetch(`${BASE_URL}/professor/attendance/requests/${requestIdx}/reject`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -116,7 +119,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
             professorIdx: user.data.user.userIdx,
             rejectReason,
         });
-        fetchStudentList(accessToken);
+        fetchStudentList(accessToken, lecSerial);
 
         // 상태 초기화
         setShowRejectPrompt(false);
@@ -131,7 +134,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
             professorIdx: user.data.user.userIdx,
         });
 
-        await fetchStudentList(accessToken); // 목록 다시 불러오기
+        await fetchStudentList(accessToken, lecSerial); // 목록 다시 불러오기
     };
 
 
@@ -159,12 +162,12 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
                     </tbody>
                 </table>
 
-                <Pagination
+                {/* <Pagination
                     page={page}
                     size={20}
                     total={total}
                     onChange={handlePageChange}
-                />
+                /> */}
 
                 <button onClick={onClose}>닫기</button>
             </div>

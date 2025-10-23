@@ -107,10 +107,6 @@ useEffect(() => {
     }
 }, [accessToken, selectedLectureSerial, page, currentPage]);
 
-useEffect(() => {
-    console.log('selectedLectureSerial updated:', selectedLectureSerial);
-}, [selectedLectureSerial]);
-
 
     /** ========== Helpers ========== */
     const decodeBase64 = (str) => {
