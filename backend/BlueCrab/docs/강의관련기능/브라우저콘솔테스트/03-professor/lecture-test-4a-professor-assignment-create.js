@@ -211,7 +211,7 @@ async function createAssignment() {
     const lecSerial = window.lastLectureSerial || prompt('📚 강의 코드 (예: CS101):', 'CS101');
     const title = prompt('📝 과제 제목:', '1주차 과제');
     const description = prompt('📝 과제 설명:', '자바 프로그래밍 기초 과제입니다.');
-    const maxScore = 10;  // ✅ 항상 10점으로 고정
+    const maxScore = parseInt(prompt('💯 과제 배점 (점수):', '10'));
     const dueDate = prompt('📅 마감일 (YYYYMMDD):', '20251231');
 
     if (!title || !lecSerial) {
@@ -224,7 +224,7 @@ async function createAssignment() {
     console.log(`📚 강의 코드: ${lecSerial}`);
     console.log(`📝 제목: ${title}`);
     console.log(`📅 마감일: ${dueDate}`);
-    console.log(`💯 배점: 10점 (고정)`);
+    console.log(`💯 배점: ${maxScore}점`);
 
     // ✅ DTO 패턴 - camelCase 필드명 사용
     const assignmentData = {

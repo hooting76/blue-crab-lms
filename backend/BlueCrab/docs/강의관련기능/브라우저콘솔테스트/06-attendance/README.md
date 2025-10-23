@@ -48,8 +48,12 @@
 - **professorIdx는 JWT에서 자동 추출** (수동 입력 불필요)
 
 **중요:**
-- 모든 API는 POST 방식으로 통일됨
+- 모든 API는 **POST** 방식을 사용합니다
+- JWT 토큰은 **window.authToken** (우선) > localStorage > sessionStorage 순서로 확인됩니다
 - lecSerial은 내부적으로 LEC_IDX로 자동 매핑됨
+- **교수 검증**: LEC_PROF 필드가 USER_IDX(문자열)로 저장되어 있으므로 CAST 비교 사용
+- **응답 구조**: 교수용 API는 `attendanceData` 중첩, 학생용 API는 최상위
+- **필드명**: `approvedDate`, `requestDate` 사용 (recordedAt, requestedAt 아님)
 
 ---
 
@@ -84,9 +88,9 @@
     "sessions": [...],
     "pendingRequests": [
       {
-        "sessionNumber": 1,
-        "requestDate": "2025-10-23T10:00:00",
-        "expiresAt": "2025-10-30T00:00:00",
+        "sessionNumber": 2,
+        "requestDate": "2025-10-23 10:00:00",
+        "expiresAt": "2025-10-30 00:00:00",
         "requestReason": "교통체증",
         "tempApproved": true
       }

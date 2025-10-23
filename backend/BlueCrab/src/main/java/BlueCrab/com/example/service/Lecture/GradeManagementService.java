@@ -90,12 +90,53 @@ public class GradeManagementService {
                                 (Integer) gradeConfig.get("examTotalScore");
             gradeConfig.put("totalMaxScore", totalMaxScore);
 
+            // ✅ DB에 gradeConfig 저장 (모든 수강생의 ENROLLMENT_DATA에 병합)
+            List<EnrollmentExtendedTbl> enrollments = enrollmentRepository.findStudentsByLecture(lecIdx);
+            int updatedCount = 0;
+            
+            for (EnrollmentExtendedTbl enrollment : enrollments) {
+                try {
+                    // 기존 ENROLLMENT_DATA 파싱
+                    Map<String, Object> currentData = parseEnrollmentData(enrollment.getEnrollmentData());
+                    
+                    // gradeConfig 병합 (기존 attendance, grade 데이터 유지)
+                    currentData.put("gradeConfig", gradeConfig);
+                    
+                    // ✅ grade 객체 초기화 (gradeConfig 존재 시에만)
+                    if (!currentData.containsKey("grade")) {
+                        Map<String, Object> gradeData = new HashMap<>();
+                        gradeData.put("attendance", Map.of(
+                            "maxScore", gradeConfig.get("attendanceMaxScore"),
+                            "currentScore", 0.0,
+                            "percentage", 0.0
+                        ));
+                        gradeData.put("assignments", new java.util.ArrayList<>());
+                        gradeData.put("total", Map.of(
+                            "maxScore", gradeConfig.get("attendanceMaxScore"),
+                            "score", 0.0,
+                            "percentage", 0.0
+                        ));
+                        currentData.put("grade", gradeData);
+                    }
+                    
+                    // JSON 직렬화 및 저장
+                    String updatedJson = objectMapper.writeValueAsString(currentData);
+                    enrollment.setEnrollmentData(updatedJson);
+                    enrollmentRepository.save(enrollment);
+                    updatedCount++;
+                    
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException("JSON 처리 실패 (enrollment: " + enrollment.getEnrollmentIdx() + ")", e);
+                }
+            }
+
             return Map.of(
                 "success", true,
                 "message", "성적 구성이 설정되었습니다.",
                 "data", Map.of(
                     "lecIdx", lecIdx,
-                    "gradeConfig", gradeConfig
+                    "gradeConfig", gradeConfig,
+                    "updatedEnrollments", updatedCount
                 )
             );
 

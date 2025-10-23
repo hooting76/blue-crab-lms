@@ -7,8 +7,13 @@
  *    await gradePhase3.runAll()               // 전체 테스트 (2개)
  * 
  * 📋 개별 API 테스트:
- *    gradePhase3.attendance()  // 출석 업데이트 → 성적 자동 재계산
+ *    gradePhase3.attendance()  // 출석 요청 → 승인 → 성적 자동 재계산 (실제 출석 시스템 사용)
  *    gradePhase3.assignment()  // 과제 점수 업데이트 → 성적 자동 재계산
+ * 
+ * ✅ 개선 사항 (2025-10-23):
+ *    - attendance() 테스트: 실제 출석 승인 API 사용 (기존 시스템과 통합)
+ *    - 백엔드: ENROLLMENT_DATA 병합 로직 적용 (덮어쓰기 방지)
+ *    - gradeConfig 자동 저장 및 grade 객체 초기화
  */
 
 (function() {
@@ -191,14 +196,17 @@
     
     // ============================================
     // 1. 출석 업데이트 → 성적 자동 재계산 확인
+    // ✅ 실제 출석 승인 API 사용 (기존 출석 시스템과 통합)
     // POST /enrollments/grade-info (action: get-grade)
-    // PUT /enrollments/{enrollmentIdx}/attendance
+    // POST /api/student/attendance/request (출석 요청)
+    // PUT /api/professor/attendance/requests/{requestIdx}/approve (승인)
     // ============================================
     
     async function testAttendanceUpdate() {
         console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('📅 출석 업데이트 → 성적 자동 재계산');
+        console.log('📅 출석 승인 → 성적 자동 재계산');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('💡 실제 출석 시스템 API 사용 (요청 → 승인)');
         
         if (!config.lecSerial || !config.studentIdx) {
             console.warn('⚠️  강의/학생 미설정! promptLecture() 실행...');
@@ -215,7 +223,7 @@
         }
         
         // 1단계: 업데이트 전 성적 조회
-        console.log('\n📊 [1/3] 업데이트 전 성적 조회');
+        console.log('\n📊 [1/4] 업데이트 전 성적 조회');
         const beforeData = {
             action: 'get-grade',
             lecSerial: config.lecSerial,
@@ -224,42 +232,63 @@
         const beforeResult = await apiCall('/enrollments/grade-info', beforeData);
         
         let beforeScore = null;
+        let beforeAttendanceData = null;
         if (beforeResult?.success && beforeResult.data) {
             const d = beforeResult.data.data || beforeResult.data;
             beforeScore = d.attendanceScore;
+            beforeAttendanceData = d.attendance;
             console.log(`   출석 점수: ${beforeScore?.toFixed(2) || 'N/A'}`);
             console.log(`   출석: ${d.presentCount || 0}회`);
             console.log(`   지각: ${d.lateCount || 0}회`);
             console.log(`   결석: ${d.absentCount || 0}회`);
         }
         
-        // 2단계: 출석 기록
-        console.log(`\n📝 [2/3] 출석 기록`);
-        const attendanceData = {
-            attendanceDate: config.attendanceDate,
-            status: config.attendanceStatus
+        // 2단계: 출석 요청 생성 (학생)
+        console.log(`\n📝 [2/4] 출석 요청 생성`);
+        const requestData = {
+            lecSerial: config.lecSerial,
+            studentIdx: config.studentIdx,
+            sessionNumber: (beforeAttendanceData?.sessions?.length || 0) + 1,
+            requestDate: config.attendanceDate,
+            reason: 'Phase 3 테스트 - 성적 자동 재계산 확인'
         };
         
-        console.log(`   수강 IDX: ${config.enrollmentIdx} (자동 조회됨)`);
-        console.log(`   날짜: ${attendanceData.attendanceDate}`);
-        console.log(`   상태: ${attendanceData.status}`);
+        console.log(`   강의: ${requestData.lecSerial}`);
+        console.log(`   학생: ${requestData.studentIdx}`);
+        console.log(`   회차: ${requestData.sessionNumber}`);
         
-        const updateResult = await apiCall(
-            `/enrollments/${config.enrollmentIdx}/attendance`,
-            attendanceData,
+        const createRequestResult = await apiCall('/student/attendance/request', requestData);
+        
+        if (!createRequestResult?.success) {
+            console.log('\n❌ 출석 요청 생성 실패:', createRequestResult.error);
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+            return createRequestResult;
+        }
+        
+        const requestIdx = createRequestResult.data?.data?.requestIdx || createRequestResult.data?.requestIdx;
+        console.log(`✅ 출석 요청 생성 완료 (requestIdx: ${requestIdx})`);
+        
+        // 3단계: 교수 승인
+        console.log(`\n👨‍🏫 [3/4] 교수 승인 처리`);
+        console.log(`   요청 IDX: ${requestIdx}`);
+        console.log(`   상태: ${config.attendanceStatus} → 변환`);
+        
+        const approveResult = await apiCall(
+            `/professor/attendance/requests/${requestIdx}/approve`,
+            {},
             'PUT'
         );
         
-        if (!updateResult?.success) {
-            console.log('\n❌ 출석 기록 실패:', updateResult.error);
+        if (!approveResult?.success) {
+            console.log('\n❌ 출석 승인 실패:', approveResult.error);
             console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-            return updateResult;
+            return approveResult;
         }
         
-        console.log('✅ 출석 기록 완료');
+        console.log('✅ 출석 승인 완료');
         
-        // 3단계: 업데이트 후 성적 재조회
-        console.log(`\n📊 [3/3] 업데이트 후 성적 조회 (1초 대기...)`);
+        // 4단계: 업데이트 후 성적 재조회
+        console.log(`\n📊 [4/4] 업데이트 후 성적 조회 (1초 대기...)`);
         await new Promise(resolve => setTimeout(resolve, 1000)); // 서버 처리 대기
         
         const afterResult = await apiCall('/enrollments/grade-info', beforeData);
@@ -283,13 +312,19 @@
                 }
             }
             
-            console.log('\n✅ 성공! 출석 업데이트가 성적에 반영되었습니다.');
+            console.log('\n✅ 성공! 출석 승인이 성적에 반영되었습니다.');
         } else {
             console.log('\n⚠️  성적 조회 실패:', afterResult.error);
         }
         
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-        return { success: true, before: beforeResult, update: updateResult, after: afterResult };
+        return { 
+            success: true, 
+            before: beforeResult, 
+            request: createRequestResult,
+            approve: approveResult,
+            after: afterResult 
+        };
     }
     
     // ============================================
@@ -485,11 +520,17 @@
     console.log('   2. await gradePhase3.runAll()                 - 전체 테스트 (2개)');
     console.log('');
     console.log('🧪 개별 API:');
-    console.log('   await gradePhase3.attendance()  - 출석 업데이트 → 성적 자동 재계산');
+    console.log('   await gradePhase3.attendance()  - 출석 요청 → 승인 → 성적 자동 재계산');
+    console.log('                                      (실제 출석 시스템 API 사용)');
     console.log('   await gradePhase3.assignment()  - 과제 점수 → 성적 자동 재계산');
     console.log('');
     console.log('💡 또는 대화형:');
     console.log('   gradePhase3.promptLecture()     - 프롬프트로 입력');
+    console.log('');
+    console.log('✅ 개선 사항 (2025-10-23):');
+    console.log('   • attendance() 테스트: 실제 출석 승인 API로 변경');
+    console.log('   • 백엔드: JSON 병합 로직 적용 (sessions, summary 유지)');
+    console.log('   • gradeConfig 자동 저장 및 grade 객체 초기화');
     console.log('');
     console.log('📚 참고: 수강생 목록 조회 API');
     console.log('   • POST /api/enrollments/list (lecSerial 기반)');
