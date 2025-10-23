@@ -1,0 +1,59 @@
+🔥 수강신청 500 에러 긴급 해결 가이드
+=====================================
+
+문제: POST /api/enrollments/enroll → 500 에러
+원인: LEC_TBL에 LEC_SERIAL='CS101'이 2개 존재
+해결: 중복 레코드 삭제
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 빠른 해결 (5분)
+
+1. SSH 접속
+   ssh project01@10.125.121.213
+
+2. MariaDB 접속
+   mysql -u [사용자명] -p blue_crab
+
+3. 중복 확인
+   SELECT LEC_IDX, LEC_SERIAL, LEC_TIT,
+          (SELECT COUNT(*) FROM ENROLLMENT_EXTENDED_TBL 
+           WHERE LEC_IDX = l.LEC_IDX) as STUDENTS
+   FROM LEC_TBL l
+   WHERE LEC_SERIAL = 'CS101';
+
+4. 수강생 0명인 레코드 삭제
+   DELETE FROM LEC_TBL 
+   WHERE LEC_IDX = [위에서 확인한 STUDENTS=0인 LEC_IDX];
+
+5. 확인 (1개만 남아야 함)
+   SELECT COUNT(*) FROM LEC_TBL WHERE LEC_SERIAL = 'CS101';
+   
+   결과: 1
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ 검증
+
+브라우저 콘솔에서:
+POST /api/enrollments/enroll (studentIdx=15, lecSerial=CS101)
+→ 201 Created (성공) 또는 400 Bad Request (이미 신청)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🛡️ 재발 방지 (선택)
+
+ALTER TABLE LEC_TBL 
+ADD UNIQUE INDEX idx_lec_serial_unique (LEC_SERIAL);
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 에러 체인 (참고)
+
+POST /enrollments/enroll
+  → EnrollmentService.enrollStudentBySerial()
+    → LectureService.getLectureBySerial("CS101")
+      → findByLecSerial("CS101")
+        → 2개 발견!
+        → NonUniqueResultException
+        → 500 에러

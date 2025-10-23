@@ -1,0 +1,90 @@
+콘솔테스트내용입니다
+// === 설정 ===
+const API = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0';
+const token = localStorage.getItem('accessToken');
+const H = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+const studentIdx = 15;                 // 테스트 학생
+const lecSerial  = 'CS101';            // 테스트 과목 (변경 가능)
+
+// === 헬퍼 ===
+const now = () => new Date().toISOString();  // 서버에 전달할 테스트 시각
+async function call(url, opts) {
+  const t0 = now();
+  const res = await fetch(url, { cache:'no-store', ...opts });
+  const text = await res.text();
+  let body; try { body = JSON.parse(text); } catch { body = text; }
+  console.log('⏱', t0, '\n→', url, res.status, res.statusText, '\n', body);
+  return { t: t0, status: res.status, body };
+}
+
+// === 시나리오 ===
+// 1) 수강가능 목록 확인
+await call(`${API}/api/lectures/eligible`, {
+  method:'POST', headers:H,
+  body: JSON.stringify({ studentId: studentIdx, page:0, size:200 })
+});
+
+// 2) 내 수강목록(사전) 확인
+await call(`${API}/api/enrollments/list`, {
+  method:'POST', headers:H,
+  body: JSON.stringify({ studentIdx, enrolled:true, page:0, size:50 })
+});
+
+// 3) 수강신청 시도
+await call(`${API}/api/enrollments/enroll`, {
+  method:'POST', headers:H,
+  body: JSON.stringify({ studentIdx, lecSerial })
+});
+
+// 4) 내 수강목록(사후) 확인
+await call(`${API}/api/enrollments/list`, {
+  method:'POST', headers:H,
+  body: JSON.stringify({ studentIdx, enrolled:true, page:0, size:50 })
+});
+
+// (선택) 이미 신청되어 있으면 취소 테스트
+// const enrollmentIdx = /* 위 4번 결과에서 해당 과목의 enrollmentIdx 확인 후 입력 */
+// await call(`${API}/api/enrollments/${enrollmentIdx}`, { method:'DELETE', headers:{ Authorization:`Bearer ${token}` } });
+VM4395:15 ⏱ 2025-10-23T07:59:52.728Z 
+→ https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/lectures/eligible 200  
+ 
+{pagination: {…}, eligibleLectures: Array(26), studentInfo: {…}, eligibleCount: 26, ineligibleCount: 39, …}
+VM4395:15 ⏱ 2025-10-23T07:59:53.816Z 
+→ https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/enrollments/list 200  
+ 
+[]
+VM4395:12 
+ POST https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/enrollments/enroll 500 (Internal Server Error)
+VM4395:15 ⏱ 2025-10-23T07:59:53.917Z 
+→ https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/enrollments/enroll 500  
+ 
+{success: false, message: '수강신청 중 오류가 발생했습니다.'}
+VM4395:15 ⏱ 2025-10-23T07:59:54.018Z 
+→ https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api/enrollments/list 200  
+ 
+[]
+length
+: 
+0
+[[Prototype]]
+: 
+Array(0)
+{t: '2025-10-23T07:59:54.018Z', status: 200, body: Array(0)}
+body
+: 
+Array(0)
+length
+: 
+0
+[[Prototype]]
+: 
+Array(0)
+status
+: 
+200
+t
+: 
+"2025-10-23T07:59:54.018Z"
+[[Prototype]]
+: 
+Object
