@@ -136,6 +136,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/test/vapid-key").permitAll() // VAPID 공개키 조회
                 .requestMatchers("/api/push/vapid-key").permitAll() // VAPID 공개키 조회 (레거시)
                 
+                // 🌐 CORS Preflight 요청 허용 (중요! - 최우선 배치)
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 모든 OPTIONS 요청 허용
+                
                 // 🔓 수강신청 안내문 조회 (인증 불필요)
                 .requestMatchers("/notice/course-apply/view").permitAll() // 안내문 조회 (공개)
                 
@@ -144,9 +147,6 @@ public class SecurityConfig {
                 
                 // 📝 게시판 조회 API (임시로 모두 허용 - 디버깅용)
                 .requestMatchers("/api/boards/**").permitAll() //
-                
-                // 🌐 CORS Preflight 요청 허용 (중요!)
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 모든 OPTIONS 요청 허용
                 
                 // 📝 프로필 API (인증된 사용자만 접근 가능)
                 .requestMatchers(HttpMethod.POST, "/api/profile/me").authenticated() // 프로필 조회
