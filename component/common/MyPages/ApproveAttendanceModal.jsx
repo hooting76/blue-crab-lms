@@ -36,7 +36,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
                         'Authorization': `Bearer ${accessToken}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({lecSerial: lecSerial})
+                    body: JSON.stringify({lecSerial})
                 });
     
                 if (!response.ok) throw new Error('학생 목록을 불러오는 데 실패했습니다.');
@@ -53,16 +53,16 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
         };
     
         useEffect(() => {
-        if (accessToken) {
-            fetchStudentList(accessToken);
+        if (accessToken && lecSerial) {
+            fetchStudentList(accessToken, lecSerial);
         }
-    }, [accessToken, page]);
+    }, [accessToken, page, lecSerial]);
 
 
     // 출석 승인
     const approveAttendance = async({accessToken, requestIdx, professorIdx}) => {
         try {
-            const approveResponse = await fetch(`/api/professor/attendance/requests/${requestIdx}/approve`, {
+            const approveResponse = await fetch(`${BASE_URL}/professor/attendance/requests/${requestIdx}/approve`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -81,7 +81,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
     // 결석 처리
     const rejectAttendance = async ({ accessToken, requestIdx, professorIdx, rejectReason }) => {
         try {
-            const rejectResponse = await fetch(`/api/professor/attendance/requests/${requestIdx}/reject`, {
+            const rejectResponse = await fetch(`${BASE_URL}/professor/attendance/requests/${requestIdx}/reject`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
