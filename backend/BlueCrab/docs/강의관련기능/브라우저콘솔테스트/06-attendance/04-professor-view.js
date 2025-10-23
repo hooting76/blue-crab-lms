@@ -3,9 +3,11 @@
 
 const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0';
 
-// JWT 토큰 가져오기 (localStorage 또는 sessionStorage에서)
+// JWT 토큰 가져오기 (우선순위: window.authToken > localStorage > sessionStorage)
 const getToken = () => {
-    return localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
+    return window.authToken || 
+           localStorage.getItem('accessToken') || 
+           sessionStorage.getItem('accessToken');
 };
 
 // 교수 출석 조회 테스트
@@ -57,28 +59,28 @@ async function testProfessorAttendanceView() {
                 console.log('---');
                 
                 data.data.forEach((student, index) => {
-                    console.log(`👤 ${index + 1}. 학생 (USER_IDX: ${student.studentIdx})`);
+                    console.log(`👤 ${index + 1}. ${student.studentName} (${student.studentCode}) - USER_IDX: ${student.studentIdx}`);
                     console.log('  📊 출석 통계:');
-                    console.log(`    - 출석: ${student.summary.attended}회`);
-                    console.log(`    - 지각: ${student.summary.late}회`);
-                    console.log(`    - 결석: ${student.summary.absent}회`);
-                    console.log(`    - 출석률: ${student.summary.attendanceRate}%`);
+                    console.log(`    - 출석: ${student.attendanceData?.summary?.attended || 0}회`);
+                    console.log(`    - 지각: ${student.attendanceData?.summary?.late || 0}회`);
+                    console.log(`    - 결석: ${student.attendanceData?.summary?.absent || 0}회`);
+                    console.log(`    - 출석률: ${student.attendanceData?.summary?.attendanceRate || 0}%`);
                     
                     // 최근 5개 출석 기록만 표시
-                    if (student.sessions && student.sessions.length > 0) {
+                    if (student.attendanceData?.sessions && student.attendanceData.sessions.length > 0) {
                         console.log('  📅 최근 출석 기록 (최대 5개):');
-                        student.sessions.slice(-5).forEach(session => {
+                        student.attendanceData.sessions.slice(-5).forEach(session => {
                             const statusEmoji = session.status === '출' ? '✅' : 
                                               session.status === '지' ? '⏰' : '❌';
-                            console.log(`    ${statusEmoji} ${session.sessionNumber}회차: ${session.status} (${session.recordedAt})`);
+                            console.log(`    ${statusEmoji} ${session.sessionNumber}회차: ${session.status} (${session.approvedDate || session.recordedAt})`);
                         });
                     }
                     
                     // 대기 중인 요청 표시
-                    if (student.pendingRequests && student.pendingRequests.length > 0) {
-                        console.log(`  ⏳ 대기 중인 요청: ${student.pendingRequests.length}건`);
-                        student.pendingRequests.forEach(req => {
-                            console.log(`    - ${req.sessionNumber}회차: 요청일 ${req.requestedAt}, 만료일 ${req.expiresAt}`);
+                    if (student.attendanceData?.pendingRequests && student.attendanceData.pendingRequests.length > 0) {
+                        console.log(`  ⏳ 대기 중인 요청: ${student.attendanceData.pendingRequests.length}건`);
+                        student.attendanceData.pendingRequests.forEach(req => {
+                            console.log(`    - ${req.sessionNumber}회차: 요청일 ${req.requestDate}, 만료일 ${req.expiresAt}`);
                             if (req.requestReason) {
                                 console.log(`      사유: ${req.requestReason}`);
                             }
@@ -89,10 +91,10 @@ async function testProfessorAttendanceView() {
                 });
                 
                 // 전체 통계 계산
-                const totalAttended = data.data.reduce((sum, s) => sum + s.summary.attended, 0);
-                const totalLate = data.data.reduce((sum, s) => sum + s.summary.late, 0);
-                const totalAbsent = data.data.reduce((sum, s) => sum + s.summary.absent, 0);
-                const totalPending = data.data.reduce((sum, s) => sum + (s.pendingRequests?.length || 0), 0);
+                const totalAttended = data.data.reduce((sum, s) => sum + (s.attendanceData?.summary?.attended || 0), 0);
+                const totalLate = data.data.reduce((sum, s) => sum + (s.attendanceData?.summary?.late || 0), 0);
+                const totalAbsent = data.data.reduce((sum, s) => sum + (s.attendanceData?.summary?.absent || 0), 0);
+                const totalPending = data.data.reduce((sum, s) => sum + (s.attendanceData?.pendingRequests?.length || 0), 0);
                 
                 console.log('📈 전체 통계:');
                 console.log(`  - 전체 출석: ${totalAttended}회`);

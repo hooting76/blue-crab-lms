@@ -211,13 +211,22 @@ public interface EnrollmentExtendedTblRepository extends JpaRepository<Enrollmen
      * ⚠️ 중요: lecSerial을 파라미터로 받지만 내부적으로 LEC_IDX로 조인됨
      * 
      * 동작 원리:
-     * 1. 프론트엔드에서 lecSerial (예: "CS101") 전달
-     * 2. Repository가 LEC_TBL과 JOIN하여 LEC_IDX 매핑
-     * 3. LEC_IDX로 ENROLLMENT_EXTENDED_TBL 전체 수강생 조회
-     * 4. 교수 권한 검증 (LEC_TBL.LEC_PROF = professorIdx의 USER_CODE)
+     * 1. JWT에서 교수 USER_IDX 추출 (예: 25)
+     * 2. 프론트엔드에서 lecSerial (예: "ETH201") 전달
+     * 3. LEC_TBL에서 LEC_SERIAL='ETH201' 조회 → LEC_PROF='25' 추출
+     * 4. LEC_PROF (USER_IDX 문자열) == professorIdx 검증
+     * 5. 일치하면 해당 강의의 모든 수강생 반환
      * 
-     * @param lecSerial 강의 코드 (예: "CS101") - 사용자 친화적 식별자
-     * @param professorIdx 교수 USER_IDX
+     * DB 구조:
+     * - LEC_TBL.LEC_PROF = USER_IDX를 문자열로 저장 (예: '25')
+     * - professorIdx = JWT에서 추출한 USER_IDX (예: 25)
+     * 
+     * 검증 로직:
+     * - LEC_PROF == CAST(professorIdx AS STRING)
+     * - 예: '25' == '25' → 권한 있음 ✅
+     * 
+     * @param lecSerial 강의 코드 (예: "ETH201")
+     * @param professorIdx 교수 USER_IDX (JWT에서 추출, 예: 25)
      * @return 수강생 목록 (담당 강의가 맞으면 1개 이상 반환, 아니면 빈 리스트)
      * 
      * 사용 시나리오:
@@ -227,7 +236,7 @@ public interface EnrollmentExtendedTblRepository extends JpaRepository<Enrollmen
      * 권한 검증 예시:
      * <pre>
      * List<EnrollmentExtendedTbl> enrollments = 
-     *     repository.findByLecSerialAndProfessorIdx(lecSerial, professorIdx);
+     *     repository.findByLecSerialAndProfessorIdx("ETH201", 25);
      * if (enrollments.isEmpty()) {
      *     throw new AccessDeniedException("해당 강의의 담당 교수가 아닙니다.");
      * }
@@ -236,8 +245,8 @@ public interface EnrollmentExtendedTblRepository extends JpaRepository<Enrollmen
     @Query("SELECT e FROM EnrollmentExtendedTbl e " +
            "JOIN FETCH e.lecture l " +
            "JOIN FETCH e.student s " +
-           "WHERE l.lecSerial = :lecSerial AND " +
-           "EXISTS (SELECT 1 FROM UserTbl u WHERE u.userIdx = :professorIdx AND u.userCode = l.lecProf)")
+           "WHERE l.lecSerial = :lecSerial " +
+           "AND l.lecProf = CAST(:professorIdx AS string)")
     List<EnrollmentExtendedTbl> findByLecSerialAndProfessorIdx(
         @Param("lecSerial") String lecSerial,
         @Param("professorIdx") Integer professorIdx
