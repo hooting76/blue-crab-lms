@@ -93,12 +93,20 @@ const NoticeDetail = ({ boardIdx, onFetchComplete, onDeleteSuccess }) => {
    const handleDelete = async (accessToken, boardIdx) => {
     try {
       await deleteNotice(accessToken, boardIdx);
-      alert("삭제되었습니다.");
-      if (onDeleteSuccess) onDeleteSuccess(); // ✅ 삭제 성공 시 콜백 실행
+
+      // alert 전에 먼저 상태 업데이트
+      if (onDeleteSuccess) onDeleteSuccess();
+
+      // 0.1초 뒤에 alert 표시 (렌더 먼저 완료)
+      setTimeout(() => {
+        alert("삭제되었습니다.");
+      }, 100);
+
     } catch (error) {
       alert("삭제 중 오류 발생: " + error.message);
     }
   };
+
 
 
 const decodeBase64 = (str) => {
