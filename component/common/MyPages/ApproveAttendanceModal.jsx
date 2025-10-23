@@ -33,8 +33,8 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
                 const response = await fetch(`${BASE_URL}/attendance/professor/view`, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({ lecSerial: lecSerial })
                 });
