@@ -86,24 +86,35 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, selectedLecSerial, 
     };
 
     /** ========== useEffect ========== */
-    useEffect(() => {
-        if (accessToken && userId) {
-            fetchLectureList(accessToken, 1, userId);
-        }
-    }, [accessToken, userId]);
+    // prop이 바뀔 때 내부 상태 동기화
+useEffect(() => {
+    if (selectedLecSerial) {
+        setSelectedLectureSerial(selectedLecSerial);
+        setPage(1);
+    }
+}, [selectedLecSerial]);
 
-    useEffect(() => {
+// 처음 mount나 userId/accessToken 바뀔 때 강의 목록 fetch
+useEffect(() => {
+    if (accessToken && userId) {
+        fetchLectureList(accessToken, 1, userId);
+    }
+}, [accessToken, userId]);
+
+// lectureList가 변경되고 selectedLectureSerial이 없을 때 기본 선택
+useEffect(() => {
+    if (lectureList.length > 0 && !selectedLectureSerial) {
+        setSelectedLectureSerial(lectureList[0].lecSerial);
+    }
+}, [lectureList, selectedLectureSerial]);
+
+// selectedLectureSerial이 바뀔 때마다 공지 fetch
+useEffect(() => {
     if (accessToken && selectedLectureSerial) {
         fetchNotices();
     }
-    }, [accessToken, selectedLectureSerial, page, currentPage]);
+}, [accessToken, selectedLectureSerial, page, currentPage]);
 
-    useEffect(() => {
-    if (selectedLecSerial) {
-        setSelectedLectureSerial(selectedLecSerial);
-        setPage(1); // 페이지도 초기화
-        }
-    }, [selectedLecSerial]);
 
 
 
