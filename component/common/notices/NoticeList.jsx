@@ -16,8 +16,7 @@ export default function NoticeList({
     onWrite,
     currentPage,
     setCurrentPage,
-    setSelectedNotice,
-    onDeleteSuccess
+    setSelectedNotice
 }) {
 
 
