@@ -76,6 +76,14 @@ useEffect(() => {
   fetchLectureList(accessToken, user);
 }, [accessToken, user]); // ✅ accessToken이 생겼을 때 호출
 
+useEffect(() => {
+  // notice가 존재하면 수정 모드 → 기존 강의로 고정
+  if (notice?.lecSerial) {
+    setSelectedLectureSerial(notice.lecSerial);
+  }
+}, [notice]);
+
+
 
   // 🔧 boardIdx가 바뀔 때 첨부파일 불러오기
 useEffect(() => {
@@ -321,18 +329,37 @@ useEffect(() => {
 
       <div>
         <label>과목</label><br />
-        <select value={selectedLectureSerial} onChange={(e) => setSelectedLectureSerial(e.target.value)}>
-            {lectureList.length > 0 ? (
-                lectureList.map((cls) => (
+
+        {/* ✅ 수정 모드일 때: 강의명만 표시 */}
+        {notice ? (
+          <div style={{ padding: '8px 0' }}>
+            <strong>
+              {
+                // lecSerial을 기반으로 강의명 찾아 표시
+                lectureList.find((cls) => cls.lecSerial === notice.lecSerial)?.lecTit ||
+                '강의 정보 없음'
+              }
+            </strong>
+          </div>
+            ) : (
+              /* ✅ 새 공지 작성 모드일 때: 과목 선택 가능 */
+              <select
+                value={selectedLectureSerial}
+                onChange={(e) => setSelectedLectureSerial(e.target.value)}
+              >
+                {lectureList.length > 0 ? (
+                  lectureList.map((cls) => (
                     <option key={cls.lecIdx} value={cls.lecSerial}>
-                        {cls.lecTit}
+                      {cls.lecTit}
                     </option>
                   ))
                 ) : (
-                    <option disabled>강의 목록 없음</option>
+                  <option disabled>강의 목록 없음</option>
                 )}
-        </select>
-      </div>
+              </select>
+            )}
+        </div>
+
 
       <div>
         <label>본문</label>
