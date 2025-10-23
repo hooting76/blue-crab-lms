@@ -21,6 +21,9 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
     };
 
 
+    console.log("lecSerial:", lecSerial);
+
+
     // 학생 목록 불러오기
     const fetchStudentList = async (accessToken, lecSerial) => {
 
@@ -36,7 +39,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
                         'Authorization': `Bearer ${accessToken}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({lecSerial})
+                    body: JSON.stringify({lecSerial: lecSerial})
                 });
     
                 if (!response.ok) throw new Error('학생 목록을 불러오는 데 실패했습니다.');
