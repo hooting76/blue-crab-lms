@@ -7,7 +7,7 @@ import { Viewer } from '@toast-ui/react-editor';
 import '@toast-ui/editor/dist/toastui-editor-viewer.css';
 
 
-const NoticeDetail = ({ boardIdx, onFetchComplete }) => {
+const NoticeDetail = ({ boardIdx, onFetchComplete, onDeleteSuccess }) => {
   const [notice, setNotice] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -90,14 +90,15 @@ const NoticeDetail = ({ boardIdx, onFetchComplete }) => {
   if (error) return <div>오류: {error}</div>;
   if (!notice) return <div>데이터가 없습니다.</div>;
 
-  const handleDelete = async (accessToken, boardIdx) => {
-  try {
-    await deleteNotice(accessToken, boardIdx);
-    alert("삭제되었습니다.");
-  } catch (error) {
-    alert("삭제 중 오류 발생: " + error.message);
-  }
-};
+   const handleDelete = async (accessToken, boardIdx) => {
+    try {
+      await deleteNotice(accessToken, boardIdx);
+      alert("삭제되었습니다.");
+      if (onDeleteSuccess) onDeleteSuccess(); // ✅ 삭제 성공 시 콜백 실행
+    } catch (error) {
+      alert("삭제 중 오류 발생: " + error.message);
+    }
+  };
 
 
 const decodeBase64 = (str) => {
