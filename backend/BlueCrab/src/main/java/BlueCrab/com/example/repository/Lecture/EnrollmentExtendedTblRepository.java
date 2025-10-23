@@ -146,6 +146,103 @@ public interface EnrollmentExtendedTblRepository extends JpaRepository<Enrollmen
      */
     List<EnrollmentExtendedTbl> findAllByStudentIdxIn(List<Integer> studentIdxList);
 
+    // ========== 출석 관리 관련 메서드 (출석 요청/승인 시스템용) ==========
+
+    /**
+     * 강의 코드(LEC_SERIAL)로 수강생 목록 조회 (강의 정보 + 학생 정보 포함)
+     * 출석 요청/승인 시스템에서 사용
+     * 
+     * @param lecSerial 강의 코드 (예: "CS101")
+     * @return 수강생 목록 (강의 정보 및 학생 정보 포함)
+     * 
+     * 사용 시나리오:
+     * - 교수가 강의의 전체 학생 출석 현황을 조회할 때
+     * - 스케줄러가 특정 강의의 대기 요청을 처리할 때
+     */
+    @Query("SELECT e FROM EnrollmentExtendedTbl e " +
+           "JOIN FETCH e.lecture l " +
+           "JOIN FETCH e.student s " +
+           "WHERE l.lecSerial = :lecSerial")
+    List<EnrollmentExtendedTbl> findByLecSerialWithDetails(@Param("lecSerial") String lecSerial);
+
+    /**
+     * 강의 코드와 학생 IDX로 수강 정보 조회
+     * 출석 요청/승인 시스템에서 특정 학생의 출석 데이터 조회에 사용
+     * 
+     * ⚠️ 중요: lecSerial을 파라미터로 받지만 내부적으로 LEC_IDX로 조인됨
+     * 
+     * 동작 원리:
+     * 1. 프론트엔드에서 lecSerial (예: "CS101") 전달
+     * 2. Repository가 LEC_TBL과 JOIN하여 LEC_IDX 매핑
+     * 3. LEC_IDX로 ENROLLMENT_EXTENDED_TBL 조회
+     * 
+     * DB 스키마:
+     * - LEC_TBL.LEC_SERIAL (사용자 친화적 코드, 예: "CS101")
+     * - LEC_TBL.LEC_IDX (기본키, 예: 6)
+     * - ENROLLMENT_EXTENDED_TBL.LEC_IDX (외래키, LEC_TBL.LEC_IDX 참조)
+     * 
+     * 쿼리 흐름:
+     * lecSerial "CS101" 
+     * → LEC_TBL JOIN (WHERE lecSerial = "CS101") 
+     * → LEC_IDX = 6 추출
+     * → ENROLLMENT_EXTENDED_TBL 조회 (WHERE LEC_IDX = 6 AND STUDENT_IDX = studentIdx)
+     * 
+     * @param lecSerial 강의 코드 (예: "CS101") - 사용자 친화적 식별자
+     * @param studentIdx 학생 USER_IDX
+     * @return 수강 정보 (Optional)
+     * 
+     * 사용 시나리오:
+     * - 학생이 출석 요청을 할 때 (수강 여부 확인)
+     * - 학생이 자신의 출석 현황을 조회할 때
+     * - 교수가 특정 학생의 출석을 승인할 때
+     */
+    @Query("SELECT e FROM EnrollmentExtendedTbl e " +
+           "JOIN FETCH e.lecture l " +
+           "WHERE l.lecSerial = :lecSerial AND e.studentIdx = :studentIdx")
+    Optional<EnrollmentExtendedTbl> findByLecSerialAndStudentIdx(
+        @Param("lecSerial") String lecSerial,
+        @Param("studentIdx") Integer studentIdx
+    );
+
+    /**
+     * 강의 코드와 교수 USER_IDX로 강의 수강생 목록 조회 (권한 검증용)
+     * 교수가 해당 강의의 담당 교수인지 검증하는 데 사용
+     * 
+     * ⚠️ 중요: lecSerial을 파라미터로 받지만 내부적으로 LEC_IDX로 조인됨
+     * 
+     * 동작 원리:
+     * 1. 프론트엔드에서 lecSerial (예: "CS101") 전달
+     * 2. Repository가 LEC_TBL과 JOIN하여 LEC_IDX 매핑
+     * 3. LEC_IDX로 ENROLLMENT_EXTENDED_TBL 전체 수강생 조회
+     * 4. 교수 권한 검증 (LEC_TBL.LEC_PROF = professorIdx의 USER_CODE)
+     * 
+     * @param lecSerial 강의 코드 (예: "CS101") - 사용자 친화적 식별자
+     * @param professorIdx 교수 USER_IDX
+     * @return 수강생 목록 (담당 강의가 맞으면 1개 이상 반환, 아니면 빈 리스트)
+     * 
+     * 사용 시나리오:
+     * - 교수가 출석 승인 API를 호출할 때 권한 검증
+     * - 교수가 강의의 출석 현황을 조회할 때 권한 검증
+     * 
+     * 권한 검증 예시:
+     * <pre>
+     * List<EnrollmentExtendedTbl> enrollments = 
+     *     repository.findByLecSerialAndProfessorIdx(lecSerial, professorIdx);
+     * if (enrollments.isEmpty()) {
+     *     throw new AccessDeniedException("해당 강의의 담당 교수가 아닙니다.");
+     * }
+     * </pre>
+     */
+    @Query("SELECT e FROM EnrollmentExtendedTbl e " +
+           "JOIN FETCH e.lecture l " +
+           "JOIN FETCH e.student s " +
+           "WHERE l.lecSerial = :lecSerial AND " +
+           "EXISTS (SELECT 1 FROM UserTbl u WHERE u.userIdx = :professorIdx AND u.userCode = l.lecProf)")
+    List<EnrollmentExtendedTbl> findByLecSerialAndProfessorIdx(
+        @Param("lecSerial") String lecSerial,
+        @Param("professorIdx") Integer professorIdx
+    );
+
     // ========== JSON 데이터 기반 조회 메서드 (향후 확장) ==========
 
     /* JSON 데이터를 활용한 고급 쿼리는 Service 레이어에서 처리
