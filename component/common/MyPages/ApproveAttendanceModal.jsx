@@ -39,7 +39,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
                         'Authorization': `Bearer ${accessToken}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({lecSerial: lecSerial})
+                    body: JSON.stringify({ lecSerial: String(lecSerial) })
                 });
     
                 if (!response.ok) throw new Error('학생 목록을 불러오는 데 실패했습니다.');
