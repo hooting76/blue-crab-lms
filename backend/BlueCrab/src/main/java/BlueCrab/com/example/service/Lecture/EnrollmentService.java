@@ -236,13 +236,18 @@ public class EnrollmentService {
 
         try {
             Map<String, Object> currentData = parseEnrollmentData(enrollment.getEnrollmentData());
-            Map<String, Object> attendanceInfo = new java.util.HashMap<>();
-            if (attended != null) attendanceInfo.put("attended", attended);
-            if (absent != null) attendanceInfo.put("absent", absent);
-            if (late != null) attendanceInfo.put("late", late);
-            attendanceInfo.put("updatedAt", getCurrentDateTime());
             
-            currentData.put("attendance", attendanceInfo);
+            // ✅ 기존 attendance 객체를 병합 (덮어쓰기 방지)
+            @SuppressWarnings("unchecked")
+            Map<String, Object> existingAttendance = (Map<String, Object>) currentData.getOrDefault("attendance", new java.util.HashMap<>());
+            
+            // 새로운 값만 업데이트 (sessions, summary, pendingRequests 등 유지)
+            if (attended != null) existingAttendance.put("attended", attended);
+            if (absent != null) existingAttendance.put("absent", absent);
+            if (late != null) existingAttendance.put("late", late);
+            existingAttendance.put("updatedAt", getCurrentDateTime());
+            
+            currentData.put("attendance", existingAttendance);
             String jsonData = objectMapper.writeValueAsString(currentData);
             enrollment.setEnrollmentData(jsonData);
             return enrollmentRepository.save(enrollment);
@@ -252,6 +257,8 @@ public class EnrollmentService {
     }
 
     /* 출석 정보 업데이트 (상세 버전) */
+    // ⚠️ 주의: 이 메서드는 attendance 전체를 교체합니다. (sessions, summary 포함)
+    // 출석 승인 시스템(AttendanceService)에서 사용하며, 전체 데이터를 재구성합니다.
     @Transactional
     public EnrollmentExtendedTbl updateAttendanceData(Integer enrollmentIdx, List<Map<String, Object>> attendanceData) {
         EnrollmentExtendedTbl enrollment = enrollmentRepository.findById(enrollmentIdx)
