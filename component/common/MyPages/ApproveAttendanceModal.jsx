@@ -25,6 +25,8 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
     //     setPage(newPage);
     // };
 
+    console.log("accessToken : ", accessToken);
+    console.log("lecSerial : ", lecSerial);
 
     // 학생 목록 불러오기
     const fetchStudentList = async (accessToken, lecSerial) => {

@@ -321,16 +321,20 @@ useEffect(() => {
 
       <div>
         <label>과목</label><br />
-        <select value={selectedLectureSerial} onChange={(e) => setSelectedLectureSerial(e.target.value)}>
-            {lectureList.length > 0 ? (
-                lectureList.map((cls) => (
-                    <option key={cls.lecIdx} value={cls.lecSerial}>
-                        {cls.lecTit}
-                    </option>
-                  ))
-                ) : (
-                    <option disabled>강의 목록 없음</option>
-                )}
+        <select
+          value={selectedLectureSerial}
+          onChange={(e) => setSelectedLectureSerial(e.target.value)}
+          disabled={!!notice} // 🔒 notice가 존재하면 비활성화
+        >
+          {lectureList.length > 0 ? (
+            lectureList.map((cls) => (
+              <option key={cls.lecIdx} value={cls.lecSerial}>
+                {cls.lecTit}
+              </option>
+            ))
+          ) : (
+            <option disabled>강의 목록 없음</option>
+          )}
         </select>
       </div>
 
