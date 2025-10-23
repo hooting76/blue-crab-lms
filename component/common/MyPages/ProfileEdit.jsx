@@ -18,13 +18,46 @@ export default function ProfileEdit() {
   const [origin, setOrigin] = useState(null);
   const [form, setForm] = useState(null);
 
+  const [today, setToday] = useState(new Date().toLocaleString());
+
+  // image path base64
   const [changeProfileImg, setChangeProfileImg] = useState('');  
-  const [imgFile, setImgFile] = useState('');
-  const [modalLoading, setModalLoading] = useState(false);
+  const [imgFile, setImgFile] = useState(''); // image file object
+  const [modalLoading, setModalLoading] = useState(false); // modal loading
+
+  // postcode state init
+  const [postcode, setPostcode] = useState(''); // postcode 
+  const [mainAddress, setMainAddress] = useState(''); // main address
+  const [subAddress, setSubAddress] = useState(''); // sub address
+  const [postcodeModalOpen, setPostcodeModalOpen] = useState(false); // postcode modal open / close state
+
+  // post modal open / close state reset
+  const openPostModal = () => {
+    setPostcodeModalOpen(true);
+    setPostcode('');
+    setMainAddress('');
+    setSubAddress('');
+  };
+
+  const closePostModal = () => {
+    setPostcodeModalOpen(false);
+    setPostcode('');
+    setMainAddress('');
+    setSubAddress('');    
+  };
+  // postcode state end
+
+  // postcode style set init
+  const postcodeStyle = {
+    display: "block",
+    width: "100%",
+    height: "100%",
+  }
+  // postcode style set end
+
 
   // profile img upload state start
   const [profileModalOpen, setProfileModalOpen] = useState(false);
-
   const openProfileModal = () => {
     setProfileModalOpen(true);
     setChangeProfileImg('');
@@ -36,7 +69,7 @@ export default function ProfileEdit() {
     setImgFile('');
   }
   
-  Modal.setAppElement("#root"); // 접근 설정
+  Modal.setAppElement("#root"); // 모달창 접근 설정
 
   // importImg start
   function importImg(file){
@@ -68,61 +101,79 @@ export default function ProfileEdit() {
   }; // importImg end
 
 
-  // change profile func init
+  // change profile img func init
   async function requestChangeProfileImg(){
     if(!imgFile || !changeProfileImg){
       alert('이미지 업로드를 확인하세요.');
       return;
     }; // first branch
 
-    // enum val
-    const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';    
-    const fileObj = imgFile;
-    const token = localStorage.getItem('accessToken');
-
-    const formData = new FormData();
-    formData.append('file',fileObj);
-
-    console.log('formData',formData);    
-
     // second brench
     if(confirm('정말 해당 이미지로 프로필사진을 등록할까요?')){
-      try {
-        const response = await fetch(`${BASE_URL}/profile/me/upload-image`,{
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        });
-        const result = await response.json();
+      // enum val
+      const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
+      const fileObj = imgFile;
+      const token = localStorage.getItem('accessToken');
 
-        // console.log('result', result);
-        // response fail
-        if(!response.ok || !result.success){
+      const formData = new FormData();
+      formData.append('file',fileObj);
+
+      const response = await fetch(`${BASE_URL}/profile/me/upload-image`,{
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+      const result = response.json();
+
+      result.then((data) => {
+        if(data.success){
+          setImageUrl(changeProfileImg);
+          alert('성공적으로 변경되었습니다.');
+          setProfileModalOpen(false);
+          setChangeProfileImg('');
+          setImgFile('');
+          return;
+        }else{
           throw new Error(result.message || '업로드 실패');
         };
-
-        // response success
-        if(result.success){
-          console.log('result :', result);
-        };
-
-      } catch (error) {
-        alert('이미지 업로드에 실패했습니다.');
-        console.log('에러 :', error);
-        return;
-      } // try catch end
+      });
     }else{
       alert('사용자 요청으로 취소되었습니다.');
       return;
     };
-  };// change profile func end
+  };// change profile img func end
 
 
   // postcode state start
-  
-  // postcode state end
+  const handleAddress = (data) => {
+    let fullAddr = data.address;
+    let subAddress = '';
+
+    // result data selecting & formating
+    if(data.bname !== '' && /[동|로|가]$/g.test(data.bname)){
+      subAddress += data.bname;
+    }
+    if(data.buildingName !== '' && data.apartment === 'Y'){
+      subAddress += subAddress !== ''
+        ? `, ${data.buildingName}`
+        : data.buildingName
+    };
+    if(subAddress !== ''){
+      subAddress = `(${subAddress})`;
+    };
+
+    // state value insert
+    setPostcode(data.zonecode);
+    setMainAddress(fullAddr);
+    setSubAddress(subAddress);
+    form.zipCode = data.zonecode;
+    form.mainAddress = fullAddr;
+    form.detailAddress = subAddress;
+    setPostcodeModalOpen(false);
+  };// postcode state end
+
 
   useEffect(() => {
     let revoked = false;
@@ -208,25 +259,70 @@ export default function ProfileEdit() {
     setForm((f) => ({ ...f, [k]: v }));
   };
 
-  const onCancel = () => {
-    if (!origin) return;
-    setForm({ ...origin });
-    setMsg('');
-  };
-
   const onSave = async () => {
     setMsg('');
-    if (!form?.userName?.trim()) return setMsg('이름을 입력하세요.');
-    if (!/^\d{10,11}$/.test(form.userPhone))
-      return setMsg('전화번호는 숫자 10~11자리여야 합니다.');
-    if (form.birthDate && !yyyymmddOk(form.birthDate))
-      return setMsg('생년월일은 YYYYMMDD 8자리 형식입니다.');
-    setMsg('현재 개발 중입니다. 저장 API가 아직 연결되지 않았습니다.');
-  };
+    if(!form?.userName?.trim()){
+      setMsg('이름을 입력하세요.');
+      return alert(msg);
+    };
+    if(!/^\d{10,11}$/.test(form.userPhone)){
+      setMsg('전화번호는 숫자 11자리여야 합니다.');
+      return alert(msg);
+    };
+    if(form.birthDate && !yyyymmddOk(form.birthDate)){
+      setMsg('생년월일은 YYYYMMDD 8자리 형식입니다.');
+      return alert(msg);
+    };
 
-  if (loading) return <div>불러오는 중…</div>;
-  if (err) return <div style={{ color: 'crimson' }}>에러: {err}</div>;
-  if (!form) return null;
+    if(confirm('현재 정보로 저장할까요?')){
+
+      // address submit function init
+      // enum val
+      const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
+      const token = localStorage.getItem('accessToken');
+
+      const response = await fetch(`${BASE_URL}/profile/address/update`,{
+        method: 'POST',
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": 'application/json',
+        },
+        body: JSON.stringify({
+          "postalCode": `${form.zipCode}`,
+          "roadAddress": `${form.mainAddress}`,
+          "detailAddress": `${form.detailAddress}`
+        })
+      });
+      const result = response.json();
+
+      result.then((data) => {
+        if(data.success){
+          alert('성공적으로 변경되었습니다. 바로 내용을 확인하세요.');
+          setToday(new Date().toLocaleString());
+          return;
+        }else{
+          throw new Error(result.message || '개인정보 수정에 실패했습니다.');
+        };
+      });
+      // address submit function end
+    }else{
+      alert('사용자의 요청으로 취소됐습니다.');
+      return;
+    };
+  }; // onSave func end
+
+
+  // etc...
+  if(loading){
+    return <div>불러오는 중…</div>;
+  };
+  if(err){
+    return <div style={{ color: 'crimson' }}>에러: {err}</div>;
+  };
+  if(!form){
+    return null;
+  };
+  // etc... end
   
   return (
     <div id="bc-profile">
@@ -296,7 +392,7 @@ export default function ProfileEdit() {
             />
           </label>
 
-          {/* 주소: 라벨 오른쪽 한 줄에 3분할 (네가 준 CSS의 .addr-group 구조) */}
+          {/* 주소: 라벨 오른쪽 한 줄에 3분할 (내가 준 CSS의 .addr-group 구조) */}
           <label className="field">
             <span>주소</span>
             <div className="addr-group">
@@ -310,7 +406,7 @@ export default function ProfileEdit() {
                   inputMode="numeric"
                   name="zip-code"
                 />
-                <button>
+                <button onClick={openPostModal}>
                   검색
                 </button>
               </div>
@@ -337,19 +433,14 @@ export default function ProfileEdit() {
         </div>
 
         <div className="actions">
-          <button className="btn secondary" onClick={onCancel}>
-            취소
-          </button>
-          <button className="btn" onClick={onSave} title="저장 API 준비 중">
+          <span className='registDate'>
+            *기준일 | 
+            <span>{today}</span>
+          </span>
+          <button className="btn" onClick={onSave} title="저장 API">
             저장
           </button>
         </div>
-
-        {msg && (
-          <div className="form-msg" data-ok={String(msg.startsWith('저장'))}>
-            {msg}
-          </div>
-        )}
 
         {/* profile img uploadFrm modal start */}
         <Modal
@@ -362,14 +453,14 @@ export default function ProfileEdit() {
                   backgroundColor: "rgba(0, 0, 0, .25)",
               },
               content:{
-                  width: "100%",
-                  maxWidth: "450px",
+                  width: "85%",
                   height: "100%",
                   maxHeight: "75%",
-                  boxSizing: "border-box",
-                  margin: "auto",
                   borderRadius: "10px",
+                  margin: "auto",
                   padding: "20px",
+                  maxWidth: "768px",
+                  boxSizing: "border-box",
               },
           }}
         >{/* profile modal header */}
@@ -399,13 +490,12 @@ export default function ProfileEdit() {
                   </div>
                 </div>
 
-                <div className={ProfileModalCss.elModalList}>
+                <div id="arrSvg">
                   <FaArrowRight/>
                 </div>
 
                 <div className={ProfileModalCss.elModalList}>
-                  <h6>변경할 프로필</h6>
-                  <div className={ProfileModalCss.afterProfile}>
+                  <h6 className={ProfileModalCss.afterAreaTit}>
                     <input 
                       type="file" 
                       name="changeImg" 
@@ -414,6 +504,21 @@ export default function ProfileEdit() {
                       onChange={importImg}
                       placeholder='jpg, png만 허용'
                     />
+                    <label 
+                      className={ProfileModalCss.fileLabel}
+                      htmlFor="changeImg"
+                    >
+                      파일선택
+                    </label>
+                    <span className={ProfileModalCss.fileName}>
+                      {
+                        changeProfileImg 
+                          ? `${changeProfileImg}`
+                          : '선택된 파일이 없습니다.'
+                      }
+                    </span>
+                  </h6>
+                  <div className={ProfileModalCss.afterProfile}>
                     <div className={ProfileModalCss.imgWrap}>
                       {changeProfileImg
                         ? (<img src={changeProfileImg} alt="교체할 프로필"/>)
@@ -425,20 +530,44 @@ export default function ProfileEdit() {
               </div>
 
               <div className={ProfileModalCss.botBtn}>
-                <input type="button" value="취소" onClick={closeProfileModal} />
-                <input type="button" value="확인" onClick={requestChangeProfileImg}/>
+                <button onClick={requestChangeProfileImg}>
+                  변경하기
+                </button>
               </div>
-
-              {modalLoading && (
-                <div className={ProfileModalCss.modalLoading}>
-
-                </div>
-              )}
             </div>
           )}
         </Modal>
-        {/* profile modal end */}
         {/* profile img uploadFrm modal end */}
+
+
+        {/* postcode modal init */}
+        <Modal 
+          isOpen={!!postcodeModalOpen}
+          onRequestClose={closePostModal}
+          contentLabel='우편번호 검색'
+          style={{
+              overlay:{
+                  zIndex: 9999,
+                  backgroundColor: "rgba(0, 0, 0, .25)",
+              },
+              content:{
+                  width: "85%",
+                  maxWidth: "768px",
+                  height: "100%",
+                  maxHeight: "75%",
+                  boxSizing: "border-box",
+                  margin: "auto",
+                  borderRadius: "10px",
+                  padding: "20px",
+              },
+          }}
+        > {/* modal header */}
+          <DaumPostCode 
+            style={postcodeStyle}
+            onComplete={handleAddress}
+          />
+        </Modal>
+        {/* postcode modal end */}
       </div>
     </div>
   );

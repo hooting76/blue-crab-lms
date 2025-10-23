@@ -168,6 +168,7 @@
   box-sizing: border-box;
   background: #2563eb;
   color: #fff;
+  cursor: pointer;
 }
 
 #bc-profile .addr-group .addr-main,
@@ -179,9 +180,9 @@
 /* 버튼 영역 */
 #bc-profile .actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 18px;
+  justify-content: space-between;
+  margin-top: 15px;
+  align-items: center;
 }
 #bc-profile .btn {
   height: 42px;
@@ -228,6 +229,19 @@
   top: 0;
   left: 50%;
   transform: translateX(50%);
+}
+
+.registDate{
+  font-size: 13px;
+  font-weight: bold;
+}
+.registDate > span{
+  font-weight: normal;
+  color: #777;
+  margin-left: 5px;
+  line-height: normal;
+  word-spacing: normal;
+  font-size: 13px;
 }
 
 /* 반응형 */

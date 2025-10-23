@@ -13,6 +13,13 @@
 .profileModalWrap{
     width: 100%;
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: #eee;
+    padding: 5px;
+    box-sizing: border-box;
+    border-radius: 10px;
 }
 /* modal layer end*/
 
@@ -31,6 +38,7 @@
     border-bottom: 1px solid #777;
     font-weight: bold;
     font-size: 18px;
+    margin-bottom: 15px;
 }
 .closeBtn{
     cursor: pointer;
@@ -48,6 +56,106 @@
     justify-content: space-around;
     align-items: center;
 }
+.elModalList{
+    display: flex;
+    max-width: 275px;
+    width: 100%;
+    min-height: 250px;
+    height: 100%;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    flex-direction: column;
+}
+
+#arrSvg{
+    width: fit-content;
+    border: none;
+    height: fit-content;
+}
+#arrSvg > svg{
+    font-size: 38px;
+}
+
+.elModalList > h6{
+    display: inline-block;
+    padding: 5px 3px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #ccc;
+    font-size: 15px;
+}
+
+.elModalList > h6.afterAreaTit{
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    padding: 0;
+    overflow: hidden;
+    width: 100%;
+}
+.elModalList > h6.afterAreaTit > input{
+    display: none;
+}
+.fileLabel{
+    background: #4084dd;
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+    margin: 0 5px 0 0;
+    padding: 3px 5px;
+    border-radius: 10px 0 0 0;
+    cursor: pointer;
+}
+.fileName{
+    display: inline-block;
+    background: #fff;
+    color: #aaa;
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    max-width: 150px;
+}
+
+.beforeProfile, .imgWrap, .afterProfile{
+    width: 100%;
+    height: 100%;
+}
+
+.imgWrap > p, .beforeProfile > p{
+    font-size: 18px;
+    text-align: center;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    word-break: keep-all;
+}
+
+/* bottom */
+.botBtn{
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+    margin-top: 10px;
+}
+.botBtn > button{
+    width: 100%;
+    max-width: 50%;
+    border: none;
+    border-radius: 10px;
+    background: #4084dd;
+    color: #fff;
+    font-weight: bold;
+    font-size: 21px;
+    padding: 5px 0;
+    cursor: pointer;
+}
+/* bottom end*/
+
 /* main end */
 
 /* modal inner end */
