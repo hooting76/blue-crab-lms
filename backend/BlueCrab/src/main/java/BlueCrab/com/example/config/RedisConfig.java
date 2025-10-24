@@ -81,6 +81,18 @@ public class RedisConfig {
     }
 
     /**
+     * StringRedisTemplate 설정
+     * 채팅 메시지용 (String 타입 데이터 전용)
+     */
+    @Bean
+    public org.springframework.data.redis.core.StringRedisTemplate stringRedisTemplate() {
+        org.springframework.data.redis.core.StringRedisTemplate template = 
+            new org.springframework.data.redis.core.StringRedisTemplate();
+        template.setConnectionFactory(redisConnectionFactory());
+        return template;
+    }
+
+    /**
      * 캐시 매니저 설정
      * Spring Cache 추상화를 사용하여 메서드 수준에서 캐싱 사용
      */

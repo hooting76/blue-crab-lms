@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BlueCrab API 테스트 도구</title>
     <link rel="stylesheet" th:href="@{/css/api-tester.css}" href="/css/api-tester.css">
+    <link rel="stylesheet" th:href="@{/css/chat-tester.css}" href="/css/chat-tester.css">
 </head>
 <body>
     <div class="container">
@@ -235,6 +236,85 @@
                 <div id="response" class="response">여기에 API 응답이 표시됩니다...</div>
             </div>
 
+            <!-- WebSocket 실시간 채팅 테스트 -->
+            <div class="section chat-tester-section layout-span-3">
+                <div class="chat-section-header">
+                    <h3 class="chat-section-title">💬 실시간 채팅 테스트 (WebSocket)</h3>
+                    <span class="chat-badge">Phase 5</span>
+                </div>
+
+                <p class="chat-info-text">
+                    상담 관리 시스템의 WebSocket 기반 실시간 채팅을 테스트합니다.
+                    STOMP over SockJS 프로토콜을 사용하며, JWT 인증이 필요합니다.
+                </p>
+
+                <!-- 연결 설정 -->
+                <div class="chat-connection-panel">
+                    <div class="chat-connection-row">
+                        <div class="chat-input-group">
+                            <label for="chatRequestIdx">상담 요청 번호:</label>
+                            <input type="number" id="chatRequestIdx" placeholder="예: 1" min="1">
+                        </div>
+                        <div class="connection-status status-disconnected" id="chatConnectionStatus">
+                            <span class="status-icon">🔴</span>
+                            <span class="status-text">Disconnected</span>
+                        </div>
+                    </div>
+                    <div class="chat-connection-row">
+                        <button class="success" onclick="connectWebSocket()">🔌 연결</button>
+                        <button class="danger" onclick="disconnectWebSocket()">🔌 해제</button>
+                    </div>
+                </div>
+
+                <!-- 채팅창 -->
+                <div class="chat-window-container">
+                    <div class="chat-window-header">
+                        <span class="chat-window-title">💬 채팅 메시지</span>
+                        <span class="chat-message-count" id="chatMessageCount">메시지: 0개</span>
+                    </div>
+
+                    <div class="chat-messages" id="chatMessagesContainer">
+                        <div class="chat-messages-empty">
+                            <div class="chat-messages-empty-icon">💬</div>
+                            <div>메시지가 없습니다.<br>WebSocket 연결 후 메시지를 전송해보세요.</div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-area">
+                        <input type="text" id="chatMessageInput" placeholder="메시지를 입력하세요... (Enter로 전송)">
+                        <button class="primary" onclick="sendChatMessage()">📤 전송</button>
+                        <button class="danger" onclick="clearChatMessages()">🗑️ 삭제</button>
+                    </div>
+                </div>
+
+                <!-- REST API 테스트 -->
+                <div class="chat-api-panel">
+                    <div class="chat-api-title">📡 REST API 테스트</div>
+                    <div class="chat-api-buttons">
+                        <button class="primary" onclick="fetchChatMessages()">
+                            📥 메시지 조회<br>
+                            <small style="font-size: 10px; opacity: 0.8;">GET /api/chat/messages/{id}</small>
+                        </button>
+                        <button class="success" onclick="downloadChatHistory()">
+                            📄 히스토리 다운로드<br>
+                            <small style="font-size: 10px; opacity: 0.8;">POST .../history/download/{id}</small>
+                        </button>
+                        <button onclick="downloadArchivedChat()" style="background: #9b59b6;">
+                            📦 아카이브 다운로드<br>
+                            <small style="font-size: 10px; opacity: 0.8;">GET .../archive/download/{id}</small>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 연결 로그 -->
+                <div class="chat-api-panel">
+                    <div class="chat-api-title">📋 연결 로그</div>
+                    <div class="chat-connection-log" id="chatConnectionLog">
+                        <div class="chat-log-placeholder">로그가 표시됩니다...</div>
+                    </div>
+                </div>
+            </div>
+
             <div class="section attachments-section layout-span-3">
                 <div class="section-header-inline">
                     <h3>📎 첨부파일 워크플로</h3>
@@ -385,6 +465,10 @@
         console.log('Server Info:', serverInfo);
     </script>
 
+    <!-- WebSocket Libraries (SockJS + STOMP) -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
     <!-- External JavaScript modules -->
     <script th:src="@{/js/ui-utils.js}" src="/js/ui-utils.js"></script>
     <script th:src="@{/js/token-manager.js}" src="/js/token-manager.js"></script>
@@ -393,5 +477,6 @@
     <script th:src="@{/js/body-template-manager.js}" src="/js/body-template-manager.js"></script>
     <script th:src="@{/js/api-tester.js}" src="/js/api-tester.js"></script>
     <script th:src="@{/js/attachment-tools.js}" src="/js/attachment-tools.js"></script>
+    <script th:src="@{/js/chat-tester.js}" src="/js/chat-tester.js"></script>
 </body>
 </html>

@@ -161,6 +161,22 @@ public class SecurityConfig {
                 .requestMatchers("/api/attendance/approve").hasAnyRole("PROFESSOR", "ADMIN") // 교수/관리자 출석 승인
                 .requestMatchers("/api/attendance/student/view").authenticated() // 학생 출석 조회
                 .requestMatchers("/api/attendance/professor/view").hasAnyRole("PROFESSOR", "ADMIN") // 교수 출석 조회
+
+                // 💬 상담 요청/관리 API (인증 및 권한 필요)
+                .requestMatchers("/api/consultation/request").authenticated() // 학생 상담 요청
+                .requestMatchers("/api/consultation/approve").hasAnyRole("PROFESSOR", "ADMIN") // 교수/관리자 승인
+                .requestMatchers("/api/consultation/reject").hasAnyRole("PROFESSOR", "ADMIN") // 교수/관리자 반려
+                .requestMatchers("/api/consultation/cancel").authenticated() // 학생 취소
+                .requestMatchers("/api/consultation/start").authenticated() // 상담 시작
+                .requestMatchers("/api/consultation/end").authenticated() // 상담 종료
+                .requestMatchers("/api/consultation/memo").hasAnyRole("PROFESSOR", "ADMIN") // 교수 메모
+                .requestMatchers("/api/consultation/my-requests").authenticated() // 내 요청 목록
+                .requestMatchers("/api/consultation/received").hasAnyRole("PROFESSOR", "ADMIN") // 받은 요청 목록
+                .requestMatchers("/api/consultation/active").authenticated() // 진행 중인 상담
+                .requestMatchers("/api/consultation/history").authenticated() // 상담 이력
+                .requestMatchers("/api/consultation/{id}").authenticated() // 상담 상세
+                .requestMatchers("/api/consultation/unread-count").hasAnyRole("PROFESSOR", "ADMIN") // 읽지 않은 개수
+                .requestMatchers("/api/consultation/read").authenticated() // 읽음 처리
                 
                 // �🔧 관리자 전용 엔드포인트 (현재 임시로 개방)
                 .requestMatchers("/admin/logs/**").permitAll() // 로그 모니터링 (TODO: ADMIN 권한 필요)

@@ -179,6 +179,15 @@ public interface UserTblRepository extends JpaRepository<UserTbl, Integer> {
      * }
      */
     boolean existsByUserPhone(String userPhone);
+
+    /**
+     * USER_CODE의 존재 여부 확인
+     * 상담 요청 생성 시 사용자 검증에 사용
+     *
+     * @param userCode 확인할 사용자 코드
+     * @return boolean - 사용자 코드가 존재하면 true, 없으면 false
+     */
+    boolean existsByUserCode(String userCode);
     
     /**
      * 이름 또는 이메일에 키워드가 포함된 사용자 검색

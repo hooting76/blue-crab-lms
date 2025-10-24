@@ -335,7 +335,7 @@
   "userCreate": {
     "name": "사용자 생성",
     "category": "사용자 · 프로필",
-    "description": "사용자 등록",
+    "description": "사용자 등록 (학번/교번 자동 생성)",
     "auth": true,
     "method": "POST",
     "endpoint": "/api/users",
@@ -345,13 +345,15 @@
       "userEmail": "newuser@example.com",
       "userPw": "Password123!",
       "userName": "홍길동",
-      "userCode": "20250001",
       "userPhone": "01011112222",
       "userBirth": "19950315",
       "userStudent": 0,
       "userZip": 12345,
       "userFirstAdd": "서울시 강남구",
-      "userLastAdd": "역삼동 123-45"
+      "userLastAdd": "역삼동 123-45",
+      "majorFacultyCode": "01",
+      "majorDeptCode": "02",
+      "admissionYear": 2025
     }
   },
   "profileMe": {
@@ -973,6 +975,325 @@
     "method": "GET",
     "endpoint": "/api/auth/validate",
     "params": [],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "consultationRequest": {
+    "name": "상담 요청 생성",
+    "category": "상담 관리",
+    "description": "학생이 교수에게 상담 요청",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/consultation/request",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "recipientUserCode": "202510102096",
+      "consultationType": "ACADEMIC",
+      "title": "학점 상담 요청",
+      "content": "학점 관리에 대해 상담받고 싶습니다.",
+      "desiredDate": "2025-10-25 14:00:00"
+    }
+  },
+  "consultationApprove": {
+    "name": "상담 요청 승인",
+    "category": "상담 관리",
+    "description": "교수가 상담 요청 승인 (PROFESSOR/ADMIN 권한)",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/consultation/approve",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "requestIdx": 1,
+      "acceptMessage": "오후 2시에 연구실로 오세요."
+    }
+  },
+  "consultationReject": {
+    "name": "상담 요청 반려",
+    "category": "상담 관리",
+    "description": "교수가 상담 요청 반려 (PROFESSOR/ADMIN 권한)",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/consultation/reject",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "requestIdx": 1,
+      "rejectionReason": "해당 시간에 스케줄이 있어 불가능합니다."
+    }
+  },
+  "consultationCancel": {
+    "name": "상담 요청 취소",
+    "category": "상담 관리",
+    "description": "학생이 상담 요청 취소",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/consultation/cancel",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "requestIdx": 1,
+      "cancelReason": "개인 사정으로 취소합니다."
+    }
+  },
+  "consultationStart": {
+    "name": "상담 시작",
+    "category": "상담 관리",
+    "description": "승인된 상담 시작",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/consultation/start",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "requestIdx": 1
+    }
+  },
+  "consultationEnd": {
+    "name": "상담 종료",
+    "category": "상담 관리",
+    "description": "진행 중인 상담 종료 (채팅 로그 자동 MinIO 아카이빙)",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/consultation/end",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "requestIdx": 1
+    }
+  },
+  "consultationMemo": {
+    "name": "메모 작성/수정",
+    "category": "상담 관리",
+    "description": "교수가 상담 메모 작성 (PROFESSOR/ADMIN 권한)",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/consultation/memo",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "requestIdx": 1,
+      "memo": "학생의 학점 관리 능력이 향상되었습니다."
+    }
+  },
+  "consultationMyRequests": {
+    "name": "내가 보낸 요청 목록",
+    "category": "상담 관리",
+    "description": "학생이 보낸 상담 요청 목록 조회",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/consultation/my-requests",
+    "params": [
+      {
+        "name": "page",
+        "type": "number",
+        "location": "query",
+        "required": false,
+        "example": "0",
+        "description": "페이지 번호 (기본값: 0)"
+      },
+      {
+        "name": "size",
+        "type": "number",
+        "location": "query",
+        "required": false,
+        "example": "20",
+        "description": "페이지 크기 (기본값: 20)"
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "location": "query",
+        "required": false,
+        "example": "PENDING",
+        "description": "요청 상태 필터 (PENDING/APPROVED/REJECTED/CANCELLED)"
+      }
+    ],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "consultationReceived": {
+    "name": "받은 요청 목록",
+    "category": "상담 관리",
+    "description": "교수가 받은 상담 요청 목록 (PROFESSOR/ADMIN 권한)",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/consultation/received",
+    "params": [
+      {
+        "name": "page",
+        "type": "number",
+        "location": "query",
+        "required": false,
+        "example": "0",
+        "description": "페이지 번호"
+      },
+      {
+        "name": "size",
+        "type": "number",
+        "location": "query",
+        "required": false,
+        "example": "20",
+        "description": "페이지 크기"
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "location": "query",
+        "required": false,
+        "example": "PENDING",
+        "description": "요청 상태 필터"
+      }
+    ],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "consultationActive": {
+    "name": "진행 중인 상담 목록",
+    "category": "상담 관리",
+    "description": "현재 진행 중인 상담 조회",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/consultation/active",
+    "params": [
+      {
+        "name": "page",
+        "type": "number",
+        "location": "query",
+        "required": false,
+        "example": "0",
+        "description": "페이지 번호"
+      },
+      {
+        "name": "size",
+        "type": "number",
+        "location": "query",
+        "required": false,
+        "example": "20",
+        "description": "페이지 크기"
+      }
+    ],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "consultationHistory": {
+    "name": "완료된 상담 이력",
+    "category": "상담 관리",
+    "description": "완료된 상담 목록 조회 (날짜 범위 필터링 가능)",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/consultation/history",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "startDate": "2025-01-01 00:00:00",
+      "endDate": "2025-12-31 23:59:59",
+      "page": 0,
+      "size": 20
+    }
+  },
+  "consultationDetail": {
+    "name": "상담 상세 조회",
+    "category": "상담 관리",
+    "description": "특정 상담 요청 상세 정보",
+    "auth": true,
+    "method": "GET",
+    "endpoint": "/api/consultation/{id}",
+    "params": [
+      {
+        "name": "id",
+        "type": "number",
+        "location": "path",
+        "required": true,
+        "example": "1",
+        "description": "상담 요청 ID"
+      }
+    ],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "consultationUnreadCount": {
+    "name": "읽지 않은 요청 개수",
+    "category": "상담 관리",
+    "description": "교수가 읽지 않은 상담 요청 개수 (PROFESSOR/ADMIN 권한)",
+    "auth": true,
+    "method": "GET",
+    "endpoint": "/api/consultation/unread-count",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "consultationRead": {
+    "name": "읽음 시간 업데이트",
+    "category": "상담 관리",
+    "description": "상담 요청 읽음 시간 기록",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/consultation/read",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "requestIdx": 1
+    }
+  },
+  "chatGetMessages": {
+    "name": "📱 채팅 메시지 조회",
+    "category": "💬 상담 채팅",
+    "description": "Redis에 저장된 실시간 채팅 메시지 조회 (참여자만 가능)",
+    "auth": true,
+    "method": "GET",
+    "endpoint": "/api/chat/messages/{requestIdx}",
+    "params": [
+      {
+        "name": "requestIdx",
+        "type": "number",
+        "location": "path",
+        "required": true,
+        "example": "1",
+        "description": "상담 요청 ID"
+      }
+    ],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "chatDownloadHistory": {
+    "name": "📄 채팅 히스토리 다운로드",
+    "category": "💬 상담 채팅",
+    "description": "현재 Redis 메시지를 텍스트 파일로 다운로드 (상담 진행 중)",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/chat/history/download/{requestIdx}",
+    "params": [
+      {
+        "name": "requestIdx",
+        "type": "number",
+        "location": "path",
+        "required": true,
+        "example": "1",
+        "description": "상담 요청 ID"
+      }
+    ],
+    "headers": [],
+    "bodyTemplate": null
+  },
+  "chatDownloadArchive": {
+    "name": "📦 아카이브 로그 다운로드",
+    "category": "💬 상담 채팅",
+    "description": "상담 종료 후 MinIO에 저장된 채팅 로그 다운로드",
+    "auth": true,
+    "method": "GET",
+    "endpoint": "/api/chat/archive/download/{requestIdx}",
+    "params": [
+      {
+        "name": "requestIdx",
+        "type": "number",
+        "location": "path",
+        "required": true,
+        "example": "1",
+        "description": "상담 요청 ID"
+      }
+    ],
     "headers": [],
     "bodyTemplate": null
   }
