@@ -6,14 +6,14 @@ import Pagination from "../notices/Pagination";
 const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
     const {user} = UseUser();
-    const [studentList, setStudentList] = useState();
+    const [studentList, setStudentList] = useState([]);
     const [showRejectPrompt, setShowRejectPrompt] = useState(false);
     const [rejectReason, setRejectReason] = useState('');
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    // const [page, setPage] = useState(1);
-    // const [total, setTotal] = useState(0);
+    const [page, setPage] = useState(1);
+    const [total, setTotal] = useState(0);
     const getToken = () => {
     return window.authToken || 
            localStorage.getItem('accessToken') || 
@@ -21,15 +21,13 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
 };
     const accessToken = getToken();
 
-    //  const handlePageChange = (newPage) => {
-    //     setPage(newPage);
-    // };
+     const handlePageChange = (newPage) => {
+        setPage(newPage);
+    };
 
-    console.log("accessToken : ", accessToken);
-    console.log("lecSerial : ", lecSerial);
 
     // 학생 목록 불러오기
-    const fetchStudentList = async (accessToken, lecSerial) => {
+    const fetchStudentList = async (accessToken, lecSerial, page) => {
 
             if (!accessToken) return;
     
@@ -37,13 +35,13 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
             setError(null);
             try {
     
-                const response = await fetch(`${BASE_URL}/attendance/professor/view`, {
+                const response = await fetch(`${BASE_URL}/enrollments/list`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${accessToken}`
                     },
-                    body: JSON.stringify({ lecSerial: lecSerial })
+                    body: JSON.stringify({ lecSerial, page: Math.max(page - 1, 0), size: 20 })
                 });
     
                 if (!response.ok) {
@@ -54,7 +52,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
 
                 const data = await response.json();
                 setStudentList(data.content);
-                // setTotal(data.totalElements);
+                setTotal(data.totalElements);
             } catch (error) {
                 console.error('학생 목록 조회 에러:', error);
                 setError(error.message || '알 수 없는 에러가 발생했습니다.');
@@ -66,9 +64,9 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
     
         useEffect(() => {
         if (accessToken && lecSerial) {
-            fetchStudentList(accessToken, lecSerial);
+            fetchStudentList(accessToken, lecSerial, page);
         }
-    }, [accessToken, lecSerial]);
+    }, [accessToken, lecSerial, page]);
 
 
     // 출석 승인
@@ -169,12 +167,12 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
                     </tbody>
                 </table>
 
-                {/* <Pagination
+                <Pagination
                     page={page}
                     size={20}
                     total={total}
                     onChange={handlePageChange}
-                /> */}
+                />
 
                 <button onClick={onClose}>닫기</button>
             </div>
