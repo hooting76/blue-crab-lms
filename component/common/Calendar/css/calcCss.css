@@ -66,3 +66,9 @@
     font-weight: bold;
     line-height: normal;
 }
+
+@media (max-width: 767px) {
+    .rbc-toolbar {
+        flex-direction: row;
+    }
+}

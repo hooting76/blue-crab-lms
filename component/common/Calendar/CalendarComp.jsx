@@ -12,7 +12,7 @@ import "moment/locale/ko"; // korean locale
 import './css/calcCss.css';
 import calModalCss from './css/CalendarModal.module.css';
 import Modal from 'react-modal';
-import { FaWindowClose } from 'react-icons/fa';
+import { FaWindowClose, FaMapMarkerAlt, FaCalendarWeek } from 'react-icons/fa';
 
 import acJson from '../../../public/schedule.json';
 // calendar func&config library end
@@ -34,52 +34,53 @@ function CalendarComp () {
             const startArr = data.start.trim().split(",");
             const endArr = data.end.trim().split(",");
 
-            if(data.start !== data.end){
-                endArr[2] = Number(endArr[2]) + 1; // 마감일 보정값
-            };
+            if (!endArr[3] || endArr[3].trim() === ""){
+                endArr[3] = '23';
+                startArr[3] = '00';
+            }
+            if (!endArr[4] || endArr[4].trim() === ""){
+                endArr[4] = '59';
+                startArr[4] = '00';
+            }
+
+            // 문자열을 숫자로 변환 (new Date에 안전하게 전달하기 위해)
+            for (let i = 0; i < startArr.length; i++) {
+                startArr[i] = Number(String(startArr[i]).trim());
+            }
+            for (let i = 0; i < endArr.length; i++) {
+                endArr[i] = Number(String(endArr[i]).trim());
+            }
             return {
                 ...data,
-                start: new Date(startArr[0], startArr[1], startArr[2]),
-                end: new Date(endArr[0], endArr[1], endArr[2])
+                start: new Date(startArr[0], startArr[1], startArr[2], startArr[3], startArr[4]),
+                end: new Date(endArr[0], endArr[1], endArr[2], endArr[3], endArr[4])
             };
         });
         setEvents(processedEvents);
     }, []);
 
-    // state //
+    // modal state //
     Modal.setAppElement("#root"); // 접근 설정    
     const [selectedEvent, setSelectedEvent] = useState(null);
-    const [eventTitle, setEventTitle] = useState('');
-
-    // state update
+    
     const handleSelectEvent = (event) => {
         setSelectedEvent(event);
     };
-
     const closeModal = () => {
         setSelectedEvent(null);
     };
-
-    function handleTitChange(evt){
-        let tmp = evt.target.value;
-        setEventTitle(tmp);
-    };
-    // state update end
+    // modal state end
 
 
     // 날자별 style/속성 설정
     const dayPropGetter = (date) =>{
         if(date.getDay() === 0 || date.getDay() === 6){
             if(date.getDay() === 0){
-                return {
-                    className: 'weekend zeroDay',
-                }
+                return {className: 'weekend zeroDay',}
             }else{
-                return {
-                    className: 'weekend sixDay',
-                }
-            }
-        }
+                return {className: 'weekend sixDay',}
+            };
+        };
     }; // dayPropGetter end
 
     // custom toolbar
@@ -133,7 +134,9 @@ function CalendarComp () {
             }} 
             selectable={true}
             resizable={false}
+            view={['month']}
             defaultView='month'
+            onSelectEvent={handleSelectEvent}
             readOnly={true}
             dayPropGetter={dayPropGetter}
             components={{toolbar: CustomToolbar}}
@@ -146,12 +149,12 @@ function CalendarComp () {
             contentLabel='상세보기'
             style={{
                 overlay:{
-                    zIndex: 999,
+                    zIndex: 9999,
                     backgroundColor: "rgba(0, 0, 0, .25)",
                 },
                 content:{
                     width: "100%",
-                    maxWidth: "450px",
+                    maxWidth: "420px",
                     height: "100%",
                     maxHeight: "75%",
                     boxSizing: "border-box",
@@ -162,44 +165,62 @@ function CalendarComp () {
             }}
         > 
 
-        {/* modal main*/}
-        {selectedEvent && (
+            {/* modal main*/}
+            {selectedEvent && (
             <div className={calModalCss.modalWrap}>
                 <h3 className={calModalCss.tit}>
                     <input 
                         type="text" 
                         readOnly={selectedEvent.readOnly}        
-                        defaultValue={selectedEvent.title}
-                        onChange={handleTitChange} 
-                    />
-                
+                        defaultValue={selectedEvent.title}/>
                     <button 
                         onClick={closeModal} 
-                        className={calModalCss.closeBtn}
-                    >
-                        <FaWindowClose />
+                        className={calModalCss.closeBtn}>
+                            <FaWindowClose />
                     </button>
                 </h3>
 
                 {/* modal main */}
                 <div className={calModalCss.modalMain}>
                     <div>
-                        <p>
-                            시작: {moment(selectedEvent.start).format("YYYY-MM-DD HH:mm")}
-                        </p>
-                        <p>
-                            종료: {moment(selectedEvent.end).format("YYYY-MM-DD HH:mm")}
-                        </p>
-                        <p>
-                            장소: {selectedEvent.details.where}
-                        </p>
-                        <p>
-                            내용: {selectedEvent.details.sub}
-                        </p>                        
+                        <div className={calModalCss.DateWrap}>
+                            <span><FaCalendarWeek/></span>                            
+                            {selectedEvent.start.getDate() !== selectedEvent.end.getDate()
+                                ? 
+                                    <>
+                                    <span>
+                                        {(selectedEvent.start.getHours() == 0)
+                                            && (selectedEvent.start.getMinutes() == 0)
+                                            ? <>{moment(selectedEvent.start).format("MM월 DD일")}</>
+                                            : <>{moment(selectedEvent.start).format("MM월 DD일 HH:mm")}</>
+                                        }
+                                    </span>
+                                    <span> ~ </span>
+                                    </>
+                                : null
+                            }
+
+                            <span>
+                                {moment(selectedEvent.end).format("MM월 DD일")}
+                            </span>
+                        </div>
+                        {/* DateWrap end */}
+
+                        {selectedEvent.details.where 
+                            ? 
+                                <div>
+                                    <span><FaMapMarkerAlt/></span>
+                                    <p>{selectedEvent.details.where}</p> 
+                                </div>
+                            : null}
+                        
+                        {selectedEvent.details.sub
+                            ? <p>{selectedEvent.details.sub}</p>
+                            : null}                        
                     </div>
                 </div>
             </div>            
-        )}
+            )}
 
         </Modal>
     </>)
