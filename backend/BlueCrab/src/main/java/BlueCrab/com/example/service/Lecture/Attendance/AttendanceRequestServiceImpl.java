@@ -108,6 +108,7 @@ public class AttendanceRequestServiceImpl implements AttendanceRequestService {
     }
     
     @Override
+    @Transactional
     public AttendanceResponseDto<Void> approveAttendance(
         String lecSerial,
         Integer sessionNumber,
