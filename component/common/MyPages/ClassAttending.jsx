@@ -185,9 +185,6 @@ const fetchNotices = async () => {
   }, [accessToken, selectedLectureSerial]);
 
 
-  console.log("accessToken : ", accessToken);
-  console.log("selectedLectureSerial : ", selectedLectureSerial);
-
   // 학생 출석 요청
   const attendanceRequestSubmit = async () => {
     try {
@@ -198,7 +195,7 @@ const fetchNotices = async () => {
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
-          lecSerial: selectedLectureSerial,
+          lecSerial: String(selectedLectureSerial),
           sessionNumber: 1 // TODO: 실제 세션 번호 변수 연결
         }),
       });
