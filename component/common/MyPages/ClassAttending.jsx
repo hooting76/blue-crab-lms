@@ -11,7 +11,7 @@ import CourseDetail from './CourseDetail';
 function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, setSelectedLectureSerial }) {
   const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
   const { user } = UseUser();
-  const accessToken = user.data.accessToken;
+  const accessToken = window.authToken;
   const isProf = user.data.user.userStudent === 1;
   const [lectureList, setLectureList] = useState([]);
   const [assignmentList, setAssignmentList] = useState([]);
