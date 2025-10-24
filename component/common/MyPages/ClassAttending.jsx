@@ -42,6 +42,11 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
       }
     }, [lectureList, isProf]);
 
+  // 강의 선택 변경 핸들러
+  const handleLectureChange = (e) => {
+  setSelectedLectureSerial(e.target.value); // e.target.value = lecSerial
+};
+
 
   // 강의 목록 가져오기 (교수/학생 구분)
 const fetchLectureData = async (accessToken, user, isProf) => {
