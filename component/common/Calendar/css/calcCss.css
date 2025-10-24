@@ -61,7 +61,7 @@
     text-align: center;
 }
 
-.rbc-event-content{
+.rbc-ellipsis, .rbc-show-more, .rbc-row-segment .rbc-event-content, .rbc-event-label{
     font-size: 15px;
     font-weight: bold;
     line-height: normal;

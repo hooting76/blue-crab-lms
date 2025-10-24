@@ -11,8 +11,10 @@ function UserDashboard() {
 
   //firebase start========================
     useEffect(() => {
+      if(!sessionStorage.getItem('noRegister')){
         const pushManager = pushNotificationManager;
         pushManager.initialize();
+      }
     }, []);
   //firebase end===========================  
 

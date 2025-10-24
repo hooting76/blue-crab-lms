@@ -281,6 +281,7 @@ export default function ProfileEdit() {
       const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
       const token = localStorage.getItem('accessToken');
 
+      // address request init
       const response = await fetch(`${BASE_URL}/profile/address/update`,{
         method: 'POST',
         headers: {
@@ -294,17 +295,46 @@ export default function ProfileEdit() {
         })
       });
       const result = response.json();
+      // address request end
 
-      result.then((data) => {
-        if(data.success){
-          alert('성공적으로 변경되었습니다. 바로 내용을 확인하세요.');
-          setToday(new Date().toLocaleString());
-          return;
-        }else{
-          throw new Error(result.message || '개인정보 수정에 실패했습니다.');
-        };
+      // userInfo update request init
+      const userPhone = form.userPhone.replace("-","");
+      const responseUser = await fetch(`${BASE_URL}/profile/basic-info/update`,{
+        method: 'POST',
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": 'application/json',
+        },
+        body: JSON.stringify({
+          "userName": `${form.userName}`,
+          "userPhone": `${userPhone}`,
+        })
       });
-      // address submit function end
+      const resultUser = responseUser.json();
+      // userInfo update request end
+
+      // address result
+      result.then((data) => {
+        if(!data.success){
+          throw new Error(result.message || '개인정보 수정에 실패했습니다.');
+        }else{
+          // userInfo result
+          resultUser.then((data) => {
+            // console.log(data);
+            if(data.success){
+              alert("정보가 성공적으로 변경되었습니다.");
+              setToday(new Date().toLocaleString());
+              return;
+            }else{
+              throw new Error(result.message || '개인정보 수정에 실패했습니다.');
+            };
+          });
+          // userInfo result end
+        }
+      });
+      // address result end
+
+      // confirm true end
     }else{
       alert('사용자의 요청으로 취소됐습니다.');
       return;

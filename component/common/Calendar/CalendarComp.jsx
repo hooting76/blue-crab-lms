@@ -33,6 +33,10 @@ function CalendarComp () {
             }
             const startArr = data.start.trim().split(",");
             const endArr = data.end.trim().split(",");
+
+            if(data.start !== data.end){
+                endArr[2] = Number(endArr[2]) + 1; // 마감일 보정값
+            };
             return {
                 ...data,
                 start: new Date(startArr[0], startArr[1], startArr[2]),
