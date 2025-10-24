@@ -24,7 +24,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, selectedLecSerial, 
 
 
     /** ========== Fetch ========== */
-    const fetchLectureData = async (accessToken, user, isProf) => {
+    const fetchLectureData = async (accessToken, userId, isProf) => {
         try {
             const requestBody = isProf
             ? {
@@ -35,7 +35,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, selectedLecSerial, 
             : {
                 page: 0,
                 size: 100,
-                studentIdx: Number(user.data.user.id)
+                studentIdx: Number(userId)
                 };
 
             const url = isProf
@@ -101,7 +101,7 @@ useEffect(() => {
 // 처음 mount나 userId/accessToken 바뀔 때 강의 목록 fetch
 useEffect(() => {
     if (accessToken && userId) {
-        fetchLectureData(accessToken, user, isProf);
+        fetchLectureData(accessToken, userId, isProf);
     }
 }, [accessToken, userId]);
 
