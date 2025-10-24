@@ -187,12 +187,21 @@ public class AssignmentController {
             String title = (String) request.get("title");
             String body = (String) request.get("body");  // ✅ DTO 패턴: body 필드
             String dueDate = (String) request.get("dueDate");
-            // ✅ maxScore는 항상 10점으로 고정 (요청값 무시)
-            Integer maxScore = 10;
+            
+            // ✅ maxScore 파라미터 추가 (기본값 10점)
+            Integer maxScore = request.get("maxScore") != null 
+                ? ((Number) request.get("maxScore")).intValue() 
+                : 10;
             
             if (lecSerial == null || title == null || dueDate == null) {
                 return ResponseEntity.badRequest()
                         .body(createErrorResponse("lecSerial, title, dueDate는 필수입니다."));
+            }
+            
+            // maxScore 유효성 검증
+            if (maxScore <= 0) {
+                return ResponseEntity.badRequest()
+                        .body(createErrorResponse("maxScore는 0보다 커야 합니다."));
             }
             
             // lecSerial → lecIdx 변환

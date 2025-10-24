@@ -182,18 +182,20 @@ async function createAssignment(lecSerial) {
     const title = prompt('과제 제목:', '통합 테스트용 과제');
     const description = prompt('과제 설명:', '과제-성적 통합 테스트용 과제입니다.');
     const dueDate = prompt('마감일 (YYYYMMDD):', '20251231');
+    const maxScore = parseInt(prompt('만점:', '10'));
 
     if (!title || !dueDate) {
         throw new Error('과제 정보 입력이 취소되었습니다.');
     }
 
     // ✅ 백엔드 API: POST /api/assignments
-    // maxScore는 백엔드에서 자동으로 10점으로 고정됨
+    // maxScore는 입력값 사용 (기본값 10점)
     const result = await apiCall('/api/assignments', 'POST', {
         lecSerial: lecSerial,
         title: title,
         body: description,
-        dueDate: dueDate
+        dueDate: dueDate,
+        maxScore: maxScore
     });
 
     if (!result.ok) {
@@ -448,13 +450,24 @@ async function quickCheckAssignments(lecSerial) {
 
     if (result.ok) {
         console.log('✅ 조회 성공!');
-        console.table(result.data.data.map(a => ({
+        // API 응답: { content: [...], pageable: {...}, totalElements: N }
+        const assignments = result.data.content || [];
+        
+        if (assignments.length === 0) {
+            console.log('📭 과제가 없습니다.');
+            return [];
+        }
+        
+        console.table(assignments.map(a => ({
             IDX: a.assignmentIdx,
             과제명: a.assignmentName,
             만점: a.maxScore,
-            마감일: a.dueDate
+            마감일: a.dueDate,
+            생성일: a.createdDate
         })));
-        return result.data.data;
+        
+        console.log(`\n📊 총 ${assignments.length}개의 과제`);
+        return assignments;
     } else {
         console.log('❌ 조회 실패');
         return null;
@@ -485,6 +498,81 @@ async function quickCheckStudentGrade(lecSerial, studentIdx) {
     }
 }
 
+// 과제 삭제
+async function deleteAssignment(assignmentIdx) {
+    console.log('\n🗑️  과제 삭제');
+    console.log('═'.repeat(70));
+    console.log(`삭제할 과제 IDX: ${assignmentIdx}`);
+    
+    const confirm = window.confirm(`과제 IDX ${assignmentIdx}를 삭제하시겠습니까?`);
+    if (!confirm) {
+        console.log('❌ 삭제 취소됨');
+        return false;
+    }
+    
+    const result = await apiCall(`/api/assignments/${assignmentIdx}`, 'DELETE', null);
+
+    if (result.ok) {
+        console.log('✅ 과제 삭제 성공!');
+        return true;
+    } else {
+        console.log('❌ 과제 삭제 실패');
+        console.log('에러:', result.data);
+        return false;
+    }
+}
+
+// 특정 강의의 모든 과제 삭제 (테스트 초기화용)
+async function deleteAllAssignments(lecSerial) {
+    console.log('\n🗑️  모든 과제 삭제 (테스트 초기화)');
+    console.log('═'.repeat(70));
+    
+    // 먼저 과제 목록 조회
+    const assignments = await quickCheckAssignments(lecSerial);
+    
+    if (!assignments || assignments.length === 0) {
+        console.log('📭 삭제할 과제가 없습니다.');
+        return;
+    }
+    
+    const confirm = window.confirm(`${lecSerial} 강의의 모든 과제 ${assignments.length}개를 삭제하시겠습니까?`);
+    if (!confirm) {
+        console.log('❌ 삭제 취소됨');
+        return;
+    }
+    
+    console.log(`\n🔄 ${assignments.length}개의 과제 삭제 시작...`);
+    
+    let successCount = 0;
+    let failCount = 0;
+    
+    for (const assignment of assignments) {
+        const idx = assignment.assignmentIdx;
+        console.log(`\n삭제 중: IDX ${idx} - ${assignment.assignmentName}`);
+        
+        const result = await apiCall(`/api/assignments/${idx}`, 'DELETE', null);
+        
+        if (result.ok) {
+            console.log(`✅ IDX ${idx} 삭제 완료`);
+            successCount++;
+        } else {
+            console.log(`❌ IDX ${idx} 삭제 실패`);
+            failCount++;
+        }
+        
+        // 서버 부하 방지를 위한 짧은 대기
+        await sleep(300);
+    }
+    
+    console.log('\n' + '═'.repeat(70));
+    console.log('📊 삭제 결과:');
+    console.log(`   ✅ 성공: ${successCount}개`);
+    console.log(`   ❌ 실패: ${failCount}개`);
+    console.log('═'.repeat(70));
+    
+    return { success: successCount, fail: failCount };
+}
+
 // ===================================================================
 // 초기 안내 메시지
 // ===================================================================
@@ -504,6 +592,8 @@ console.log('═'.repeat(70));
 console.log('\n🔍 개별 디버깅 함수:\n');
 console.log('   await quickCheckAssignments("ETH201")         - 과제 목록 조회');
 console.log('   await quickCheckStudentGrade("ETH201", 6)     - 학생 성적 조회');
+console.log('   await deleteAssignment(assignmentIdx)         - 특정 과제 삭제');
+console.log('   await deleteAllAssignments("ETH201")          - 모든 과제 삭제 (초기화)');
 console.log('');
 console.log('═'.repeat(70));
 console.log('');
