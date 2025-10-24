@@ -405,8 +405,8 @@ public class AttendanceService {
             log.debug("출석 점수 계산: lecIdx={}, studentIdx={}, 출석문자열={}, 출석={}회, 지각={}회, 결석={}회, currentScore={}, percentage={}%", 
                     lecIdx, studentIdx, attendanceStr, presentCount, lateCount, absentCount, currentScore, percentage);
 
+            // ✅ maxScore 제거 (gradeConfig에만 존재)
             return Map.of(
-                "maxScore", maxScore,
                 "currentScore", currentScore,
                 "percentage", percentage,
                 "presentCount", presentCount,    // 출석 수

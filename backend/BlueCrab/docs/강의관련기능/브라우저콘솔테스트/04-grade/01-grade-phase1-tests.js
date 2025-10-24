@@ -193,6 +193,176 @@
     }
     
     // ============================================
+    // 서버 설정 직접 조회/수정 (개선된 방식)
+    // ============================================
+    
+    /**
+     * 서버에 저장된 현재 설정 조회
+     */
+    async function getServerConfig() {
+        console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('📥 서버 설정 조회');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        
+        if (!config.lecSerial) {
+            console.warn('⚠️  강의 코드 미설정! promptLecture() 실행...');
+            promptLecture();
+        }
+        
+        if (!config.studentIdx) {
+            const idx = prompt('학생 IDX (성적 데이터 조회용):', '');
+            if (idx) config.studentIdx = parseInt(idx);
+            else {
+                console.error('❌ 학생 IDX 필요!');
+                console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+                return { success: false, error: '학생 IDX 없음' };
+            }
+        }
+        
+        console.log(`📤 강의: ${config.lecSerial}, 학생: ${config.studentIdx}`);
+        
+        const result = await apiCall('/enrollments/grade-info', {
+            action: 'get-grade',
+            lecSerial: config.lecSerial,
+            studentIdx: config.studentIdx
+        });
+        
+        if (result?.success && result.data) {
+            const d = result.data.data || result.data;
+            const serverConfig = d.gradeConfig;
+            
+            if (serverConfig) {
+                console.log('\n📊 서버 설정:');
+                console.log(`   출석 만점: ${serverConfig.attendanceMaxScore || 'N/A'}점`);
+                console.log(`   과제 총점: ${serverConfig.assignmentTotalScore || 'N/A'}점`);
+                console.log(`   시험 총점: ${serverConfig.examTotalScore || 'N/A'}점`);
+                console.log(`   지각 페널티: ${serverConfig.latePenaltyPerSession || 0}점/회`);
+                console.log(`   총 만점: ${serverConfig.totalMaxScore || 'N/A'}점`);
+                
+                if (serverConfig.gradeDistribution) {
+                    console.log(`   등급 분포:`, serverConfig.gradeDistribution);
+                }
+                
+                if (serverConfig.configuredAt) {
+                    console.log(`   설정일시: ${serverConfig.configuredAt}`);
+                }
+                
+                // 로컬 설정과 비교
+                console.log('\n🔍 로컬 vs 서버 비교:');
+                if (config.attendanceMaxScore !== serverConfig.attendanceMaxScore) {
+                    console.log(`   ⚠️  출석 만점: 로컬(${config.attendanceMaxScore}) ≠ 서버(${serverConfig.attendanceMaxScore})`);
+                }
+                if (config.latePenaltyPerSession !== serverConfig.latePenaltyPerSession) {
+                    console.log(`   ⚠️  지각 페널티: 로컬(${config.latePenaltyPerSession}) ≠ 서버(${serverConfig.latePenaltyPerSession || 0})`);
+                }
+                
+                console.log('\n✅ 성공!');
+                console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+                return { success: true, data: serverConfig };
+            } else {
+                console.log('\n⚠️  서버에 설정이 없습니다. 먼저 설정을 저장하세요.');
+                console.log('   예: await gradePhase1.config()');
+                console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+                return { success: false, error: '서버 설정 없음' };
+            }
+        } else {
+            console.log('\n❌ 실패:', result.error);
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+            return result;
+        }
+    }
+    
+    /**
+     * 프롬프트로 입력받아 즉시 서버에 저장 (간편 버전)
+     */
+    async function quickConfig() {
+        console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('⚡ 빠른 설정 (즉시 서버 저장)');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        
+        if (!config.lecSerial) {
+            const lec = prompt('강의 코드 (예: ETH201):', '');
+            if (lec) config.lecSerial = lec;
+            else {
+                console.error('❌ 강의 코드 필수!');
+                console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+                return { success: false, error: '강의 코드 없음' };
+            }
+        }
+        
+        console.log(`📚 강의: ${config.lecSerial}`);
+        console.log('\n💡 빈칸으로 두면 기본값 사용\n');
+        
+        const attendance = prompt('출석 만점 (기본: 80):', '');
+        const latePenalty = prompt('지각 감점/회 (기본: 0.5):', '');
+        
+        // 로컬 config 업데이트
+        if (attendance) config.attendanceMaxScore = parseInt(attendance);
+        if (latePenalty) config.latePenaltyPerSession = parseFloat(latePenalty);
+        
+        console.log('\n📤 서버 저장 중...');
+        console.log(`   출석 만점: ${config.attendanceMaxScore}점`);
+        console.log(`   지각 페널티: ${config.latePenaltyPerSession}점/회`);
+        
+        // 즉시 서버 저장
+        const result = await testGradeConfig();
+        
+        if (result?.success) {
+            console.log('⚡ 빠른 설정 완료! (로컬 → 서버 자동 저장)');
+        }
+        
+        return result;
+    }
+    
+    /**
+     * 서버 설정 직접 수정 (프롬프트 없이)
+     */
+    async function updateServerConfig(updates) {
+        console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('📤 서버 설정 직접 수정');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        
+        if (!config.lecSerial) {
+            console.error('❌ 강의 코드 필요! setLecture() 먼저 실행하세요.');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+            return { success: false, error: '강의 코드 없음' };
+        }
+        
+        // 로컬 config 업데이트
+        if (updates.attendanceMaxScore !== undefined) {
+            config.attendanceMaxScore = updates.attendanceMaxScore;
+        }
+        if (updates.latePenaltyPerSession !== undefined) {
+            config.latePenaltyPerSession = updates.latePenaltyPerSession;
+        }
+        if (updates.gradeDistribution) {
+            config.gradeDistribution = { ...config.gradeDistribution, ...updates.gradeDistribution };
+        }
+        
+        console.log('📊 수정 내용:');
+        if (updates.attendanceMaxScore !== undefined) {
+            console.log(`   출석 만점: ${updates.attendanceMaxScore}점`);
+        }
+        if (updates.latePenaltyPerSession !== undefined) {
+            console.log(`   지각 페널티: ${updates.latePenaltyPerSession}점/회`);
+        }
+        if (updates.gradeDistribution) {
+            console.log(`   등급 분포:`, updates.gradeDistribution);
+        }
+        
+        console.log('\n📤 서버 저장 중...');
+        
+        // 즉시 서버 저장
+        const result = await testGradeConfig();
+        
+        if (result?.success) {
+            console.log('\n✅ 서버 설정 수정 완료!');
+        }
+        
+        return result;
+    }
+    
+    // ============================================
     // 1. 성적 구성 설정을 서버에 저장
     // POST /enrollments/grade-config
     // ============================================
@@ -270,28 +440,67 @@
             const d = result.data.data || result.data;
             console.log('\n📊 성적 정보:');
             
-            if (d.attendanceScore !== undefined) {
-                console.log('  📅 출석:');
-                console.log(`    - 출석: ${d.presentCount || 0}회`);
-                console.log(`    - 지각: ${d.lateCount || 0}회`);
-                console.log(`    - 결석: ${d.absentCount || 0}회`);
-                console.log(`    - 출석율: ${(d.attendanceRate || 0).toFixed(2)}%`);
-                console.log(`    - 점수: ${d.attendanceScore.toFixed(2)}`);
-                if (d.latePenalty) console.log(`    - 지각 감점: ${d.latePenalty.toFixed(2)}`);
+            // gradeConfig 표시
+            if (d.gradeConfig) {
+                console.log('  ⚙️  성적 구성:');
+                console.log(`    - 출석 만점: ${d.gradeConfig.attendanceMaxScore || 'N/A'}점`);
+                console.log(`    - 과제 총점: ${d.gradeConfig.assignmentTotalScore || 'N/A'}점`);
+                console.log(`    - 시험 총점: ${d.gradeConfig.examTotalScore || 'N/A'}점`);
+                console.log(`    - 지각 페널티: ${d.gradeConfig.latePenaltyPerSession || 0}점/회`);
             }
             
-            if (d.assignmentScores?.length) {
-                console.log(`  📝 과제: ${d.assignmentScores.length}개`);
-                d.assignmentScores.forEach((a, i) => {
-                    console.log(`    ${i+1}. ${a.name}: ${a.score}/${a.maxScore} (${a.percentage.toFixed(2)}%)`);
+            // attendance 처리
+            if (d.attendance || d.attendanceScore !== undefined) {
+                console.log('  📅 출석:');
+                
+                if (d.attendance && typeof d.attendance === 'object') {
+                    // attendance 객체인 경우
+                    console.log(`    - 현재 점수: ${d.attendance.currentScore?.toFixed(2) || 'N/A'}`);
+                    console.log(`    - 백분율: ${d.attendance.percentage?.toFixed(2) || 'N/A'}%`);
+                    if (d.attendance.presentCount !== undefined) console.log(`    - 출석: ${d.attendance.presentCount}회`);
+                    if (d.attendance.lateCount !== undefined) console.log(`    - 지각: ${d.attendance.lateCount}회`);
+                    if (d.attendance.absentCount !== undefined) console.log(`    - 결석: ${d.attendance.absentCount}회`);
+                    if (d.attendance.latePenalty) console.log(`    - 지각 감점: ${d.attendance.latePenalty.toFixed(2)}`);
+                } else {
+                    // 개별 필드인 경우
+                    console.log(`    - 출석: ${d.presentCount || 0}회`);
+                    console.log(`    - 지각: ${d.lateCount || 0}회`);
+                    console.log(`    - 결석: ${d.absentCount || 0}회`);
+                    if (d.attendanceRate !== undefined) console.log(`    - 출석율: ${d.attendanceRate.toFixed(2)}%`);
+                    if (d.attendanceScore !== undefined) console.log(`    - 점수: ${d.attendanceScore.toFixed(2)}`);
+                    if (d.latePenalty) console.log(`    - 지각 감점: ${d.latePenalty.toFixed(2)}`);
+                }
+            }
+            
+            if (d.assignmentScores?.length || (d.assignments && Array.isArray(d.assignments))) {
+                const assignments = d.assignmentScores || d.assignments;
+                console.log(`  📝 과제: ${assignments.length}개`);
+                assignments.forEach((a, i) => {
+                    console.log(`    ${i+1}. ${a.name || a.assignmentName}: ${a.score}/${a.maxScore} (${a.percentage?.toFixed(2) || 'N/A'}%)`);
                 });
             }
             
-            if (d.totalScore !== undefined) {
-                console.log(`  💯 총점: ${d.totalScore.toFixed(2)} (${d.percentage.toFixed(2)}%)`);
+            // total 처리
+            if (d.total || d.totalScore !== undefined) {
+                if (d.total && typeof d.total === 'object') {
+                    console.log(`  💯 총점: ${d.total.score?.toFixed(2) || 'N/A'}/${d.total.maxScore || 'N/A'} (${d.total.percentage?.toFixed(2) || 'N/A'}%)`);
+                } else if (d.totalScore !== undefined) {
+                    console.log(`  💯 총점: ${d.totalScore.toFixed(2)} (${d.percentage?.toFixed(2) || 'N/A'}%)`);
+                }
             }
             
-            if (d.grade) console.log(`  🏆 등급: ${d.grade}`);
+            // grade 처리 (객체인 경우 letterGrade 필드 확인)
+            if (d.letterGrade) {
+                console.log(`  🏆 등급: ${d.letterGrade}`);
+            } else if (d.grade) {
+                if (typeof d.grade === 'string') {
+                    console.log(`  🏆 등급: ${d.grade}`);
+                } else if (typeof d.grade === 'object' && d.grade.letterGrade) {
+                    console.log(`  🏆 등급: ${d.grade.letterGrade}`);
+                } else {
+                    console.log(`  🏆 등급: ${JSON.stringify(d.grade)}`);
+                }
+            }
             
             console.log('\n✅ 성공!');
         } else {
@@ -506,8 +715,13 @@
         promptStudent,
         promptConfig,
         updateConfig,
-        quickAttendanceConfig,  // 출석 설정 빠른 변경
+        quickAttendanceConfig,  // 출석 설정 빠른 변경 (로컬만)
         getConfig: () => config,
+        
+        // ⚡ 개선된 서버 설정 관리
+        getServerConfig,        // 서버 설정 조회
+        updateServerConfig,     // 서버 설정 직접 수정 (즉시 저장)
+        quickConfig,            // 프롬프트 입력 → 즉시 서버 저장
         
         // 개별 테스트
         config: testGradeConfig,
@@ -528,10 +742,21 @@
     console.log('   1. gradePhase1.setLecture("ETH201")     - 강의 지정');
     console.log('   2. await gradePhase1.runAll()           - 전체 테스트 (5개)');
     console.log('');
-    console.log('⚙️  설정 변경 (3가지 방법):');
-    console.log('   방법 1: gradePhase1.quickAttendanceConfig(80, 0.5)  - 출석+지각만 변경');
-    console.log('   방법 2: gradePhase1.promptConfig()                  - 대화형 입력');
-    console.log('   방법 3: gradePhase1.updateConfig({...})             - 객체로 변경');
+    console.log('⚡ 간편 설정 (권장 - 즉시 서버 저장):');
+    console.log('   방법 1: await gradePhase1.quickConfig()                    - 프롬프트로 입력 + 즉시 저장');
+    console.log('   방법 2: await gradePhase1.updateServerConfig({...})        - 객체로 수정 + 즉시 저장');
+    console.log('   방법 3: await gradePhase1.getServerConfig()                - 서버 설정 조회');
+    console.log('');
+    console.log('   예시:');
+    console.log('   await gradePhase1.updateServerConfig({');
+    console.log('       attendanceMaxScore: 66,');
+    console.log('       latePenaltyPerSession: 0');
+    console.log('   })');
+    console.log('');
+    console.log('⚙️  기존 방식 (2단계 - 번거로움):');
+    console.log('   방법 1: gradePhase1.quickAttendanceConfig(80, 0.5)  - 로컬만 변경');
+    console.log('   방법 2: gradePhase1.promptConfig()                  - 대화형 입력 (로컬)');
+    console.log('   방법 3: gradePhase1.updateConfig({...})             - 객체로 변경 (로컬)');
     console.log('   → 변경 후: await gradePhase1.config()               - 서버에 저장');
     console.log('');
     console.log('📋 개별 API:');

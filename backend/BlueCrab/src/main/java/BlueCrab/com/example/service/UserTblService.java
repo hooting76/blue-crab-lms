@@ -767,4 +767,71 @@ public class UserTblService {
         logger.info("주소 업데이트 완료 - 사용자: {}, 우편번호: {}, 도로명: {}",
                    userEmail, postalCode, roadAddress);
     }
+
+    /**
+     * 사용자 기본 정보 업데이트 (이름, 전화번호)
+     * JWT 인증된 사용자의 이름과 전화번호를 업데이트하는 메서드
+     *
+     * 처리 단계:
+     * 1. 사용자 이메일로 UserTbl 조회
+     * 2. 입력값 정제 (앞뒤 공백 제거)
+     * 3. 전화번호 중복 검사 (변경된 경우만)
+     * 4. 이름, 전화번호 필드 업데이트
+     * 5. 데이터베이스에 저장 (dirty checking으로 자동 UPDATE)
+     *
+     * 데이터베이스 매핑:
+     * - userName → USER_NAME (VARCHAR 50)
+     * - userPhone → USER_PHONE (CHAR 11)
+     *
+     * 비즈니스 규칙:
+     * - 이름: 중복 검사 불필요, 앞뒤 공백 자동 제거 (중간 공백은 유지)
+     * - 전화번호: 중복 검사 필수 (변경 시만), 앞뒤 공백 자동 제거
+     * - 트랜잭션 내에서 실행되어 롤백 가능
+     *
+     * @param userEmail 사용자 이메일 (JWT 토큰에서 추출)
+     * @param userName 새로운 이름 (최대 50자)
+     * @param userPhone 새로운 전화번호 (010으로 시작하는 11자리)
+     * @throws ResourceNotFoundException 사용자를 찾을 수 없는 경우
+     * @throws DuplicateResourceException 전화번호가 이미 사용 중인 경우
+     *
+     * 사용 예시:
+     * userTblService.updateUserBasicInfo(
+     *     "user@example.com",
+     *     "홍길동",
+     *     "01012345678"
+     * );
+     * // 기본정보 업데이트 완료
+     */
+    @Transactional
+    public void updateUserBasicInfo(String userEmail, String userName, String userPhone) {
+
+        logger.info("기본정보 업데이트 시작 - 사용자: {}, 이름: {}", userEmail, userName);
+
+        // 1. 사용자 조회
+        UserTbl user = userTblRepository.findByUserEmail(userEmail)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                "사용자를 찾을 수 없습니다: " + userEmail));
+
+        // 2. 입력값 정제 (앞뒤 공백만 제거, 중간 공백은 유지)
+        String cleanUserName = userName.trim();
+        String cleanUserPhone = userPhone.trim();
+
+        // 3. 전화번호 중복 검사 (변경된 경우만)
+        if (!user.getUserPhone().equals(cleanUserPhone) &&
+            userTblRepository.existsByUserPhone(cleanUserPhone)) {
+            logger.warn("전화번호 중복 - 사용자: {}, 전화번호: {}", userEmail, cleanUserPhone);
+            throw new DuplicateResourceException(
+                "이미 사용 중인 전화번호입니다: " + cleanUserPhone);
+        }
+
+        // 4. 필드 업데이트
+        user.setUserName(cleanUserName);
+        user.setUserPhone(cleanUserPhone);
+
+        // 5. DB 저장 (dirty checking으로 자동 UPDATE)
+        userTblRepository.save(user);
+
+        logger.info("기본정보 업데이트 완료 - 사용자: {}, 이름: {}, 전화번호: {}",
+                   userEmail, cleanUserName, cleanUserPhone);
+    }
 }

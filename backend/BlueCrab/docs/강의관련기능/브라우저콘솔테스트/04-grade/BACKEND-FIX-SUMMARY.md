@@ -190,20 +190,21 @@ if (!currentData.containsKey("grade")) {
 
 ### 1. 설정 변경 테스트
 ```javascript
-// 1. 출석 만점 37점으로 설정
-gradePhase1.quickAttendanceConfig(37, 0.7);
+// 1. 출석 만점 66점으로 설정
+gradePhase1.setLecture('ETH201', 6);
+gradePhase1.quickAttendanceConfig(66, 0);
 await gradePhase1.config();
 
 // 2. 학생 성적 조회 → attendance.maxScore 필드 없음 확인
 await gradePhase1.studentInfo();
 
-// 3. gradeConfig.attendanceMaxScore = 37 확인
+// 3. gradeConfig.attendanceMaxScore = 66 확인
 ```
 
 ### 2. 점수 계산 테스트
 ```javascript
 // 1. 출석 기록 (예: 77/80 출석)
-// 2. 성적 조회 시 점수 = (77/80) * 37 = 35.6점 확인
+// 2. 성적 조회 시 점수 = (77/80) * 66 = 63.525점 확인
 ```
 
 ### 3. 설정 재변경 테스트
@@ -213,6 +214,80 @@ gradePhase1.quickAttendanceConfig(50, 0.5);
 await gradePhase1.config();
 
 // 2. 성적 재조회 → 점수 = (77/80) * 50 = 48.1점 확인
+```
+
+### 4. Phase 3 자동 업데이트 테스트
+```javascript
+// 수강생 목록 조회 (수정됨 - Spring Page 직접 반환 지원)
+await gradePhase3.listStudents();
+
+// 출석 요청 → 승인 → 성적 자동 재계산
+gradePhase3.setLecture('ETH201', 6);
+await gradePhase3.attendance();
+```
+
+---
+
+## 📝 프론트엔드 수정 사항 (2025-10-24)
+
+### 1. Phase 3 - listStudents() 함수 수정
+
+**파일**: `02-grade-phase3-tests.js`
+
+**문제**: 
+- Spring Page 직접 반환 형식 처리 안 됨
+- `result.data.data.content` 구조만 지원
+
+**해결**:
+```javascript
+// ✅ Spring Page 직접 반환 + Wrapper 둘 다 지원
+if (result.data.content && Array.isArray(result.data.content)) {
+    // Spring Page 직접 반환 (lecture-test-5 패턴)
+    data = result.data;
+    students = data.content;
+} else if (result.data.data?.content) {
+    // Wrapper로 감싼 경우
+    data = result.data.data;
+    students = data.content;
+}
+
+// camelCase 필드명 지원
+const studentIdx = s.studentIdx || s.STUDENT_IDX;
+const studentName = s.studentName || s.STUDENT_NAME;
+```
+
+### 2. Phase 1 - studentInfo() 함수 수정
+
+**파일**: `01-grade-phase1-tests.js`
+
+**문제**:
+- `grade` 객체가 `[object Object]`로 표시됨
+- 응답 구조 다양성 미지원
+
+**해결**:
+```javascript
+// ✅ 다양한 응답 구조 지원
+// gradeConfig 표시
+if (d.gradeConfig) {
+    console.log('⚙️  성적 구성:');
+    console.log(`  - 출석 만점: ${d.gradeConfig.attendanceMaxScore}점`);
+}
+
+// attendance 객체/개별 필드 둘 다 처리
+if (d.attendance && typeof d.attendance === 'object') {
+    console.log(`  - 현재 점수: ${d.attendance.currentScore.toFixed(2)}`);
+} else {
+    console.log(`  - 점수: ${d.attendanceScore.toFixed(2)}`);
+}
+
+// grade 필드 안전한 처리
+if (d.letterGrade) {
+    console.log(`🏆 등급: ${d.letterGrade}`);
+} else if (typeof d.grade === 'string') {
+    console.log(`🏆 등급: ${d.grade}`);
+} else if (d.grade?.letterGrade) {
+    console.log(`🏆 등급: ${d.grade.letterGrade}`);
+}
 ```
 
 ---

@@ -2,8 +2,10 @@ package BlueCrab.com.example.controller;
 
 import BlueCrab.com.example.dto.AddressUpdateRequest;
 import BlueCrab.com.example.dto.ApiResponse;
+import BlueCrab.com.example.dto.BasicInfoUpdateRequest;
 import BlueCrab.com.example.dto.ImageRequest;
 import BlueCrab.com.example.entity.ProfileView;
+import BlueCrab.com.example.exception.DuplicateResourceException;
 import BlueCrab.com.example.exception.ResourceNotFoundException;
 import BlueCrab.com.example.service.ProfileService;
 import BlueCrab.com.example.service.MinIOService;
@@ -286,6 +288,89 @@ public class ProfileController {
             logger.error("주소 업데이트 중 시스템 오류 발생: {}", e.getMessage(), e);
             ApiResponse<Map<String, Object>> response = ApiResponse.failure(
                 "주소 업데이트 중 오류가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    /**
+     * 기본 정보 업데이트
+     * JWT 인증된 사용자의 이름과 전화번호를 업데이트
+     *
+     * @param basicInfoRequest 기본정보 업데이트 요청 정보
+     * @param request HTTP 요청 (Authorization 헤더에서 토큰 추출)
+     * @return 업데이트된 기본정보
+     *
+     * 요청 예시:
+     * POST /api/profile/basic-info/update
+     * Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+     * Content-Type: application/json
+     * {
+     *   "userName": "홍길동",
+     *   "userPhone": "01012345678"
+     * }
+     *
+     * 응답 예시:
+     * {
+     *   "success": true,
+     *   "message": "기본 정보가 성공적으로 업데이트되었습니다.",
+     *   "data": {
+     *     "userName": "홍길동",
+     *     "userPhone": "01012345678"
+     *   },
+     *   "timestamp": "2025-10-24T15:30:00Z"
+     * }
+     */
+    @PostMapping("/basic-info/update")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> updateBasicInfo(
+            @Valid @RequestBody BasicInfoUpdateRequest basicInfoRequest,
+            HttpServletRequest request) {
+
+        try {
+            // JWT 토큰에서 사용자 이메일 추출
+            String userEmail = extractUserEmailFromToken(request);
+
+            logger.info("기본정보 업데이트 요청 - 사용자: {}, 이름: {}",
+                       userEmail, basicInfoRequest.getUserName());
+
+            // 서비스 호출하여 기본정보 업데이트
+            userTblService.updateUserBasicInfo(
+                userEmail,
+                basicInfoRequest.getUserName(),
+                basicInfoRequest.getUserPhone()
+            );
+
+            // 업데이트된 기본정보 응답 (trim 처리된 값)
+            Map<String, Object> responseData = Map.of(
+                "userName", basicInfoRequest.getUserName().trim(),
+                "userPhone", basicInfoRequest.getUserPhone().trim()
+            );
+
+            ApiResponse<Map<String, Object>> response = ApiResponse.success(
+                "기본 정보가 성공적으로 업데이트되었습니다.", responseData);
+
+            logger.info("기본정보 업데이트 성공 - 사용자: {}", userEmail);
+
+            return ResponseEntity.ok(response);
+
+        } catch (ResourceNotFoundException notFound) {
+            logger.warn("기본정보 업데이트 실패(사용자 없음) - 오류: {}", notFound.getMessage());
+            ApiResponse<Map<String, Object>> response = ApiResponse.failure(notFound.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+
+        } catch (DuplicateResourceException duplicate) {
+            logger.warn("기본정보 업데이트 실패(전화번호 중복) - 오류: {}", duplicate.getMessage());
+            ApiResponse<Map<String, Object>> response = ApiResponse.failure(duplicate.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+
+        } catch (IllegalArgumentException invalidRequest) {
+            logger.warn("기본정보 업데이트 실패(잘못된 요청) - 오류: {}", invalidRequest.getMessage());
+            ApiResponse<Map<String, Object>> response = ApiResponse.failure(invalidRequest.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+
+        } catch (Exception e) {
+            logger.error("기본정보 업데이트 중 시스템 오류 발생: {}", e.getMessage(), e);
+            ApiResponse<Map<String, Object>> response = ApiResponse.failure(
+                "기본 정보 업데이트 중 오류가 발생했습니다.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }

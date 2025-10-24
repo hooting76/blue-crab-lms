@@ -407,6 +407,20 @@
       "detailAddress": "장지동, 위례중앙푸르지오1단지"
     }
   },
+  "profileBasicInfoUpdate": {
+    "name": "기본정보 업데이트",
+    "category": "사용자 · 프로필",
+    "description": "현재 로그인한 사용자의 이름과 전화번호 업데이트",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/profile/basic-info/update",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "userName": "홍길동",
+      "userPhone": "01012345678"
+    }
+  },
   "boardList": {
     "name": "게시판 목록",
     "category": "게시판",
