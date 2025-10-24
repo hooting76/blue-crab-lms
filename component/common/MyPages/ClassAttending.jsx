@@ -198,9 +198,11 @@ const fetchNotices = async () => {
 
       const data = await res.json();
       if (!res.ok) throw new Error('출석 요청 실패');
+      alert("출석 요청을 성공적으로 보냈습니다.")
       console.log('✅ 출석 요청 성공:', data);
     } catch (err) {
       console.error('❌ 출석 요청 에러:', err);
+      alert("출석 요청 실패");
     }
   };
 
@@ -329,7 +331,9 @@ const fetchNotices = async () => {
                   ✖
                 </button>
                 <CourseDetail
-                  lectureDetails={lectureList.find((lec) => lec.lecSerial === selectedLectureSerial)}
+                  lectureDetails={lectureList.find(
+                    (lec) => String(lec.lecSerial) === String(selectedLectureSerial)
+                  )}
                   currentPage={currentPage}
                   setCurrentPage={setCurrentPage}
                 />
