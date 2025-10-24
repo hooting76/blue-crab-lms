@@ -185,6 +185,9 @@ const fetchNotices = async () => {
   }, [accessToken, selectedLectureSerial]);
 
 
+  console.log("accessToken : ", accessToken);
+  console.log("selectedLectureSerial : ", selectedLectureSerial);
+
   // 학생 출석 요청
   const attendanceRequestSubmit = async () => {
     try {
