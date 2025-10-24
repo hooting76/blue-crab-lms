@@ -351,6 +351,62 @@ public class MinIOService {
 
 
     /**
+     * 채팅 로그 파일을 MinIO에 업로드
+     * 
+     * @param bucketName 버킷 이름
+     * @param objectName 저장될 객체 이름
+     * @param inputStream 파일 스트림
+     * @param size 파일 크기
+     * @throws Exception 업로드 실패 시
+     */
+    public void uploadChatLog(String bucketName, String objectName, InputStream inputStream, long size) throws Exception {
+        try {
+            PutObjectArgs putObjectArgs = PutObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(objectName)
+                    .stream(inputStream, size, -1)
+                    .contentType("text/plain; charset=utf-8")
+                    .build();
+
+            ObjectWriteResponse response = minioClient.putObject(putObjectArgs);
+            logger.info("채팅 로그 업로드 성공 - Object: {}, Bucket: {}, ETag: {}",
+                    objectName, bucketName, response.etag());
+
+        } catch (Exception e) {
+            logger.error("채팅 로그 업로드 실패 - Object: {}, Error: {}", objectName, e.getMessage(), e);
+            throw new Exception("채팅 로그를 업로드하지 못했습니다: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * MinIO에서 채팅 로그 파일 다운로드
+     * 
+     * @param bucketName 버킷 이름
+     * @param objectName 객체 이름
+     * @return 파일 스트림
+     * @throws Exception 다운로드 실패 시
+     */
+    public InputStream downloadChatLog(String bucketName, String objectName) throws Exception {
+        try {
+            logger.debug("채팅 로그 다운로드 - Bucket: {}, Object: {}", bucketName, objectName);
+
+            InputStream inputStream = minioClient.getObject(
+                GetObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(objectName)
+                    .build()
+            );
+
+            logger.debug("채팅 로그 다운로드 성공 - Object: {}", objectName);
+            return inputStream;
+
+        } catch (Exception e) {
+            logger.warn("채팅 로그 다운로드 실패 - Object: {}, Error: {}", objectName, e.getMessage());
+            throw new Exception("채팅 로그 파일을 찾을 수 없습니다: " + objectName, e);
+        }
+    }
+
+    /**
      * 이미지 타입 추측 (파일 확장자 기반)
      *
      * @param imageKey 이미지 파일의 키
