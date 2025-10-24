@@ -52,7 +52,7 @@ const fetchLectureData = async (accessToken, user, isProf) => {
       : {
           page: 0,
           size: 100,
-          studentIdx: String(user.data.user.id)
+          studentIdx: String(user.userIdx)
         };
 
     const url = isProf
