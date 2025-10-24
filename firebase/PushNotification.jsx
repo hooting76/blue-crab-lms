@@ -107,15 +107,16 @@ class PushNotificationService {
                         case 1 : 
                             break;
                         case 2 :
-                            console.log("알림이 갱신되었습니다.");
+                            alert("알림이 갱신되었습니다.");
+                            // console.log("알림이 갱신되었습니다.");
                             break;
                         case 3 :
-                            if(confirm('이전에 등록한 기기 정보가 존재합니다.\n 지금 사용중인 기기로 새로 정보 등록 할까요?')){
+                            if(confirm('이전에 등록한 기기 정보가 존재합니다.\n지금 사용중인 기기로 새로 정보 등록 할까요?')){
                                 const response = await fetch(`${BACKEND_API_URL}fcm/register/force`,{
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json',
-                                        'Authorization': `Bearer ${authTk}`,                                        
+                                        'Authorization': `Bearer ${authTk}`,
                                     },
                                     body: JSON.stringify({
                                         fcmToken: token,
@@ -125,16 +126,17 @@ class PushNotificationService {
 
                                 if(response.ok){
                                     const dataTxt = await response.json();
-                                    console.log(dataTxt);
-
-                                    alert("등록되었습니다.");
+                                    // console.log(dataTxt);
+                                    alert("현재 기기로 새롭게 등록되었습니다.");
                                     return;
                                 }else{
                                     return;
-                                }
+                                };
                             }else{
+                                sessionStorage.setItem('noRegister', true);
+                                alert('이전 등록한 기기로 유지합니다.');
                                 return;
-                            }
+                            };
                         case 4 :
                             // console.log('replaced');
                             break;
