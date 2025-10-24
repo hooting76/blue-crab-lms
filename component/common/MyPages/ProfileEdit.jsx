@@ -320,7 +320,7 @@ export default function ProfileEdit() {
         }else{
           // userInfo result
           resultUser.then((data) => {
-            console.log(data);
+            // console.log(data);
             if(data.success){
               alert("정보가 성공적으로 변경되었습니다.");
               setToday(new Date().toLocaleString());
