@@ -28,3 +28,13 @@
 .attendanceApproveClick, .attendanceLateClick, .attendanceRejectClick, .approveAttendanceCloseBtn {
     font-size: var(--font-mid);
 }
+
+.reject-reason-modal {
+    width: 300px;
+    height: 300px;
+}
+
+.modal-buttons button {
+    font-size: var(--font-mid);
+    margin: 5px;
+}
