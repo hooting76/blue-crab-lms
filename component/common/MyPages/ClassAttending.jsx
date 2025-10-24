@@ -196,7 +196,8 @@ const fetchNotices = async () => {
         },
         body: JSON.stringify({
           lecSerial: String(selectedLectureSerial),
-          sessionNumber: 1 // TODO: 실제 세션 번호 변수 연결
+          sessionNumber: 1, // TODO: 실제 세션 번호 변수 연결
+          requestReason: null
         }),
       });
 
