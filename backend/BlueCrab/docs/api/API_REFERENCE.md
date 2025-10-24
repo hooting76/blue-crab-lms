@@ -192,6 +192,88 @@ Authorization: Bearer <token>
 }
 ```
 
+## 👤 **프로필 API**
+
+> 📘 **상세 문서**: [PROFILE_BASIC_INFO_UPDATE.md](./PROFILE_BASIC_INFO_UPDATE.md)
+
+### **프로필 조회**
+```http
+POST /api/profile/me
+Authorization: Bearer <token>
+```
+
+### **프로필 완성도 체크**
+```http
+POST /api/profile/me/completeness
+Authorization: Bearer <token>
+```
+
+### **주소 업데이트**
+```http
+POST /api/profile/address/update
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+    "postalCode": "05852",
+    "roadAddress": "서울 송파구 위례광장로 120",
+    "detailAddress": "장지동, 위례중앙푸르지오1단지"
+}
+```
+
+### **기본정보 업데이트** ⭐ NEW
+```http
+POST /api/profile/basic-info/update
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+    "userName": "홍길동",
+    "userPhone": "01012345678"
+}
+```
+
+**응답:**
+```json
+{
+    "success": true,
+    "message": "기본 정보가 성공적으로 업데이트되었습니다.",
+    "data": {
+        "userName": "홍길동",
+        "userPhone": "01012345678"
+    },
+    "timestamp": "2025-10-24T15:30:00Z"
+}
+```
+
+### **프로필 이미지 업로드**
+```http
+POST /api/profile/me/upload-image
+Authorization: Bearer <token>
+Content-Type: multipart/form-data
+
+file: (이미지 파일)
+```
+
+> 📘 **상세 문서**: [PROFILE_IMAGE_UPLOAD.md](./PROFILE_IMAGE_UPLOAD.md)
+
+### **프로필 이미지 URL 조회**
+```http
+POST /api/profile/me/image
+Authorization: Bearer <token>
+```
+
+### **프로필 이미지 파일 조회**
+```http
+POST /api/profile/me/image/file
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+    "imageKey": "profile_123.jpg"
+}
+```
+
 ## 📊 **상태 코드**
 
 | 코드 | 설명 |

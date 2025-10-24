@@ -57,7 +57,17 @@
   - 변경: 방 단위 last_read_time_student/professor
   - 효과: 구현 복잡도 감소, 충분한 UX 제공
 
-#### ✅ 3) 채팅 메시지 처리 전략
+#### ✅ 3) 상담 시작 트리거 + TTL 안전장치
+- **상담 시작 트리거 도입**
+  - 예약된 시작 시각 이전에는 트리거 비활성화
+  - 학생/교수 중 한 명이 트리거 실행 시 Redis 키 생성, started_at 기록, 상대방 알림 발송
+  - 트리거 실패 시 에러 반환 → UI에서 재시도 가능
+- **Redis TTL 36시간 적용**
+  - 상담 시작 시점 이후에만 TTL 설정 (요청/승인 단계에는 미생성)
+  - 메시지 수신마다 EXPIRE 재호출로 TTL 자동 연장
+  - 스케줄러 종료 실패 대비용 안전장치 (정상 종료 플로우는 스케줄러가 책임)
+
+#### ✅ 4) 채팅 메시지 처리 전략
 
 ```
 ┌──────────────┬────────────────┬────────────────────┐
@@ -69,7 +79,7 @@
 └──────────────┴────────────────┴────────────────────┘
 ```
 
-#### ✅ 4) WebSocket 통신 방식 최적화
+#### ✅ 5) WebSocket 통신 방식 최적화
 
 - **브로드캐스트 방식 제거** → 개인 큐 방식 적용
   - 기존: `/topic/chat/{requestIdx}` (누구나 구독 가능 - 보안 취약)
@@ -162,7 +172,7 @@ CREATE TABLE CONSULTATION_REQUEST_TBL (
 # Key 패턴
 Key: chat:room:{request_idx}
 Type: List (FIFO)
-TTL: 48시간 (자동 삭제 안전장치) ⚡ 추가
+TTL: 36시간 (자동 삭제 안전장치) ⚡ 상담 시작 시점부터 카운트
 
 # 메시지 구조 (JSON)
 {
@@ -176,8 +186,8 @@ TTL: 48시간 (자동 삭제 안전장치) ⚡ 추가
 # 메시지 추가 (새 메시지는 오른쪽에)
 RPUSH chat:room:123 '{"sender":"2024001234","senderName":"김철수","content":"안녕하세요","sentAt":"2025-10-22T14:05:00"}'
 
-# TTL 설정 (상담 시작 시) ⚡ 추가
-EXPIRE chat:room:123 172800  # 48시간 (초 단위)
+# TTL 설정 (상담 시작 트리거 시) ⚡ 추가
+EXPIRE chat:room:123 129600  # 36시간 (초 단위)
 
 # 최근 50개 메시지 조회
 LRANGE chat:room:123 -50 -1
@@ -194,9 +204,9 @@ DEL chat:room:123
 
 **Redis 내구성 전략 (HIGH priority 이슈 해결):**
 
-1. **TTL 설정 (48시간):**
-   - 모든 종료 메커니즘 실패 시 마지막 안전장치
-   - 비정상 종료된 상담도 최대 48시간 후 자동 삭제
+1. **상담 시작 트리거 시 TTL 설정 (36시간):**
+   - 상담 시작 트리거 또는 첫 메시지 도착 시점에만 Redis 키 생성 + TTL 부여
+   - 스케줄러가 종료 처리를 놓쳐도 36시간 이내에 키가 자동 정리되어 고아 데이터 최소화
 
 2. **Redis AOF (Append Only File) 활성화:**
    ```bash
@@ -220,6 +230,8 @@ DEL chat:room:123
    ```
    - 서버 크래시 시에도 최대 5분 데이터만 유실
    - 복구 시 최신 스냅샷에서 로드
+
+> 참고: TTL 36시간 = 최대 상담 유지 시간(24시간) + 12시간 여유이며, temp 스냅샷 정리 주기(60시간)보다 짧게 설정해 고아 데이터를 자동 정리하면서도 스케줄러 복구 시간을 확보합니다.
 
 ### 3.2 MinIO 파일 구조 ⚡ 임시/영구 분리
 
@@ -308,9 +320,18 @@ x-amz-meta-ended-at: 2025-10-22T15:00:00
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
+│ 0. 상담 시작 트리거 (학생/교수) ⚡ 신규                      │
+│    - 예약된 시작 시각 이전에는 트리거 비활성화             │
+│    - 트리거 성공 시 상대방에게 '상담 시작' 알림 전송       │
+│    - 트리거 실패 시 에러 메시지 반환 → 재시도 가능         │
+└───────────────────┬─────────────────────────────────────────┘
+                    │
+                    ▼
+┌─────────────────────────────────────────────────────────────┐
 │ 1. 상담 시작 (consultation_status = IN_PROGRESS)            │
 │    - Redis 키 생성: chat:room:{requestIdx}                  │
-│    - TTL 설정: 48시간 ⚡                                     │
+│    - TTL 설정: 36시간 (상담 시작 시점 기준) ⚡               │
+│    - 메시지 수신마다 EXPIRE 재호출로 TTL 연장               │
 │    - 백업 스케줄러 시작 (5분 간격 MinIO temp/ 스냅샷) ⚡    │
 └───────────────────┬─────────────────────────────────────────┘
                     │
@@ -322,8 +343,8 @@ x-amz-meta-ended-at: 2025-10-22T15:00:00
 │    - 서버에서 상대방 찾기 (보안)                             │
 │    - 개인 큐로 전송: /user/queue/chat (상대방 + 본인)       │
 │    - DB UPDATE last_activity_at                             │
-│    - 최초 메시지 수신 시 consultation_status: SCHEDULED → IN_PROGRESS,
-│      started_at = now, duration_minutes 초기화               │
+│    - 최초 메시지 수신 시 (트리거 미발동 대비) consultation_status:│
+│      SCHEDULED → IN_PROGRESS, started_at = now              │
 │    - (백그라운드) 5분마다 MinIO temp/ 스냅샷 ⚡              │
 └───────────────────┬─────────────────────────────────────────┘
                     │
@@ -526,7 +547,7 @@ Response: 200 OK
 
 ---
 
-### 4.2 상담 진행 API (4개)
+### 4.2 상담 진행 API (5개)
 
 #### 1) 진행중인 상담 목록
 ```
@@ -595,7 +616,37 @@ Response: 200 OK
 }
 ```
 
-#### 3) 상담 종료
+#### 3) 상담 시작 (트리거)
+```
+POST /api/consultations/start
+Authorization: Bearer {jwt_token}
+
+Request Body:
+{
+  "requestIdx": 123
+}
+
+Response: 200 OK
+{
+  "success": true,
+  "data": {
+    "requestIdx": 123,
+    "consultationStatus": "IN_PROGRESS",
+    "startedAt": "2025-10-25T14:05:00"
+  },
+  "message": "상담이 시작되었습니다."
+}
+
+# 내부 동작:
+# 1. 참여자 권한 검증 (학생/교수만 실행 가능)
+# 2. scheduledStartAt <= now 여부 확인 (이전이면 400 반환)
+# 3. 이미 시작된 경우 현재 상태와 started_at을 그대로 반환 (idempotent)
+# 4. consultation_status = IN_PROGRESS, started_at = now, last_activity_at = now 업데이트
+# 5. Redis 키 생성 + TTL 36시간 설정
+# 6. 상대방에게 '상담 시작' FCM 알림 전송
+```
+
+#### 4) 상담 종료
 ```
 POST /api/consultations/end
 Authorization: Bearer {jwt_token}
@@ -624,7 +675,7 @@ Response: 200 OK
 # 4. DB UPDATE consultation_status=COMPLETED, ended_at=NOW()
 ```
 
-#### 4) 메모 작성/수정
+#### 5) 메모 작성/수정
 ```
 POST /api/consultations/memo
 Authorization: Bearer {jwt_token}
@@ -884,9 +935,10 @@ Content-Disposition: attachment; filename="consultation_123_chat_log.txt"
    - [x] 요청 생성 (createRequest)
    - [x] 요청 목록 조회 (받은/보낸)
   - [x] 요청 수락 (approveRequest) → consultation_status = SCHEDULED, desired_date 값을 scheduledStartAt으로 노출
-   - [x] 요청 거절 (rejectRequest)
-   - [x] 요청 취소 (cancelRequest)
-   - [x] 권한 검증
+  - [x] 요청 거절 (rejectRequest)
+  - [x] 요청 취소 (cancelRequest)
+  - [x] 상담 시작 트리거 (startConsultation) → Redis 키 생성 + TTL 36시간 설정 + 알림 발송
+  - [x] 권한 검증
 
 2. **ConsultationController** (1시간) ⚡ POST-Only
    - [x] POST /api/consultations/requests/create
@@ -895,6 +947,11 @@ Content-Disposition: attachment; filename="consultation_123_chat_log.txt"
    - [x] POST /api/consultations/requests/approve
    - [x] POST /api/consultations/requests/reject
    - [x] POST /api/consultations/requests/cancel
+   - [x] POST /api/consultations/start
+   - [x] POST /api/consultations/active
+   - [x] POST /api/consultations/detail
+   - [x] POST /api/consultations/end
+   - [x] POST /api/consultations/memo
 
 3. **통합 테스트** (1시간)
    - [x] Postman 테스트
@@ -903,7 +960,9 @@ Content-Disposition: attachment; filename="consultation_123_chat_log.txt"
 #### 체크포인트
 - [ ] 상담 요청 생성 → FCM 알림 전송
 - [ ] 수락 → consultation_status: SCHEDULED, started_at는 null 유지
-- [ ] 실제 상담 시작 시 started_at = now, consultation_status = IN_PROGRESS
+- [ ] 상담 시작 트리거 → consultation_status: IN_PROGRESS, started_at = now, Redis 키 + TTL 36시간 생성
+- [ ] 트리거 실패 시 에러 응답 및 재시도 가능
+- [ ] 첫 메시지 시 (트리거 미발동 대비) consultation_status: IN_PROGRESS, started_at = now
 - [ ] 거절 → rejection_reason에 가능 시간 포함
 - [ ] 취소 → cancel_reason 저장
 - [ ] 권한 검증 동작
@@ -919,11 +978,12 @@ Content-Disposition: attachment; filename="consultation_123_chat_log.txt"
    - [x] JWT 인증 Interceptor
 
 2. **ChatService (Redis)** (2.5시간)
-   - [x] Redis 메시지 저장 (RPUSH)
-   - [x] Redis 메시지 조회 (LRANGE)
-   - [x] 메시지 개수 (LLEN)
-  - [x] lastActivityAt 갱신
-  - [x] 첫 메시지 수신 시 ConsultationService.markStartedIfNeeded() 호출 → started_at 세팅
+ - [x] Redis 메시지 저장 (RPUSH)
+  - [x] Redis 메시지 조회 (LRANGE)
+  - [x] 메시지 개수 (LLEN)
+ - [x] lastActivityAt 갱신
+  - [x] 메시지 저장 시 EXPIRE(chat:room, 36h) 재호출
+ - [x] 첫 메시지 수신 시 ConsultationService.markStartedIfNeeded() 호출 → started_at 세팅
    - [x] 권한 검증
 
 3. **ChatController (WebSocket)** (2시간)
@@ -938,15 +998,17 @@ Content-Disposition: attachment; filename="consultation_123_chat_log.txt"
 
 5. **테스트** (30분)
    - [x] WebSocket 연결 테스트
-   - [x] 메시지 송수신 테스트
-  - [x] Redis 저장 확인
-  - [x] 첫 메시지 처리 시 started_at, consultation_status 전환 확인
+ - [x] 메시지 송수신 테스트
+ - [x] Redis 저장 확인
+ - [x] 첫 메시지 처리 시 started_at, consultation_status 전환 확인
+  - [x] 메시지 송신 시 TTL 재설정(EXPIRE) 확인
 
 #### 체크포인트
 - [ ] WebSocket 연결 성공
 - [ ] JWT 인증 동작
 - [ ] 메시지 실시간 전송/수신
 - [ ] Redis에 메시지 저장 확인
+- [ ] 메시지 수신 시 TTL 36시간으로 연장되는지 확인
 
 ---
 
@@ -989,6 +1051,7 @@ Content-Disposition: attachment; filename="consultation_123_chat_log.txt"
    - [x] ConsultationService에서 FCM 호출
    - [x] 요청 생성 → FCM 전송
    - [x] 수락/거절 → FCM 전송
+   - [x] 상담 시작 트리거 → FCM 전송
    - [x] 새 메시지 → FCM 전송
    - [x] 자동 종료 경고 → FCM 전송
 
@@ -1026,7 +1089,7 @@ Content-Disposition: attachment; filename="consultation_123_chat_log.txt"
 
 3. **OrphanedRoomCleanupScheduler** (30분) ⚡ 추가
    - [x] @Scheduled(cron = "0 0 3 * * *") // 매일 새벽 3시
-   - [x] MinIO temp/에서 48시간 이상 된 스냅샷 삭제
+   - [x] MinIO temp/에서 60시간 이상 된 스냅샷 삭제
    - [x] DB에서 IN_PROGRESS인데 last_activity_at > 48h인 상담 강제 종료
    - [x] 고아 Redis 키 감지 및 정리
 
@@ -1160,6 +1223,7 @@ Content-Disposition: attachment; filename="consultation_123_chat_log.txt"
   - [ ] getReceivedRequests()
   - [ ] getSentRequests()
   - [ ] approveRequest() → consultation_status = SCHEDULED, desired_date 유지
+  - [ ] startConsultation() → 상담 시작 트리거, Redis 키 생성 + TTL 36시간 설정 + 알림 발송
   - [ ] markStartedIfNeeded() → 첫 메시지 시 started_at = now, consultation_status = IN_PROGRESS
   - [ ] rejectRequest()
   - [ ] cancelRequest() → cancel_reason 저장
@@ -1172,6 +1236,7 @@ Content-Disposition: attachment; filename="consultation_123_chat_log.txt"
   - [ ] POST /api/consultations/requests/approve
   - [ ] POST /api/consultations/requests/reject
   - [ ] POST /api/consultations/requests/cancel
+  - [ ] POST /api/consultations/start
   - [ ] POST /api/consultations/active
   - [ ] POST /api/consultations/detail
   - [ ] POST /api/consultations/end
@@ -1181,7 +1246,10 @@ Content-Disposition: attachment; filename="consultation_123_chat_log.txt"
 - [ ] 상담 요청 생성 테스트
 - [ ] 알림 전송 확인
 - [ ] 수락 시 consultation_status: SCHEDULED 유지, started_at는 null
-- [ ] 첫 메시지 시 consultation_status: IN_PROGRESS, started_at = now
+- [ ] 상담 시작 트리거 시 consultation_status: IN_PROGRESS, started_at = now, Redis 키 생성 + TTL 36시간 설정
+- [ ] 예약된 시작 시각 이전 트리거 호출 시 400 반환 확인
+- [ ] 트리거 실패 시 에러 응답 및 재시도 가능
+- [ ] 첫 메시지 시 (트리거 미발동 대비) consultation_status: IN_PROGRESS, started_at = now
 - [ ] 권한 검증 테스트
 
 ---
@@ -1199,6 +1267,7 @@ Content-Disposition: attachment; filename="consultation_123_chat_log.txt"
   - [ ] sendMessage() → Redis RPUSH
   - [ ] getMessages() → Redis LRANGE
   - [ ] getMessageCount() → Redis LLEN
+  - [ ] refreshTtlIfNeeded() → 메시지 저장 시 EXPIRE(chat:room, 36h)
   - [ ] markAsRead() → DB UPDATE last_read_time
 
 #### Controller
@@ -1215,6 +1284,7 @@ Content-Disposition: attachment; filename="consultation_123_chat_log.txt"
 - [ ] WebSocket 연결 테스트
 - [ ] 메시지 송수신 테스트
 - [ ] Redis 저장 확인
+- [ ] 메시지 송신 시 TTL 36시간으로 연장되는지 확인
 - [ ] 읽음 처리 테스트
 
 ---
@@ -1257,6 +1327,7 @@ Content-Disposition: attachment; filename="consultation_123_chat_log.txt"
 - [ ] ConsultationService에서 FCM 호출
   - [ ] 요청 생성 → FCM
   - [ ] 수락/거절 → FCM
+  - [ ] 상담 시작 트리거 → FCM
 - [ ] ChatController에서 FCM 호출
   - [ ] 새 메시지 → 상대방 오프라인 시 FCM
 - [ ] AutoCloseScheduler에서 FCM 호출
@@ -1289,7 +1360,7 @@ Content-Disposition: attachment; filename="consultation_123_chat_log.txt"
 - [ ] OrphanedRoomCleanupScheduler.java ⚡ 추가
   - [ ] @Scheduled(cron = "0 0 3 * * *") // 매일 새벽 3시
   - [ ] cleanupOrphanedRooms()
-  - [ ] 48시간 이상 temp/ 스냅샷 삭제
+  - [ ] 60시간 이상 temp/ 스냅샷 삭제
   - [ ] 고아 상담 강제 종료
 
 #### Application
@@ -1433,7 +1504,7 @@ public class ChatController {
         message.setSenderName(getSenderName(senderCode));
         message.setSentAt(LocalDateTime.now());
 
-        // 3. Redis에 저장
+        // 3. Redis에 저장 + TTL 36시간 연장
         chatService.saveMessage(message);
 
         // 4. DB 업데이트 (lastActivityAt)
@@ -1634,7 +1705,7 @@ public void configureClientInboundChannel(ChannelRegistration registration) {
 4. ✅ **Redis 키 무한 생존 문제**
    - 문제: 상담 종료 실패 시 `chat:room:{idx}` 영구 방치
    - 해결:
-     - 키 생성 시 TTL 48시간 설정
+     - 키 생성 시 상담 시작 후 TTL 36시간 설정
      - 매일 새벽 3시 Cleanup Job 실행
 
 ### 사용자 피드백 반영 (3개)
