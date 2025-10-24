@@ -13,62 +13,51 @@
 
 const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
-// 전역 변수 (test-1-login.js에서 설정한 토큰 사용)
+// 전역 변수 (test-1-login.js에서 설정한 토큰 및 사용자 정보 사용)
 if (typeof window.authToken === 'undefined') window.authToken = null;
+if (typeof window.currentUser === 'undefined') window.currentUser = null;
 
-// ========== JWT 토큰 디코딩 함수 ==========
-function decodeJWT(token) {
-    try {
-        if (!token) return null;
-        const parts = token.split('.');
-        if (parts.length !== 3) return null;
-        const payload = parts[1];
-        const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
-        const padded = base64 + '=='.substring(0, (4 - base64.length % 4) % 4);
-        return JSON.parse(atob(padded));
-    } catch (error) {
-        console.log('🔍 JWT 디코딩 실패:', error.message);
-        return null;
-    }
-}
-
-// ========== 토큰에서 사용자 정보 추출 ==========
-function getUserFromToken() {
-    const token = window.authToken;
-    if (!token) return null;
-    const decoded = decodeJWT(token);
-    if (!decoded) return null;
-    console.log('🔍 JWT 토큰 내용:', decoded);
-    if (decoded.userIdx || decoded.userId || decoded.id || decoded.sub) {
-        return {
-            userIdx: decoded.userIdx || decoded.userId || decoded.id || decoded.sub,
-            email: decoded.email || decoded.userEmail || null,
-            name: decoded.name || decoded.userName || null,
-            role: decoded.role || decoded.authority || null
-        };
-    }
-    return null;
+// ========== 백엔드에서 받은 사용자 정보 사용 ==========
+// 로그인 시 백엔드가 response.data.user에 사용자 정보를 포함하여 반환
+// JWT 디코딩은 백엔드에서 처리되므로 프론트엔드에서는 필요 없음
+function getUserInfo() {
+    // window.currentUser는 로그인 시 설정됨 (test-1-login.js 참고)
+    const user = window.currentUser;
+    if (!user) return null;
+    
+    console.log('✅ 저장된 사용자 정보:', user);
+    return {
+        userIdx: user.id || user.userIdx || user.userId,
+        email: user.email || user.userEmail,
+        name: user.name || user.userName,
+        role: user.role || user.authority
+    };
 }
 
 // ========== 로그인 상태 확인 ==========
 function checkAuth() {
     const token = window.authToken;
+    const user = window.currentUser;
     
     if (!token) {
         console.log('\n⚠️ 로그인이 필요합니다!');
         console.log('📁 docs/일반유저 로그인+게시판/test-1-login.js → await login()');
+        console.log('💡 로그인 시 백엔드가 사용자 정보를 자동으로 반환합니다.');
         return false;
     }
     
-    // JWT 토큰에서 사용자 정보 추출 시도
-    const userFromToken = getUserFromToken();
-    if (userFromToken) {
-        console.log('✅ JWT에서 사용자 정보 추출:', userFromToken);
-        if (!window.currentUser || !window.currentUser.userIdx) {
-            window.currentUser = userFromToken;
-            console.log('🔄 사용자 정보 업데이트됨');
-        }
+    if (!user || !user.id) {
+        console.log('\n⚠️ 사용자 정보가 없습니다!');
+        console.log('📁 다시 로그인해주세요: await login()');
+        console.log('💡 로그인 응답의 user 객체가 window.currentUser에 저장되어야 합니다.');
+        return false;
     }
+    
+    console.log('✅ 로그인 확인됨:', {
+        userIdx: user.id,
+        email: user.email,
+        name: user.name
+    });
     
     return true;
 }
@@ -78,27 +67,17 @@ async function getMyEnrollments() {
     if (!checkAuth()) return;
     
     const token = window.authToken;
-    let user = window.currentUser;
+    const user = window.currentUser;
     
-    // JWT 토큰에서 최신 사용자 정보 추출
-    const userFromToken = getUserFromToken();
-    if (userFromToken && userFromToken.userIdx) {
-        user = userFromToken;
-        console.log('✅ JWT에서 자동 추출된 학생 정보:', user);
+    // 백엔드에서 받은 사용자 정보 사용
+    const userInfo = getUserInfo();
+    if (!userInfo || !userInfo.userIdx) {
+        console.log('❌ 사용자 정보를 불러올 수 없습니다. 다시 로그인해주세요.');
+        return;
     }
     
-    let studentIdx;
-    if (user && user.userIdx) {
-        studentIdx = user.userIdx;
-        console.log('✅ 사용자 ID 자동 감지:', studentIdx);
-    } else {
-        console.log('⚠️ 사용자 정보 자동 감지 실패. 수동 입력 필요.');
-        studentIdx = parseInt(prompt('📝 학생 ID (userIdx)를 입력하세요:', '1'));
-        if (!studentIdx || isNaN(studentIdx)) {
-            console.log('❌ 올바른 학생 ID를 입력해주세요.');
-            return;
-        }
-    }
+    const studentIdx = userInfo.userIdx;
+    console.log('✅ 학생 ID 확인:', studentIdx, `(${userInfo.name || userInfo.email})`)
     
     const page = parseInt(prompt('📄 페이지 번호 (0부터 시작):', '0'));
     const size = parseInt(prompt('📄 페이지 크기:', '10'));
@@ -304,9 +283,9 @@ async function getLectureDetail() {
     }
 }
 
-// ========== 토큰 정보 확인 (디버깅용) ==========
-function debugTokenInfo() {
-    console.log('\n🔍 토큰 디버깅 정보');
+// ========== 사용자 정보 확인 (디버깅용) ==========
+function debugUserInfo() {
+    console.log('\n🔍 사용자 정보 디버깅');
     console.log('═══════════════════════════════════════════════════════');
     
     const token = window.authToken;
@@ -315,24 +294,26 @@ function debugTokenInfo() {
     if (token) {
         console.log('📋 토큰 길이:', token.length);
         console.log('📋 토큰 앞부분:', token.substring(0, 50) + '...');
-        
-        const decoded = decodeJWT(token);
-        if (decoded) {
-            console.log('📋 디코딩된 토큰:', decoded);
-            console.log('📋 사용 가능한 필드:', Object.keys(decoded));
-            
-            if (decoded.iat) {
-                console.log('📋 발급 시간:', new Date(decoded.iat * 1000));
-            }
-            if (decoded.exp) {
-                console.log('📋 만료 시간:', new Date(decoded.exp * 1000));
-                const now = Math.floor(Date.now() / 1000);
-                console.log('📋 토큰 유효:', decoded.exp > now ? '✅ 유효' : '❌ 만료');
-            }
-        }
     }
     
-    console.log('📋 window.currentUser:', window.currentUser);
+    const user = window.currentUser;
+    console.log('\n📋 사용자 정보 (백엔드에서 받음):');
+    if (user) {
+        console.log('   - ID:', user.id);
+        console.log('   - 이메일:', user.email);
+        console.log('   - 이름:', user.name);
+        console.log('   - 학번:', user.code);
+        console.log('   - 학과:', user.major);
+        console.log('   - 역할:', user.role);
+        console.log('   - 전체 객체:', user);
+    } else {
+        console.log('   ⚠️ 사용자 정보 없음');
+        console.log('   💡 await login() 으로 로그인하세요');
+    }
+    
+    const userInfo = getUserInfo();
+    console.log('\n📋 추출된 사용자 정보:');
+    console.log(userInfo);
 }
 
 // ========== 도움말 ==========
@@ -341,7 +322,7 @@ function help() {
     console.log('═══════════════════════════════════════════════════════');
     console.log('📋 제공 함수:');
     console.log('🔐 checkAuth()             - 로그인 상태 확인');
-    console.log('🔍 debugTokenInfo()        - JWT 토큰 정보 확인');
+    console.log('🔍 debugUserInfo()         - 사용자 정보 확인 (백엔드에서 받은 정보)');
     console.log('📚 getMyEnrollments()      - 내 수강 목록 조회');
     console.log('🗑️ cancelEnrollment()      - 수강 취소');
     console.log('🔍 getLectureDetail()      - 강의 상세 조회');
@@ -355,14 +336,19 @@ function help() {
     console.log('   1. docs/일반유저 로그인+게시판/test-1-login.js 실행');
     console.log('   2. await login() 실행 (학생 계정)');
     console.log('   3. 로그인 완료 후 이 파일의 함수들 사용');
-    console.log('💡 JWT 토큰에서 자동으로 학생 정보를 추출합니다!');
+    console.log('💡 백엔드가 로그인 시 사용자 정보를 자동으로 반환합니다!');
+    console.log('💡 프론트엔드에서 JWT 디코딩이 필요 없습니다!');
 }
 
 // 초기 메시지
 console.log('✅ 학생 수강 관리 테스트 스크립트 로드 완료! (Part B: 내 수강 목록 및 취소)');
 console.log('💡 help() 를 입력하면 사용 가능한 함수 목록을 볼 수 있습니다.');
-console.log('🔍 debugTokenInfo() 로 토큰 정보를 확인할 수 있습니다.');
+console.log('🔍 debugUserInfo() 로 사용자 정보를 확인할 수 있습니다.');
 console.log('⚠️ 먼저 학생 계정으로 로그인하세요! (checkAuth()로 확인 가능)');
+console.log('');
+console.log('📌 중요: JWT 디코딩은 백엔드에서 처리됩니다!');
+console.log('   - 로그인 시 백엔드가 response.data.user에 사용자 정보 포함');
+console.log('   - 프론트엔드는 받은 정보를 그대로 사용');
 
 // ═══════════════════════════════════════════════════════════════════
 // 🚀 빠른 실행 명령어 (테스터용)
@@ -373,6 +359,6 @@ console.log('═'.repeat(63));
 console.log('await getMyEnrollments()   // 내 수강 목록');
 console.log('await cancelEnrollment()   // 수강 취소');
 console.log('await getLectureDetail()   // 강의 상세 조회');
-console.log('debugTokenInfo()           // JWT 토큰 정보');
+console.log('debugUserInfo()            // 사용자 정보 확인');
 console.log('help()                     // 전체 도움말');
 console.log('═'.repeat(63) + '\n');

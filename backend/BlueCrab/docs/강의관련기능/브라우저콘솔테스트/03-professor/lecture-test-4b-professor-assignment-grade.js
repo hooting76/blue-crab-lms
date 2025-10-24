@@ -16,19 +16,24 @@ const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 // 전역 변수 (test-1-login.js에서 설정한 토큰 사용)
 if (typeof window.authToken === 'undefined') window.authToken = null;
 
-// ========== JWT 디코딩 ==========
-function decodeJWT(token) {
-    try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => 
-            '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-        ).join(''));
-        return JSON.parse(jsonPayload);
-    } catch (e) {
-        console.error('JWT 디코딩 실패:', e);
+// ========== 백엔드에서 받은 사용자 정보 추출 ==========
+// 📌 JWT 디코딩은 백엔드에서 처리됩니다!
+// 📌 로그인 시 response.data.user에 사용자 정보가 포함되어 있습니다.
+function getUserInfo() {
+    const user = window.currentUser;
+    if (!user) {
+        console.log('⚠️ 사용자 정보가 없습니다. 로그인이 필요합니다.');
         return null;
     }
+    
+    return {
+        userIdx: user.id || user.userIdx || user.userId,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        profCode: user.profCode || user.professorCode,  // 교수 코드
+        userProfessor: user.userProfessor  // 0=교수, 1=학생 구분
+    };
 }
 
 // ========== 로그인 상태 확인 ==========
@@ -41,75 +46,55 @@ function checkAuth() {
         console.log('🔧 docs/일반유저 로그인+게시판/test-1-login.js 실행 → await login()');
         return false;
     }
+    
+    if (!user || !user.id) {
+        console.log('\n⚠️ 사용자 정보가 없습니다!');
+        console.log('🔧 다시 로그인하세요: await login()');
+        return false;
+    }
+    
+    console.log('✅ 로그인 확인됨:', {
+        userIdx: user.id,
+        email: user.email,
+        name: user.name
+    });
+    
     return true;
 }
 
-// ========== JWT에서 USER_IDX 추출 ==========
-function getUserIdxFromToken() {
-    if (!window.authToken) {
-        console.log('⚠️ 로그인 토큰이 없습니다.');
-        return null;
-    }
-    
-    const payload = decodeJWT(window.authToken);
-    if (!payload) {
-        console.log('❌ JWT 디코딩 실패');
-        return null;
-    }
-    
-    // JWT에서 USER_IDX 추출 (가능한 필드명들 시도)
-    const userIdx = payload.userIdx || payload.USER_IDX || payload.userId || payload.USER_ID || payload.user_id || payload.id;
-    
-    if (userIdx) {
-        console.log(`✅ JWT에서 USER_IDX 추출 성공: ${userIdx}`);
-        return String(userIdx); // 문자열로 변환
-    } else {
-        console.log('❌ JWT에서 USER_IDX를 찾을 수 없습니다.');
-        console.log('📋 JWT Payload:', payload);
-        return null;
-    }
-}
-
-// ========== JWT 토큰 디버깅 ==========
-async function debugTokenInfo() {
+// ========== 사용자 정보 디버깅 ==========
+// 📌 백엔드에서 받은 사용자 정보를 표시합니다
+function debugUserInfo() {
     if (!window.authToken) {
         console.log('❌ 로그인 토큰이 없습니다.');
         console.log('💡 먼저 로그인하세요: await login()');
         return;
     }
     
-    const payload = decodeJWT(window.authToken);
-    if (!payload) {
-        console.log('❌ JWT 디코딩 실패');
+    const user = window.currentUser;
+    if (!user) {
+        console.log('❌ 사용자 정보가 없습니다.');
+        console.log('💡 다시 로그인하세요: await login()');
         return;
     }
     
-    console.log('\n🔍 JWT Payload 전체 내용:');
+    console.log('\n🔍 사용자 정보 (백엔드에서 받음):');
     console.log('═══════════════════════════════════════════════════════');
-    console.log(JSON.stringify(payload, null, 2));
+    console.log('   - ID:', user.id);
+    console.log('   - 이메일:', user.email);
+    console.log('   - 이름:', user.name);
+    console.log('   - 역할:', user.role);
+    console.log('   - 교수 코드:', user.profCode || user.professorCode || 'N/A');
+    console.log('   - 구분:', user.userProfessor === 0 ? '교수' : '학생');
     
-    console.log('\n📋 모든 필드 나열:');
+    console.log('\n� 전체 사용자 객체:');
     console.log('═══════════════════════════════════════════════════════');
-    Object.keys(payload).forEach(key => {
-        console.log(`   ${key}: ${JSON.stringify(payload[key])}`);
-    });
+    console.log(JSON.stringify(user, null, 2));
     
-    console.log('\n🔎 USER_IDX 확인:');
+    console.log('\n💡 getUserInfo() 함수로 추출되는 정보:');
     console.log('═══════════════════════════════════════════════════════');
-    const userIdx = getUserIdxFromToken();
-    if (userIdx) {
-        console.log(`   ✅ 최종 USER_IDX: "${userIdx}"`);
-    } else {
-        console.log('   ❌ USER_IDX 조회 실패 - 수동 입력이 필요합니다.');
-    }
-    
-    console.log('\n💡 currentUser 정보:');
-    console.log('═══════════════════════════════════════════════════════');
-    if (window.currentUser) {
-        console.log(JSON.stringify(window.currentUser, null, 2));
-    } else {
-        console.log('   (없음)');
-    }
+    const userInfo = getUserInfo();
+    console.log(JSON.stringify(userInfo, null, 2));
 }
 
 // ========== 제출 현황 조회 (학생별) ==========
@@ -365,8 +350,8 @@ function help() {
     
     console.log('📋 제공 함수:\n');
     console.log('await checkAuth()             - 로그인 상태 확인');
-    console.log('getUserIdxFromToken()         - JWT에서 USER_IDX 추출');
-    console.log('await debugTokenInfo()        - JWT 토큰 디버깅');
+    console.log('getUserInfo()                 - 사용자 정보 추출');
+    console.log('debugUserInfo()               - 사용자 정보 디버깅');
     console.log('await getSubmissions()        - 제출 현황 조회 (학생별)');
     console.log('await gradeAssignment()       - 과제 채점 (제출방식 + 점수)');
     console.log('await updateAssignment()      - 과제 수정');
@@ -391,18 +376,23 @@ function help() {
 // 초기 메시지
 console.log('✅ 교수 과제 관리 테스트 스크립트 로드 완료! (Part B: 과제 채점 및 관리)');
 console.log('💡 help() 를 입력하면 사용 가능한 함수 목록을 볼 수 있습니다.');
+console.log('');
+console.log('📌 중요: JWT 디코딩은 백엔드에서 처리됩니다!');
+console.log('   - 로그인 시 백엔드가 response.data.user에 사용자 정보 포함');
+console.log('   - 프론트엔드는 받은 정보를 그대로 사용');
 
-// JWT에서 USER_IDX 자동 추출 테스트
-if (window.authToken) {
-    console.log('🔄 JWT에서 USER_IDX 추출 중...');
-    const userIdx = getUserIdxFromToken();
-    if (userIdx) {
-        console.log(`✅ 인식된 USER_IDX: ${userIdx}`);
+// 사용자 정보 자동 확인
+if (window.authToken && window.currentUser) {
+    console.log('🔄 사용자 정보 확인 중...');
+    const userInfo = getUserInfo();
+    if (userInfo) {
+        console.log(`✅ 인식된 USER_IDX: ${userInfo.userIdx}`);
+        console.log(`   - 이름: ${userInfo.name}`);
+        console.log(`   - 이메일: ${userInfo.email}`);
         console.log('💡 이제 자동으로 사용됩니다.');
-    } else {
-        console.log('⚠️ JWT에서 USER_IDX를 자동 추출할 수 없습니다. 수동 입력이 필요합니다.');
-        console.log('💡 debugTokenInfo()를 실행하여 JWT 구조를 확인하세요.');
     }
+} else if (window.authToken && !window.currentUser) {
+    console.log('⚠️ 사용자 정보가 없습니다. 다시 로그인하세요.');
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -415,6 +405,6 @@ console.log('await getSubmissions()     // 과제 제출 현황');
 console.log('await gradeAssignment()    // 과제 채점');
 console.log('await updateAssignment()   // 과제 수정');
 console.log('await deleteAssignment()   // 과제 삭제');
-console.log('await debugTokenInfo()     // JWT 디버깅');
+console.log('debugUserInfo()            // 사용자 정보 디버깅');
 console.log('help()                     // 전체 도움말');
 console.log('═'.repeat(63) + '\n');
