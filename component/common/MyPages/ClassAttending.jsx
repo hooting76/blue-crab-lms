@@ -52,8 +52,7 @@ const fetchLectureData = async (accessToken, user, isProf) => {
       : {
           page: 0,
           size: 100,
-          studentIdx: String(user.data.user.id),
-          enrolled: true,
+          studentIdx: String(user.userIdx)
         };
 
     const url = isProf
@@ -178,10 +177,27 @@ const fetchNotices = async () => {
   }, [accessToken, selectedLectureSerial]);
 
 
-  // 출석인정 신청
-  const attendanceRequestSubmit = (e) => {
-    e.preventDefault();
-    alert('출석인정 신청이 완료되었습니다.');
+  // 학생 출석 요청
+  const attendanceRequestSubmit = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/attendance/request`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          lecSerial: selectedLectureSerial,
+          sessionNumber: 1, // TODO: 실제 세션 번호 변수 연결
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error('출석 요청 실패');
+      console.log('✅ 출석 요청 성공:', data);
+    } catch (err) {
+      console.error('❌ 출석 요청 에러:', err);
+    }
   };
 
   // 과목별 공지 작성 페이지 이동
