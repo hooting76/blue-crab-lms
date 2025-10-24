@@ -13,6 +13,7 @@
 
 .approve-attendance-modal-content {
     font-size: var(--font-mid);
+    text-align: center;
     background-color: white;
     padding: 25px;
     border-radius: 8px;
@@ -22,4 +23,8 @@
     max-height: 80vh;
     overflow-y: auto;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.attendanceApproveClick, .attendanceLateClick, .attendanceRejectClick, .approveAttendanceCloseBtn {
+    font-size: var(--font-mid);
 }
