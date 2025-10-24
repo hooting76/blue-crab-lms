@@ -407,15 +407,16 @@ public class AttendanceService {
             log.debug("출석 점수 계산: lecIdx={}, studentIdx={}, 출석={}회, 지각={}회, 결석={}회, currentScore={}, percentage={}%", 
                     lecIdx, studentIdx, presentCount, lateCount, absentCount, currentScore, percentage);
 
-            // ✅ maxScore 제거 (gradeConfig에만 존재)
-            return Map.of(
-                "currentScore", currentScore,
-                "percentage", percentage,
-                "presentCount", presentCount,    // 출석 수
-                "lateCount", lateCount,          // 지각 수
-                "absentCount", absentCount,      // 결석 수
-                "attendanceRate", attendanceCount  // 출석율 (출석+지각)
-            );
+            // GradeCalculationService에서 수정 가능하도록 HashMap 사용 (Map.of()는 immutable)
+            Map<String, Object> result = new HashMap<>();
+            result.put("currentScore", currentScore);
+            result.put("percentage", percentage);
+            result.put("presentCount", presentCount);    // 출석 수
+            result.put("lateCount", lateCount);          // 지각 수
+            result.put("absentCount", absentCount);      // 결석 수
+            result.put("attendanceRate", attendanceCount); // 출석율 (출석+지각)
+            result.put("maxScore", maxScore);            // GradeCalculationService의 백분율 재계산에 필요
+            return result;
 
         } catch (Exception e) {
             log.error("출석 점수 계산 실패: lecIdx={}, studentIdx={}", lecIdx, studentIdx, e);
