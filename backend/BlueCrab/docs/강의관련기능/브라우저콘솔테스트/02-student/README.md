@@ -1,6 +1,6 @@
 # 👨‍🎓 학생 테스트
 
-학생 전용 수강 신청 및 과제 제출 기능 테스트 스크립트입니다.
+학생 전용 수강 신청 기능 테스트 스크립트입니다.
 
 ## 📁 파일 목록
 
@@ -18,13 +18,14 @@
 - ✅ 수강 상세 조회 (POST /api/enrollments/detail)
 - ✅ 수강 취소 (DELETE /api/enrollments/{idx})
 
-### `lecture-test-3-student-assignment.js`
-**과제 관리**
+## ⚠️ 과제 제출 안내
 
-- ✅ 과제 목록 조회 (POST /api/assignments/list)
-- ✅ 과제 상세 조회 (POST /api/assignments/detail)
-- ✅ 과제 제출 (POST /api/assignments/{idx}/submit)
-- ✅ 내 제출 내역 조회
+**과제는 오프라인으로 제출됩니다.**
+- 학생이 오프라인으로 과제 제출
+- 교수가 시스템에서 과제 생성 및 채점
+- 자동으로 성적에 반영
+
+과제 관련 테스트는 `03-professor/` 폴더를 참고하세요.
 
 ## 🚀 사용 방법
 
@@ -47,24 +48,12 @@ await enrollLecture(lecIdx)
 await getMyEnrollments()
 ```
 
-### 3. 과제 제출 흐름
-```javascript
-// 1단계: 과제 목록 조회
-await getAssignmentList(lecIdx)
-
-// 2단계: 과제 제출
-await submitAssignment(assignmentIdx, "제출 내용")
-
-// 3단계: 제출 확인
-await getMySubmissions(lecIdx)
-```
-
 ## ⚠️ 주의사항
 
 - **학생 권한 필수**: userStudent = 2 (학생)
 - **수강 신청 제한**: 이미 신청한 강의는 재신청 불가
-- **과제 제출**: 마감일 이전에만 제출 가능
 - **수강 취소**: 강의 시작 전에만 가능
+- **과제 제출**: 오프라인으로 진행 (시스템 외부)
 
 ## 📊 예상 결과
 
@@ -72,8 +61,6 @@ await getMySubmissions(lecIdx)
 ✅ 수강 가능 강의 5개 조회
 ✅ 수강 신청 성공
 ✅ 내 수강 목록 1개
-✅ 과제 목록 3개 조회
-✅ 과제 제출 성공
 ```
 
 ## 🔗 관련 문서
