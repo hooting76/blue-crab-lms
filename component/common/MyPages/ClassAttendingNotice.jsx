@@ -24,31 +24,43 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, selectedLecSerial, 
 
 
     /** ========== Fetch ========== */
-    const fetchLectureList = async (accessToken, page, userId) => {
-        const endpoint = isProf ? '/lectures' : '/enrollments/list';
-        const requestBody = isProf
-            ? { page: page - 1, size: 10, professor: String(userId) }
-            : { page: page - 1, size: 10, studentIdx: String(userId), enrolled: true };
-
+    const fetchLectureData = async (accessToken, user, isProf) => {
         try {
-            const response = await fetch(`${BASE_URL}${endpoint}`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(requestBody)
+            const requestBody = isProf
+            ? {
+                page: 0,
+                size: 100,
+                professor: String(user.data.user.id)
+                }
+            : {
+                page: 0,
+                size: 100,
+                studentIdx: Number(user.data.user.id)
+                };
+
+            const url = isProf
+            ? `${BASE_URL}/lectures`
+            : `${BASE_URL}/enrollments/list`;
+
+            const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
             });
 
-            if (!response.ok) throw new Error('강의 목록 조회 실패');
+            if (!response.ok) {
+            throw new Error('강의 목록을 불러오는 데 실패했습니다.');
+            }
+
             const data = await response.json();
             setLectureList(data);
-            
         } catch (error) {
-            console.error('강의 목록 에러:', error);
-            setLectureList([]);
+            console.error('강의 목록 조회 에러:', error);
         }
-    };
+        };
 
     const fetchNotices = async () => {
         if (!accessToken || !selectedLectureSerial) return;
@@ -89,23 +101,31 @@ useEffect(() => {
 // 처음 mount나 userId/accessToken 바뀔 때 강의 목록 fetch
 useEffect(() => {
     if (accessToken && userId) {
-        fetchLectureList(accessToken, 1, userId);
+        fetchLectureData(accessToken, userId, isProf);
     }
 }, [accessToken, userId]);
 
-// lectureList가 변경되고 selectedLectureSerial이 없을 때 기본 선택
-useEffect(() => {
-    if (lectureList.length > 0 && !selectedLectureSerial) {
-        setSelectedLectureSerial(lectureList[0].lecSerial);
-    }
-}, [lectureList, selectedLectureSerial]);
+// 강의 목록 받아올 때 첫 강의로 기본 선택 설정
+    useEffect(() => {
+      if (isProf) {
+        // 교수일 때: lectureList 자체 사용
+        if (lectureList.length > 0) {
+          setSelectedLectureSerial(lectureList[0].lecSerial);
+        }
+      } else {
+        // 교수 아닐 때: lectureList.content 사용
+        if (lectureList?.content?.length > 0) {
+          setSelectedLectureSerial(lectureList.content[0].lecSerial);
+        }
+      }
+    }, [lectureList, isProf]);
 
 // selectedLectureSerial이 바뀔 때마다 공지 fetch
 useEffect(() => {
     if (accessToken && selectedLectureSerial) {
         fetchNotices();
     }
-}, [accessToken, selectedLectureSerial, page, currentPage]);
+}, [accessToken, selectedLectureSerial, page]);
 
 
     /** ========== Helpers ========== */
