@@ -252,7 +252,7 @@ const fetchNotices = async () => {
             // 학생일 때: lectureList.content에서 정보 추출
             lectureList.map((lec) =>
               lec.content.map((item, idx) => (
-                <option key={`${item.lecSerial}-${idx}`} value={item.lecSerial}>
+                <option key={`${lec.lecSerial}-${idx}`} value={item.lecSerial}>
                   {item.lecTit}
                 </option>
               ))
