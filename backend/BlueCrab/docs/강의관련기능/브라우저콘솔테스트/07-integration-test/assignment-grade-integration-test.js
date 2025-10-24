@@ -573,6 +573,65 @@ async function deleteAllAssignments(lecSerial) {
     return { success: successCount, fail: failCount };
 }
 
+// 과제 채점만 테스트 (기존 과제 사용)
+async function quickGradeTest() {
+    console.clear();
+    console.log('╔═══════════════════════════════════════════════════════════════════╗');
+    console.log('║                  ✅ 과제 채점 전용 테스트                        ║');
+    console.log('╚═══════════════════════════════════════════════════════════════════╝');
+    
+    try {
+        // 로그인 확인
+        if (!window.professorToken || !window.currentProfessor) {
+            console.log('⚠️ 교수 계정으로 로그인하세요: await loginProfessor()');
+            return;
+        }
+
+        const lecSerial = prompt('강의 코드 (LEC_SERIAL):', 'ETH201');
+        const assignmentIdx = parseInt(prompt('과제 IDX:', '7'));
+        const studentIdx = parseInt(prompt('학생 IDX:', '6'));
+        
+        if (!lecSerial || !assignmentIdx || !studentIdx) {
+            console.log('❌ 테스트 취소됨');
+            return;
+        }
+
+        console.log('\n📋 테스트 설정:');
+        console.log(`   - 강의: ${lecSerial}`);
+        console.log(`   - 과제 IDX: ${assignmentIdx}`);
+        console.log(`   - 학생 IDX: ${studentIdx}`);
+        console.log('');
+
+        // 1단계: 초기 성적 확인
+        const initialState = await checkInitialGrade(lecSerial, studentIdx);
+        
+        // 2단계: 과제 채점
+        await gradeAssignment(assignmentIdx, studentIdx);
+        
+        // 3단계: 성적 업데이트 검증
+        const verifyResult = await verifyGradeUpdate(lecSerial, studentIdx, initialState);
+        
+        // 최종 결과
+        console.log('\n╔═══════════════════════════════════════════════════════════════════╗');
+        if (verifyResult.changed) {
+            console.log('║                    ✅ 채점 테스트 성공!                          ║');
+            console.log('║                                                                   ║');
+            console.log('║  과제 채점 후 성적이 정상적으로 업데이트되었습니다.              ║');
+        } else {
+            console.log('║                    ⚠️  채점 테스트 실패                          ║');
+            console.log('║                                                                   ║');
+            console.log('║  과제 채점 후 성적이 업데이트되지 않았습니다.                    ║');
+        }
+        console.log('╚═══════════════════════════════════════════════════════════════════╝');
+
+    } catch (error) {
+        console.log('\n╔═══════════════════════════════════════════════════════════════════╗');
+        console.log('║                    ❌ 채점 테스트 오류                            ║');
+        console.log('╚═══════════════════════════════════════════════════════════════════╝');
+        console.error('💥 에러:', error);
+    }
+}
+
 // ===================================================================
 // 초기 안내 메시지
 // ===================================================================
@@ -587,6 +646,7 @@ console.log('═'.repeat(70));
 console.log('\n⚡ 심플 사용법:\n');
 console.log('1️⃣  await loginProfessor()          // 교수 로그인');
 console.log('2️⃣  await runAssignmentGradeTest()  // 한방 테스트 실행');
+console.log('3️⃣  await quickGradeTest()          // 채점만 테스트 (기존 과제 사용)');
 console.log('');
 console.log('═'.repeat(70));
 console.log('\n🔍 개별 디버깅 함수:\n');
