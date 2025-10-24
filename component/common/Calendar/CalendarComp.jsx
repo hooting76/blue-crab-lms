@@ -184,39 +184,41 @@ function CalendarComp () {
                 <div className={calModalCss.modalMain}>
                     <div>
                         <div className={calModalCss.DateWrap}>
-                            <span><FaCalendarWeek/></span>                            
-                            {selectedEvent.start.getDate() !== selectedEvent.end.getDate()
-                                ? 
-                                    <>
-                                    <span>
+                            <span><FaCalendarWeek/></span>
+                            <div className={calModalCss.latearea}>
+                                {selectedEvent.start.getDate() !== selectedEvent.end.getDate()
+                                    ? <><span>
                                         {(selectedEvent.start.getHours() == 0)
                                             && (selectedEvent.start.getMinutes() == 0)
                                             ? <>{moment(selectedEvent.start).format("MM월 DD일")}</>
                                             : <>{moment(selectedEvent.start).format("MM월 DD일 HH:mm")}</>
-                                        }
-                                    </span>
-                                    <span> ~ </span>
-                                    </>
-                                : null
-                            }
+                                        }</span>
+                                        <span> ~ </span></>
+                                    : null
+                                }
 
-                            <span>
-                                {moment(selectedEvent.end).format("MM월 DD일")}
-                            </span>
+                                <span>{moment(selectedEvent.end).format("MM월 DD일")}</span>
+                            </div>
                         </div>
                         {/* DateWrap end */}
 
+
+                        {/* location wrap */}
                         {selectedEvent.details.where 
                             ? 
-                                <div>
+                                <div className={calModalCss.location}>
                                     <span><FaMapMarkerAlt/></span>
                                     <p>{selectedEvent.details.where}</p> 
                                 </div>
                             : null}
+                        {/* location wrap end*/}
                         
+
+                        {/* details wrap */}
                         {selectedEvent.details.sub
                             ? <p>{selectedEvent.details.sub}</p>
-                            : null}                        
+                            : null}
+                        {/* details wrap end*/}
                     </div>
                 </div>
             </div>            

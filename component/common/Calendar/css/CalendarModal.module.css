@@ -12,6 +12,10 @@
 .modalWrap{
     width: 100%;
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+
 }
 /* modal layer end*/
 
@@ -34,6 +38,9 @@
     width: fit-content;
     overflow: hidden;
     text-overflow: ellipsis;
+    padding: 0 !important;
+    border: none !important;
+    font-size: 18px !important;
 }
 
 .closeBtn{
@@ -47,17 +54,59 @@
 .modalMain{
     display: block;
     width: 100%;
-    overflow: auto;
+    height: 100%;
+}
+.modalMain > div{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
 }
 
-.modalMain > span{
-    color: #fff;
-    background: red;
-    display: block;
+.DateWrap, .location{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin: 10px auto;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+}
+.DateWrap > span:first-child, .location > span:first-child{
+    padding: 2.5px 10px 0px 0px;
+    border-right: 1px solid #ccc;
+    margin-right: 10px;
+}
+
+.latearea{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2.5px;
+}
+.latearea > span{
+    text-align: center;
+}
+
+.location{
+    margin-top: 0;
+}
+.location > span{
+    margin-bottom: 0 !important;
+}
+.location > p{
+    width: 100%;
+    text-align: center;
+}
+
+.modalMain > div > p{
+    width: 100%;
+    height: 100%;
     padding: 5px 7.5px;
-    width: fit-content;
-    margin: 0 auto;
-    border-radius: 0 0 10px 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    word-break: keep-all;
 }
-
 /* inner el end*/
