@@ -142,8 +142,6 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
         await fetchStudentList(accessToken, lecSerial); // 목록 다시 불러오기
     };
 
-    console.log("studentList : ", studentList);
-
 
     return (
         <div className="approve-attendance-modal-container">
@@ -155,7 +153,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
                                 <tr
                                     key={student.studentIdx}
                                 >
-                                    <td>{student.userName}</td>
+                                    <td>{student.studentName}</td>
                                     <td><button onClick={() => handleApproveClick(student)}>출석</button></td>
                                     <td><button>지각</button></td>
                                     <td><button onClick={() => handleRejectClick(student)}>결석</button></td>
