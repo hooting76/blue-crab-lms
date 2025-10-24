@@ -181,8 +181,11 @@ const fetchNotices = async () => {
   }, [accessToken, selectedLectureSerial]);
 
 
+  console.log("accessToken : ", accessToken);
+  console.log("selectedLectureSerial : ", selectedLectureSerial);
+
   // 학생 출석 요청
-  const attendanceRequestSubmit = async (accessToken, selectedLectureSerial) => {
+  const attendanceRequestSubmit = async(accessToken, selectedLectureSerial) => {
     try {
       const res = await fetch(`${BASE_URL}/attendance/request`, {
         method: 'POST',
