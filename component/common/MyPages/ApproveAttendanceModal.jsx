@@ -146,17 +146,27 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
     return (
         <div className="approve-attendance-modal-container">
             <div className="approve-attendance-modal-content">
-               <table>
+               <table className="notice-table">
+                    <thead>
+                        <tr>
+                            <th style={{width: "20%"}}>학생 번호</th>
+                            <th style={{width: "50%"}}>이름</th>
+                            <th style={{width: "10%"}}></th>
+                            <th style={{width: "10%"}}></th>
+                            <th style={{width: "10%"}}></th>
+                        </tr>
+                    </thead>
                     <tbody>
                         {studentList && studentList.length > 0 ? (
                             studentList.map((student) => (
                                 <tr
                                     key={student.studentIdx}
                                 >
+                                    <td>{student.studentIdx}</td>
                                     <td>{student.studentName}</td>
-                                    <td><button onClick={() => handleApproveClick(student)}>출석</button></td>
+                                    <td><button className="attendanceApproveClick" onClick={() => handleApproveClick(student)}>출석</button></td>
                                     <td><button>지각</button></td>
-                                    <td><button onClick={() => handleRejectClick(student)}>결석</button></td>
+                                    <td><button className="attendanceRejectClick" onClick={() => handleRejectClick(student)}>결석</button></td>
                                 </tr>
                             ))
                         ) : (
@@ -174,7 +184,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
                     onChange={handlePageChange}
                 />
 
-                <button onClick={onClose}>닫기</button>
+                <button className="approveAttendanceCloseBtn" onClick={onClose}>닫기</button>
             </div>
             
             {showRejectPrompt && (
