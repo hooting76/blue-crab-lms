@@ -51,7 +51,12 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
                 }
 
                 const data = await response.json();
-                setStudentList(data.content);
+                // ✅ 이름순 정렬 (가나다 / 알파벳 순 모두 대응)
+                const sortedList = [...data.content].sort((a, b) =>
+                    a.studentName.localeCompare(b.studentName, 'ko', { sensitivity: 'base' })
+                );
+
+                setStudentList(sortedList);
                 setTotal(data.totalElements);
             } catch (error) {
                 console.error('학생 목록 조회 에러:', error);
@@ -165,7 +170,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
                                     <td>{student.studentIdx}</td>
                                     <td>{student.studentName}</td>
                                     <td><button className="attendanceApproveClick" onClick={() => handleApproveClick(student)}>출석</button></td>
-                                    <td><button>지각</button></td>
+                                    <td><button className="attendanceLateClick">지각</button></td>
                                     <td><button className="attendanceRejectClick" onClick={() => handleRejectClick(student)}>결석</button></td>
                                 </tr>
                             ))
