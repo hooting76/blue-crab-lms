@@ -192,10 +192,11 @@ const fetchNotices = async () => {
   try {
     const body = {
       lecSerial: String(selectedLectureSerial),
-      sessionNumber: sessionNumber // 실제 변수 연결
+      sessionNumber: sessionNumber,
+      requestReason: requestReason || null
     };
-    // requestReason이 존재하면 추가
-    if (requestReason) body.requestReason = requestReason;
+
+    console.log('attendance request body:', JSON.stringify(body));
 
     const res = await fetch(`${BASE_URL}/attendance/request`, {
       method: 'POST',
@@ -207,7 +208,7 @@ const fetchNotices = async () => {
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error('출석 요청 실패');
+    if (!res.ok) throw new Error(`출석 요청 실패: ${data.message || 'Unknown error'}`);
     alert("출석 요청을 성공적으로 보냈습니다.")
     console.log('✅ 출석 요청 성공:', data);
   } catch (err) {
@@ -215,6 +216,7 @@ const fetchNotices = async () => {
     alert("출석 요청 실패");
   }
 };
+
 
 
   // 과목별 공지 작성 페이지 이동
