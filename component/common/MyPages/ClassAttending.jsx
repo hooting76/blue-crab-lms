@@ -405,8 +405,9 @@ const fetchNotices = async () => {
         </div>
 
         <div className="testAssignment">
-          시험 및 과제
-          {!isProf ? ( // 학생
+          <p>시험 및 과제</p>
+
+          {!isProf &&
             <>
               <div className="studentTest">
                 중간고사 : 점
@@ -419,67 +420,64 @@ const fetchNotices = async () => {
                 과제2 : 점
               </div>
             </>
-          ) : ( // 교수
-            <>
-              <div className="profTest">
-                <button className="testModalBtn" onClick={openTestModal}>
-                  시험 관리
-                </button>
-              </div>
-              <div className="profAssignment">
-                <button className="assignmentCreateModalBtn" onClick={openAssignmentCreateModal}>
-                  과제 생성
-                </button>
-                <br/>
-                <table className="assignment-list">
-                <thead>
-                    <tr>
-                        <th style={{ width: "10%" }}>번호</th>
-                        <th style={{ width: "60%" }}>제목</th>
-                        <th style={{ width: "30%" }}>마감일</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {assignmentList.content && assignmentList.content.length > 0 ? (
-                        assignmentList.content.map((assignment, index) => {
-                        const parsedData = JSON.parse(assignment.assignmentData);
-                        const { title, dueDate } = parsedData.assignment;
+          }
 
-                        const formatDate = (dateString) => {
-                            if (!dateString || dateString.length !== 8) return dateString;
-                            const year = dateString.slice(0, 4);
-                            const month = dateString.slice(4, 6);
-                            const day = dateString.slice(6, 8);
-                            return `${year}-${month}-${day}`;
-                        };
+          {/* 과제 목록 (학생/교수 공용) */}
+          <div className="assignmentList">
+            {isProf && (
+              <button className="assignmentCreateModalBtn" onClick={openAssignmentCreateModal}>
+                과제 생성
+              </button>
+            )}
+            <br />
+            <table className="assignment-list">
+              <thead>
+                <tr>
+                  <th style={{ width: "10%" }}>번호</th>
+                  <th style={{ width: "60%" }}>제목</th>
+                  <th style={{ width: "30%" }}>마감일</th>
+                </tr>
+              </thead>
+              <tbody>
+                {assignmentList.content && assignmentList.content.length > 0 ? (
+                  assignmentList.content.map((assignment, index) => {
+                    const parsedData = JSON.parse(assignment.assignmentData);
+                    const { title, dueDate } = parsedData.assignment;
 
+                    const formatDate = (dateString) => {
+                      if (!dateString || dateString.length !== 8) return dateString;
+                      const year = dateString.slice(0, 4);
+                      const month = dateString.slice(4, 6);
+                      const day = dateString.slice(6, 8);
+                      return `${year}-${month}-${day}`;
+                    };
 
-                        return (
-                            <tr key={assignment.assignmentIdx}>
-                            <td>{index + 1}</td>
-                            <td style={{wordBreak: "keep-all"}}>{title}</td>
-                            <td>{formatDate(dueDate)}</td>
-                            </tr>
-                        );
-                        })
-                    ) : (
-                        <tr>
-                        <td colSpan="3" style={{ textAlign: 'center' }}>과제가 없습니다.</td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>
-              </div>
-              {isTestModalOpen && <TestModal onClose={closeTestModal} />}
-              {isAssignmentCreateModalOpen && (
-                <AssignmentCreateModal
-                    onClose={closeAssignmentCreateModal}
-                    lecSerial={selectedLectureSerial}
-                    lecTitle={lectureList.find(lec => lec.lecSerial === selectedLectureSerial)?.lecTit || ''}
-                />
+                    return (
+                      <tr key={assignment.assignmentIdx}>
+                        <td>{index + 1}</td>
+                        <td style={{ wordBreak: "keep-all" }}>{title}</td>
+                        <td>{formatDate(dueDate)}</td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan="3" style={{ textAlign: "center" }}>과제가 없습니다.</td>
+                  </tr>
                 )}
-            </>
+              </tbody>
+            </table>
+          </div>
+
+          {isProf && isAssignmentCreateModalOpen && (
+            <AssignmentCreateModal
+              onClose={closeAssignmentCreateModal}
+              lecSerial={selectedLectureSerial}
+              lecTitle={lectureList.find(lec => lec.lecSerial === selectedLectureSerial)?.lecTit || ''}
+            />
           )}
+
+          {isProf && isTestModalOpen && <TestModal onClose={closeTestModal} />}
         </div>
       </div>
     </div>
