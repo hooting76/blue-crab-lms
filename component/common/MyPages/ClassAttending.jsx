@@ -16,6 +16,7 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
   const isProf = user.data.user.userStudent === 1;
   const [lectureList, setLectureList] = useState([]);
   const [assignmentList, setAssignmentList] = useState([]);
+  const [selectedAssignmentIdx, setSelectedAssignmentIdx] = useState(null);
   const [noticeList, setNoticeList] = useState([]);
   const page = 0;
   const NOTICE_BOARD_CODE = 3;
@@ -198,7 +199,6 @@ const fetchNotices = async () => {
       requestReason: requestReason || null
     };
 
-    console.log('attendance request body:', JSON.stringify(body));
 
     const res = await fetch(`${BASE_URL}/attendance/request`, {
       method: 'POST',
@@ -219,6 +219,11 @@ const fetchNotices = async () => {
   }
 };
 
+  // 과제 상세 모달 이동
+  const toAssignmentDetailModal = (assignmentIdx) => {
+    setSelectedAssignmentIdx(assignmentIdx); // 선택한 과제 idx 저장
+    openAssignmentDetailModal(); // 모달 열기
+  };
 
 
   // 과목별 공지 작성 페이지 이동
@@ -456,10 +461,8 @@ const fetchNotices = async () => {
                       return `${year}-${month}-${day}`;
                     };
 
-                    console.log("assignmentList.content : ", assignmentList.content);
-
                     return (
-                      <tr key={assignment.assignmentIdx}>
+                      <tr key={assignment.assignmentIdx} onClick={() => toAssignmentDetailModal(assignment.assignmentIdx)}>
                         <td>{index + 1}</td>
                         <td style={{ wordBreak: "keep-all" }}>{title}</td>
                         <td>{formatDate(dueDate)}</td>
@@ -486,6 +489,7 @@ const fetchNotices = async () => {
           {isAssignmentDetailModalOpen && (
             <AssignmentDetailModal
               onClose={closeAssignmentDetailModal}
+              assignmentIdx={selectedAssignmentIdx} // 전달
             />
           )}
 
