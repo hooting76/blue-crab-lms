@@ -50,7 +50,7 @@ const fetchLectureData = async (accessToken, user, isProf) => {
       ? {
           page: 0,
           size: 100,
-          professor: user.data.user.id
+          professor: String(user.data.user.id)
         }
       : {
           page: 0,
