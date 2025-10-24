@@ -11,12 +11,18 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
+import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.server.HandshakeInterceptor;
 
 import java.util.Collections;
+import java.util.Map;
 
 /**
  * WebSocket 설정
@@ -61,7 +67,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     /**
      * STOMP 엔드포인트 등록
      * 클라이언트가 WebSocket 연결을 시작하는 엔드포인트
-     * 
+     *
      * - /ws/chat: WebSocket 연결 엔드포인트
      * - SockJS fallback 지원 (WebSocket 미지원 브라우저용)
      */
@@ -69,8 +75,34 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws/chat")
                 .setAllowedOriginPatterns("*")  // CORS 설정 (프로덕션에서는 구체적으로 지정)
+                .addInterceptors(new HandshakeInterceptor() {
+                    @Override
+                    public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
+                                                 WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
+                        // 쿼리 파라미터에서 JWT 토큰 추출
+                        if (request instanceof ServletServerHttpRequest) {
+                            ServletServerHttpRequest servletRequest = (ServletServerHttpRequest) request;
+                            String token = servletRequest.getServletRequest().getParameter("token");
+
+                            if (token != null && !token.isEmpty()) {
+                                // WebSocket 세션 속성에 토큰 저장
+                                attributes.put("token", token);
+                                log.info("WebSocket 핸드셰이크: JWT 토큰 확인됨");
+                            } else {
+                                log.warn("WebSocket 핸드셰이크: JWT 토큰 없음");
+                            }
+                        }
+                        return true;
+                    }
+
+                    @Override
+                    public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response,
+                                             WebSocketHandler wsHandler, Exception exception) {
+                        // 핸드셰이크 완료 후 처리 (필요시)
+                    }
+                })
                 .withSockJS();  // SockJS fallback 지원
-        
+
         log.info("STOMP 엔드포인트 등록 완료: /ws/chat");
     }
 
@@ -88,28 +120,39 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
                 // CONNECT 명령 시 JWT 인증 처리
                 if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
-                    // Authorization 헤더에서 JWT 토큰 추출
-                    String token = accessor.getFirstNativeHeader("Authorization");
+                    String token = null;
 
-                    if (token != null && token.startsWith("Bearer ")) {
-                        token = token.substring(7);  // "Bearer " 제거
+                    // 1. 먼저 WebSocket 세션 속성에서 토큰 확인 (쿼리 파라미터로 전달된 경우)
+                    Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
+                    if (sessionAttributes != null && sessionAttributes.containsKey("token")) {
+                        token = (String) sessionAttributes.get("token");
+                        log.info("토큰 확인: WebSocket 세션 속성에서 추출");
+                    }
+
+                    // 2. 세션 속성에 없으면 Authorization 헤더에서 추출 시도
+                    if (token == null || token.isEmpty()) {
+                        token = accessor.getFirstNativeHeader("Authorization");
+                        if (token != null && token.startsWith("Bearer ")) {
+                            token = token.substring(7);  // "Bearer " 제거
+                            log.info("토큰 확인: Authorization 헤더에서 추출");
+                        }
                     }
 
                     // JWT 토큰 검증
-                    if (token == null || !jwtUtil.validateToken(token)) {
+                    if (token == null || token.isEmpty() || !jwtUtil.validateToken(token)) {
                         log.warn("WebSocket 연결 실패: 유효하지 않은 JWT 토큰");
                         throw new IllegalArgumentException("Invalid JWT token");
                     }
 
                     // JWT에서 userCode 추출
                     String userCode = jwtUtil.getUserCode(token);
-                    
+
                     // Spring Security User 객체 생성 및 설정
                     UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(userCode, null, Collections.emptyList());
-                    
+
                     accessor.setUser(authentication);
-                    
+
                     log.info("WebSocket 연결 성공: userCode={}", userCode);
                 }
 

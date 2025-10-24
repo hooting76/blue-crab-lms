@@ -34,8 +34,8 @@ function connectWebSocket() {
     addChatLog(`WebSocket 연결 시도 중... (요청 번호: ${currentRequestIdx})`, 'info');
 
     try {
-        // SockJS 연결
-        const socket = new SockJS(`${baseURL}/ws/chat`);
+        // SockJS 연결 (JWT 토큰을 쿼리 파라미터로 전달)
+        const socket = new SockJS(`${baseURL}/ws/chat?token=${accessToken}`);
 
         // STOMP over SockJS
         stompClient = Stomp.over(socket);
@@ -45,9 +45,7 @@ function connectWebSocket() {
 
         // 연결 시작
         stompClient.connect(
-            {
-                'Authorization': `Bearer ${accessToken}`
-            },
+            {},  // 빈 헤더 (인증은 쿼리 파라미터로 처리)
             onWebSocketConnected,
             onWebSocketError
         );
@@ -70,12 +68,19 @@ function onWebSocketConnected(frame) {
     const payload = JSON.parse(atob(accessToken.split('.')[1]));
     const userCode = payload.sub || 'UNKNOWN';
 
+    // 채팅 메시지 큐 구독
     stompClient.subscribe('/user/queue/chat', function(message) {
         const chatMessage = JSON.parse(message.body);
         receiveMessage(chatMessage);
     });
 
-    addChatLog(`📡 STOMP 구독 완료: /user/queue/chat`, 'success');
+    // 에러 메시지 큐 구독
+    stompClient.subscribe('/user/queue/errors', function(message) {
+        const errorMessage = message.body;
+        addChatLog(`❌ 서버 에러: ${errorMessage}`, 'error');
+    });
+
+    addChatLog(`📡 STOMP 구독 완료: /user/queue/chat, /user/queue/errors`, 'success');
 
     // 기존 메시지 로드
     fetchChatMessages(currentRequestIdx);

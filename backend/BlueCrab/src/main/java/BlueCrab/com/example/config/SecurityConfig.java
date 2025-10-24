@@ -130,6 +130,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/ping").permitAll() // 연결 테스트 엔드포인트
                 .requestMatchers("/", "/status").permitAll() // 메인 페이지 및 상태 페이지
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/config/**").permitAll() // 정적 리소스
+
+                // 🔓 WebSocket 엔드포인트 (핸드셰이크는 permitAll, 이후 STOMP 레벨에서 JWT 검증)
+                .requestMatchers("/ws/**").permitAll() // WebSocket 연결 허용
                 
                 // 🔓 Firebase 상태 확인 (인증 불필요)
                 .requestMatchers("/api/test/firebase-status").permitAll() // Firebase 초기화 확인
@@ -177,6 +180,11 @@ public class SecurityConfig {
                 .requestMatchers("/api/consultation/{id}").authenticated() // 상담 상세
                 .requestMatchers("/api/consultation/unread-count").hasAnyRole("PROFESSOR", "ADMIN") // 읽지 않은 개수
                 .requestMatchers("/api/consultation/read").authenticated() // 읽음 처리
+
+                // 💬 채팅 REST API (인증된 참여자만 접근)
+                .requestMatchers("/api/chat/messages/**").authenticated() // 채팅 메시지 조회
+                .requestMatchers("/api/chat/history/download/**").authenticated() // 채팅 히스토리 다운로드
+                .requestMatchers("/api/chat/archive/download/**").authenticated() // 아카이빙된 채팅 로그 다운로드
                 
                 // �🔧 관리자 전용 엔드포인트 (현재 임시로 개방)
                 .requestMatchers("/admin/logs/**").permitAll() // 로그 모니터링 (TODO: ADMIN 권한 필요)
