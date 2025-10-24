@@ -240,7 +240,7 @@ const fetchNotices = async () => {
         value={selectedLectureSerial || ''}
         onChange={handleLectureChange}
       >
-        {lectureList.length > 0 ? (
+        {lectureList ? (
           isProf ? (
             // 교수일 때: lectureList 그대로 보여주기
             lectureList.map((lec) => (
@@ -252,8 +252,8 @@ const fetchNotices = async () => {
             // 학생일 때: lectureList.content에서 정보 추출
             lectureList.map((lec) =>
               lec.content.map((item, idx) => (
-                <option key={`${lec.lecSerial}-${idx}`} value={item.serial}>
-                  {item.title}
+                <option key={`${item.lecSerial}-${idx}`} value={item.lecSerial}>
+                  {item.lecTit}
                 </option>
               ))
             )
