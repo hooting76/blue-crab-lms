@@ -74,68 +74,83 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
     }, [accessToken, lecSerial, page]);
 
 
-    // 출석 승인
-    const approveAttendance = async({accessToken, requestIdx, professorIdx}) => {
-        try {
-            const approveResponse = await fetch(`${BASE_URL}/professor/attendance/requests/${requestIdx}/approve`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({professorIdx})
+    // 출석 기록 입력 받기
+    const recordCount = parseInt(prompt('처리할 학생 수를 입력하세요:', '3'));
+    const attendanceRecords = [];
+    
+    for (let i = 0; i < recordCount; i++) {
+        const studentIdx = parseInt(prompt(`${i + 1}번째 학생 USER_IDX를 입력하세요:`, `${6 + i}`));
+        const status = prompt(`${i + 1}번째 학생 출석 상태를 입력하세요:\n출: 출석\n지: 지각\n결: 결석`, '출');
+        
+        if (studentIdx && status) {
+            attendanceRecords.push({
+                studentIdx: studentIdx,
+                status: status
             });
-            if (!approveResponse.ok) {
-                throw new Error("!approveResponse.ok");
-            }
-        } catch (error) {
-            console.error("출석 승인 실패 : ", error);
         }
     }
 
-    // 결석 처리
-    const rejectAttendance = async ({ accessToken, requestIdx, professorIdx, rejectReason }) => {
-        try {
-            const rejectResponse = await fetch(`${BASE_URL}/professor/attendance/requests/${requestIdx}/reject`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    professorIdx,
-                    rejectReason
-                })
-            });
-
-            if (!rejectResponse.ok) throw new Error('출석 거부 실패');
-        } catch (error) {
-            console.error("출석 거부 실패 : ", error);
-        }
+    // 출석 승인
+    const approveAttendance = async ({ accessToken, lecSerial, attendanceRecords }) => {
+    const requestData = {
+        lecSerial: lecSerial,
+        sessionNumber: 1, // 회차
+        attendanceRecords: attendanceRecords
     };
 
-    const handleRejectClick = (student) => {
-        setSelectedStudent(student);
-        setShowRejectPrompt(true); // 모달 열기
-    };
-
-
-    const handleRejectSubmit = async () => {
-        if (!rejectReason || !selectedStudent) return;
-
-        await rejectAttendance({
-            accessToken,
-            requestIdx: selectedStudent.studentIdx,
-            professorIdx: user.data.user.userIdx,
-            rejectReason,
+    try {
+        const response = await fetch(`${BASE_URL}/attendance/approve`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: JSON.stringify(requestData)
         });
-        fetchStudentList(accessToken, lecSerial);
 
-        // 상태 초기화
-        setShowRejectPrompt(false);
-        setRejectReason('');
-        setSelectedStudent(null);
-    };
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log('✅ 출석 승인 성공!');
+            console.log('응답 데이터:', data);
+            console.log('메시지:', data.message);
+            console.log('성공 여부:', data.success);
+        } else {
+            console.error('❌ 출석 승인 실패:', response.status);
+            console.error('에러 메시지:', data);
+        }
+    } catch (error) {
+        console.error('❌ 네트워크 오류:', error);
+    }
+};
+
+    // 결석 처리
+    // const rejectAttendance = async ({ accessToken, requestIdx, professorIdx, rejectReason }) => {
+        
+    // };
+
+    // const handleRejectClick = (student) => {
+    //     setSelectedStudent(student);
+    //     setShowRejectPrompt(true); // 모달 열기
+    // };
+
+
+    // const handleRejectSubmit = async () => {
+    //     if (!rejectReason || !selectedStudent) return;
+
+    //     await rejectAttendance({
+    //         accessToken,
+    //         requestIdx: selectedStudent.studentIdx,
+    //         professorIdx: user.data.user.userIdx,
+    //         rejectReason,
+    //     });
+    //     fetchStudentList(accessToken, lecSerial);
+
+    //     // 상태 초기화
+    //     setShowRejectPrompt(false);
+    //     setRejectReason('');
+    //     setSelectedStudent(null);
+    // };
 
     const handleApproveClick = async (student) => {
         await approveAttendance({
