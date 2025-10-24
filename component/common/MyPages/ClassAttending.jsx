@@ -42,6 +42,7 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
 
 console.log("user : ", user);
 console.log("accessToken : ", accessToken);
+console.log("lectureList : ", lectureList);
 
   // 강의 목록 가져오기 (교수/학생 구분)
 const fetchLectureData = async (accessToken, user, isProf) => {
