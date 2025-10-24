@@ -24,7 +24,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, selectedLecSerial, 
 
 
     /** ========== Fetch ========== */
-    const fetchLectureData = async (accessToken, user, isProf) => {
+    const fetchLectureData = async (accessToken, userId, isProf) => {
         try {
             const requestBody = isProf
             ? {
@@ -35,7 +35,7 @@ function ClassAttendingNotice({ currentPage, setCurrentPage, selectedLecSerial, 
             : {
                 page: 0,
                 size: 100,
-                studentIdx: Number(user.data.user.id)
+                studentIdx: Number(userId)
                 };
 
             const url = isProf
@@ -101,24 +101,30 @@ useEffect(() => {
 // 처음 mount나 userId/accessToken 바뀔 때 강의 목록 fetch
 useEffect(() => {
     if (accessToken && userId) {
-        fetchLectureData(accessToken, user, isProf);
+        fetchLectureData(accessToken, userId, isProf);
     }
 }, [accessToken, userId]);
 
-// 강의 목록 받아올 때 첫 강의로 기본 선택 설정
-    useEffect(() => {
-      if (isProf) {
+useEffect(() => {
+    // 부모에서 전달받은 selectedLecSerial이 있으면 우선 사용
+    if (selectedLecSerial) {
+        setSelectedLectureSerial(selectedLecSerial);
+        return;
+    }
+
+    if (isProf) {
         // 교수일 때: lectureList 자체 사용
         if (lectureList.length > 0) {
-          setSelectedLectureSerial(lectureList[0].lecSerial);
+            setSelectedLectureSerial(lectureList[0].lecSerial);
         }
-      } else {
+    } else {
         // 교수 아닐 때: lectureList.content 사용
         if (lectureList?.content?.length > 0) {
-          setSelectedLectureSerial(lectureList.content[0].lecSerial);
+            setSelectedLectureSerial(lectureList.content[0].lecSerial);
         }
-      }
-    }, [lectureList, isProf]);
+    }
+}, [lectureList, isProf, selectedLecSerial]);
+
 
 // selectedLectureSerial이 바뀔 때마다 공지 fetch
 useEffect(() => {

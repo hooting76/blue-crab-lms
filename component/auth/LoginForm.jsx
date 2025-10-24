@@ -160,7 +160,7 @@ function LoginForm() {
                 {/* 로그인 버튼 */}
                     <button
                         onClick={handleLogin}
-                        disabled={isLoading || !email || !password}
+                        disabled={isLoading || !(emailCheck && pwCheck)}
                         className={LoginFrm.submit}>
                         로그인
                     </button>
