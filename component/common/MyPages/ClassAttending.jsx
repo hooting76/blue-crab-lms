@@ -233,35 +233,41 @@ const fetchNotices = async () => {
 
 
   return (
-    <div className="classAttending_list_container">
+<div className="classAttending_list_container">
       {/* 강의 선택 박스 */}
-      <select
-        className="lectureName"
-        value={selectedLectureSerial || ''}
-        onChange={handleLectureChange}
-      >
-        {lectureList ? (
-          isProf ? (
-            // 교수일 때: lectureList 그대로 보여주기
+      {isProf ? (
+        <select
+          className="lectureName"
+          value={selectedLectureSerial || ''}
+          onChange={handleLectureChange}
+        >
+          {lectureList.length > 0 ? (
             lectureList.map((lec) => (
               <option key={lec.lecSerial} value={lec.lecSerial}>
                 {lec.lecTit}
               </option>
             ))
           ) : (
-            // 학생일 때: lectureList.content 그대로 보여주기
+            <option disabled>강의 목록 없음</option>
+          )}
+        </select>
+      ) : (
+        <select
+          className="lectureName"
+          value={selectedLectureSerial || ''}
+          onChange={handleLectureChange}
+        >
+          {lectureList?.content?.length > 0 ? (
             lectureList.content.map((lec) => (
               <option key={lec.lecSerial} value={lec.lecSerial}>
                 {lec.lecTit}
               </option>
             ))
-          )
-        ) : (
-          <option disabled>강의 목록 없음</option>
-        )}
-      </select>
-
-
+          ) : (
+            <option disabled>강의 목록 없음</option>
+          )}
+        </select>
+      )}
 
 
       <div className="classAttendingContent">
