@@ -18,6 +18,7 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
   const [noticeList, setNoticeList] = useState([]);
   const page = 0;
   const NOTICE_BOARD_CODE = 3;
+  const sessionNumber = 1;
 
   // 모달 상태들
   const [isEvaluationModalOpen, setIsEvaluationModalOpen] = useState(false);
@@ -186,30 +187,34 @@ const fetchNotices = async () => {
 
 
   // 학생 출석 요청
-  const attendanceRequestSubmit = async () => {
-    try {
-      const res = await fetch(`${BASE_URL}/attendance/request`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          lecSerial: String(selectedLectureSerial),
-          sessionNumber: 1, // TODO: 실제 세션 번호 변수 연결
-          requestReason: null
-        }),
-      });
+ const attendanceRequestSubmit = async () => {
+  try {
+    const body = {
+      lecSerial: String(selectedLectureSerial),
+      sessionNumber: sessionNumber // 실제 변수 연결
+    };
+    // requestReason이 존재하면 추가
+    if (requestReason) body.requestReason = requestReason;
 
-      const data = await res.json();
-      if (!res.ok) throw new Error('출석 요청 실패');
-      alert("출석 요청을 성공적으로 보냈습니다.")
-      console.log('✅ 출석 요청 성공:', data);
-    } catch (err) {
-      console.error('❌ 출석 요청 에러:', err);
-      alert("출석 요청 실패");
-    }
-  };
+    const res = await fetch(`${BASE_URL}/attendance/request`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error('출석 요청 실패');
+    alert("출석 요청을 성공적으로 보냈습니다.")
+    console.log('✅ 출석 요청 성공:', data);
+  } catch (err) {
+    console.error('❌ 출석 요청 에러:', err);
+    alert("출석 요청 실패");
+  }
+};
+
 
   // 과목별 공지 작성 페이지 이동
   const profNoticeWrite = () => {
