@@ -142,6 +142,8 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
         await fetchStudentList(accessToken, lecSerial); // 목록 다시 불러오기
     };
 
+    console.log("studentList : ", studentList);
+
 
     return (
         <div className="approve-attendance-modal-container">
