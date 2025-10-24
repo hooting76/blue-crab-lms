@@ -279,6 +279,25 @@ public class AssignmentService {
         }
     }
 
+    /* 과제의 maxScore 추출 */
+    @SuppressWarnings("unchecked")
+    public Integer getMaxScoreFromAssignment(AssignmentExtendedTbl assignment) {
+        try {
+            Map<String, Object> data = parseAssignmentData(assignment.getAssignmentData());
+            Map<String, Object> assignmentInfo = (Map<String, Object>) data.get("assignment");
+            if (assignmentInfo != null && assignmentInfo.containsKey("maxScore")) {
+                Object maxScoreObj = assignmentInfo.get("maxScore");
+                if (maxScoreObj instanceof Number) {
+                    return ((Number) maxScoreObj).intValue();
+                }
+            }
+            return 10; // 기본값
+        } catch (Exception e) {
+            logger.warn("maxScore 추출 실패, 기본값 10 사용: {}", e.getMessage());
+            return 10;
+        }
+    }
+
     // ========== 통계 메서드 ==========
 
     /* 강의별 과제 수 조회 */

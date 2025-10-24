@@ -291,11 +291,20 @@ public class AssignmentController {
                         .body(createErrorResponse("studentIdx와 score는 필수입니다."));
             }
             
-            // ✅ 점수가 10점을 초과하면 자동으로 10점으로 변환
-            if (score > 10) {
-                logger.info("점수 {}점이 10점으로 변환됨 (assignmentIdx={}, studentIdx={})", 
-                    score, assignmentIdx, studentIdx);
-                score = 10;
+            // ✅ 과제의 maxScore 조회
+            AssignmentExtendedTbl existingAssignment = assignmentService.getAssignmentById(assignmentIdx)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 과제입니다: " + assignmentIdx));
+            
+            Integer maxScore = assignmentService.getMaxScoreFromAssignment(existingAssignment);
+            if (maxScore == null) {
+                maxScore = 10; // 기본값
+            }
+            
+            // ✅ 점수가 만점을 초과하면 자동으로 만점으로 변환
+            if (score > maxScore) {
+                logger.info("점수 {}점이 만점 {}점으로 변환됨 (assignmentIdx={}, studentIdx={})", 
+                    score, maxScore, assignmentIdx, studentIdx);
+                score = maxScore;
             }
             
             AssignmentExtendedTbl assignment = assignmentService.gradeAssignment(
