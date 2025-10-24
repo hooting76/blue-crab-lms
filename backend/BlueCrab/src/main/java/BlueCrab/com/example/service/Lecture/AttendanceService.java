@@ -4,6 +4,7 @@ import BlueCrab.com.example.entity.Lecture.AttendanceRequestTbl;
 import BlueCrab.com.example.entity.Lecture.EnrollmentExtendedTbl;
 import BlueCrab.com.example.repository.Lecture.AttendanceRequestRepository;
 import BlueCrab.com.example.repository.Lecture.EnrollmentExtendedTblRepository;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
@@ -380,11 +381,17 @@ public class AttendanceService {
             
             int attendanceCount = presentCount + lateCount;  // 출석율 = 출석 + 지각
 
-            // 최대 점수: 80회차 = 20점 만점
-            double maxScore = 20.0;
+            // ✅ gradeConfig에서 attendanceMaxScore 읽기 (중복 제거)
+            double maxScore = 20.0;  // 기본값
+            if (enrollmentData.has("gradeConfig")) {
+                JsonNode gradeConfig = enrollmentData.get("gradeConfig");
+                if (gradeConfig.has("attendanceMaxScore")) {
+                    maxScore = gradeConfig.get("attendanceMaxScore").asDouble();
+                }
+            }
             
             // 출석율 기반 점수 계산 (80회 기준)
-            // 예: 77회 출석(출석+지각) / 80 * 20 = 19.25점
+            // 예: 77회 출석(출석+지각) / 80 * attendanceMaxScore = 점수
             // 지각에 대한 감점은 GradeCalculationService에서 교수 설정에 따라 처리
             double currentScore = ((double) attendanceCount / 80.0) * maxScore;
             

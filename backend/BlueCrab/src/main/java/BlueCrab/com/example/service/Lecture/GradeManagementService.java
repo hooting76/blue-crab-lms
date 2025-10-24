@@ -102,11 +102,10 @@ public class GradeManagementService {
                     // gradeConfig 병합 (기존 attendance, grade 데이터 유지)
                     currentData.put("gradeConfig", gradeConfig);
                     
-                    // ✅ grade 객체 초기화 (gradeConfig 존재 시에만)
+                    // ✅ grade 객체 초기화 (중복 제거: maxScore는 gradeConfig에만 존재)
                     if (!currentData.containsKey("grade")) {
                         Map<String, Object> gradeData = new HashMap<>();
                         gradeData.put("attendance", Map.of(
-                            "maxScore", gradeConfig.get("attendanceMaxScore"),
                             "currentScore", 0.0,
                             "percentage", 0.0
                         ));
