@@ -18,6 +18,8 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
   const [noticeList, setNoticeList] = useState([]);
   const page = 0;
   const NOTICE_BOARD_CODE = 3;
+  const sessionNumber = 1;
+  const requestReason = "";
 
   // 모달 상태들
   const [isEvaluationModalOpen, setIsEvaluationModalOpen] = useState(false);
@@ -28,20 +30,25 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
 
 
   // 강의 목록 받아올 때 첫 강의로 기본 선택 설정
-  useEffect(() => {
-    if (lectureList.length > 0) {
-      setSelectedLectureSerial(lectureList[0].lecSerial);
-    }
-  }, [lectureList]);
+    useEffect(() => {
+      if (isProf) {
+        // 교수일 때: lectureList 자체 사용
+        if (lectureList.length > 0) {
+          setSelectedLectureSerial(lectureList[0].lecSerial);
+        }
+      } else {
+        // 교수 아닐 때: lectureList.content 사용
+        if (lectureList?.content?.length > 0) {
+          setSelectedLectureSerial(lectureList.content[0].lecSerial);
+        }
+      }
+    }, [lectureList, isProf]);
 
   // 강의 선택 변경 핸들러
   const handleLectureChange = (e) => {
   setSelectedLectureSerial(e.target.value); // e.target.value = lecSerial
 };
 
-
-console.log("user : ", user);
-console.log("accessToken : ", accessToken);
 
   // 강의 목록 가져오기 (교수/학생 구분)
 const fetchLectureData = async (accessToken, user, isProf) => {
@@ -55,7 +62,7 @@ const fetchLectureData = async (accessToken, user, isProf) => {
       : {
           page: 0,
           size: 100,
-          studentIdx: user.data.user.id
+          studentIdx: Number(user.data.user.id)
         };
 
     const url = isProf
@@ -181,27 +188,36 @@ const fetchNotices = async () => {
 
 
   // 학생 출석 요청
-  const attendanceRequestSubmit = async () => {
-    try {
-      const res = await fetch(`${BASE_URL}/attendance/request`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          lecSerial: selectedLectureSerial,
-          sessionNumber: 1, // TODO: 실제 세션 번호 변수 연결
-        }),
-      });
+ const attendanceRequestSubmit = async () => {
+  try {
+    const body = {
+      lecSerial: String(selectedLectureSerial),
+      sessionNumber: sessionNumber,
+      requestReason: requestReason || null
+    };
 
-      const data = await res.json();
-      if (!res.ok) throw new Error('출석 요청 실패');
-      console.log('✅ 출석 요청 성공:', data);
-    } catch (err) {
-      console.error('❌ 출석 요청 에러:', err);
-    }
-  };
+    console.log('attendance request body:', JSON.stringify(body));
+
+    const res = await fetch(`${BASE_URL}/attendance/request`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(`출석 요청 실패: ${data.message || 'Unknown error'}`);
+    alert("출석 요청을 성공적으로 보냈습니다.")
+    console.log('✅ 출석 요청 성공:', data);
+  } catch (err) {
+    console.error('❌ 출석 요청 에러:', err);
+    alert("출석 요청 실패");
+  }
+};
+
+
 
   // 과목별 공지 작성 페이지 이동
   const profNoticeWrite = () => {
@@ -232,19 +248,41 @@ const fetchNotices = async () => {
 
 
   return (
-    <div className="classAttending_list_container">
+<div className="classAttending_list_container">
       {/* 강의 선택 박스 */}
-      <select className="lectureName" value={selectedLectureSerial || ''} onChange={handleLectureChange}>
-        {lectureList.length > 0 ? (
+      {isProf ? (
+        <select
+          className="lectureName"
+          value={selectedLectureSerial || ''}
+          onChange={handleLectureChange}
+        >
+          {lectureList.length > 0 ? (
             lectureList.map((lec) => (
-            <option key={lec.lecSerial} value={lec.lecSerial}>
+              <option key={lec.lecSerial} value={lec.lecSerial}>
                 {lec.lecTit}
-            </option>
+              </option>
             ))
-        ) : (
+          ) : (
             <option disabled>강의 목록 없음</option>
-        )}
-      </select>
+          )}
+        </select>
+      ) : (
+        <select
+          className="lectureName"
+          value={selectedLectureSerial || ''}
+          onChange={handleLectureChange}
+        >
+          {lectureList?.content?.length > 0 ? (
+            lectureList.content.map((lec) => (
+              <option key={lec.lecSerial} value={lec.lecSerial}>
+                {lec.lecTit}
+              </option>
+            ))
+          ) : (
+            <option disabled>강의 목록 없음</option>
+          )}
+        </select>
+      )}
 
 
       <div className="classAttendingContent">
@@ -306,7 +344,9 @@ const fetchNotices = async () => {
                   ✖
                 </button>
                 <CourseDetail
-                  lectureDetails={lectureList.find((lec) => lec.lecSerial === selectedLectureSerial)}
+                  lectureDetails={lectureList.content.find(
+                    (lec) => String(lec.lecSerial) === String(selectedLectureSerial)
+                  )}
                   currentPage={currentPage}
                   setCurrentPage={setCurrentPage}
                 />

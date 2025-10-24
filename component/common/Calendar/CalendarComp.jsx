@@ -13,6 +13,8 @@ import './css/calcCss.css';
 import calModalCss from './css/CalendarModal.module.css';
 import Modal from 'react-modal';
 import { FaWindowClose } from 'react-icons/fa';
+
+import acJson from '../../../public/schedule.json';
 // calendar func&config library end
 
 moment.locale('ko');
@@ -21,15 +23,33 @@ const DnDCalendar = withDragAndDrop(Calendar);
 
 // cal func start
 function CalendarComp () {
-    // state //
     const [eventList, setEvents] = useState([]);
+
+    const acJsonList = {acJson};
+    useEffect(() => {
+        const processedEvents = acJsonList.acJson.map((data) => {
+            if(typeof(data.start) === 'object'){
+                return data;
+            }
+            const startArr = data.start.trim().split(",");
+            const endArr = data.end.trim().split(",");
+
+            if(data.start !== data.end){
+                endArr[2] = Number(endArr[2]) + 1; // 마감일 보정값
+            };
+            return {
+                ...data,
+                start: new Date(startArr[0], startArr[1], startArr[2]),
+                end: new Date(endArr[0], endArr[1], endArr[2])
+            };
+        });
+        setEvents(processedEvents);
+    }, []);
+
+    // state //
     Modal.setAppElement("#root"); // 접근 설정    
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [eventTitle, setEventTitle] = useState('');
-
-    // 학사일정 불러오기 + 일정 등록
-    
-    // 학사일정 불러오기 + 일정 등록 end    
 
     // state update
     const handleSelectEvent = (event) => {
