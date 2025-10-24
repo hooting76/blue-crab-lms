@@ -112,7 +112,7 @@ async function getSubmissions() {
 
     try {
         // ✅ DTO 패턴: POST 방식으로 변경
-        const url = `${API_BASE_URL}/api/assignments/submissions`;
+        const url = `${API_BASE_URL}/assignments/submissions`;
         console.log('📡 요청 URL:', url);
 
         const response = await fetch(url, {
@@ -189,7 +189,7 @@ async function gradeAssignment() {
     console.log(JSON.stringify(gradeData, null, 2));
 
     try {
-        const url = `${API_BASE_URL}/api/assignments/${assignmentIdx}/grade`;
+        const url = `${API_BASE_URL}/assignments/${assignmentIdx}/grade`;
         console.log('📡 요청 URL:', url);
 
         const response = await fetch(url, {
@@ -265,7 +265,7 @@ async function updateAssignment() {
     console.log(JSON.stringify(updateData, null, 2));
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/assignments/update`, {
+        const response = await fetch(`${API_BASE_URL}/assignments/update`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -315,7 +315,7 @@ async function deleteAssignment() {
 
     try {
         // ✅ DTO 패턴: POST 방식으로 변경
-        const response = await fetch(`${API_BASE_URL}/api/assignments/delete`, {
+        const response = await fetch(`${API_BASE_URL}/assignments/delete`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
