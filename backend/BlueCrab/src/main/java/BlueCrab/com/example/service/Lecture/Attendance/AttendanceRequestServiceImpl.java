@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -132,7 +134,8 @@ public class AttendanceRequestServiceImpl implements AttendanceRequestService {
                     processApproval(lecSerial, sessionNumber, record, professorIdx);
                     successCount++;
                 } catch (Exception e) {
-                    log.error("출석 승인 실패: studentIdx={}, error={}", record.getStudentIdx(), e.getMessage());
+                    log.error("출석 승인 실패: studentIdx={}, error={}", 
+                              record.getStudentIdx(), e.getMessage(), e);
                     // 개별 실패는 로그만 남기고 계속 진행
                 }
             }
@@ -197,15 +200,29 @@ public class AttendanceRequestServiceImpl implements AttendanceRequestService {
         enrollment.setEnrollmentData(updatedJson);
         enrollmentRepository.save(enrollment);
         
-        // 7. 성적 재계산 (출석 점수 자동 반영)
-        try {
-            gradeCalculationService.calculateStudentGrade(enrollment.getLecIdx(), record.getStudentIdx());
-            log.info("성적 재계산 완료: lecIdx={}, studentIdx={}", enrollment.getLecIdx(), record.getStudentIdx());
-        } catch (Exception e) {
-            log.error("성적 재계산 실패: lecIdx={}, studentIdx={}, error={}", 
-                      enrollment.getLecIdx(), record.getStudentIdx(), e.getMessage());
-            // 성적 재계산 실패해도 출석 승인은 유지 (로그만 남김)
-        }
+        log.info("출석 데이터 저장 완료: lecSerial={}, studentIdx={}, sessionNumber={}", 
+                 lecSerial, record.getStudentIdx(), sessionNumber);
+        
+        // 7. 성적 재계산 (출석 점수 자동 반영) - 별도 트랜잭션으로 실행 (REQUIRES_NEW)
+        // 성적 재계산 실패해도 출석 승인은 유지됨
+        Integer lecIdx = enrollment.getLecIdx();
+        Integer studentIdx = record.getStudentIdx();
+        
+        // 트랜잭션 커밋 후 실행하기 위해 TransactionSynchronization 사용
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                try {
+                    log.info("성적 재계산 시작: lecIdx={}, studentIdx={}", lecIdx, studentIdx);
+                    gradeCalculationService.calculateStudentGrade(lecIdx, studentIdx);
+                    log.info("성적 재계산 완료: lecIdx={}, studentIdx={}", lecIdx, studentIdx);
+                } catch (Exception e) {
+                    log.error("성적 재계산 실패: lecIdx={}, studentIdx={}, error={}", 
+                              lecIdx, studentIdx, e.getMessage(), e);
+                    // 성적 재계산 실패해도 출석 승인은 이미 커밋됨
+                }
+            }
+        });
     }
     
     @Override
