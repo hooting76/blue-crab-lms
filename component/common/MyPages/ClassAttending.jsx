@@ -182,7 +182,7 @@ const fetchNotices = async () => {
 
 
   // 학생 출석 요청
-  const attendanceRequestSubmit = async () => {
+  const attendanceRequestSubmit = async (accessToken, selectedLectureSerial) => {
     try {
       const res = await fetch(`${BASE_URL}/attendance/request`, {
         method: 'POST',
