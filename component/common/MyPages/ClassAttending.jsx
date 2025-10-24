@@ -28,21 +28,20 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
 
 
   // 강의 목록 받아올 때 첫 강의로 기본 선택 설정
-  useEffect(() => {
-    if (lectureList.length > 0) {
-      setSelectedLectureSerial(lectureList[0].lecSerial);
-    }
-  }, [lectureList]);
+    useEffect(() => {
+      if (isProf) {
+        // 교수일 때: lectureList 자체 사용
+        if (lectureList.length > 0) {
+          setSelectedLectureSerial(lectureList[0].lecSerial);
+        }
+      } else {
+        // 교수 아닐 때: lectureList.content 사용
+        if (lectureList?.content?.length > 0) {
+          setSelectedLectureSerial(lectureList.content[0].lecSerial);
+        }
+      }
+    }, [lectureList, isProf]);
 
-  // 강의 선택 변경 핸들러
-  const handleLectureChange = (e) => {
-  setSelectedLectureSerial(e.target.value); // e.target.value = lecSerial
-};
-
-
-console.log("user : ", user);
-console.log("accessToken : ", accessToken);
-console.log("lectureList : ", lectureList);
 
   // 강의 목록 가져오기 (교수/학생 구분)
 const fetchLectureData = async (accessToken, user, isProf) => {
@@ -181,9 +180,6 @@ const fetchNotices = async () => {
   }, [accessToken, selectedLectureSerial]);
 
 
-  console.log("accessToken : ", accessToken);
-  console.log("selectedLectureSerial : ", selectedLectureSerial);
-
   // 학생 출석 요청
   const attendanceRequestSubmit = async () => {
     try {
@@ -195,7 +191,7 @@ const fetchNotices = async () => {
         },
         body: JSON.stringify({
           lecSerial: selectedLectureSerial,
-          sessionNumber: 1, // TODO: 실제 세션 번호 변수 연결
+          sessionNumber: 1 // TODO: 실제 세션 번호 변수 연결
         }),
       });
 
