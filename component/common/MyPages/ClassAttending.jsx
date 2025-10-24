@@ -331,7 +331,7 @@ const fetchNotices = async () => {
                   ✖
                 </button>
                 <CourseDetail
-                  lectureDetails={lectureList.find(
+                  lectureDetails={lectureList.content.find(
                     (lec) => String(lec.lecSerial) === String(selectedLectureSerial)
                   )}
                   currentPage={currentPage}
