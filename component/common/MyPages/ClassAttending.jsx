@@ -50,12 +50,12 @@ const fetchLectureData = async (accessToken, user, isProf) => {
       ? {
           page: 0,
           size: 100,
-          professor: String(user.data.user.id),
+          professor: String(user.data.user.id)
         }
       : {
           page: 0,
           size: 100,
-          studentIdx: String(user.data.user.id)
+          studentIdx: Number(user.data.user.id)
         };
 
     const url = isProf
