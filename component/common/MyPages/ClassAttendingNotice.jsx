@@ -182,17 +182,39 @@ useEffect(() => {
     /** ========== Render ========== */
     return (
         <>
-            <select className="lectureName" onChange={handleLectureChange} value={selectedLectureSerial}>
+            {isProf ? (
+                <select
+                className="lectureName"
+                value={selectedLectureSerial || ''}
+                onChange={handleLectureChange}
+                >
                 {lectureList.length > 0 ? (
-                    lectureList.map((lecture) => (
-                        <option key={lecture.lecIdx} value={lecture.lecSerial}>
-                            {lecture.lecTit}
-                        </option>
+                    lectureList.map((lec) => (
+                    <option key={lec.lecSerial} value={lec.lecSerial}>
+                        {lec.lecTit}
+                    </option>
                     ))
                 ) : (
                     <option disabled>강의 목록 없음</option>
                 )}
-            </select>
+                </select>
+            ) : (
+                <select
+                className="lectureName"
+                value={selectedLectureSerial || ''}
+                onChange={handleLectureChange}
+                >
+                {lectureList?.content?.length > 0 ? (
+                    lectureList.content.map((lec) => (
+                    <option key={lec.lecSerial} value={lec.lecSerial}>
+                        {lec.lecTit}
+                    </option>
+                    ))
+                ) : (
+                    <option disabled>강의 목록 없음</option>
+                )}
+                </select>
+            )}
 
             {isProf && (
                 <div className="profNoticeWriteBtnArea">
