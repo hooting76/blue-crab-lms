@@ -341,42 +341,44 @@ public class AttendanceService {
                 return Map.of(
                     "maxScore", 20.0,
                     "currentScore", 0.0,
-                    "percentage", 0.00
+                    "percentage", 0.00,
+                    "presentCount", 0,
+                    "lateCount", 0,
+                    "absentCount", 0,
+                    "attendanceRate", 0
                 );
             }
 
             enrollmentData = (ObjectNode) objectMapper.readTree(enrollment.getEnrollmentData());
-            String attendanceStr = enrollmentData.has("attendance") ? 
-                    enrollmentData.get("attendance").asText() : "";
-
-            if (attendanceStr == null || attendanceStr.isEmpty()) {
-                // 출석 데이터가 없으면 0점 반환
-                return Map.of(
-                    "maxScore", 20.0,
-                    "currentScore", 0.0,
-                    "percentage", 0.00
-                );
-            }
-
-            // 출석 문자열 파싱
-            Map<Integer, String> attendanceMap = parseAttendanceString(attendanceStr);
-
-            // 출석율 계산 (출석률 = 출석+지각 / 총 회차)
-            // 출석(출): 출석으로 인정
-            // 지각(지): 출석으로 인정 (출석율 계산 시)
-            // 결석(결): 결석
+            
+            // ✅ 새로운 JSON 구조 (attendance.sessions) 읽기
             int presentCount = 0;  // 출석 수
             int lateCount = 0;     // 지각 수
             int absentCount = 0;   // 결석 수
             
-            for (String status : attendanceMap.values()) {
-                if (STATUS_PRESENT.equals(status)) {
-                    presentCount++;
-                } else if (STATUS_LATE.equals(status)) {
-                    lateCount++;
-                } else if (STATUS_ABSENT.equals(status)) {
-                    absentCount++;
+            if (enrollmentData.has("attendance")) {
+                JsonNode attendance = enrollmentData.get("attendance");
+                
+                // summary에서 직접 읽기 (가장 정확)
+                if (attendance.has("summary")) {
+                    JsonNode summary = attendance.get("summary");
+                    presentCount = summary.has("attended") ? summary.get("attended").asInt(0) : 0;
+                    lateCount = summary.has("late") ? summary.get("late").asInt(0) : 0;
+                    absentCount = summary.has("absent") ? summary.get("absent").asInt(0) : 0;
                 }
+            }
+            
+            // 출석 데이터가 없으면 0점 반환
+            if (presentCount == 0 && lateCount == 0 && absentCount == 0) {
+                return Map.of(
+                    "maxScore", 20.0,
+                    "currentScore", 0.0,
+                    "percentage", 0.00,
+                    "presentCount", 0,
+                    "lateCount", 0,
+                    "absentCount", 0,
+                    "attendanceRate", 0
+                );
             }
             
             int attendanceCount = presentCount + lateCount;  // 출석율 = 출석 + 지각
@@ -402,8 +404,8 @@ public class AttendanceService {
             // currentScore도 소수점 둘째자리 반올림
             currentScore = Math.round(currentScore * 100.0) / 100.0;
 
-            log.debug("출석 점수 계산: lecIdx={}, studentIdx={}, 출석문자열={}, 출석={}회, 지각={}회, 결석={}회, currentScore={}, percentage={}%", 
-                    lecIdx, studentIdx, attendanceStr, presentCount, lateCount, absentCount, currentScore, percentage);
+            log.debug("출석 점수 계산: lecIdx={}, studentIdx={}, 출석={}회, 지각={}회, 결석={}회, currentScore={}, percentage={}%", 
+                    lecIdx, studentIdx, presentCount, lateCount, absentCount, currentScore, percentage);
 
             // ✅ maxScore 제거 (gradeConfig에만 존재)
             return Map.of(
