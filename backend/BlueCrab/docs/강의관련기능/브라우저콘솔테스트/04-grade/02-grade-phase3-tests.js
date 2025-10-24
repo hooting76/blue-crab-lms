@@ -161,31 +161,54 @@
             size: size
         });
         
-        if (result?.success && result.data?.data) {
-            const data = result.data.data;
-            const students = data.content || [];
+        if (result?.success && result.data) {
+            // Spring Page 직접 반환 처리 (lecture-test-5 패턴)
+            let data, students;
             
-            console.log(`\n✅ 총 ${data.totalElements}명 수강생`);
-            console.log(`📄 ${data.number + 1}/${data.totalPages} 페이지\n`);
+            if (result.data.content && Array.isArray(result.data.content)) {
+                // Spring Page 직접 반환
+                data = result.data;
+                students = data.content;
+            } else if (result.data.data?.content) {
+                // Wrapper로 감싼 경우
+                data = result.data.data;
+                students = data.content;
+            } else {
+                console.error('❌ 예상하지 못한 응답 구조:', result.data);
+                console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+                return { success: false, error: '응답 파싱 실패' };
+            }
+            
+            console.log(`\n✅ 총 ${data.totalElements || students.length}명 수강생`);
+            console.log(`📄 ${(data.number || 0) + 1}/${data.totalPages || 1} 페이지\n`);
             
             if (students.length > 0) {
                 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
                 students.forEach((s, i) => {
-                    console.log(`${i + 1}. [IDX: ${s.STUDENT_IDX}] ${s.STUDENT_NAME} (${s.STUDENT_NO})`);
-                    console.log(`   학과: ${s.DEPARTMENT || 'N/A'} | 상태: ${s.STATUS}`);
-                    console.log(`   신청일: ${s.ENROLLED_AT}`);
+                    // camelCase 필드명 사용 (lecture-test-5 패턴)
+                    const studentIdx = s.studentIdx || s.STUDENT_IDX;
+                    const studentName = s.studentName || s.STUDENT_NAME;
+                    const studentCode = s.studentCode || s.STUDENT_NO;
+                    const enrollmentStatus = s.enrollmentStatus || s.STATUS;
+                    const enrollmentDate = s.enrollmentDate || s.ENROLLED_AT;
+                    
+                    console.log(`${i + 1}. [IDX: ${studentIdx}] ${studentName} (${studentCode})`);
+                    console.log(`   강의: ${s.lecTit || s.LEC_TIT || config.lecSerial}`);
+                    console.log(`   상태: ${enrollmentStatus} | 등록일: ${enrollmentDate}`);
                     if (i < students.length - 1) console.log('');
                 });
                 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
                 
+                const firstStudent = students[0];
+                const firstIdx = firstStudent.studentIdx || firstStudent.STUDENT_IDX;
                 console.log('💡 Tip: 학생 IDX를 복사해서 setLecture()에 사용하세요!');
-                console.log(`   예: gradePhase3.setLecture("${config.lecSerial}", ${students[0].STUDENT_IDX})`);
+                console.log(`   예: gradePhase3.setLecture("${config.lecSerial}", ${firstIdx})`);
             } else {
                 console.log('⚠️  수강생이 없습니다.');
             }
             
             console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-            return { success: true, data: students, total: data.totalElements };
+            return { success: true, data: students, total: data.totalElements || students.length };
             
         } else {
             console.error('❌ 조회 실패:', result.error);

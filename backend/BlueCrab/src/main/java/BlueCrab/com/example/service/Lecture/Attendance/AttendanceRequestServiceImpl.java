@@ -4,6 +4,7 @@ import BlueCrab.com.example.dto.Lecture.Attendance.*;
 import BlueCrab.com.example.entity.Lecture.EnrollmentExtendedTbl;
 import BlueCrab.com.example.repository.Lecture.EnrollmentExtendedTblRepository;
 import BlueCrab.com.example.service.Lecture.AttendanceRequestService;
+import BlueCrab.com.example.service.Lecture.GradeCalculationService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -32,14 +33,17 @@ public class AttendanceRequestServiceImpl implements AttendanceRequestService {
     
     private final EnrollmentExtendedTblRepository enrollmentRepository;
     private final ObjectMapper objectMapper;
+    private final GradeCalculationService gradeCalculationService;
     
     @Autowired
     public AttendanceRequestServiceImpl(
         EnrollmentExtendedTblRepository enrollmentRepository,
-        ObjectMapper objectMapper
+        ObjectMapper objectMapper,
+        GradeCalculationService gradeCalculationService
     ) {
         this.enrollmentRepository = enrollmentRepository;
         this.objectMapper = objectMapper;
+        this.gradeCalculationService = gradeCalculationService;
     }
     
     @Override
@@ -191,6 +195,16 @@ public class AttendanceRequestServiceImpl implements AttendanceRequestService {
         String updatedJson = serializeToEnrollmentData(attendanceData, enrollment.getEnrollmentData());
         enrollment.setEnrollmentData(updatedJson);
         enrollmentRepository.save(enrollment);
+        
+        // 7. 성적 재계산 (출석 점수 자동 반영)
+        try {
+            gradeCalculationService.calculateStudentGrade(enrollment.getLecIdx(), record.getStudentIdx());
+            log.info("성적 재계산 완료: lecIdx={}, studentIdx={}", enrollment.getLecIdx(), record.getStudentIdx());
+        } catch (Exception e) {
+            log.error("성적 재계산 실패: lecIdx={}, studentIdx={}, error={}", 
+                      enrollment.getLecIdx(), record.getStudentIdx(), e.getMessage());
+            // 성적 재계산 실패해도 출석 승인은 유지 (로그만 남김)
+        }
     }
     
     @Override
