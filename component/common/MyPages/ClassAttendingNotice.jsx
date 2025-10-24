@@ -101,7 +101,7 @@ useEffect(() => {
 // 처음 mount나 userId/accessToken 바뀔 때 강의 목록 fetch
 useEffect(() => {
     if (accessToken && userId) {
-        fetchLectureData(accessToken, userId, isProf);
+        fetchLectureData(accessToken, user, isProf);
     }
 }, [accessToken, userId]);
 
