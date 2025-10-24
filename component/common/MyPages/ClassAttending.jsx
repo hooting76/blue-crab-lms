@@ -19,6 +19,7 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
   const page = 0;
   const NOTICE_BOARD_CODE = 3;
   const sessionNumber = 1;
+  const requestReason = "";
 
   // 모달 상태들
   const [isEvaluationModalOpen, setIsEvaluationModalOpen] = useState(false);
