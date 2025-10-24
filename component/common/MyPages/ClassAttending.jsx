@@ -7,6 +7,7 @@ import TestModal from './TestModal.jsx';
 import AssignmentCreateModal from './AssignmentCreateModal.jsx';
 import ProfNoticeWritingPage from './ProfNoticeWritingPage.jsx';
 import CourseDetail from './CourseDetail';
+import AssignmentDetailModal from './AssignmentDetailModal.jsx';
 
 function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, setSelectedLectureSerial }) {
   const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
@@ -27,6 +28,7 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
   const [isTestModalOpen, setIsTestModalOpen] = useState(false);
   const [isAssignmentCreateModalOpen, setIsAssignmentCreateModalOpen] = useState(false);
   const [isClassDetailModalOpen, setIsClassDetailModalOpen] = useState(false);
+  const [isAssignmentDetailModalOpen, setIsAssignmentDetailModalOpen] = useState(false);
 
 
   // 강의 목록 받아올 때 첫 강의로 기본 선택 설정
@@ -235,6 +237,8 @@ const fetchNotices = async () => {
   const closeAssignmentCreateModal = () => setIsAssignmentCreateModalOpen(false);
   const openClassDetailModal = () => setIsClassDetailModalOpen(true);
   const closeClassDetailModal = () => setIsClassDetailModalOpen(false);
+  const openAssignmentDetailModal = () => setIsAssignmentDetailModalOpen(true);
+  const closeAssignmentDetailModal = () => setIsAssignmentDetailModalOpen(false);
 
   // 과목별 공지 페이지 렌더링
   if (currentPage === "수강/강의과목 공지사항") {
@@ -452,6 +456,8 @@ const fetchNotices = async () => {
                       return `${year}-${month}-${day}`;
                     };
 
+                    console.log("assignmentList.content : ", assignmentList.content);
+
                     return (
                       <tr key={assignment.assignmentIdx}>
                         <td>{index + 1}</td>
@@ -474,6 +480,12 @@ const fetchNotices = async () => {
               onClose={closeAssignmentCreateModal}
               lecSerial={selectedLectureSerial}
               lecTitle={lectureList.find(lec => lec.lecSerial === selectedLectureSerial)?.lecTit || ''}
+            />
+          )}
+
+          {isAssignmentDetailModalOpen && (
+            <AssignmentDetailModal
+              onClose={closeAssignmentDetailModal}
             />
           )}
 
