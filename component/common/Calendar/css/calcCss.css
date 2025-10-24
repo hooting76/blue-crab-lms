@@ -45,21 +45,6 @@
     border: 1px solid #4084dd;
     box-sizing: border-box;
 }
-.rbc-today::after{
-    content: 'Today!';
-    display: block;
-    color: #fff;
-    font-size: 15px;
-    font-weight: bold;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: fit-content;
-    height: fit-content;
-    background: #4084dd;
-    padding: 2.5px;
-    border-radius: 0 0 5px 0;
-}
 
 .zeroDay{
     position: relative;
@@ -68,4 +53,16 @@
 .sixDay{
     position: relative;
     background: rgba(0, 0, 255,.1);
+}
+
+.rbc-event, .rbc-day-slot .rbc-background-event{
+    background: #4084dd;
+    line-height: normal;
+    text-align: center;
+}
+
+.rbc-event-content{
+    font-size: 15px;
+    font-weight: bold;
+    line-height: normal;
 }
