@@ -156,43 +156,44 @@ async function getSubmissions() {
     }
 }
 
-// ========== 과제 채점 ==========
+// ========== 과제 채점 (오프라인 제출 방식) ==========
 async function gradeAssignment() {
     if (!checkAuth()) return;
     const token = window.authToken;
     
     const assignmentIdx = window.lastAssignmentIdx || parseInt(prompt('📄 과제 IDX:', '1'));
-    const studentCode = prompt('👨‍🎓 학생번호 (예: 1, STU001):', '1');
-    const submissionMethod = prompt('📤 제출 방법 (예: email, print, hands, absent):', 'email');
-    const score = parseInt(prompt('💯 점수 (0~10):', '10'));
+    const studentIdx = parseInt(prompt('👨‍🎓 학생 IDX:', '6'));
+    const score = parseInt(prompt('� 점수 (0~10):', '8'));
+    const feedback = prompt('� 평가 코멘트:', '잘 작성되었습니다.');
 
-    if (!assignmentIdx || !studentCode || !submissionMethod || score === null) {
+    if (!assignmentIdx || !studentIdx || score === null) {
         console.log('❌ 필수 입력값이 없습니다.');
         return;
     }
 
-    console.log('\n💯 과제 채점');
+    console.log('\n💯 과제 채점 (오프라인 제출)');
     console.log('═══════════════════════════════════════════════════════');
     console.log(`📄 과제 IDX: ${assignmentIdx}`);
-    console.log(`👨‍🎓 학생번호: ${studentCode}`);
-    console.log(`📤 제출 방법: ${submissionMethod}`);
-    console.log(`💯 점수: ${score}점`);
+    console.log(`👨‍🎓 학생 IDX: ${studentIdx}`);
+    console.log(`� 점수: ${score}점`);
+    console.log(`� 코멘트: ${feedback || '(없음)'}`);
 
-    // ✅ DTO 패턴
+    // ✅ 백엔드 API: PUT /api/assignments/{assignmentIdx}/grade
     const gradeData = {
-        assignmentIdx: assignmentIdx,
-        studentCode: studentCode,
-        submissionMethod: submissionMethod,
+        studentIdx: studentIdx,
         score: score,
-        action: 'grade'
+        feedback: feedback || ''
     };
 
     console.log('\n📤 요청 데이터:');
     console.log(JSON.stringify(gradeData, null, 2));
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/assignments/grade`, {
-            method: 'POST',
+        const url = `${API_BASE_URL}/api/assignments/${assignmentIdx}/grade`;
+        console.log('📡 요청 URL:', url);
+
+        const response = await fetch(url, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
@@ -206,14 +207,14 @@ async function gradeAssignment() {
         console.log('\n🔍 전체 응답:');
         console.log(JSON.stringify(result, null, 2));
 
-        if (response.ok || result.success) {
+        if (response.ok) {
             console.log('\n✅ 채점 성공!');
-            const grade = result.data || result;
-            console.log('📊 채점 정보:');
-            console.log(`   학생: ${grade.studentName || 'N/A'}`);
-            console.log(`   제출 방법: ${grade.submissionMethod || submissionMethod}`);
-            console.log(`   점수: ${grade.score || score}/${grade.maxScore || 10}점`);
-            console.log(`   채점 일시: ${grade.gradedDate || new Date().toISOString()}`);
+            console.log('📋 채점 완료 정보:', result);
+            
+            console.log('\n🔍 백엔드 로그 확인:');
+            console.log('   - "과제 채점으로 인한 성적 재계산 이벤트 발행"');
+            console.log('   - "성적 재계산 시작: lecIdx=X, studentIdx=Y"');
+            console.log('   - "성적 재계산 완료"');
         } else {
             console.log('❌ 채점 실패 [' + response.status + ']:', result.message || result);
         }

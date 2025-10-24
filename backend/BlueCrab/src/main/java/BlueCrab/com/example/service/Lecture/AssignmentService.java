@@ -9,6 +9,8 @@ import BlueCrab.com.example.repository.Lecture.LecTblRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -58,6 +62,8 @@ import java.util.Optional;
 @Service
 @Transactional(readOnly = true)
 public class AssignmentService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AssignmentService.class);
 
     @Autowired
     private AssignmentExtendedTblRepository assignmentRepository;
@@ -203,16 +209,32 @@ public class AssignmentService {
 
         try {
             Map<String, Object> data = parseAssignmentData(assignment.getAssignmentData());
-            List<Map<String, Object>> submissions = (List<Map<String, Object>>) data.getOrDefault("submissions", List.of());
+            List<Map<String, Object>> submissions = new ArrayList<>((List<Map<String, Object>>) data.getOrDefault("submissions", List.of()));
             
-            // 해당 학생의 제출물 찾기
+            // 해당 학생의 제출물 찾기 또는 생성 (오프라인 제출 방식)
+            boolean found = false;
             for (Map<String, Object> submission : submissions) {
                 if (submission.get("studentIdx").equals(studentIdx)) {
                     submission.put("score", score);
                     submission.put("feedback", feedback);
                     submission.put("gradedAt", getCurrentDateTime());
+                    found = true;
                     break;
                 }
+            }
+            
+            // ✅ 오프라인 제출: 학생이 없으면 새로 생성
+            if (!found) {
+                Map<String, Object> newSubmission = new HashMap<>();
+                newSubmission.put("studentIdx", studentIdx);
+                newSubmission.put("score", score);
+                newSubmission.put("feedback", feedback);
+                newSubmission.put("submittedAt", getCurrentDateTime()); // 오프라인 제출 시각
+                newSubmission.put("gradedAt", getCurrentDateTime());
+                newSubmission.put("submissionMethod", "offline"); // 오프라인 제출 표시
+                submissions.add(newSubmission);
+                logger.info("오프라인 제출 학생 submission 생성: assignmentIdx={}, studentIdx={}, score={}", 
+                    assignmentIdx, studentIdx, score);
             }
             
             data.put("submissions", submissions);
