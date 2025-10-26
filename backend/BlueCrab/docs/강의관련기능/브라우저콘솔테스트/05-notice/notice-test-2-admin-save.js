@@ -7,6 +7,8 @@
  * 1. 관리자 로그인 (00-login/admin-login.js)
  * 2. 브라우저 콘솔에 이 코드 복사/붙여넣기
  * 3. await testSaveNotice() 실행 (프롬프트에서 메시지 입력)
+ * 
+ * 간편 함수: save(), saveAndView(), testSample(), clear()
  */
 
 const API_BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0';
@@ -142,20 +144,20 @@ async function saveAndViewNotice(message) {
 }
 
 /**
- * 안내문 삭제 (빈 메시지로 업데이트)
+ * 안내문 삭제 (빈 메시지로 클리어)
  */
-async function deleteNotice() {
-  console.log('🗑️ 안내문 삭제 (빈 내용으로 업데이트)...\n');
+async function clearNotice() {
+  console.log('🗑️ 안내문 클리어 (빈 내용으로 업데이트)...\n');
   console.log('⚠️ 주의: 실제로는 삭제가 아닌 빈 메시지로 업데이트됩니다.');
   console.log('데이터베이스에서 레코드는 유지됩니다.\n');
   
-  const confirmDelete = window.confirm('정말 안내문을 삭제하시겠습니까?');
-  if (!confirmDelete) {
-    console.log('❌ 삭제가 취소되었습니다.');
+  const confirmClear = window.confirm('정말 안내문을 클리어하시겠습니까?');
+  if (!confirmClear) {
+    console.log('❌ 클리어가 취소되었습니다.');
     return null;
   }
   
-  return await testSaveNotice('(안내문 없음)');
+  return await testSaveNotice('(안내문 없음 - 시스템 메시지)');
 }
 
 /**
@@ -181,9 +183,9 @@ async function testSampleNotice() {
 }
 
 /**
- * 간편 실행 함수들
+ * 간편 실행 함수들 (메인 함수들의 alias)
  */
-async function saveNotice(message) {
+async function save(message) {
   return await testSaveNotice(message);
 }
 
@@ -195,12 +197,20 @@ async function testSample() {
   return await testSampleNotice();
 }
 
+async function clear() {
+  return await clearNotice();
+}
+
 console.log('📢 안내문 저장 테스트 로드 완료');
 console.log('\n📋 사용 가능한 함수:');
 console.log('  1. await testSaveNotice()            - 프롬프트로 메시지 입력 후 저장');
 console.log('  2. await testSaveNotice("메시지")    - 직접 메시지 전달하여 저장');
 console.log('  3. await saveAndViewNotice()         - 프롬프트로 입력 후 저장+조회');
 console.log('  4. await testSampleNotice()          - 샘플 안내문 저장');
-console.log('  5. await deleteNotice()              - 안내문 삭제 (확인 프롬프트)');
+console.log('  5. await clearNotice()               - 안내문 클리어 (빈 메시지)');
+console.log('\n💡 간편 함수 (짧은 이름):');
+console.log('  - await save("메시지")               - 저장');
+console.log('  - await saveAndView("메시지")        - 저장+조회');
+console.log('  - await testSample()                 - 샘플 저장');
+console.log('  - await clear()                      - 클리어');
 console.log('\n💡 먼저 관리자 로그인이 필요합니다: await adminLogin()');
-console.log('💡 간편 함수: saveNotice(), saveAndView(), testSample()');

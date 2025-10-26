@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -186,14 +187,14 @@ public class EnrollmentService {
     /* 초기 enrollmentData JSON 생성 */
     private String createInitialEnrollmentData() {
         try {
-            Map<String, Object> data = Map.of(
-                "enrollment", Map.of(
-                    "status", "ENROLLED",
-                    "enrollmentDate", getCurrentDateTime()
-                ),
-                "attendance", List.of(),
-                "grade", Map.of()
-            );
+            Map<String, Object> data = new HashMap<>();
+            data.put("enrollment", Map.of(
+                "status", "ENROLLED",
+                "enrollmentDate", getCurrentDateTime()
+            ));
+            data.put("attendance", List.of());
+            data.put("grade", Map.of());
+            data.put("gradeConfig", null);
             return objectMapper.writeValueAsString(data);
         } catch (JsonProcessingException e) {
             return "{}";
