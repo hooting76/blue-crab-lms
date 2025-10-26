@@ -35,7 +35,17 @@ const AssignmentDetailModal = ({onClose, assignmentIdx}) => {
     }
   }, [accessToken, assignmentIdx]);
 
-    console.log("assignmentData : ", assignmentData);
+
+  // YYYYMMDD → YYYY-MM-DD 변환 함수
+    const formatDate = (dateStr) => {
+    if (!dateStr || dateStr.length !== 8) return dateStr; // 잘못된 값이면 그대로 반환
+    const year = dateStr.slice(0, 4);
+    const month = dateStr.slice(4, 6);
+    const day = dateStr.slice(6, 8);
+    return `${year}-${month}-${day}`;
+    };
+
+
 
     return (
     <div className="assignment-detail-modal-container">
@@ -44,7 +54,7 @@ const AssignmentDetailModal = ({onClose, assignmentIdx}) => {
             <>
             <div>과제 제목: {assignmentData.assignment.title}</div>
             <div>과제 설명: {assignmentData.assignment.description}</div>
-            <div>마감일: {assignmentData.assignment.dueDate}</div>
+            <div>마감일: {assignmentData ? formatDate(assignmentData.assignment.dueDate) : "로딩 중..."}</div>
             <div>배점: {maxScore}</div>
             </>
         ) : (
