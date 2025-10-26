@@ -134,7 +134,8 @@
     function promptConfig() {
         console.log('\n⚙️  성적 구성 설정 입력');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('💡 과제 총점은 과제 생성 시 자동 누적되므로 설정 불필요');
+        console.log('💡 이 설정은 로컬에만 저장됩니다.');
+        console.log('   서버 반영: await gradePhase1.config()');
         console.log('');
         
         const attendance = prompt('출석 만점 (기본: 80):', config.attendanceMaxScore);
@@ -165,13 +166,14 @@
             }
         }
         
-        console.log('\n✅ 성적 구성 업데이트:');
+        console.log('\n✅ 로컬 설정 업데이트:');
         console.log(`   출석 만점: ${config.attendanceMaxScore}점`);
         console.log(`   지각 페널티: ${config.latePenaltyPerSession}점/회`);
         console.log(`   등급 분포:`, config.gradeDistribution);
         console.log('');
-        console.log('💡 과제 총점은 서버에서 자동 계산됩니다.');
-        console.log('   최종 점수 = (출석율 × 출석만점) + (과제점수합계)');
+        console.log('⚠️  주의: 로컬 설정만 변경되었습니다!');
+        console.log('💡 서버 반영: await gradePhase1.config()');
+        console.log('   → 서버 저장 시 과제 만점도 자동 계산됩니다.');
         
         return config;
     }
@@ -241,7 +243,6 @@
                 console.log('\n📊 서버 설정:');
                 console.log(`   출석 만점: ${serverConfig.attendanceMaxScore || 'N/A'}점`);
                 console.log(`   과제 총점: ${serverConfig.assignmentTotalScore || 'N/A'}점`);
-                console.log(`   시험 총점: ${serverConfig.examTotalScore || 'N/A'}점`);
                 console.log(`   지각 페널티: ${serverConfig.latePenaltyPerSession || 0}점/회`);
                 console.log(`   총 만점: ${serverConfig.totalMaxScore || 'N/A'}점`);
                 
@@ -382,7 +383,8 @@
         console.log(`   지각 페널티: ${data.latePenaltyPerSession}점/회`);
         console.log(`   등급 분포:`, data.gradeDistribution);
         console.log('');
-        console.log('💡 과제 총점은 서버에서 자동 계산 (과제 생성 시 누적)');
+        console.log('💡 설정 저장 시 모든 학생의 성적이 재계산됩니다.');
+        console.log('   → 과제 만점이 자동으로 grade.total.maxScore에 반영됩니다!');
         
         const result = await apiCall(`/enrollments/grade-config`, data);
         
@@ -430,7 +432,7 @@
                 console.log('  ⚙️  성적 구성:');
                 console.log(`    - 출석 만점: ${d.gradeConfig.attendanceMaxScore || 'N/A'}점`);
                 console.log(`    - 과제 총점: ${d.gradeConfig.assignmentTotalScore || 'N/A'}점`);
-                console.log(`    - 시험 총점: ${d.gradeConfig.examTotalScore || 'N/A'}점`);
+                console.log(`    - 총 만점: ${d.gradeConfig.totalMaxScore || 'N/A'}점`);
                 console.log(`    - 지각 페널티: ${d.gradeConfig.latePenaltyPerSession || 0}점/회`);
             }
             
