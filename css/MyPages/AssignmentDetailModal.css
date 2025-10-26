@@ -1,4 +1,4 @@
-.assignment-create-modal-container {
+.assignment-detail-modal-container {
     position: fixed;
     top: 0;
     left: 0;
@@ -11,8 +11,9 @@
     z-index: 999;
 }
 
-.assignment-create-modal-content {
+.assignment-detail-modal-content {
     font-size: var(--font-mid);
+    text-align: center;
     background-color: white;
     padding: 25px;
     border-radius: 8px;
@@ -24,6 +25,6 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
-.assignmentCreateSubmitBtn, .assignmentCreateModalCloseBtn {
+.assignmentDeleteBtn, .assignmentDetailCloseBtn {
     font-size: var(--font-mid);
 }

@@ -77,9 +77,9 @@ const AssignmentCreateModal = ({ onClose, lecSerial, lecTitle }) => {
                 </div>
                 <div>배점: {maxScore}</div>
 
-                <button onClick={submitAssignmentCreate}>과제 생성</button>
+                <button className="assignmentCreateSubmitBtn" onClick={submitAssignmentCreate}>과제 생성</button>
                 <br/>
-                <button onClick={onClose}>닫기</button>
+                <button className="assignmentCreateModalCloseBtn" onClick={onClose}>닫기</button>
             </div>
         </div>
     );

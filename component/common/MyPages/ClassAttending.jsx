@@ -189,6 +189,14 @@ const fetchNotices = async () => {
     getAssignments(accessToken, selectedLectureSerial);
   }, [accessToken, selectedLectureSerial]);
 
+  // ✅ 과제 삭제 후 목록 갱신 함수 추가
+  const handleDeleteAssignment = async (deletedIdx) => {
+    console.log("삭제된 과제:", deletedIdx);
+    await getAssignments(accessToken, selectedLectureSerial); // 최신 목록 다시 불러오기
+    alert("과제가 삭제되어 목록이 갱신되었습니다.");
+  };
+
+
 
   // 학생 출석 요청
  const attendanceRequestSubmit = async () => {
@@ -489,9 +497,11 @@ const fetchNotices = async () => {
           {isAssignmentDetailModalOpen && (
             <AssignmentDetailModal
               onClose={closeAssignmentDetailModal}
-              assignmentIdx={selectedAssignmentIdx} // 전달
+              onDelete={handleDeleteAssignment}   // ✅ 추가
+              assignmentIdx={selectedAssignmentIdx}
             />
           )}
+
 
           {isProf && isTestModalOpen && <TestModal onClose={closeTestModal} />}
         </div>
