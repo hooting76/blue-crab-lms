@@ -25,37 +25,36 @@ const AssignmentDetailModal = ({onClose, assignmentIdx}) => {
             setAssignmentData(data);
         } catch (error) {
             console.error('과제 상세 에러:', error);
-            setAssignmentData();
+            setAssignmentData(null);
         }
     }
 
     useEffect(() => {
     if (accessToken && assignmentIdx) {
-      fetchAssignmentData(accessToken, assignmentIdx);
+      fetchAssignmentData();
     }
   }, [accessToken, assignmentIdx]);
 
     console.log("assignmentData : ", assignmentData);
 
     return (
-            <div className="assignment-detail-modal-container">
-                <div className="assignment-detail-modal-content">
-                    <div>과제 제목:
-                        {assignmentData.assignment.title}
-                    </div>
-                    <div>과제 설명:
-                        {assignmentData.assignment.description}
-                    </div>
-                    <div>마감일:
-                        {assignmentData.assignment.dueDate}
-                    </div>
-                    <div>배점: {maxScore}</div>
-    
-                    
-                    <button className="assignmentDetailCloseBtn" onClick={onClose}>닫기</button>
-                </div>
-            </div>
-        );
+    <div className="assignment-detail-modal-container">
+        <div className="assignment-detail-modal-content">
+        {assignmentData ? (
+            <>
+            <div>과제 제목: {assignmentData.assignment.title}</div>
+            <div>과제 설명: {assignmentData.assignment.description}</div>
+            <div>마감일: {assignmentData.assignment.dueDate}</div>
+            <div>배점: {maxScore}</div>
+            </>
+        ) : (
+            <div>로딩 중...</div>
+        )}
+        <button className="assignmentDetailCloseBtn" onClick={onClose}>닫기</button>
+        </div>
+    </div>
+    );
+
 }
 
 export default AssignmentDetailModal;
