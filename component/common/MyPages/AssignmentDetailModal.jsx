@@ -25,10 +25,12 @@ const AssignmentDetailModal = ({onClose}) => {
         }
     }
 
+    console.log("assignmentDetail : ", assignmentDetail);
+
     return (
             <div className="assignment-detail-modal-container">
                 <div className="assignment-detail-modal-content">
-                    <div>과목: {lecTitle}</div>
+                    <div>과목: </div>
                     <div>과제 제목:
                         
                     </div>
