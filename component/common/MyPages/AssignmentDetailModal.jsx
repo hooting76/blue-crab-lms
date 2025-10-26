@@ -7,12 +7,12 @@ const AssignmentDetailModal = ({onClose, assignmentIdx}) => {
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
     const {user} = UseUser();
     const accessToken = user.data.accessToken;
-    const [assignmentDetail, setAssignmentDetail] = useState();
+    const [assignmentData, setAssignmentData] = useState();
 
-    const fetchAssignmentDetail = async () => {
+    const fetchAssignmentData = async () => {
         const requestBody = {assignmentIdx: assignmentIdx}
         try {
-            const response = await fetch(`${BASE_URL}/assignments/detail`, {
+            const response = await fetch(`${BASE_URL}/assignments/data`, {
                 method: "POST",
                 headers: {
                 'Authorization': `Bearer ${accessToken}`,
@@ -22,33 +22,32 @@ const AssignmentDetailModal = ({onClose, assignmentIdx}) => {
             });
             if (!response.ok) throw new Error('과제 상세 조회 실패');
             const data = await response.json();
-            setAssignmentDetail(data);
+            setAssignmentData(data);
         } catch (error) {
             console.error('과제 상세 에러:', error);
-            setAssignmentDetail();
+            setAssignmentData();
         }
     }
 
     useEffect(() => {
     if (accessToken && assignmentIdx) {
-      fetchAssignmentDetail(accessToken, assignmentIdx);
+      fetchAssignmentData(accessToken, assignmentIdx);
     }
   }, [accessToken, assignmentIdx]);
 
-    console.log("assignmentDetail : ", assignmentDetail);
+    console.log("assignmentData : ", assignmentData);
 
     return (
             <div className="assignment-detail-modal-container">
                 <div className="assignment-detail-modal-content">
-                    <div>과목: </div>
                     <div>과제 제목:
-                        {assignmentDetail.assignmentData.title}
+                        {assignmentData.assignment.title}
                     </div>
                     <div>과제 설명:
-                        {assignmentDetail.assignmentData.description}
+                        {assignmentData.assignment.description}
                     </div>
                     <div>마감일:
-                        {assignmentDetail.assignmentData.dueDate}
+                        {assignmentData.assignment.dueDate}
                     </div>
                     <div>배점: {maxScore}</div>
     
