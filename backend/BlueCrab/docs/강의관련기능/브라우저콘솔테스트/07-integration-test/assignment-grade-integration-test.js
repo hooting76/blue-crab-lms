@@ -164,7 +164,7 @@ async function checkInitialGrade(lecSerial, studentIdx) {
     
     const gradeInfo = gradeData.grade || {};
     console.log('📊 현재 성적 (요약):', {
-        attendance: gradeInfo.attendance,
+        attendanceScore: gradeInfo.attendanceScore,
         assignments: gradeInfo.assignments,
         total: gradeInfo.total
     });
@@ -302,7 +302,7 @@ async function verifyGradeUpdate(lecSerial, studentIdx, initialState) {
     
     const gradeInfo = updatedGrade.grade || {};
     console.log('📊 업데이트된 성적 (요약):', {
-        attendance: gradeInfo.attendance,
+        attendanceScore: gradeInfo.attendanceScore,
         assignments: gradeInfo.assignments,
         total: gradeInfo.total
     });
@@ -488,7 +488,7 @@ async function quickCheckStudentGrade(lecSerial, studentIdx) {
     if (result.ok) {
         console.log('✅ 조회 성공!');
         const gradeInfo = result.data.data.grade || {};
-        console.log('출석:', gradeInfo.attendance);
+        console.log('출석:', gradeInfo.attendanceScore);
         console.log('과제:', gradeInfo.assignments);
         console.log('총점:', gradeInfo.total);
         return result.data.data;

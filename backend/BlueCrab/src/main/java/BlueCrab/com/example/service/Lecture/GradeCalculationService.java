@@ -45,8 +45,10 @@ public class GradeCalculationService {
      * - 과제 점수 집계
      * - 총점 및 백분율 계산
      * - ENROLLMENT_DATA JSON 업데이트
+     * 
+     * ✅ REQUIRES_NEW: 독립 트랜잭션으로 실행하여 외부 트랜잭션 롤백 영향 방지
      */
-    @Transactional
+    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
     public Map<String, Object> calculateStudentGrade(Integer lecIdx, Integer studentIdx) {
         try {
             // 1. 수강신청 정보 조회
@@ -90,7 +92,8 @@ public class GradeCalculationService {
                 attendanceData.put("percentage", percentage);
             }
             
-            gradeData.put("attendance", attendanceData);
+            // ✅ 필드명 변경: attendance → attendanceScore (성적 계산 결과)
+            gradeData.put("attendanceScore", attendanceData);
 
             // 6. 과제 점수 집계
             List<Map<String, Object>> assignmentScores = calculateAssignmentScores(lecIdx, studentIdx);

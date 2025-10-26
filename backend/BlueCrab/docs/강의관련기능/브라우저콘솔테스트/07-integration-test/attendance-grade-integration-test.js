@@ -201,10 +201,10 @@ async function checkInitialState(lecSerial, studentIdx) {
     const gradeData = gradeResult.data.data;
     console.log('📊 현재 성적 (전체):', gradeData);
     
-    // API 응답 구조: { grade: { attendance: {...}, assignments: [...], total: {...} } }
+    // API 응답 구조: { grade: { attendanceScore: {...}, assignments: [...], total: {...} } }
     const gradeInfo = gradeData.grade || {};
     console.log('📊 현재 성적 (요약):', {
-        attendance: gradeInfo.attendance,
+        attendanceScore: gradeInfo.attendanceScore,
         assignments: gradeInfo.assignments,
         total: gradeInfo.total
     });
@@ -307,10 +307,10 @@ async function verifyGradeUpdate(lecSerial, initialState) {
     const updatedGrade = gradeResult.data.data;
     console.log('📊 업데이트된 성적 (전체):', updatedGrade);
     
-    // API 응답 구조: { grade: { attendance: {...}, assignments: [...], total: {...} } }
+    // API 응답 구조: { grade: { attendanceScore: {...}, assignments: [...], total: {...} } }
     const gradeInfo = updatedGrade.grade || {};
     console.log('📊 업데이트된 성적 (요약):', {
-        attendance: gradeInfo.attendance,
+        attendanceScore: gradeInfo.attendanceScore,
         assignments: gradeInfo.assignments,
         total: gradeInfo.total
     });
@@ -320,8 +320,8 @@ async function verifyGradeUpdate(lecSerial, initialState) {
     console.log('═'.repeat(70));
 
     if (initialState.grade) {
-        const oldScore = initialState.grade.attendance?.currentScore || 0;
-        const newScore = gradeInfo.attendance?.currentScore || 0;
+        const oldScore = initialState.grade.attendanceScore?.currentScore || 0;
+        const newScore = gradeInfo.attendanceScore?.currentScore || 0;
         const diff = newScore - oldScore;
 
         console.log(`출석 점수: ${oldScore} → ${newScore} (${diff > 0 ? '+' : ''}${diff})`);
@@ -333,14 +333,14 @@ async function verifyGradeUpdate(lecSerial, initialState) {
             console.log('💡 DB 상태: currentScore =', oldScore);
         }
     } else {
-        console.log(`출석 점수: (없음) → ${gradeInfo.attendance?.currentScore || 0}`);
+        console.log(`출석 점수: (없음) → ${gradeInfo.attendanceScore?.currentScore || 0}`);
         console.log('✅ 성적이 새로 생성되었습니다!');
     }
 
     return {
         updated: gradeInfo,  // grade 객체만 반환
         changed: initialState.grade ? 
-            (gradeInfo.attendance?.currentScore || 0) !== (initialState.grade.attendance?.currentScore || 0) : 
+            (gradeInfo.attendanceScore?.currentScore || 0) !== (initialState.grade.attendanceScore?.currentScore || 0) : 
             true
     };
 }
@@ -472,7 +472,7 @@ async function quickCheckGrade(lecSerial) {
     if (result.ok) {
         console.log('✅ 조회 성공!');
         const gradeInfo = result.data.data.grade || {};
-        console.log('출석:', gradeInfo.attendance);
+        console.log('출석:', gradeInfo.attendanceScore);
         console.log('과제:', gradeInfo.assignments);
         console.log('총점:', gradeInfo.total);
         return result.data.data;

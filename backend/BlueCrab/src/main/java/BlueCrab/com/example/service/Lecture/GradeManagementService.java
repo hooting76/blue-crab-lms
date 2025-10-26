@@ -99,7 +99,7 @@ public class GradeManagementService {
             
             for (EnrollmentExtendedTbl enrollment : enrollments) {
                 try {
-                    // 기존 ENROLLMENT_DATA 파싱 (null 안전 처리)
+                    // ✅ Step 1: gradeConfig만 먼저 저장 (calculateStudentGrade가 읽을 수 있도록)
                     Map<String, Object> currentData = parseEnrollmentData(enrollment.getEnrollmentData());
                     if (currentData == null) {
                         currentData = new HashMap<>();
@@ -111,12 +111,13 @@ public class GradeManagementService {
                     // JSON 직렬화 및 저장
                     String updatedJson = objectMapper.writeValueAsString(currentData);
                     enrollment.setEnrollmentData(updatedJson);
-                    enrollmentRepository.save(enrollment);
+                    enrollmentRepository.saveAndFlush(enrollment);  // ✅ 즉시 DB 반영
+                    
+                    // ✅ Step 2: 성적 재계산 (gradeConfig를 읽어서 grade 필드를 계산하고 저장)
+                    // 주의: calculateStudentGrade()가 REQUIRES_NEW 트랜잭션이므로 독립적으로 실행됨
+                    gradeCalculationService.calculateStudentGrade(lecIdx, enrollment.getStudentIdx());
                     
                     updatedCount++;
-                    
-                    // ✅ TODO: 성적 재계산은 별도 API로 분리 (일단 주석 처리)
-                    // gradeCalculationService.calculateStudentGrade(lecIdx, enrollment.getStudentIdx());
                     
                 } catch (Exception e) {
                     // 개별 학생 처리 실패 시 로그만 남기고 계속 진행
@@ -295,7 +296,8 @@ public class GradeManagementService {
 
             // 성적 데이터
             if (gradeData != null) {
-                studentGrade.put("attendance", gradeData.get("attendance"));
+                // ✅ 필드명 변경: attendance → attendanceScore
+                studentGrade.put("attendanceScore", gradeData.get("attendanceScore"));
                 studentGrade.put("assignments", gradeData.get("assignments"));
                 studentGrade.put("total", gradeData.get("total"));
                 studentGrade.put("letterGrade", gradeData.get("letterGrade"));
