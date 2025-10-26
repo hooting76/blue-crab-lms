@@ -95,42 +95,63 @@ public class GradeManagementService {
             // ✅ DB에 gradeConfig 저장 및 모든 수강생의 성적 재계산
             List<EnrollmentExtendedTbl> enrollments = enrollmentRepository.findStudentsByLecture(lecIdx);
             int updatedCount = 0;
+            int failedCount = 0;
             
             for (EnrollmentExtendedTbl enrollment : enrollments) {
                 try {
-                    // 기존 ENROLLMENT_DATA 파싱
+                    // 기존 ENROLLMENT_DATA 파싱 (null 안전 처리)
                     Map<String, Object> currentData = parseEnrollmentData(enrollment.getEnrollmentData());
+                    if (currentData == null) {
+                        currentData = new HashMap<>();
+                    }
                     
                     // gradeConfig 병합 (기존 attendance, grade 데이터 유지)
                     currentData.put("gradeConfig", gradeConfig);
                     
-                    // JSON 직렬화 및 임시 저장
+                    // JSON 직렬화 및 저장
                     String updatedJson = objectMapper.writeValueAsString(currentData);
                     enrollment.setEnrollmentData(updatedJson);
                     enrollmentRepository.save(enrollment);
                     
-                    // ✅ 성적 재계산 (과제 만점 포함하여 total.maxScore 자동 업데이트)
-                    gradeCalculationService.calculateStudentGrade(lecIdx, enrollment.getStudentIdx());
                     updatedCount++;
                     
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException("JSON 처리 실패 (enrollment: " + enrollment.getEnrollmentIdx() + ")", e);
+                    // ✅ TODO: 성적 재계산은 별도 API로 분리 (일단 주석 처리)
+                    // gradeCalculationService.calculateStudentGrade(lecIdx, enrollment.getStudentIdx());
+                    
+                } catch (Exception e) {
+                    // 개별 학생 처리 실패 시 로그만 남기고 계속 진행
+                    System.err.println("학생 성적 처리 실패 (enrollmentIdx: " + enrollment.getEnrollmentIdx() + 
+                        ", studentIdx: " + enrollment.getStudentIdx() + "): " + e.getMessage());
+                    e.printStackTrace();
+                    failedCount++;
                 }
             }
+            
+            // 모든 학생이 실패한 경우에만 예외 발생
+            if (failedCount > 0 && updatedCount == 0) {
+                throw new RuntimeException("모든 학생의 성적 처리에 실패했습니다. 데이터 구조를 확인하세요.");
+            }
 
+            Map<String, Object> resultData = new HashMap<>();
+            resultData.put("lecIdx", lecIdx);
+            resultData.put("gradeConfig", gradeConfig);
+            resultData.put("updatedEnrollments", updatedCount);
+            resultData.put("failedEnrollments", failedCount);
+            
             return Map.of(
                 "success", true,
-                "message", "성적 구성이 설정되었습니다.",
-                "data", Map.of(
-                    "lecIdx", lecIdx,
-                    "gradeConfig", gradeConfig,
-                    "updatedEnrollments", updatedCount
-                )
+                "message", "성적 구성이 설정되었습니다." + 
+                    (failedCount > 0 ? " (경고: " + failedCount + "명 처리 실패)" : ""),
+                "data", resultData
             );
 
         } catch (IllegalArgumentException e) {
+            System.err.println("❌ IllegalArgumentException in configureGrade: " + e.getMessage());
+            e.printStackTrace();
             return Map.of("success", false, "message", e.getMessage());
         } catch (Exception e) {
+            System.err.println("❌ Exception in configureGrade: " + e.getMessage());
+            e.printStackTrace();
             return Map.of("success", false, "message", "성적 구성 설정 중 오류: " + e.getMessage());
         }
     }
