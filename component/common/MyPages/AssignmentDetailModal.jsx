@@ -42,13 +42,13 @@ const AssignmentDetailModal = ({onClose, assignmentIdx}) => {
                 <div className="assignment-detail-modal-content">
                     <div>과목: </div>
                     <div>과제 제목:
-                        
+                        {assignmentDetail.assignmentData.title}
                     </div>
                     <div>과제 설명:
-                        
+                        {assignmentDetail.assignmentData.description}
                     </div>
                     <div>마감일:
-                        
+                        {assignmentDetail.assignmentData.dueDate}
                     </div>
                     <div>배점: {maxScore}</div>
     
