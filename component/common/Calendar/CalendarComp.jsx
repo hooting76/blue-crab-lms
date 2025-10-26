@@ -13,8 +13,7 @@ import './css/calcCss.css';
 import calModalCss from './css/CalendarModal.module.css';
 import Modal from 'react-modal';
 import { FaWindowClose, FaMapMarkerAlt, FaCalendarWeek } from 'react-icons/fa';
-
-import acJson from '../../../public/schedule.json';
+import GetProcessedEvents from './CalendarEvents';
 // calendar func&config library end
 
 moment.locale('ko');
@@ -24,40 +23,11 @@ const DnDCalendar = withDragAndDrop(Calendar);
 // cal func start
 function CalendarComp () {
     const [eventList, setEvents] = useState([]);
-
-    const acJsonList = {acJson};
+    // eventList Calling
     useEffect(() => {
-        const processedEvents = acJsonList.acJson.map((data) => {
-            if(typeof(data.start) === 'object'){
-                return data;
-            }
-            const startArr = data.start.trim().split(",");
-            const endArr = data.end.trim().split(",");
-
-            if (!endArr[3] || endArr[3].trim() === ""){
-                endArr[3] = '23';
-                startArr[3] = '00';
-            }
-            if (!endArr[4] || endArr[4].trim() === ""){
-                endArr[4] = '59';
-                startArr[4] = '00';
-            }
-
-            // 문자열을 숫자로 변환 (new Date에 안전하게 전달하기 위해)
-            for (let i = 0; i < startArr.length; i++) {
-                startArr[i] = Number(String(startArr[i]).trim());
-            }
-            for (let i = 0; i < endArr.length; i++) {
-                endArr[i] = Number(String(endArr[i]).trim());
-            }
-            return {
-                ...data,
-                start: new Date(startArr[0], startArr[1], startArr[2], startArr[3], startArr[4]),
-                end: new Date(endArr[0], endArr[1], endArr[2], endArr[3], endArr[4])
-            };
-        });
+        const processedEvents = GetProcessedEvents();
         setEvents(processedEvents);
-    }, []);
+    },[]);
 
     // modal state //
     Modal.setAppElement("#root"); // 접근 설정    
@@ -82,6 +52,7 @@ function CalendarComp () {
             };
         };
     }; // dayPropGetter end
+
 
     // custom toolbar
     const CustomToolbar = ({ label, onNavigate }) => {
@@ -119,6 +90,34 @@ function CalendarComp () {
     };
     // custom toolbar end
 
+    // // 캘린더 뷰 타입 상태 관리
+    // const [calendarView, setCalendarView] = useState(['month']);
+    
+    // // 미디어쿼리 리사이즈 감지
+    // const [matches, setMatches] = useState(
+    //     window.matchMedia("(max-width: 600px)").matches
+    // );
+
+    // useEffect(() => {
+    //     const mediaQuery = window.matchMedia("(max-width: 600px)");
+        
+    //     // 초기 뷰 설정
+    //     setCalendarView(mediaQuery.matches 
+    //         ? ['agenda'] 
+    //         : ['month']
+    //     );
+
+    //     const handleResize = (e) => {
+    //         setMatches(e.matches);
+    //         setCalendarView(e.matches 
+    //             ? ['agenda'] 
+    //             : ['month']
+    //         );
+    //     };
+
+    //     mediaQuery.addEventListener('change', handleResize);
+    //     return () => mediaQuery.removeEventListener('change', handleResize);
+    // }, []);
 
     // calendar main
     return(<>
@@ -134,8 +133,8 @@ function CalendarComp () {
             }} 
             selectable={true}
             resizable={false}
-            view={['month']}
-            defaultView='month'
+            view={'month'}
+            defaultView={'month'}
             onSelectEvent={handleSelectEvent}
             readOnly={true}
             dayPropGetter={dayPropGetter}
@@ -154,7 +153,7 @@ function CalendarComp () {
                 },
                 content:{
                     width: "100%",
-                    maxWidth: "420px",
+                    maxWidth: "80%",
                     height: "100%",
                     maxHeight: "75%",
                     boxSizing: "border-box",

@@ -66,6 +66,31 @@
     font-weight: bold;
     line-height: normal;
 }
+.rbc-toolbar.agenda{
+    justify-content: center;
+}
+
+/* aside calendar css */
+.rbc-agenda-view{
+    flex: none;
+}
+
+.rbc-agenda-view{
+    flex-direction: row;
+}
+.rbc-agenda-view > .rbc-agenda-table {
+    display: none;
+}
+.rbc-agenda-content > table > tbody {
+    display: flex;
+    flex-direction: column;
+}
+.rbc-agenda-content > table > tbody > tr{
+    width: 100%;
+    height: fit-content;
+    padding: 5px;
+    margin-bottom: 5px;
+}
 
 @media (max-width: 767px) {
     .rbc-toolbar {
