@@ -20,7 +20,7 @@ async function testProfessorAttendanceView() {
     }
 
     // 사용자 입력 받기
-    const lecSerial = prompt('강의 코드 (LEC_SERIAL)를 입력하세요:', 'CS101');
+    const lecSerial = prompt('강의 코드 (LEC_SERIAL)를 입력하세요:', 'ETH201');
     
     if (!lecSerial) {
         console.error('❌ 강의 코드를 입력해야 합니다.');

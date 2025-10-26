@@ -20,7 +20,7 @@ async function testAttendanceRequest() {
     }
 
     // 사용자 입력 받기 (studentIdx는 JWT에서 자동 추출됨)
-    const lecSerial = prompt('강의 코드 (LEC_SERIAL)를 입력하세요:', 'CS101');
+    const lecSerial = prompt('강의 코드 (LEC_SERIAL)를 입력하세요:', 'ETH201');
     const sessionNumber = parseInt(prompt('회차 번호 (1~80)를 입력하세요:', '1'));
     const requestReason = prompt('요청 사유를 입력하세요 (선택사항, 취소 가능):', '교통체증으로 지각');
 

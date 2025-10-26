@@ -1,153 +1,118 @@
-# 📢 안내문 API 테스트 ✅ (2025.01.05 완료)
+# 📢 안내문 관리 브라우저 콘솔 테스트
 
-수강신청 안내문 조회 및 저장 테스트
+이 폴더에는 안내문 관리 기능의 브라우저 콘솔 테스트 스크립트들이 포함되어 있습니다.
 
----
+## 📁 파일 목록
 
-## 📋 테스트 파일
+### 1. `notice-test-1-view.js`
+**안내문 조회 테스트 (공개)**
 
-| 파일 | 설명 | 권한 | 상태 |
-|------|------|------|------|
-| `notice-test-1-view.js` | 안내문 조회 (공개) | 없음 | ✅ 테스트 완료 |
-| `notice-test-2-admin-save.js` | 안내문 저장 (관리자/교수) | ADMIN/PROFESSOR | ✅ 테스트 완료 |
+- **권한**: 인증 불필요 (누구나 조회 가능)
+- **기능**: 현재 설정된 안내문 내용 조회
+- **사용법**:
+  1. 브라우저 콘솔에 코드 복사/붙여넣기
+  2. `await testViewNotice()` 또는 `await viewNotice()` 실행
 
----
+### 2. `notice-test-2-admin-save.js`
+**안내문 저장 테스트 (관리자/교수)**
 
-## 🔧 테스트 순서
+- **권한**: `ROLE_ADMIN` 또는 `ROLE_PROFESSOR` 필요
+- **기능**: 안내문 내용 저장, 조회, 클리어
+- **사용법**:
+  1. 관리자 로그인 실행: `await adminLogin()`
+  2. 브라우저 콘솔에 코드 복사/붙여넣기
+  3. 원하는 함수 실행
 
-### 1️⃣ 안내문 조회 (공개) - 인증 불필요
+## 🚀 사용법 상세
+
+### 공통 준비사항
+1. Blue Crab LMS 웹사이트 접속
+2. F12 키로 개발자 도구 열기
+3. Console 탭 선택
+4. 아래 각 파일의 코드를 복사하여 붙여넣기
+
+### 안내문 조회 테스트
 ```javascript
-// 브라우저 콘솔에 notice-test-1-view.js 내용 복사/붙여넣기
+// 간단한 조회
+await testViewNotice()
 
-await testViewNotice();
-// 또는
-await viewNotice();
+// 또는 짧은 이름으로
+await viewNotice()
 ```
 
-**결과 예시:**
-```
-✅ 조회 성공!
-
-📄 안내문 내용:
-2025학년도 1학기 수강신청 안내
-...
-
-⏰ 최종 수정: 2025-01-05T12:34:56
-👤 수정자: prof.jellyfish
-```
-
-### 2️⃣ 안내문 저장 (관리자/교수) - 로그인 필요
-
+### 안내문 저장 테스트
 ```javascript
-// Step 1: 교수 또는 관리자로 로그인 (별도 로그인 테스트 파일 사용)
-await login();  // 프롬프트에서 이메일/비밀번호 입력
+// 1. 기본 저장 (프롬프트로 메시지 입력)
+await testSaveNotice()
 
-// Step 2: notice-test-2-admin-save.js 내용 복사/붙여넣기
+// 2. 직접 메시지 전달
+await testSaveNotice("안내문 내용입니다")
 
-// Step 3: 안내문 저장 (프롬프트로 입력)
-await testSaveNotice();
+// 3. 저장 후 즉시 조회
+await saveAndViewNotice()
 
-// 또는 직접 메시지 전달
-await testSaveNotice('새로운 수강신청 안내문 내용');
+// 4. 샘플 안내문으로 테스트
+await testSampleNotice()
 
-// 또는 샘플 메시지로 테스트
-await testSampleNotice();
+// 5. 안내문 클리어 (빈 메시지로 업데이트)
+await clearNotice()
+
+// 간편 함수들
+await save("메시지")           // 저장
+await saveAndView("메시지")    // 저장+조회
+await testSample()             // 샘플 저장
+await clear()                  // 클리어
 ```
 
-**저장 후 자동 조회:**
-```javascript
-await saveAndViewNotice();  // 프롬프트 입력 → 저장 → 2초 대기 → 조회
-```
+## 📋 API 엔드포인트
 
-**안내문 삭제 (빈 메시지로 업데이트):**
-```javascript
-await deleteNotice();  // 확인 창이 뜸
-```
-
----
-
-## 🎯 간편 함수
-
-더 짧은 함수명으로 빠르게 테스트:
-
-```javascript
-// 조회
-await viewNotice();
-
-// 저장
-await saveNotice();           // 프롬프트 입력
-await saveNotice("메시지");   // 직접 전달
-
-// 저장 + 조회
-await saveAndView();
-
-// 샘플 테스트
-await testSample();
-```
-
----
+| 엔드포인트 | 메서드 | 권한 | 설명 |
+|-----------|--------|------|------|
+| `/notice/course-apply/view` | POST | 없음 | 안내문 조회 |
+| `/notice/course-apply/save` | POST | 관리자/교수 | 안내문 저장 |
 
 ## ⚠️ 주의사항
 
-### 권한
-- **조회**: 🔓 인증 불필요, 누구나 가능
-- **저장**: 🔐 관리자(ADMIN) 또는 교수(PROFESSOR) 권한 필요
-  - JWT 토큰 필요
-  - 교수 계정: `userStudent = 1`
+- **인증 필요**: 저장 기능은 반드시 관리자 로그인 후 사용
+- **토큰 만료**: JWT 토큰이 만료되면 재로그인 필요
+- **실제 데이터**: 테스트 시 실제 안내문이 변경되므로 주의
+- **클리어 기능**: 실제 삭제가 아닌 빈 메시지로 업데이트됨
 
-### 데이터 구조
-- 안내문은 **단일 레코드**로 관리 (항상 최신 1개만)
-- 저장 시마다 기존 안내문 업데이트 (Upsert 패턴)
-- 삭제 기능 없음 (빈 메시지로 업데이트 방식)
+## 🔍 테스트 검증 포인트
 
-### 토큰 공유
-- 로그인 후 `window.authToken`에 JWT 저장
-- 다른 테스트 파일에서 자동으로 사용 가능
+### 조회 테스트 성공 기준
+- ✅ HTTP 200 응답
+- ✅ `success: true`
+- ✅ 안내문 내용, 수정일시, 수정자 정보 반환
 
----
+### 저장 테스트 성공 기준
+- ✅ HTTP 200 응답
+- ✅ `success: true`
+- ✅ `noticeIdx`, 메시지, 수정 정보 반환
+- ✅ 저장 후 조회 시 동일한 내용 확인
 
-## 📊 API 엔드포인트
+## 🐛 문제 해결
 
-| API | 메서드 | 엔드포인트 | 인증 | 상태 |
-|-----|--------|------------|------|------|
-| 조회 | POST | `/notice/course-apply/view` | ❌ 불필요 | ✅ 작동 |
-| 저장 | POST | `/notice/course-apply/save` | ✅ ADMIN/PROFESSOR | ✅ 작동 |
-
-**Base URL:** `https://bluecrab.chickenkiller.com/BlueCrab-1.0.0`
-
----
-
-## 🐛 트러블슈팅
-
-### 404 Not Found
-- ❌ 잘못된 URL: `/api/notice/course-apply/...`
-- ✅ 올바른 URL: `/notice/course-apply/...`
-- `/api` 접두사 없이 사용
-
-### 401 Unauthorized
-```javascript
-// 해결 방법
-await login();  // 다시 로그인
-checkStatus();  // 토큰 상태 확인
+### "JWT 토큰이 없습니다" 오류
+```
+해결: 먼저 관리자 로그인 실행
+await adminLogin()
 ```
 
-### 토큰이 없다고 나올 때
-```javascript
-// 전역 변수 확인
-console.log(window.authToken);
-
-// 수동으로 설정 (필요시)
-window.authToken = 'your-jwt-token';
+### "401 Unauthorized" 오류
+```
+해결: 토큰 만료 확인 및 재로그인
+await adminLogin()
 ```
 
----
+### 네트워크 오류
+```
+해결: 인터넷 연결 및 서버 상태 확인
+API_BASE_URL이 올바른지 확인
+```
 
-## 📝 테스트 결과
+## 📝 관련 문서
 
-- ✅ **조회 API**: 공개 접근 정상 작동
-- ✅ **저장 API**: 교수 권한으로 정상 저장
-- ✅ **프롬프트 입력**: 사용자 입력 정상 작동
-- ✅ **토큰 검증**: JWT 인증 정상 작동
-- ✅ **단일 레코드**: Upsert 패턴 정상 작동
-
-**최종 테스트 일시**: 2025-01-05 (완료)
+- [API 컬렉션 문서](../../../../README.md)
+- [관리자 로그인 테스트](../00-login/admin-login.js)
+- [기능 통합 테스트](../07-integration-test/)

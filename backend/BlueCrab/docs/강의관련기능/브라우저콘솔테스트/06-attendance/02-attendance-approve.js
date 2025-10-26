@@ -96,7 +96,7 @@ async function testAttendanceApprove() {
     }
 
     // 사용자 입력 받기
-    const lecSerial = prompt('강의 코드 (LEC_SERIAL)를 입력하세요:', 'CS101');
+    const lecSerial = prompt('강의 코드 (LEC_SERIAL)를 입력하세요:', 'ETH201');
     const sessionNumber = parseInt(prompt('회차 번호 (1~80)를 입력하세요:', '1'));
     
     if (!lecSerial || !sessionNumber) {

@@ -1,198 +1,341 @@
-# 🧪 통합 테스트
+# 🧪 브라우저 콘솔 통합 테스트 모음집
 
-성적 자동 재계산 기능의 E2E(End-to-End) 통합 테스트입니다.
+> **Blue Crab LMS** - 기능 통합 테스트 스크립트
+>
+> **📍 위치**: `docs/강의관련기능/브라우저콘솔테스트/07-integration-test/`
+>
+> **🎯 목적**: `@Transactional` 수정 후 성적 자동 재계산 기능 검증
+>
+> **⚡ 특징**: 브라우저 콘솔에서 실행하는 심플한 통합 테스트
 
-## 📁 파일 목록
+---
 
-### `attendance-grade-integration-test.js`
+## 📋 목차
 
-**출석-성적 통합 테스트**
+1. [포함된 테스트](#포함된-테스트)
+2. [공통 사전 준비](#공통-사전-준비)
+3. [과제-성적 통합 테스트](#과제-성적-통합-테스트)
+4. [출석-성적 통합 테스트](#출석-성적-통합-테스트)
+5. [실행 방법](#실행-방법)
+6. [검증 항목](#검증-항목)
+7. [디버깅 함수](#디버깅-함수)
+8. [주의사항](#주의사항)
 
-테스트 시나리오:
+---
 
-1. 학생 초기 성적 확인
-2. 학생이 출석 요청 생성
-3. 교수가 출석 승인
-4. **성적 자동 재계산 확인** ← @Transactional 검증
+## 📦 포함된 테스트
 
-검증 항목:
+### 1. `assignment-grade-integration-test.js`
+**과제 채점 → 성적 자동 재계산** 통합 테스트
 
-- ✅ 출석 승인 시 `afterCommit` 콜백 실행
-- ✅ 성적 데이터 자동 업데이트
-- ✅ `attendance.currentScore` 증가 확인
+- **목적**: 과제 채점 시 `@Transactional` afterCommit 콜백 실행 확인
+- **시나리오**: 과제 생성 → 채점 → 성적 재계산
+- **대상**: 교수 계정
 
-### `assignment-grade-integration-test.js`
+### 2. `attendance-grade-integration-test.js`
+**출석 승인 → 성적 자동 재계산** 통합 테스트
 
-**과제-성적 통합 테스트**
+- **목적**: 출석 승인 시 `@Transactional` afterCommit 콜백 실행 확인
+- **시나리오**: 출석 요청 → 승인 → 성적 재계산
+- **대상**: 학생 + 교수 계정
 
-테스트 시나리오:
+---
 
-1. 학생 초기 성적 확인
-2. 교수가 과제 생성 (오프라인 제출용)
-3. (학생이 오프라인으로 과제 제출 - 시스템 외부)
-4. 교수가 과제 채점 (점수 + 피드백)
-5. **성적 자동 재계산 확인** ← @Transactional 검증
+## 🔧 공통 사전 준비
 
-검증 항목:
+### 필수 조건
+- ✅ **백엔드 실행 중**: `https://bluecrab.chickenkiller.com/BlueCrab-1.0.0`
+- ✅ **테스트 데이터 존재**: 강의/학생/교수 계정
+- ✅ **브라우저**: Chrome/Firefox (F12 콘솔 지원)
 
-- ✅ 과제 채점 시 이벤트 발행
-- ✅ 성적 데이터 자동 업데이트
-- ✅ `assignments` 배열 업데이트 확인
-- ✅ `total.score` 증가 확인
+### 테스트 계정 정보
+```javascript
+// 학생 계정 (출석 테스트용)
+이메일: 123joon@naver.com
+비밀번호: Bluecrab256@
 
-## 🚀 사용 방법
+// 교수 계정 (과제/출석 승인용)
+이메일: prof.octopus@univ.edu
+비밀번호: Bluecrab256@
+```
 
-### 출석-성적 통합 테스트
+### 기본 테스트 강의
+- **강의 코드**: `ETH201`
+- **학생 IDX**: `6` (테스트용)
+
+---
+
+## 📝 과제-성적 통합 테스트
+
+### 파일: `assignment-grade-integration-test.js`
+
+#### 🎯 테스트 목적
+과제 채점 후 성적 자동 재계산 기능 검증
+
+#### 📋 테스트 플로우
+1. **초기 성적 확인**: 학생의 현재 성적 상태 조회
+2. **과제 생성**: 오프라인 제출용 과제 생성
+3. **과제 채점**: 학생에게 점수 부여
+4. **성적 재계산**: 자동으로 총점 업데이트 검증
+
+#### 🚀 실행 방법
 
 ```javascript
 // 1. 스크립트 로드
-// attendance-grade-integration-test.js 전체 복사/붙여넣기
+// 브라우저 F12 → Console 탭에 전체 스크립트 복사/붙여넣기
 
-// 2. 로그인
-await loginStudent()     // 학생 계정
-await loginProfessor()   // 교수 계정
+// 2. 교수 로그인
+await loginProfessor()
 
-// 3. 통합 테스트 실행
+// 3. 전체 통합 테스트 실행
+await runAssignmentGradeTest()
+
+// 또는 채점만 테스트 (기존 과제 사용)
+await quickGradeTest()
+```
+
+#### ✅ 검증 항목
+- 과제 생성 성공
+- 채점 API 호출 성공
+- 백엔드 로그: "성적 재계산 시작/완료" 메시지
+- DB 성적 데이터 실제 변경
+- 총점 자동 업데이트
+
+---
+
+## 📝 출석-성적 통합 테스트
+
+### 파일: `attendance-grade-integration-test.js`
+
+#### 🎯 테스트 목적
+출석 승인 후 성적 자동 재계산 기능 검증
+
+#### 📋 테스트 플로우
+1. **초기 상태 확인**: 출석 현황 + 현재 성적 조회
+2. **출석 요청 생성**: 학생이 결석/지각 사유 제출
+3. **출석 승인**: 교수가 요청 승인
+4. **성적 재계산**: 출석 점수 자동 업데이트 검증
+
+#### 🚀 실행 방법
+
+```javascript
+// 1. 스크립트 로드
+// 브라우저 F12 → Console 탭에 전체 스크립트 복사/붙여넣기
+
+// 2. 학생 로그인
+await loginStudent()
+
+// 3. 교수 로그인
+await loginProfessor()
+
+// 4. 전체 통합 테스트 실행
 await runFullIntegrationTest()
 ```
 
-### 과제-성적 통합 테스트
+#### ✅ 검증 항목
+- 출석 요청 생성 성공
+- 승인 API 호출 성공
+- 백엔드 로그: "성적 재계산 시작/완료" 메시지
+- 출석 점수 자동 업데이트
+- 총점 재계산
 
-```javascript
-// 1. 스크립트 로드
-// assignment-grade-integration-test.js 전체 복사/붙여넣기
+---
 
-// 2. 로그인
-await loginProfessor()   // 교수 계정만 필요
+## 🎮 실행 방법
 
-// 3. 통합 테스트 실행
-await runAssignmentGradeTest()
-```
+### 기본 실행 절차
 
-## 🎯 테스트 목적
+1. **브라우저 열기**
+   ```bash
+   Chrome 또는 Firefox 브라우저 실행
+   ```
 
-### @Transactional 수정 검증
+2. **콘솔 열기**
+   ```
+   F12 키 → Console 탭 선택
+   ```
 
-출석 승인 및 과제 채점 시 성적 자동 재계산이 정상 작동하는지 확인:
+3. **스크립트 로드**
+   - 해당 `.js` 파일 열기
+   - 전체 내용 복사 (Ctrl+A, Ctrl+C)
+   - 브라우저 콘솔에 붙여넣기 (Ctrl+V)
+   - Enter 키로 실행
 
-1. **출석 승인 → 성적 재계산**
-   - `AttendanceRequestServiceImpl.approveAttendance()`
-   - `TransactionSynchronizationManager.afterCommit()` 콜백
-   - `GradeCalculationService.calculateStudentGrade()` 호출
+4. **로그인**
+   ```javascript
+   // 과제 테스트: 교수만
+   await loginProfessor()
 
-2. **과제 채점 → 성적 재계산**
-   - `AssignmentController.gradeAssignment()`
-   - `GradeUpdateEvent` 발행
-   - `GradeCalculationService.calculateStudentGrade()` 호출
+   // 출석 테스트: 학생 + 교수
+   await loginStudent()
+   await loginProfessor()
+   ```
+
+5. **테스트 실행**
+   ```javascript
+   // 과제 테스트
+   await runAssignmentGradeTest()
+
+   // 출석 테스트
+   await runFullIntegrationTest()
+   ```
+
+### 입력 파라미터
+실행 시 브라우저 prompt로 입력받음:
+- **강의 코드**: 기본값 `ETH201`
+- **학생 IDX**: 기본값 `6`
+- **회차 번호**: 출석 테스트용
+- **과제 정보**: 제목, 설명, 마감일, 만점
+
+---
+
+## 🔍 검증 항목
+
+### 성공 기준
+- ✅ **API 호출 성공**: 모든 HTTP 요청 200 OK
+- ✅ **데이터 변경**: DB에 실제 데이터 변경 발생
+- ✅ **백엔드 로그**: 성적 재계산 관련 로그 출력
+- ✅ **자동화 확인**: 수동 개입 없이 전체 플로우 완료
 
 ### 백엔드 로그 확인
+```bash
+# 과제 채점 시
+"과제 채점으로 인한 성적 재계산 이벤트 발행"
+"성적 재계산 시작: lecIdx=X, studentIdx=Y"
+"성적 재계산 완료"
 
-테스트 실행 시 백엔드 로그에서 다음 메시지 확인:
-
-```
-성적 재계산 시작: lecIdx=48, studentIdx=6
-출석 점수 계산: currentScore=9.63, percentage=12.51%
-성적 재계산 완료: lecIdx=48, studentIdx=6
+# 출석 승인 시
+"성적 재계산 시작: lecIdx=X, studentIdx=Y"
+"성적 재계산 완료: 출석 점수 업데이트됨"
 ```
 
-또는
+### DB 변경 확인
+- **과제 테스트**: `assignments` 테이블 + `enrollments.grade` JSON
+- **출석 테스트**: `attendance_records` 테이블 + `enrollments.grade` JSON
 
+---
+
+## 🔧 디버깅 함수
+
+### 공통 디버깅 함수
+
+```javascript
+// 과제 목록 조회
+await quickCheckAssignments("ETH201")
+
+// 학생 성적 조회
+await quickCheckStudentGrade("ETH201", 6)
+
+// 출석 현황 조회
+await quickCheckAttendance("ETH201")
+
+// 교수용 출석 조회
+await professorCheckAttendance("ETH201")
 ```
-과제 채점으로 인한 성적 재계산 이벤트 발행: lecIdx=48, studentIdx=6
-성적 재계산 시작: lecIdx=48, studentIdx=6
-과제 점수 계산: 1주차 과제 - 8.0/10.0점
-성적 재계산 완료: lecIdx=48, studentIdx=6
+
+### 과제 테스트 전용
+
+```javascript
+// 특정 과제 삭제
+await deleteAssignment(assignmentIdx)
+
+// 모든 과제 삭제 (초기화)
+await deleteAllAssignments("ETH201")
+
+// 채점만 테스트 (기존 과제)
+await quickGradeTest()
 ```
+
+### 성적 계산 로직
+```
+총점 = 출석 점수 + 과제 점수
+```
+> **참고**: 시험도 시스템상 과제(Assignment)로 관리되므로 과제 점수에 포함
+
+---
 
 ## ⚠️ 주의사항
 
-### 오프라인 과제 제출 방식
+### 테스트 환경
+- **실제 운영 DB 사용**: 테스트 데이터로 진행 권장
+- **동시 실행 금지**: 여러 브라우저에서 동시에 실행하지 말 것
+- **데이터 백업**: 중요 데이터는 미리 백업
 
-- **과제 제출**: 오프라인으로 진행 (시스템 외부)
-- **시스템 역할**:
-  - 교수가 과제 생성
-  - 교수가 과제 채점 (점수 + 피드백)
-  - 자동으로 성적에 반영
+### API 제한사항
+- **인증 필수**: 모든 API에 JWT 토큰 필요
+- **권한 확인**: 교수/학생 권한에 따른 API 접근 제한
+- **트랜잭션**: `@Transactional` 어노테이션으로 데이터 일관성 보장
 
-### 테스트 데이터 준비
+### 에러 처리
+- **네트워크 오류**: 백엔드 연결 상태 확인
+- **인증 오류**: 토큰 만료 시 재로그인
+- **데이터 오류**: 테스트용 데이터 존재 여부 확인
 
-- 테스트용 강의 존재 (예: ETH201)
-- 테스트용 학생 존재 (예: studentIdx=6)
-- 테스트용 교수 존재 (예: prof.octopus@univ.edu)
+### 성능 고려사항
+- **API 호출 간격**: 서버 부하 방지를 위해 300ms 대기
+- **대용량 데이터**: 페이징 처리된 API 사용
+- **타임아웃**: 3초 대기로 afterCommit 콜백 완료 대기
 
-### 성적 구조
+---
 
-```json
-{
-  "grade": {
-    "attendance": {
-      "currentScore": 9.63,
-      "percentage": 12.51,
-      "presentCount": 10,
-      "maxScore": 77
-    },
-    "assignments": [
-      {
-        "name": "1주차 과제",
-        "score": 8,
-        "maxScore": 10,
-        "percentage": 16.0,
-        "submitted": true
-      }
-    ],
-    "total": {
-      "score": 17.63,
-      "maxScore": 87,
-      "percentage": 20.26
-    }
-  }
-}
+## 📊 테스트 결과 해석
+
+### 성공 표시
+```
+╔═══════════════════════════════════════════════════════════════════╗
+║                    ✅ 통합 테스트 성공!                          ║
+║  출석 승인 시 성적 자동 재계산이 정상 작동합니다.                ║
+║  @Transactional 수정이 효과적으로 적용되었습니다.                ║
+╚═══════════════════════════════════════════════════════════════════╝
 ```
 
-## 📊 예상 결과
-
-### 출석 테스트 성공
-
+### 실패 표시
 ```
-✅ 통합 테스트 성공!
-
-출석 승인 시 성적 자동 재계산이 정상 작동합니다.
-@Transactional 수정이 효과적으로 적용되었습니다.
-
-출석 점수: 8.66 → 9.63 (+0.97)
-총점: 8.66 → 9.63 (+0.97)
+╔═══════════════════════════════════════════════════════════════════╗
+║                    ⚠️  통합 테스트 실패                          ║
+║  출석 승인 후 성적이 업데이트되지 않았습니다.                    ║
+║  백엔드 로그를 확인하여 "성적 재계산" 메시지를 찾으세요.         ║
+╚═══════════════════════════════════════════════════════════════════╝
 ```
 
-### 과제 테스트 성공
+### 디버깅 단계
+1. **백엔드 로그 확인**: 성적 재계산 관련 메시지 찾기
+2. **DB 직접 확인**: `enrollments` 테이블의 `grade` 컬럼
+3. **API 개별 테스트**: `quickCheckGrade()` 함수 사용
+4. **코드 리뷰**: `@Transactional` 어노테이션과 `afterCommit` 콜백 확인
 
-```
-✅ 통합 테스트 성공!
-
-과제 채점 시 성적 자동 재계산이 정상 작동합니다.
-@Transactional 수정이 효과적으로 적용되었습니다.
-
-과제 개수: 0 → 1
-새로 채점된 과제: 통합 테스트용 과제 (8/10점)
-총점: 9.63 → 17.63 (+8.0)
-```
+---
 
 ## 🔗 관련 문서
 
-- [출석 테스트](../06-attendance/)
-- [교수 과제 테스트](../03-professor/)
-- [성적 테스트](../04-grade/)
-- [상위 README](../README.md)
+- [**API 모음집**](../통합%20테스트%20도구용%20API%20모음집/README.md): 상세 API 명세
+- [**브라우저 콘솔 테스트**](../브라우저콘솔테스트/): 다른 테스트 스크립트들
+- [**백엔드 구현**](../../src/): 실제 컨트롤러/서비스 코드
 
-## 💡 개별 테스트와의 차이
+---
 
-**개별 테스트**: 각 기능을 단계별로 수동 테스트
+## 📞 지원 및 문의
 
-- `06-attendance/` - 출석 요청, 승인, 조회
-- `03-professor/` - 과제 생성, 채점
-- `04-grade/` - 성적 조회, 계산
+### 문제 발생 시 확인사항
+1. **백엔드 실행 상태**: 서버 로그 확인
+2. **네트워크 연결**: API 엔드포인트 접근 가능 여부
+3. **테스트 데이터**: 강의/학생/교수 데이터 존재 여부
+4. **브라우저 호환성**: Chrome/Firefox 권장
 
-**통합 테스트** (이 폴더): 전체 플로우 자동 실행
+### 로그 분석
+```bash
+# 백엔드 로그 위치
+logs/spring-boot.log
 
-- 시간 절약 (한 번에 전체 테스트)
-- E2E 검증 (API → DB → 성적 반영)
-- 회귀 테스트 (기능 수정 후 빠른 검증)
+# 관련 로그 키워드
+"GradeUpdateEvent"
+"성적 재계산"
+"@Transactional"
+"afterCommit"
+```
+
+---
+
+**Last Updated:** 2025-10-25  
+**Version:** 1.0.0  
+**테스트 대상:** `@Transactional` afterCommit 콜백 기능

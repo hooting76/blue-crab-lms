@@ -51,6 +51,24 @@
         return window.authToken || localStorage.getItem('jwtAccessToken');
     }
     
+    // 강의 코드 검증 및 설정 (중복 제거용)
+    function ensureLectureSet() {
+        if (!config.lecSerial) {
+            console.warn('⚠️  강의 코드 미설정!');
+            promptLecture();
+        }
+        return config.lecSerial;
+    }
+    
+    // 학생 IDX 검증 및 설정 (중복 제거용)
+    function ensureStudentSet() {
+        if (!config.studentIdx) {
+            console.warn('⚠️  학생 IDX 미설정!');
+            promptStudent();
+        }
+        return config.studentIdx;
+    }
+    
     async function apiCall(endpoint, data, method = 'POST') {
         const token = getToken();
         if (!token) {
@@ -204,20 +222,8 @@
         console.log('📥 서버 설정 조회');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
-        if (!config.lecSerial) {
-            console.warn('⚠️  강의 코드 미설정! promptLecture() 실행...');
-            promptLecture();
-        }
-        
-        if (!config.studentIdx) {
-            const idx = prompt('학생 IDX (성적 데이터 조회용):', '');
-            if (idx) config.studentIdx = parseInt(idx);
-            else {
-                console.error('❌ 학생 IDX 필요!');
-                console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-                return { success: false, error: '학생 IDX 없음' };
-            }
-        }
+        ensureLectureSet();
+        ensureStudentSet();
         
         console.log(`📤 강의: ${config.lecSerial}, 학생: ${config.studentIdx}`);
         
@@ -280,15 +286,7 @@
         console.log('⚡ 빠른 설정 (즉시 서버 저장)');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
-        if (!config.lecSerial) {
-            const lec = prompt('강의 코드 (예: ETH201):', '');
-            if (lec) config.lecSerial = lec;
-            else {
-                console.error('❌ 강의 코드 필수!');
-                console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-                return { success: false, error: '강의 코드 없음' };
-            }
-        }
+        ensureLectureSet();
         
         console.log(`📚 강의: ${config.lecSerial}`);
         console.log('\n💡 빈칸으로 두면 기본값 사용\n');
@@ -322,11 +320,7 @@
         console.log('📤 서버 설정 직접 수정');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
-        if (!config.lecSerial) {
-            console.error('❌ 강의 코드 필요! setLecture() 먼저 실행하세요.');
-            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-            return { success: false, error: '강의 코드 없음' };
-        }
+        ensureLectureSet();
         
         // 로컬 config 업데이트
         if (updates.attendanceMaxScore !== undefined) {
@@ -372,10 +366,7 @@
         console.log('⚙️  성적 구성 설정 → 서버 저장');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
-        if (!config.lecSerial) {
-            console.warn('⚠️  강의 코드 미설정! promptLecture() 실행...');
-            promptLecture();
-        }
+        ensureLectureSet();
         
         const data = {
             action: 'set-config',
@@ -416,14 +407,8 @@
         console.log('📊 학생 성적 조회');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
-        if (!config.lecSerial) {
-            console.warn('⚠️  강의 코드 미설정!');
-            promptLecture();
-        }
-        if (!config.studentIdx) {
-            console.warn('⚠️  학생 IDX 미설정!');
-            promptStudent();
-        }
+        ensureLectureSet();
+        ensureStudentSet();
         
         console.log(`📤 강의 코드: ${config.lecSerial}`);
         console.log(`   학생 IDX: ${config.studentIdx}`);
@@ -521,14 +506,8 @@
         console.log('👨‍🏫 교수용 성적 조회');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
-        if (!config.lecSerial) {
-            console.warn('⚠️  강의 코드 미설정!');
-            promptLecture();
-        }
-        if (!config.studentIdx) {
-            console.warn('⚠️  학생 IDX 미설정!');
-            promptStudent();
-        }
+        ensureLectureSet();
+        ensureStudentSet();
         
         const data = {
             action: 'professor-view',
@@ -575,7 +554,7 @@
         console.log('📋 성적 목록 조회');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
-        if (!config.lecSerial) promptLecture();
+        ensureLectureSet();
         
         const data = {
             action: 'list-all',
@@ -620,7 +599,7 @@
         console.log('🏆 최종 등급 배정');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
-        if (!config.lecSerial) promptLecture();
+        ensureLectureSet();
         
         const data = {
             action: 'finalize',
@@ -734,37 +713,8 @@
         runAll: runAllTests
     };
     
-    console.log('✅ Phase 1 테스트 로드 완료 (독립 버전)');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🎯 완전 독립 실행 - 다른 파일 불필요!');
-    console.log('');
-    console.log('📝 기본 사용:');
-    console.log('   1. gradePhase1.setLecture("ETH201")     - 강의 지정');
-    console.log('   2. await gradePhase1.runAll()           - 전체 테스트 (5개)');
-    console.log('');
-    console.log('⚡ 간편 설정 (권장 - 즉시 서버 저장):');
-    console.log('   방법 1: await gradePhase1.quickConfig()                    - 프롬프트로 입력 + 즉시 저장');
-    console.log('   방법 2: await gradePhase1.updateServerConfig({...})        - 객체로 수정 + 즉시 저장');
-    console.log('   방법 3: await gradePhase1.getServerConfig()                - 서버 설정 조회');
-    console.log('');
-    console.log('   예시:');
-    console.log('   await gradePhase1.updateServerConfig({');
-    console.log('       attendanceMaxScore: 66,');
-    console.log('       latePenaltyPerSession: 0');
-    console.log('   })');
-    console.log('');
-    console.log('⚙️  기존 방식 (2단계 - 번거로움):');
-    console.log('   방법 1: gradePhase1.quickAttendanceConfig(80, 0.5)  - 로컬만 변경');
-    console.log('   방법 2: gradePhase1.promptConfig()                  - 대화형 입력 (로컬)');
-    console.log('   방법 3: gradePhase1.updateConfig({...})             - 객체로 변경 (로컬)');
-    console.log('   → 변경 후: await gradePhase1.config()               - 서버에 저장');
-    console.log('');
-    console.log('📋 개별 API:');
-    console.log('   await gradePhase1.config()          - 설정 서버 저장');
-    console.log('   await gradePhase1.studentInfo()     - 학생 성적 조회');
-    console.log('   await gradePhase1.professorView()   - 교수용 성적 조회');
-    console.log('   await gradePhase1.gradeList()       - 성적 목록 조회');
-    console.log('   await gradePhase1.finalize()        - 최종 등급 배정');
+    console.log('✅ Phase 1 테스트 로드 완료');
+    console.log('💡 상단 주석 참고: gradePhase1.setLecture("ETH201"); await gradePhase1.runAll()');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
 })();
