@@ -53,7 +53,6 @@ public class GradeManagementService {
             Integer lecIdx = (Integer) request.get("lecIdx");
             Integer attendanceMaxScore = (Integer) request.get("attendanceMaxScore");
             Integer assignmentTotalScore = (Integer) request.get("assignmentTotalScore");
-            Integer examTotalScore = (Integer) request.get("examTotalScore");
             
             // 지각 감점 설정 (교수 재량)
             // 0.0 = 감점 없음 (출석과 동일), 0.5 = 0.5점 감점, 1.0 = 1점 감점 등
@@ -72,7 +71,6 @@ public class GradeManagementService {
             Map<String, Object> gradeConfig = new HashMap<>();
             gradeConfig.put("attendanceMaxScore", attendanceMaxScore != null ? attendanceMaxScore : 20);
             gradeConfig.put("assignmentTotalScore", assignmentTotalScore != null ? assignmentTotalScore : 50);
-            gradeConfig.put("examTotalScore", examTotalScore != null ? examTotalScore : 30);
             
             // 지각 감점 설정 추가 (교수 재량)
             gradeConfig.put("latePenaltyPerSession", latePenaltyPerSession);
@@ -84,13 +82,12 @@ public class GradeManagementService {
             gradeConfig.put("gradeDistribution", gradeDistribution);
             gradeConfig.put("configuredAt", getCurrentDateTime());
 
-            // 총 만점 계산
+            // 총 만점 계산 (출석 + 과제)
             int totalMaxScore = (Integer) gradeConfig.get("attendanceMaxScore") +
-                                (Integer) gradeConfig.get("assignmentTotalScore") +
-                                (Integer) gradeConfig.get("examTotalScore");
+                                (Integer) gradeConfig.get("assignmentTotalScore");
             gradeConfig.put("totalMaxScore", totalMaxScore);
 
-            // ✅ DB에 gradeConfig 저장 (모든 수강생의 ENROLLMENT_DATA에 병합)
+            // ✅ DB에 gradeConfig 저장 및 모든 수강생의 성적 재계산
             List<EnrollmentExtendedTbl> enrollments = enrollmentRepository.findStudentsByLecture(lecIdx);
             int updatedCount = 0;
             
@@ -102,26 +99,13 @@ public class GradeManagementService {
                     // gradeConfig 병합 (기존 attendance, grade 데이터 유지)
                     currentData.put("gradeConfig", gradeConfig);
                     
-                    // ✅ grade 객체 초기화 (중복 제거: maxScore는 gradeConfig에만 존재)
-                    if (!currentData.containsKey("grade")) {
-                        Map<String, Object> gradeData = new HashMap<>();
-                        gradeData.put("attendance", Map.of(
-                            "currentScore", 0.0,
-                            "percentage", 0.0
-                        ));
-                        gradeData.put("assignments", new java.util.ArrayList<>());
-                        gradeData.put("total", Map.of(
-                            "maxScore", gradeConfig.get("attendanceMaxScore"),
-                            "score", 0.0,
-                            "percentage", 0.0
-                        ));
-                        currentData.put("grade", gradeData);
-                    }
-                    
-                    // JSON 직렬화 및 저장
+                    // JSON 직렬화 및 임시 저장
                     String updatedJson = objectMapper.writeValueAsString(currentData);
                     enrollment.setEnrollmentData(updatedJson);
                     enrollmentRepository.save(enrollment);
+                    
+                    // ✅ 성적 재계산 (과제 만점 포함하여 total.maxScore 자동 업데이트)
+                    gradeCalculationService.calculateStudentGrade(lecIdx, enrollment.getStudentIdx());
                     updatedCount++;
                     
                 } catch (JsonProcessingException e) {
