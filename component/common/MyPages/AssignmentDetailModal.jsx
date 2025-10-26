@@ -1,8 +1,12 @@
 import {useState, useEffect} from "react";
+import {UseUser} from "../../../hook/UseUser";
+import "../../../css/MyPages/AssignmentDetailModal.css"
 
-const AssignmentDetailModal = ({onClose}) => {
+const AssignmentDetailModal = ({onClose, assignmentIdx}) => {
     const maxScore = 10;
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
+    const {user} = UseUser();
+    const accessToken = user.data.accessToken;
     const [assignmentDetail, setAssignmentDetail] = useState();
 
     const fetchAssignmentDetail = async () => {
@@ -25,6 +29,12 @@ const AssignmentDetailModal = ({onClose}) => {
         }
     }
 
+    useEffect(() => {
+    if (accessToken && assignmentIdx) {
+      fetchAssignmentDetail(accessToken, assignmentIdx);
+    }
+  }, [accessToken, assignmentIdx]);
+
     console.log("assignmentDetail : ", assignmentDetail);
 
     return (
@@ -45,6 +55,10 @@ const AssignmentDetailModal = ({onClose}) => {
                     
                     <button onClick={onClose}>닫기</button>
                 </div>
+
+                <button className="approveAttendanceCloseBtn" onClick={onClose}>
+                    닫기
+                </button>
             </div>
         );
 }
