@@ -144,19 +144,27 @@ public class GradeCalculationService {
      */
     public Map<String, Object> calculateTotalScore(Map<String, Object> attendanceData,
                                                     List<Map<String, Object>> assignmentScores) {
-        // 출석 점수
-        double attendanceScore = ((Number) attendanceData.get("currentScore")).doubleValue();
+        // 출석 점수 (null 안전 처리)
+        double attendanceScore = attendanceData != null && attendanceData.get("currentScore") != null
+            ? ((Number) attendanceData.get("currentScore")).doubleValue()
+            : 0.0;
 
         // 과제 점수 합계
-        double assignmentScore = assignmentScores.stream()
-            .mapToDouble(a -> ((Number) a.get("score")).doubleValue())
-            .sum();
+        double assignmentScore = assignmentScores != null
+            ? assignmentScores.stream()
+                .mapToDouble(a -> ((Number) a.get("score")).doubleValue())
+                .sum()
+            : 0.0;
 
-        // 총 만점
-        double attendanceMax = ((Number) attendanceData.get("maxScore")).doubleValue();
-        double assignmentMax = assignmentScores.stream()
-            .mapToDouble(a -> ((Number) a.get("maxScore")).doubleValue())
-            .sum();
+        // 총 만점 (null 안전 처리)
+        double attendanceMax = attendanceData != null && attendanceData.get("maxScore") != null
+            ? ((Number) attendanceData.get("maxScore")).doubleValue()
+            : 0.0;
+        double assignmentMax = assignmentScores != null
+            ? assignmentScores.stream()
+                .mapToDouble(a -> ((Number) a.get("maxScore")).doubleValue())
+                .sum()
+            : 0.0;
 
         // 합계
         double totalScore = attendanceScore + assignmentScore;
