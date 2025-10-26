@@ -52,7 +52,9 @@ public class GradeManagementService {
         try {
             Integer lecIdx = (Integer) request.get("lecIdx");
             Integer attendanceMaxScore = (Integer) request.get("attendanceMaxScore");
-            Integer assignmentTotalScore = (Integer) request.get("assignmentTotalScore");
+            // assignmentTotalScore는 선택적 (과제 생성 시 자동 계산되므로 기본값 사용)
+            Integer assignmentTotalScore = request.get("assignmentTotalScore") != null ? 
+                (Integer) request.get("assignmentTotalScore") : null;
             
             // 지각 감점 설정 (교수 재량)
             // 0.0 = 감점 없음 (출석과 동일), 0.5 = 0.5점 감점, 1.0 = 1점 감점 등
@@ -83,8 +85,11 @@ public class GradeManagementService {
             gradeConfig.put("configuredAt", getCurrentDateTime());
 
             // 총 만점 계산 (출석 + 과제)
-            int totalMaxScore = (Integer) gradeConfig.get("attendanceMaxScore") +
-                                (Integer) gradeConfig.get("assignmentTotalScore");
+            // assignmentTotalScore가 null이면 기본값 사용 (과제 생성 시 동적 계산됨)
+            int attendanceScore = (Integer) gradeConfig.get("attendanceMaxScore");
+            int assignmentScore = gradeConfig.get("assignmentTotalScore") != null ? 
+                (Integer) gradeConfig.get("assignmentTotalScore") : 0;
+            int totalMaxScore = attendanceScore + assignmentScore;
             gradeConfig.put("totalMaxScore", totalMaxScore);
 
             // ✅ DB에 gradeConfig 저장 및 모든 수강생의 성적 재계산
