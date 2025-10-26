@@ -93,6 +93,7 @@ const AssignmentDetailModal = ({ onClose, onDelete, assignmentIdx }) => {
                         과제 삭제
                     </button>
                 )}
+                <br/>
                 <button className="assignmentDetailCloseBtn" onClick={onClose}>닫기</button>
             </div>
         </div>
