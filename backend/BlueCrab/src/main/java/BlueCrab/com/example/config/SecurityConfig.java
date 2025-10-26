@@ -216,6 +216,9 @@ public class SecurityConfig {
                 .anyRequest().permitAll() // 위에서 지정하지 않은 모든 요청 허용
             );
 
+        // SockJS iframe transport가 차단되지 않도록 동일 출처 iframe 허용
+        http.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
+
         // JWT 인증 필터를 UsernamePasswordAuthenticationFilter 전에 실행
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
