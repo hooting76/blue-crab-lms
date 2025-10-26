@@ -270,9 +270,12 @@ public InputStream downloadChatLog(String bucketName, String objectName) throws 
 **버킷 구조**:
 ```
 consultation-chats/
-├── chat-log-1-20251024-143022.txt
-├── chat-log-2-20251024-150145.txt
-└── chat-log-{requestIdx}-{yyyyMMdd-HHmmss}.txt
+├── archive/
+│   ├── chat_123_final.txt
+│   └── chat_{requestIdx}_final.txt
+└── temp/
+    ├── chat_123_snapshot_20251024140530.txt
+    └── chat_{requestIdx}_snapshot_{yyyyMMddHHmmss}.txt
 ```
 
 ---
@@ -361,39 +364,7 @@ public ConsultationRequestDto endConsultation(ConsultationIdDto idDto) {
         }
         
         // ========== 1. Redis → MinIO 아카이빙 ==========
-        Long requestIdx = idDto.getRequestIdx();
-        long messageCount = chatService.getMessageCount(requestIdx);
-        
-        if (messageCount > 0) {
-            log.info("채팅 로그 아카이빙 시작: requestIdx={}, messageCount={}", 
-                     requestIdx, messageCount);
-            
-            try {
-                // 1-1. 채팅 로그를 텍스트 형식으로 포맷
-                String chatLog = chatService.formatChatLog(requestIdx);
-                
-                // 1-2. MinIO에 업로드
-                String fileName = String.format("chat-log-%d-%s.txt", 
-                    requestIdx, 
-                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")));
-                
-                ByteArrayInputStream inputStream = new ByteArrayInputStream(
-                    chatLog.getBytes(StandardCharsets.UTF_8));
-                
-                minIOService.uploadChatLog("consultation-chats", fileName, 
-                                          inputStream, chatLog.length());
-                
-                log.info("채팅 로그 아카이빙 완료: {}", fileName);
-                
-                // 1-3. Redis에서 채팅 메시지 삭제
-                chatService.deleteMessages(requestIdx);
-                log.info("Redis 채팅 메시지 삭제 완료: requestIdx={}", requestIdx);
-                
-            } catch (Exception e) {
-                log.error("채팅 로그 아카이빙 실패: requestIdx={}", requestIdx, e);
-                // 아카이빙 실패해도 상담 종료는 계속 진행
-            }
-        }
+        archiveChatLog(consultation.getRequestIdx());
         
         // ========== 2. 상담 종료 처리 ==========
         LocalDateTime now = LocalDateTime.now();
@@ -608,13 +579,15 @@ ConsultationRequestServiceImpl.endConsultation()
   │        │   │        │
   │        │   │        ├─► ByteArrayInputStream
   │        │   │        │
-  │        │   │        ├─► MinIO PUT
+  │        │   │        ├─► MinIO PUT (archive/chat_{id}_final.txt)
   │        │   │        │
-  │        │   │        └─► consultation-chats/{filename}
+  │        │   │        └─► consultation-chats/archive/...
   │        │   │
-  │        │   └─► chatService.deleteMessages()
-  │        │            │
-  │        │            └─► Redis DEL chat:room:{id}
+  │        │   ├─► chatService.deleteMessages()
+  │        │   │        │
+  │        │   │        └─► Redis DEL chat:room:{id}
+  │        │   │
+  │        │   └─► clearTempSnapshots()
   │        │
   │        └─ NO ─► Skip archiving
   │
@@ -628,7 +601,8 @@ ConsultationRequestServiceImpl.endConsultation()
 
 [결과]
 ✓ Redis 메시지 삭제 (메모리 확보)
-✓ MinIO 영구 저장
+✓ MinIO 영구 저장 (archive/chat_{id}_final.txt)
+✓ MinIO temp 스냅샷 정리
 ✓ DB 상태 업데이트
 ```
 
@@ -827,7 +801,7 @@ Authorization: Bearer {token}
 mc ls minio/consultation-chats/
 
 # 예상 출력
-[2025-10-24 14:30:22 KST]   15KiB chat-log-123-20251024-143022.txt
+[2025-10-24 14:30:22 KST]  15KiB archive/chat_123_final.txt   # temp/ 스냅샷은 정리되어 목록에 표시되지 않음
 ```
 
 #### 3.3 Redis 삭제 확인
@@ -913,18 +887,19 @@ Authorization: Bearer {token}
 ### Stage 3: 알림 및 확장 기능 (예정)
 
 #### 3.1 FCM Push 알림
-- [ ] 새 메시지 알림
-- [ ] 상담 시작/종료 알림
-- [ ] 배치 알림 (N개 메시지 묶음)
+- [x] 새 메시지 알림
+- [x] 상담 시작/종료 알림
+- [x] 상담 요청/승인/반려/취소 알림
+- [x] 배치 알림 (N개 메시지 묶음)
 
 #### 3.2 읽음 확인 (Read Receipts)
-- [ ] 메시지 읽음 상태 추적
-- [ ] 읽음 시간 기록
+- [x] 메시지 읽음 상태 추적
+- [x] 읽음 시간 기록
 - [ ] UI 표시 (WhatsApp 스타일)
 
 #### 3.3 스케줄러 완성
-- [ ] ChatBackupScheduler 구현 (5분마다 임시 백업)
-- [ ] OrphanedRoomCleanupScheduler 구현 (60시간 이상 방 청소)
+- [x] ChatBackupScheduler 구현 (5분마다 임시 백업)
+- [x] OrphanedRoomCleanupScheduler 구현 (60시간 이상 방 청소)
 
 #### 3.4 고급 기능
 - [ ] 파일 첨부 (이미지, 문서)
@@ -946,8 +921,10 @@ Authorization: Bearer {token}
 
 ```
 consultation-chats/
-├── chat-log-{requestIdx}-{yyyyMMdd-HHmmss}.txt
-└── (상담 종료 시 생성)
+├── archive/
+│   └── chat_{requestIdx}_final.txt      # 상담 종료 시 생성
+└── temp/
+    └── chat_{requestIdx}_snapshot_{yyyyMMddHHmmss}.txt
 ```
 
 ### C. DB 스키마 변경 (필요 시)

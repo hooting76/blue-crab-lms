@@ -1,12 +1,17 @@
 package BlueCrab.com.example.controller;
 
 import BlueCrab.com.example.dto.Consultation.ChatMessageDto;
+import BlueCrab.com.example.dto.Consultation.ChatReadReceiptDto;
+import BlueCrab.com.example.dto.Consultation.ConsultationReadReceiptDto;
 import BlueCrab.com.example.entity.ConsultationRequest;
 import BlueCrab.com.example.entity.UserTbl;
 import BlueCrab.com.example.repository.ConsultationRequestRepository;
 import BlueCrab.com.example.repository.UserTblRepository;
 import BlueCrab.com.example.service.ChatService;
+import BlueCrab.com.example.service.ConsultationRequestService;
+import BlueCrab.com.example.service.notification.ChatNotificationService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -36,15 +41,21 @@ public class ChatController {
     private final ChatService chatService;
     private final ConsultationRequestRepository consultationRequestRepository;
     private final UserTblRepository userTblRepository;
+    private final ConsultationRequestService consultationRequestService;
+    private final ChatNotificationService chatNotificationService;
 
     public ChatController(SimpMessagingTemplate messagingTemplate,
                          ChatService chatService,
                          ConsultationRequestRepository consultationRequestRepository,
-                         UserTblRepository userTblRepository) {
+                         UserTblRepository userTblRepository,
+                         ConsultationRequestService consultationRequestService,
+                         ObjectProvider<ChatNotificationService> chatNotificationServiceProvider) {
         this.messagingTemplate = messagingTemplate;
         this.chatService = chatService;
         this.consultationRequestRepository = consultationRequestRepository;
         this.userTblRepository = userTblRepository;
+        this.consultationRequestService = consultationRequestService;
+        this.chatNotificationService = chatNotificationServiceProvider.getIfAvailable();
     }
 
     /**
@@ -107,6 +118,15 @@ public class ChatController {
                 message
             );
 
+            if (chatNotificationService != null) {
+                try {
+                    chatNotificationService.notifyNewMessage(message, recipientCode);
+                } catch (Exception notifyError) {
+                    log.warn("채팅 알림 전송 실패: requestIdx={}, recipient={}, error={}",
+                             message.getRequestIdx(), recipientCode, notifyError.getMessage(), notifyError);
+                }
+            }
+
         } catch (SecurityException e) {
             log.error("메시지 전송 실패 (권한): {}", e.getMessage());
             // 클라이언트에게 에러 메시지 전송 (선택 사항)
@@ -115,6 +135,70 @@ public class ChatController {
         } catch (Exception e) {
             log.error("메시지 전송 실패: requestIdx={}", message.getRequestIdx(), e);
             sendErrorToUser(senderCode, "메시지 전송에 실패했습니다.");
+        }
+    }
+
+    /**
+     * 채팅 읽음 처리
+     *
+     * @param payload   읽음 처리 대상 상담 정보
+     * @param principal 인증된 사용자
+     */
+    @MessageMapping("/chat.read")
+    public void acknowledgeRead(@Payload ChatReadReceiptDto payload, Principal principal) {
+        if (payload == null || payload.getRequestIdx() == null) {
+            log.warn("읽음 처리 실패 - 요청 ID 누락");
+            return;
+        }
+
+        String readerIdentifier = principal.getName();
+        String readerCode = convertToUserCode(readerIdentifier);
+
+        if (readerCode == null) {
+            log.warn("읽음 처리 실패 - 사용자 식별 불가: identifier={}", readerIdentifier);
+            sendErrorToUser(readerIdentifier, "사용자 정보를 확인할 수 없습니다. 다시 로그인해주세요.");
+            return;
+        }
+
+        Long requestIdx = payload.getRequestIdx();
+
+        if (!chatService.isParticipant(requestIdx, readerCode)) {
+            log.warn("읽음 처리 실패 - 권한 없음: requestIdx={}, reader={}", requestIdx, readerCode);
+            sendErrorToUser(readerCode, "해당 상담방에 접근 권한이 없습니다.");
+            return;
+        }
+
+        try {
+            ConsultationReadReceiptDto receipt =
+                consultationRequestService.updateReadTime(requestIdx, readerCode);
+
+            ChatReadReceiptDto event = new ChatReadReceiptDto(
+                receipt.getRequestIdx(),
+                readerCode,
+                getSenderName(readerCode),
+                receipt.getReadAt(),
+                receipt.getLastActivityAt(),
+                receipt.isAllMessagesRead()
+            );
+
+            messagingTemplate.convertAndSendToUser(
+                readerCode,
+                "/queue/read-receipts",
+                event
+            );
+
+            String partnerCode = receipt.getPartnerUserCode();
+            if (partnerCode != null) {
+                messagingTemplate.convertAndSendToUser(
+                    partnerCode,
+                    "/queue/read-receipts",
+                    event
+                );
+            }
+
+        } catch (Exception e) {
+            log.error("읽음 처리 실패 (WebSocket): requestIdx={}, reader={}", requestIdx, readerCode, e);
+            sendErrorToUser(readerCode, "읽음 처리에 실패했습니다.");
         }
     }
 
@@ -179,9 +263,8 @@ public class ChatController {
                 consultation.setConsultationStatus("IN_PROGRESS");
                 consultation.setStartedAt(LocalDateTime.now());
                 consultation.setLastActivityAt(LocalDateTime.now());
-                consultationRequestRepository.save(consultation);
-                
-                log.info("첫 메시지로 상담 자동 시작: requestIdx={}", requestIdx);
+                ConsultationRequest saved = consultationRequestRepository.save(consultation);
+                log.info("첫 메시지로 상담 자동 시작: requestIdx={}", saved.getRequestIdx());
             }
             
         } catch (Exception e) {

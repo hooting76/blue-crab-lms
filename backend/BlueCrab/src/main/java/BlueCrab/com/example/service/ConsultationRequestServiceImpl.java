@@ -8,7 +8,10 @@ import BlueCrab.com.example.enums.ConsultationType;
 import BlueCrab.com.example.enums.RequestStatus;
 import BlueCrab.com.example.repository.ConsultationRequestRepository;
 import BlueCrab.com.example.repository.UserTblRepository;
+import BlueCrab.com.example.service.notification.ChatNotificationService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +22,6 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -46,17 +48,29 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
     private final UserTblRepository userRepository;
     private final ChatService chatService;
     private final MinIOService minIOService;
+    private final ChatNotificationService chatNotificationService;
+    private final String chatBucket;
+    private final String tempPrefix;
+    private final String archivePrefix;
 
     public ConsultationRequestServiceImpl(
         ConsultationRequestRepository consultationRepository,
         UserTblRepository userRepository,
         ChatService chatService,
-        MinIOService minIOService
+        MinIOService minIOService,
+        ObjectProvider<ChatNotificationService> chatNotificationServiceProvider,
+        @Value("${app.chat.minio.bucket:consultation-chats}") String chatBucket,
+        @Value("${app.chat.minio.temp-prefix:temp}") String tempPrefix,
+        @Value("${app.chat.minio.archive-prefix:archive}") String archivePrefix
     ) {
         this.consultationRepository = consultationRepository;
         this.userRepository = userRepository;
         this.chatService = chatService;
         this.minIOService = minIOService;
+        this.chatNotificationService = chatNotificationServiceProvider.getIfAvailable();
+        this.chatBucket = chatBucket;
+        this.tempPrefix = normalizePrefix(tempPrefix);
+        this.archivePrefix = normalizePrefix(archivePrefix);
     }
 
     @Override
@@ -83,6 +97,15 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
             ConsultationRequest saved = consultationRepository.save(consultation);
 
             log.info("상담 요청 생성 완료: requestIdx={}", saved.getRequestIdx());
+
+            if (chatNotificationService != null) {
+                try {
+                    chatNotificationService.notifyConsultationRequested(saved);
+                } catch (Exception notifyError) {
+                    log.warn("상담 요청 생성 알림 전송 실패: requestIdx={}, error={}",
+                             saved.getRequestIdx(), notifyError.getMessage(), notifyError);
+                }
+            }
 
             return toDto(saved);
 
@@ -116,6 +139,15 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
 
             log.info("상담 요청 승인 완료: requestIdx={}", saved.getRequestIdx());
 
+            if (chatNotificationService != null) {
+                try {
+                    chatNotificationService.notifyConsultationApproved(saved);
+                } catch (Exception notifyError) {
+                    log.warn("상담 승인 알림 전송 실패: requestIdx={}, error={}",
+                             saved.getRequestIdx(), notifyError.getMessage(), notifyError);
+                }
+            }
+
             return toDto(saved);
 
         } catch (Exception e) {
@@ -146,6 +178,15 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
             ConsultationRequest saved = consultationRepository.save(consultation);
 
             log.info("상담 요청 반려 완료: requestIdx={}", saved.getRequestIdx());
+
+            if (chatNotificationService != null) {
+                try {
+                    chatNotificationService.notifyConsultationRejected(saved);
+                } catch (Exception notifyError) {
+                    log.warn("상담 반려 알림 전송 실패: requestIdx={}, error={}",
+                             saved.getRequestIdx(), notifyError.getMessage(), notifyError);
+                }
+            }
 
             return toDto(saved);
 
@@ -184,6 +225,15 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
 
             log.info("상담 요청 취소 완료: requestIdx={}", saved.getRequestIdx());
 
+            if (chatNotificationService != null) {
+                try {
+                    chatNotificationService.notifyConsultationCancelled(saved);
+                } catch (Exception notifyError) {
+                    log.warn("상담 취소 알림 전송 실패: requestIdx={}, error={}",
+                             saved.getRequestIdx(), notifyError.getMessage(), notifyError);
+                }
+            }
+
             return toDto(saved);
 
         } catch (Exception e) {
@@ -217,6 +267,15 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
 
             log.info("상담 시작 완료: requestIdx={}", saved.getRequestIdx());
 
+            if (chatNotificationService != null) {
+                try {
+                    chatNotificationService.notifyConsultationStarted(saved);
+                } catch (Exception notifyError) {
+                    log.warn("상담 시작 알림 전송 실패: requestIdx={}, error={}",
+                             saved.getRequestIdx(), notifyError.getMessage(), notifyError);
+                }
+            }
+
             return toDto(saved);
 
         } catch (Exception e) {
@@ -240,60 +299,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
                     + consultation.getConsultationStatus());
             }
 
-            // 1. Redis 채팅 로그 조회 및 MinIO 아카이빙
-            Long requestIdx = idDto.getRequestIdx();
-            long messageCount = chatService.getMessageCount(requestIdx);
-            
-            if (messageCount > 0) {
-                log.info("채팅 로그 아카이빙 시작: requestIdx={}, messageCount={}", requestIdx, messageCount);
-                
-                try {
-                    // 채팅 로그를 텍스트 형식으로 포맷
-                    String chatLog = chatService.formatChatLog(requestIdx);
-                    
-                    // MinIO에 업로드
-                    String fileName = String.format("chat-log-%d-%s.txt", 
-                        requestIdx, 
-                        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")));
-                    
-                    ByteArrayInputStream inputStream = new ByteArrayInputStream(
-                        chatLog.getBytes(StandardCharsets.UTF_8));
-                    
-                    minIOService.uploadChatLog("consultation-chats", fileName, inputStream, chatLog.length());
-                    
-                    // 채팅 로그 경로를 DB에 저장 (chat_log_url 컬럼이 있다면)
-                    // consultation.setChatLogUrl("consultation-chats/" + fileName);
-                    
-                    log.info("채팅 로그 아카이빙 완료: {}", fileName);
-                    
-                    // Redis에서 채팅 메시지 삭제
-                    chatService.deleteMessages(requestIdx);
-                    log.info("Redis 채팅 메시지 삭제 완료: requestIdx={}", requestIdx);
-                    
-                } catch (Exception e) {
-                    log.error("채팅 로그 아카이빙 실패: requestIdx={}", requestIdx, e);
-                    // 아카이빙 실패해도 상담 종료는 계속 진행
-                }
-            } else {
-                log.info("채팅 메시지가 없어 아카이빙 생략: requestIdx={}", requestIdx);
-            }
-
-            // 2. 상담 종료 처리
-            LocalDateTime now = LocalDateTime.now();
-            consultation.setConsultationStatusEnum(ConsultationStatus.COMPLETED);
-            consultation.setEndedAt(now);
-
-            // 상담 시간 계산 (분 단위)
-            if (consultation.getStartedAt() != null) {
-                Duration duration = Duration.between(consultation.getStartedAt(), now);
-                consultation.setDurationMinutes((int) duration.toMinutes());
-            }
-
-            ConsultationRequest saved = consultationRepository.save(consultation);
-
-            log.info("상담 종료 완료: requestIdx={}, duration={}분",
-                     saved.getRequestIdx(), saved.getDurationMinutes());
-
+            ConsultationRequest saved = completeConsultation(consultation, true);
             return toDto(saved);
 
         } catch (Exception e) {
@@ -458,7 +464,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
     }
 
     @Override
-    public void updateReadTime(Long requestIdx, String userCode) {
+    public ConsultationReadReceiptDto updateReadTime(Long requestIdx, String userCode) {
         try {
             log.info("읽음 시간 업데이트: requestIdx={}, userCode={}", requestIdx, userCode);
 
@@ -472,19 +478,44 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
             }
 
             LocalDateTime now = LocalDateTime.now();
+            String partnerUserCode = null;
 
             // 요청자인 경우 학생 읽음 시간 업데이트
             if (consultation.getRequesterUserCode().equals(userCode)) {
                 consultation.setLastReadTimeStudent(now);
+                partnerUserCode = consultation.getRecipientUserCode();
             }
             // 수신자인 경우 교수 읽음 시간 업데이트
             else if (consultation.getRecipientUserCode().equals(userCode)) {
                 consultation.setLastReadTimeProfessor(now);
+                partnerUserCode = consultation.getRequesterUserCode();
             }
 
             consultationRepository.save(consultation);
 
+            LocalDateTime lastActivityAt = consultation.getLastActivityAt();
+            boolean allMessagesRead = lastActivityAt == null || !lastActivityAt.isAfter(now);
+
+            ConsultationReadReceiptDto receipt = new ConsultationReadReceiptDto(
+                requestIdx,
+                userCode,
+                partnerUserCode,
+                now,
+                lastActivityAt,
+                allMessagesRead
+            );
+
+            if (chatNotificationService != null) {
+                try {
+                    chatNotificationService.notifyReadReceipt(receipt);
+                } catch (Exception notifyError) {
+                    log.warn("읽음 알림 전송 실패: requestIdx={}, reader={}, error={}",
+                             requestIdx, userCode, notifyError.getMessage(), notifyError);
+                }
+            }
+
             log.info("읽음 시간 업데이트 완료: requestIdx={}", requestIdx);
+            return receipt;
 
         } catch (Exception e) {
             log.error("읽음 시간 업데이트 실패: {}", e.getMessage(), e);
@@ -503,17 +534,13 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
 
             int count = 0;
             for (ConsultationRequest consultation : inactiveConsultations) {
-                consultation.setConsultationStatusEnum(ConsultationStatus.COMPLETED);
-                consultation.setEndedAt(LocalDateTime.now());
-
-                // 상담 시간 계산
-                if (consultation.getStartedAt() != null) {
-                    Duration duration = Duration.between(consultation.getStartedAt(), consultation.getEndedAt());
-                    consultation.setDurationMinutes((int) duration.toMinutes());
+                try {
+                    completeConsultation(consultation, true);
+                    count++;
+                } catch (Exception completionError) {
+                    log.warn("비활성 상담 자동 종료 실패 - requestIdx={}, error={}",
+                             consultation.getRequestIdx(), completionError.getMessage(), completionError);
                 }
-
-                consultationRepository.save(consultation);
-                count++;
             }
 
             log.info("비활성 상담 자동 종료 완료: {}건", count);
@@ -536,17 +563,13 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
 
             int count = 0;
             for (ConsultationRequest consultation : longRunningConsultations) {
-                consultation.setConsultationStatusEnum(ConsultationStatus.COMPLETED);
-                consultation.setEndedAt(LocalDateTime.now());
-
-                // 상담 시간 계산
-                if (consultation.getStartedAt() != null) {
-                    Duration duration = Duration.between(consultation.getStartedAt(), consultation.getEndedAt());
-                    consultation.setDurationMinutes((int) duration.toMinutes());
+                try {
+                    completeConsultation(consultation, true);
+                    count++;
+                } catch (Exception completionError) {
+                    log.warn("장시간 상담 자동 종료 실패 - requestIdx={}, error={}",
+                             consultation.getRequestIdx(), completionError.getMessage(), completionError);
                 }
-
-                consultationRepository.save(consultation);
-                count++;
             }
 
             log.info("장시간 실행 상담 자동 종료 완료: {}건", count);
@@ -573,6 +596,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
         dto.setTitle(entity.getTitle());
         dto.setContent(entity.getContent());
         dto.setDesiredDate(entity.getDesiredDate());
+        dto.setScheduledStartAt(entity.getDesiredDate());
         dto.setRequestStatus(entity.getRequestStatusEnum());
         dto.setAcceptMessage(entity.getAcceptMessage());
         dto.setRejectionReason(entity.getRejectionReason());
@@ -619,5 +643,113 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
     private boolean isParticipant(ConsultationRequest consultation, String userCode) {
         return consultation.getRequesterUserCode().equals(userCode)
             || consultation.getRecipientUserCode().equals(userCode);
+    }
+
+    private ConsultationRequest completeConsultation(ConsultationRequest consultation, boolean sendNotification) {
+        Long requestIdx = consultation.getRequestIdx();
+        archiveChatLog(requestIdx);
+
+        LocalDateTime now = LocalDateTime.now();
+        consultation.setConsultationStatusEnum(ConsultationStatus.COMPLETED);
+        consultation.setEndedAt(now);
+
+        if (consultation.getStartedAt() != null) {
+            Duration duration = Duration.between(consultation.getStartedAt(), now);
+            consultation.setDurationMinutes((int) duration.toMinutes());
+        }
+
+        ConsultationRequest saved = consultationRepository.save(consultation);
+
+        log.info("상담 종료 처리 완료: requestIdx={}, duration={}분",
+                 saved.getRequestIdx(), saved.getDurationMinutes());
+
+        if (sendNotification && chatNotificationService != null) {
+            try {
+                chatNotificationService.notifyConsultationEnded(saved);
+            } catch (Exception notifyError) {
+                log.warn("상담 종료 알림 전송 실패: requestIdx={}, error={}",
+                         saved.getRequestIdx(), notifyError.getMessage(), notifyError);
+            }
+        }
+
+        return saved;
+    }
+
+    private void archiveChatLog(Long requestIdx) {
+        String archiveObjectName = buildArchiveObjectName(requestIdx);
+        try {
+            String chatLog = chatService.formatChatLog(requestIdx);
+            byte[] chatLogBytes = chatLog.getBytes(StandardCharsets.UTF_8);
+
+            try (ByteArrayInputStream inputStream = new ByteArrayInputStream(chatLogBytes)) {
+                minIOService.uploadChatLog(chatBucket, archiveObjectName, inputStream, chatLogBytes.length);
+                log.info("채팅 로그 아카이빙 완료: bucket={}, object={}", chatBucket, archiveObjectName);
+            }
+
+            try {
+                chatService.deleteMessages(requestIdx);
+                log.info("Redis 채팅 메시지 삭제 완료: requestIdx={}", requestIdx);
+            } catch (Exception redisError) {
+                log.warn("Redis 채팅 메시지 삭제 실패: requestIdx={}, error={}",
+                         requestIdx, redisError.getMessage(), redisError);
+            }
+
+            clearTempSnapshots(requestIdx);
+        } catch (Exception e) {
+            log.error("채팅 로그 아카이빙 실패: requestIdx={}, object={}, error={}",
+                      requestIdx, archiveObjectName, e.getMessage(), e);
+        }
+    }
+
+    private void clearTempSnapshots(Long requestIdx) {
+        if (tempPrefix.isEmpty()) {
+            log.debug("temp prefix 미설정으로 임시 스냅샷 정리를 생략합니다.");
+            return;
+        }
+
+        String snapshotPrefix = buildTempSnapshotPrefix(requestIdx);
+        try {
+            List<String> snapshots = minIOService.listObjects(chatBucket, snapshotPrefix);
+            if (snapshots.isEmpty()) {
+                log.debug("정리할 임시 스냅샷이 없습니다: requestIdx={}", requestIdx);
+                return;
+            }
+
+            for (String objectName : snapshots) {
+                minIOService.deleteObject(chatBucket, objectName);
+            }
+
+            log.info("임시 스냅샷 정리 완료: requestIdx={}, deleted={}", requestIdx, snapshots.size());
+        } catch (Exception e) {
+            log.warn("임시 스냅샷 정리 실패: requestIdx={}, error={}",
+                     requestIdx, e.getMessage(), e);
+        }
+    }
+
+    private String buildArchiveObjectName(Long requestIdx) {
+        String fileName = "chat_" + requestIdx + "_final.txt";
+        return archivePrefix.isEmpty() ? fileName : archivePrefix + "/" + fileName;
+    }
+
+    private String buildTempSnapshotPrefix(Long requestIdx) {
+        String base = "chat_" + requestIdx + "_snapshot_";
+        return tempPrefix.isEmpty() ? base : tempPrefix + "/" + base;
+    }
+
+    private String normalizePrefix(String prefix) {
+        if (prefix == null) {
+            return "";
+        }
+
+        String normalized = prefix.trim();
+
+        if (normalized.startsWith("/")) {
+            normalized = normalized.substring(1);
+        }
+        if (normalized.endsWith("/")) {
+            normalized = normalized.substring(0, normalized.length() - 1);
+        }
+
+        return normalized;
     }
 }

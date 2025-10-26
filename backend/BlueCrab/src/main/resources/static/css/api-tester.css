@@ -195,6 +195,13 @@ input:focus, select:focus, textarea:focus {
     border-color: #3498db;
 }
 
+input[type="checkbox"],
+input[type="radio"] {
+    width: auto;
+    padding: 0;
+    margin: 0 6px 0 0;
+}
+
 .form-data-container {
     border: 1px dashed #95a5a6;
     background: #f4f9ff;
@@ -510,6 +517,154 @@ button.full-width {
 
 .attachment-status-card .button-group button {
     min-width: 120px;
+}
+
+/* ==================== Chat Tester Enhancements ==================== */
+
+.chat-read-panel {
+    background: #ffffff;
+    border: 1px solid #dde4f0;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 16px;
+}
+
+.chat-read-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.chat-read-controls label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #2c3e50;
+    cursor: pointer;
+}
+
+.chat-read-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.chat-read-buttons button {
+    margin: 0;
+    flex: 0 0 auto;
+}
+
+.chat-read-status {
+    background: #f7f9ff;
+    border: 1px solid #e0e6ff;
+    border-radius: 6px;
+    padding: 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.chat-read-status-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.chat-read-status-item .label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #7a869a;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.chat-read-status-item .value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2d3436;
+}
+
+.chat-read-status-item .value.status-ok {
+    color: #1e7e34;
+}
+
+.chat-read-status-item .value.status-pending {
+    color: #d35400;
+}
+
+.chat-read-log {
+    margin-top: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 10px;
+    background: #ffffff;
+}
+
+.chat-read-log::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-read-log::-webkit-scrollbar-thumb {
+    background: rgba(44, 62, 80, 0.2);
+    border-radius: 3px;
+}
+
+.chat-read-log-item {
+    border-bottom: 1px dashed #e9ecef;
+    padding: 6px 0;
+    font-size: 13px;
+    color: #2c3e50;
+}
+
+.chat-read-log-item:last-child {
+    border-bottom: none;
+}
+
+.chat-read-log-item .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.chat-read-log-item .reader {
+    font-weight: 600;
+}
+
+.chat-read-log-item .source-badge {
+    background: #eef2ff;
+    color: #3c4a9a;
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.chat-read-log-item .messages-status {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.chat-read-log-item .messages-status.status-ok {
+    color: #1e7e34;
+}
+
+.chat-read-log-item .messages-status.status-pending {
+    color: #d35400;
+}
+
+.chat-read-placeholder {
+    text-align: center;
+    color: #95a5a6;
+    padding: 18px 0;
+    font-size: 13px;
 }
 
 .attachment-log {

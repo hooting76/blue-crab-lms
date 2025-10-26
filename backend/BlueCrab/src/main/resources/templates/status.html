@@ -287,6 +287,30 @@
                     </div>
                 </div>
 
+                <!-- 읽음 확인 패널 -->
+                <div class="chat-read-panel">
+                    <div class="chat-read-controls">
+                        <label>
+                            <input type="checkbox" id="chatAutoReadToggle" checked>
+                            새 메시지 수신 시 자동 읽음 처리
+                        </label>
+                        <div class="chat-read-buttons">
+                            <button class="success" onclick="sendReadReceiptWs(true)">🟢 WebSocket 읽음 처리</button>
+                            <button class="primary" onclick="sendReadReceiptRest()">📮 REST 읽음 처리</button>
+                            <button class="danger" onclick="clearReadReceiptLog()">🧹 로그 초기화</button>
+                        </div>
+                    </div>
+                    <div class="chat-read-status" id="chatReadReceiptStatus">
+                        <div class="chat-read-status-item">
+                            <span class="label">읽음 정보</span>
+                            <span class="value">수신된 읽음 이벤트가 없습니다.</span>
+                        </div>
+                    </div>
+                    <div class="chat-read-log" id="chatReadReceiptLog">
+                        <div class="chat-read-placeholder">읽음 이벤트가 표시됩니다...</div>
+                    </div>
+                </div>
+
                 <!-- REST API 테스트 -->
                 <div class="chat-api-panel">
                     <div class="chat-api-title">📡 REST API 테스트</div>

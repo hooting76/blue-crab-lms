@@ -5,6 +5,78 @@ let stompClient = null;
 let currentRequestIdx = null;
 let chatMessages = [];
 let isConnected = false;
+let autoReadReceiptEnabled = true;
+let readReceiptEvents = [];
+let scheduledReadTask = null;
+let cachedUserInfo = null;
+
+// ==================== 유틸리티 ====================
+
+/**
+ * 로컬 스토리지에 저장된 JWT에서 사용자 정보를 추출한다.
+ */
+function getCurrentUserInfo(forceRefresh = false) {
+    if (!forceRefresh && cachedUserInfo) {
+        return cachedUserInfo;
+    }
+
+    const accessToken = localStorage.getItem('bluecrab_access_token');
+    if (!accessToken) {
+        return null;
+    }
+
+    try {
+        const payloadPart = accessToken.split('.')[1];
+        if (!payloadPart) {
+            return null;
+        }
+
+        const payload = JSON.parse(atob(payloadPart));
+        const userCode = payload.userCode || payload.sub || payload.email || null;
+        const userName = payload.userName || payload.name || payload.userFullName || null;
+
+        cachedUserInfo = {
+            token: accessToken,
+            userCode,
+            userName,
+            payload
+        };
+
+        return cachedUserInfo;
+    } catch (error) {
+        console.warn('JWT 파싱 실패:', error);
+        return null;
+    }
+}
+
+function getCurrentUserCode() {
+    const info = getCurrentUserInfo();
+    return info ? info.userCode : null;
+}
+
+function getCurrentUserName() {
+    const info = getCurrentUserInfo();
+    return info ? info.userName : null;
+}
+
+function formatDateTime(value) {
+    if (!value) {
+        return '-';
+    }
+
+    try {
+        const date = value instanceof Date ? value : new Date(value.toString().replace(' ', 'T'));
+        return date.toLocaleString('ko-KR', {
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+    } catch (error) {
+        return value;
+    }
+}
 
 // ==================== WebSocket 연결 관리 ====================
 
@@ -21,13 +93,17 @@ function connectWebSocket() {
     }
 
     // JWT 토큰 확인
-    const accessToken = localStorage.getItem('bluecrab_access_token');
-    if (!accessToken) {
+    const userInfo = getCurrentUserInfo(true);
+    if (!userInfo || !userInfo.token) {
         addChatLog('로그인이 필요합니다. 먼저 JWT 토큰을 발급받으세요.', 'error');
         return;
     }
 
+    const accessToken = userInfo.token;
     currentRequestIdx = parseInt(requestIdx);
+    autoReadReceiptEnabled = document.getElementById('chatAutoReadToggle')
+        ? document.getElementById('chatAutoReadToggle').checked
+        : true;
 
     // 연결 상태 업데이트
     updateConnectionStatus('connecting');
@@ -63,10 +139,11 @@ function onWebSocketConnected(frame) {
     updateConnectionStatus('connected');
     addChatLog('✅ WebSocket 연결 성공', 'success');
 
-    // Personal Queue 구독
-    const accessToken = localStorage.getItem('bluecrab_access_token');
-    const payload = JSON.parse(atob(accessToken.split('.')[1]));
-    const userCode = payload.sub || 'UNKNOWN';
+    const userInfo = getCurrentUserInfo();
+    const userCode = userInfo?.userCode || 'UNKNOWN';
+    const userName = userInfo?.userName;
+
+    addChatLog(`👤 로그인 사용자: ${userName ? `${userName} (${userCode})` : userCode}`, 'info');
 
     // 채팅 메시지 큐 구독
     stompClient.subscribe('/user/queue/chat', function(message) {
@@ -80,7 +157,18 @@ function onWebSocketConnected(frame) {
         addChatLog(`❌ 서버 에러: ${errorMessage}`, 'error');
     });
 
-    addChatLog(`📡 STOMP 구독 완료: /user/queue/chat, /user/queue/errors`, 'success');
+    // 읽음 확인 이벤트 구독
+    stompClient.subscribe('/user/queue/read-receipts', function(message) {
+        try {
+            const receipt = JSON.parse(message.body);
+            handleReadReceipt(receipt);
+        } catch (error) {
+            console.warn('읽음 이벤트 파싱 실패:', error);
+            addChatLog(`읽음 이벤트 파싱 실패: ${error.message}`, 'warning');
+        }
+    });
+
+    addChatLog(`📡 STOMP 구독 완료: /user/queue/chat, /user/queue/read-receipts, /user/queue/errors`, 'success');
 
     // 기존 메시지 로드
     fetchChatMessages(currentRequestIdx);
@@ -101,6 +189,11 @@ function onWebSocketError(error) {
  */
 function disconnectWebSocket() {
     if (stompClient !== null && isConnected) {
+        if (scheduledReadTask) {
+            clearTimeout(scheduledReadTask);
+            scheduledReadTask = null;
+        }
+
         stompClient.disconnect(function() {
             isConnected = false;
             updateConnectionStatus('disconnected');
@@ -198,6 +291,10 @@ function receiveMessage(message) {
 
     // 메시지 카운트 업데이트
     updateMessageCount();
+
+    if (autoReadReceiptEnabled) {
+        scheduleReadReceipt();
+    }
 }
 
 /**
@@ -213,9 +310,7 @@ function displayMessage(message) {
     }
 
     // JWT에서 현재 사용자 정보 추출
-    const accessToken = localStorage.getItem('bluecrab_access_token');
-    const payload = JSON.parse(atob(accessToken.split('.')[1]));
-    const currentUserCode = payload.sub || 'UNKNOWN';
+    const currentUserCode = getCurrentUserCode();
 
     // 메시지 아이템 생성
     const messageItem = document.createElement('div');
@@ -297,6 +392,227 @@ function updateMessageCount() {
     countElement.textContent = `메시지: ${chatMessages.length}개`;
 }
 
+// ==================== 읽음 확인 (Read Receipts) ====================
+
+function scheduleReadReceipt(delayMs = 400) {
+    if (scheduledReadTask) {
+        clearTimeout(scheduledReadTask);
+    }
+
+    if (!autoReadReceiptEnabled || !currentRequestIdx || !isConnected || !stompClient) {
+        return;
+    }
+
+    scheduledReadTask = setTimeout(() => {
+        sendReadReceiptWs(false);
+    }, delayMs);
+}
+
+function sendReadReceiptWs(manual = true) {
+    if (scheduledReadTask) {
+        clearTimeout(scheduledReadTask);
+        scheduledReadTask = null;
+    }
+
+    if (!currentRequestIdx) {
+        addChatLog('읽음 처리 실패: 상담 요청 번호가 설정되지 않았습니다.', 'error');
+        return;
+    }
+
+    if (!isConnected || !stompClient) {
+        addChatLog('읽음 처리 실패: WebSocket 연결이 필요합니다.', 'error');
+        return;
+    }
+
+    try {
+        stompClient.send("/app/chat.read", {}, JSON.stringify({
+            requestIdx: currentRequestIdx
+        }));
+
+        addChatLog(manual ? '🟢 WebSocket 읽음 처리 요청 전송' : '🟢 WebSocket 자동 읽음 처리 전송', 'info');
+    } catch (error) {
+        addChatLog(`읽음 처리 전송 실패: ${error.message}`, 'error');
+    }
+}
+
+async function sendReadReceiptRest() {
+    if (!currentRequestIdx) {
+        addChatLog('읽음 처리 실패: 상담 요청 번호가 설정되지 않았습니다.', 'error');
+        return;
+    }
+
+    const userInfo = getCurrentUserInfo();
+    if (!userInfo || !userInfo.token) {
+        addChatLog('읽음 처리 실패: JWT 토큰이 필요합니다.', 'error');
+        return;
+    }
+
+    try {
+        addChatLog('📮 REST 읽음 처리 요청 중...', 'info');
+
+        const response = await fetch(`${baseURL}/api/consultation/read`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${userInfo.token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ requestIdx: currentRequestIdx })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            addChatLog('✅ REST 읽음 처리 완료', 'success');
+
+            handleReadReceipt({
+                requestIdx: data.requestIdx ?? currentRequestIdx,
+                reader: getCurrentUserCode(),
+                readerName: getCurrentUserName(),
+                readAt: data.readAt || new Date().toISOString(),
+                lastActivityAt: data.lastActivityAt,
+                allMessagesRead: data.allMessagesRead,
+                partnerUserCode: data.partnerUserCode,
+                source: 'REST'
+            });
+        } else {
+            const message = data.message || '읽음 처리 실패';
+            addChatLog(`❌ REST 읽음 처리 실패: ${message}`, 'error');
+        }
+    } catch (error) {
+        addChatLog(`REST 읽음 처리 오류: ${error.message}`, 'error');
+    }
+}
+
+function handleReadReceipt(receipt) {
+    if (!receipt) {
+        return;
+    }
+
+    const event = {
+        ...receipt,
+        source: receipt.source || 'WS',
+        receivedAt: new Date()
+    };
+
+    if (!event.readerName && event.reader && event.reader === getCurrentUserCode()) {
+        event.readerName = getCurrentUserName();
+    }
+
+    readReceiptEvents.unshift(event);
+    if (readReceiptEvents.length > 20) {
+        readReceiptEvents.pop();
+    }
+
+    updateReadReceiptStatus();
+    renderReadReceiptLog();
+
+    const readerLabel = event.readerName || event.reader || 'Unknown';
+    const readAtText = formatDateTime(event.readAt || event.receivedAt);
+    const statusLabel = event.allMessagesRead === true ? '모든 메시지 읽음' : '읽지 않은 메시지 존재';
+    const sourceLabel = event.source === 'REST' ? 'REST' : 'WS';
+
+    addChatLog(`📗 읽음 이벤트(${sourceLabel}): ${readerLabel} @ ${readAtText} (${statusLabel})`, 'success');
+}
+
+function updateReadReceiptStatus() {
+    const statusElement = document.getElementById('chatReadReceiptStatus');
+    if (!statusElement) {
+        return;
+    }
+
+    if (readReceiptEvents.length === 0) {
+        statusElement.innerHTML = `
+            <div class="chat-read-status-item">
+                <span class="label">읽음 정보</span>
+                <span class="value">수신된 읽음 이벤트가 없습니다.</span>
+            </div>
+        `;
+        return;
+    }
+
+    const latest = readReceiptEvents[0];
+
+    statusElement.innerHTML = `
+        <div class="chat-read-status-item">
+            <span class="label">최근 읽음 처리자</span>
+            <span class="value">${latest.readerName || latest.reader || '-'}</span>
+        </div>
+        <div class="chat-read-status-item">
+            <span class="label">읽음 시간</span>
+            <span class="value">${formatDateTime(latest.readAt)}</span>
+        </div>
+        <div class="chat-read-status-item">
+            <span class="label">마지막 활동</span>
+            <span class="value">${formatDateTime(latest.lastActivityAt)}</span>
+        </div>
+        <div class="chat-read-status-item">
+            <span class="label">모든 메시지 읽음?</span>
+            <span class="value ${latest.allMessagesRead ? 'status-ok' : 'status-pending'}">
+                ${latest.allMessagesRead ? '✅ Yes' : '⌛ No'}
+            </span>
+        </div>
+    `;
+}
+
+function renderReadReceiptLog() {
+    const logElement = document.getElementById('chatReadReceiptLog');
+    if (!logElement) {
+        return;
+    }
+
+    if (readReceiptEvents.length === 0) {
+        logElement.innerHTML = '<div class="chat-read-placeholder">읽음 이벤트가 표시됩니다...</div>';
+        return;
+    }
+
+    logElement.innerHTML = '';
+    readReceiptEvents.slice(0, 10).forEach(event => {
+        const item = document.createElement('div');
+        item.className = 'chat-read-log-item';
+
+        const readerLabel = event.readerName || event.reader || 'Unknown';
+        const readAtText = formatDateTime(event.readAt);
+        const sourceLabel = event.source === 'REST' ? 'REST' : 'WS';
+
+        item.innerHTML = `
+            <div class="row">
+                <span class="reader">${readerLabel}</span>
+                <span class="source-badge">${sourceLabel}</span>
+            </div>
+            <div class="row">
+                <span class="read-at">${readAtText}</span>
+                <span class="messages-status ${event.allMessagesRead ? 'status-ok' : 'status-pending'}">
+                    ${event.allMessagesRead ? '모두 읽음' : '미확인 있음'}
+                </span>
+            </div>
+        `;
+
+        logElement.appendChild(item);
+    });
+}
+
+function clearReadReceiptLog() {
+    readReceiptEvents = [];
+    renderReadReceiptLog();
+    updateReadReceiptStatus();
+    addChatLog('읽음 로그를 초기화했습니다.', 'info');
+}
+
+function onAutoReadToggleChange(event) {
+    autoReadReceiptEnabled = event.target.checked;
+
+    if (!autoReadReceiptEnabled && scheduledReadTask) {
+        clearTimeout(scheduledReadTask);
+        scheduledReadTask = null;
+    }
+
+    addChatLog(autoReadReceiptEnabled ? '✅ 자동 읽음 처리를 활성화했습니다.' : '⏸️ 자동 읽음 처리를 비활성화했습니다.', 'info');
+
+    if (autoReadReceiptEnabled && isConnected && currentRequestIdx) {
+        scheduleReadReceipt(200);
+    }
+}
+
 // ==================== REST API 통합 ====================
 
 /**
@@ -339,6 +655,10 @@ async function fetchChatMessages(requestIdx) {
             chatMessages = messages;
             renderAllMessages(messages);
             updateMessageCount();
+
+            if (autoReadReceiptEnabled && isConnected) {
+                scheduleReadReceipt(250);
+            }
 
             // 응답창에도 표시
             if (typeof showResponse === 'function') {
@@ -568,6 +888,14 @@ function initChatTester() {
     addChatLog('💬 WebSocket 채팅 테스터 초기화 완료', 'success');
     updateConnectionStatus('disconnected');
     updateMessageCount();
+    updateReadReceiptStatus();
+    renderReadReceiptLog();
+
+    const autoToggle = document.getElementById('chatAutoReadToggle');
+    if (autoToggle) {
+        autoToggle.checked = autoReadReceiptEnabled;
+        autoToggle.addEventListener('change', onAutoReadToggleChange);
+    }
 }
 
 // DOM 로드 후 초기화

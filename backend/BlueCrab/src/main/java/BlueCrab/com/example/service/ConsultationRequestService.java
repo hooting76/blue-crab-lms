@@ -129,7 +129,7 @@ public interface ConsultationRequestService {
      * @param requestIdx 상담 요청 ID
      * @param userCode 사용자 USER_CODE
      */
-    void updateReadTime(Long requestIdx, String userCode);
+    ConsultationReadReceiptDto updateReadTime(Long requestIdx, String userCode);
 
     /**
      * 비활성 상담 자동 종료 (스케줄러용)

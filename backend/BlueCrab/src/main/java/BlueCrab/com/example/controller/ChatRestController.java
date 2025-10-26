@@ -6,6 +6,7 @@ import BlueCrab.com.example.service.ChatService;
 import BlueCrab.com.example.service.MinIOService;
 import BlueCrab.com.example.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -36,17 +37,23 @@ public class ChatRestController {
     private final MinIOService minIOService;
     private final JwtUtil jwtUtil;
     private final UserTblRepository userTblRepository;
+    private final String chatBucket;
+    private final String archivePrefix;
 
     public ChatRestController(
         ChatService chatService,
         MinIOService minIOService,
         JwtUtil jwtUtil,
-        UserTblRepository userTblRepository
+        UserTblRepository userTblRepository,
+        @Value("${app.chat.minio.bucket:consultation-chats}") String chatBucket,
+        @Value("${app.chat.minio.archive-prefix:archive}") String archivePrefix
     ) {
         this.chatService = chatService;
         this.minIOService = minIOService;
         this.jwtUtil = jwtUtil;
         this.userTblRepository = userTblRepository;
+        this.chatBucket = chatBucket;
+        this.archivePrefix = normalizePrefix(archivePrefix);
     }
 
     /**
@@ -218,10 +225,10 @@ public class ChatRestController {
                     ));
             }
 
-            String objectName = String.format("chat-log-%d-", requestIdx);
+            String objectName = buildArchiveObjectName(requestIdx);
 
             try {
-                InputStream inputStream = minIOService.downloadChatLog("consultation-chats", objectName);
+                InputStream inputStream = minIOService.downloadChatLog(chatBucket, objectName);
 
                 String fileName = String.format("archived-chat-log-%d.txt", requestIdx);
 
@@ -234,7 +241,8 @@ public class ChatRestController {
                     .body(new InputStreamResource(inputStream));
 
             } catch (Exception e) {
-                log.warn("MinIO에서 파일 찾을 수 없음: requestIdx={}", requestIdx);
+                log.warn("아카이브 채팅 로그를 찾을 수 없습니다: requestIdx={}, object={}, error={}",
+                        requestIdx, objectName, e.getMessage());
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of(
                         "success", false,
@@ -285,5 +293,25 @@ public class ChatRestController {
                 log.warn("사용자 이메일로 userCode 찾을 수 없음: {}", emailOrUserCode);
                 return null;
             });
+    }
+
+    private String buildArchiveObjectName(Long requestIdx) {
+        String base = "chat_" + requestIdx + "_final.txt";
+        return archivePrefix.isEmpty() ? base : archivePrefix + "/" + base;
+    }
+
+    private String normalizePrefix(String prefix) {
+        if (prefix == null) {
+            return "";
+        }
+
+        String normalized = prefix.trim();
+        if (normalized.startsWith("/")) {
+            normalized = normalized.substring(1);
+        }
+        if (normalized.endsWith("/")) {
+            normalized = normalized.substring(0, normalized.length() - 1);
+        }
+        return normalized;
     }
 }

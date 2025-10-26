@@ -79,9 +79,12 @@ public interface ConsultationRequestRepository extends JpaRepository<Consultatio
     // 읽지 않은 메시지가 있는 상담 조회
     @Query("SELECT c FROM ConsultationRequest c " +
            "WHERE c.consultationStatus = 'IN_PROGRESS' " +
-           "AND ((c.requesterUserCode = :userCode AND c.lastReadTimeStudent < c.lastActivityAt) " +
-           "OR (c.recipientUserCode = :userCode AND c.lastReadTimeProfessor < c.lastActivityAt))")
+           "AND ((c.requesterUserCode = :userCode AND (c.lastReadTimeStudent IS NULL OR c.lastReadTimeStudent < c.lastActivityAt)) " +
+           "OR (c.recipientUserCode = :userCode AND (c.lastReadTimeProfessor IS NULL OR c.lastReadTimeProfessor < c.lastActivityAt)))")
     List<ConsultationRequest> findConsultationsWithUnreadMessages(@Param("userCode") String userCode);
+
+    // 상태 기준 상담 목록 조회
+    List<ConsultationRequest> findByConsultationStatus(String consultationStatus);
 
     // 참여자 확인 (권한 검증용)
     @Query("SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END FROM ConsultationRequest c " +

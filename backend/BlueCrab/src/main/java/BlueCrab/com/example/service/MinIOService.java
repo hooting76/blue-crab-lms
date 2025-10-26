@@ -2,6 +2,7 @@ package BlueCrab.com.example.service;
 
 import io.minio.GetObjectArgs;
 import io.minio.GetPresignedObjectUrlArgs;
+import io.minio.ListObjectsArgs;
 import io.minio.MinioClient;
 import io.minio.ObjectWriteResponse;
 import io.minio.PutObjectArgs;
@@ -10,6 +11,8 @@ import io.minio.StatObjectArgs;
 import io.minio.StatObjectResponse;
 import io.minio.errors.MinioException;
 import io.minio.http.Method;
+import io.minio.Result;
+import io.minio.messages.Item;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -403,6 +408,60 @@ public class MinIOService {
         } catch (Exception e) {
             logger.warn("채팅 로그 다운로드 실패 - Object: {}, Error: {}", objectName, e.getMessage());
             throw new Exception("채팅 로그 파일을 찾을 수 없습니다: " + objectName, e);
+        }
+    }
+
+    /**
+     * 지정한 prefix 하위의 객체 목록을 조회한다.
+     *
+     * @param bucketName 버킷 이름
+     * @param prefix     조회할 prefix
+     * @return 객체 이름 목록
+     * @throws Exception 조회 실패 시
+     */
+    public List<String> listObjects(String bucketName, String prefix) throws Exception {
+        try {
+            Iterable<Result<Item>> results = minioClient.listObjects(
+                ListObjectsArgs.builder()
+                    .bucket(bucketName)
+                    .prefix(prefix)
+                    .recursive(true)
+                    .build()
+            );
+
+            List<String> objectNames = new ArrayList<>();
+            for (Result<Item> result : results) {
+                Item item = result.get();
+                objectNames.add(item.objectName());
+            }
+            return objectNames;
+        } catch (Exception e) {
+            logger.error("MinIO 객체 목록 조회 실패 - Bucket: {}, Prefix: {}, Error: {}",
+                    bucketName, prefix, e.getMessage(), e);
+            throw new Exception("객체 목록 조회에 실패했습니다: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * MinIO 객체 삭제
+     *
+     * @param bucketName 버킷 이름
+     * @param objectName 객체 이름
+     * @throws Exception 삭제 실패 시
+     */
+    public void deleteObject(String bucketName, String objectName) throws Exception {
+        try {
+            RemoveObjectArgs removeArgs = RemoveObjectArgs.builder()
+                .bucket(bucketName)
+                .object(objectName)
+                .build();
+
+            minioClient.removeObject(removeArgs);
+            logger.info("MinIO 객체 삭제 완료 - Bucket: {}, Object: {}", bucketName, objectName);
+        } catch (Exception e) {
+            logger.warn("MinIO 객체 삭제 실패 - Bucket: {}, Object: {}, Error: {}",
+                    bucketName, objectName, e.getMessage(), e);
+            throw new Exception("객체 삭제에 실패했습니다: " + e.getMessage(), e);
         }
     }
 

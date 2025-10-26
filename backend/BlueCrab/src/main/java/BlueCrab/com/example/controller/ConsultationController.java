@@ -233,6 +233,11 @@ public class ConsultationController {
             log.info("상담 시작 완료: requestIdx={}", result.getRequestIdx());
             return ResponseEntity.ok(result);
 
+        } catch (IllegalStateException e) {
+            log.warn("상담 시작 실패 (상태 위반): requestIdx={}, reason={}",
+                     idDto.getRequestIdx(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(createErrorResponse(e.getMessage()));
         } catch (Exception e) {
             log.error("상담 시작 실패", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -265,6 +270,11 @@ public class ConsultationController {
                      result.getRequestIdx(), result.getDurationMinutes());
             return ResponseEntity.ok(result);
 
+        } catch (IllegalStateException e) {
+            log.warn("상담 종료 실패 (상태 위반): requestIdx={}, reason={}",
+                     idDto.getRequestIdx(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(createErrorResponse(e.getMessage()));
         } catch (Exception e) {
             log.error("상담 종료 실패", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -537,12 +547,17 @@ public class ConsultationController {
             log.info("읽음 처리: requestIdx={}, userCode={}",
                      idDto.getRequestIdx(), user.getUserCode());
 
-            consultationService.updateReadTime(idDto.getRequestIdx(), user.getUserCode());
+            ConsultationReadReceiptDto receipt =
+                    consultationService.updateReadTime(idDto.getRequestIdx(), user.getUserCode());
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "읽음 처리가 완료되었습니다.");
             response.put("requestIdx", idDto.getRequestIdx());
+            response.put("readAt", receipt.getReadAt());
+            response.put("allMessagesRead", receipt.isAllMessagesRead());
+            response.put("lastActivityAt", receipt.getLastActivityAt());
+            response.put("partnerUserCode", receipt.getPartnerUserCode());
 
             log.info("읽음 처리 완료: requestIdx={}", idDto.getRequestIdx());
             return ResponseEntity.ok(response);
