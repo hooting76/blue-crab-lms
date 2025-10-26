@@ -10,9 +10,9 @@ const AssignmentDetailModal = ({onClose, assignmentIdx}) => {
     const [assignmentDetail, setAssignmentDetail] = useState();
 
     const fetchAssignmentDetail = async () => {
-        const requestBody = {}
+        const requestBody = {assignmentIdx: assignmentIdx}
         try {
-            const response = await fetch(`${BASE_URL}/assignments/${assignmentIdx}`, {
+            const response = await fetch(`${BASE_URL}/assignments/detail`, {
                 method: "POST",
                 headers: {
                 'Authorization': `Bearer ${accessToken}`,
@@ -53,12 +53,8 @@ const AssignmentDetailModal = ({onClose, assignmentIdx}) => {
                     <div>배점: {maxScore}</div>
     
                     
-                    <button onClick={onClose}>닫기</button>
+                    <button className="assignmentDetailCloseBtn" onClick={onClose}>닫기</button>
                 </div>
-
-                <button className="approveAttendanceCloseBtn" onClick={onClose}>
-                    닫기
-                </button>
             </div>
         );
 }

@@ -25,6 +25,6 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
-.approveAttendanceCloseBtn {
+.assignmentDetailCloseBtn {
     font-size: var(--font-mid);
 }
