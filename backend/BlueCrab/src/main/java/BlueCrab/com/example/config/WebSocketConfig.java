@@ -1,5 +1,6 @@
 package BlueCrab.com.example.config;
 
+import BlueCrab.com.example.repository.UserTblRepository;
 import BlueCrab.com.example.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
@@ -38,9 +39,11 @@ import java.util.Map;
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final JwtUtil jwtUtil;
+    private final UserTblRepository userTblRepository;
 
-    public WebSocketConfig(JwtUtil jwtUtil) {
+    public WebSocketConfig(JwtUtil jwtUtil, UserTblRepository userTblRepository) {
         this.jwtUtil = jwtUtil;
+        this.userTblRepository = userTblRepository;
     }
 
     /**
@@ -144,20 +147,51 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                         throw new IllegalArgumentException("Invalid JWT token");
                     }
 
-                    // JWT에서 userCode 추출
-                    String userCode = jwtUtil.getUserCode(token);
+                    // JWT에서 사용자 식별자 추출 후 USER_CODE로 정규화
+                    String identifier = jwtUtil.getUserCode(token);
+                    String resolvedUserCode = resolveUserCode(identifier, token);
 
-                    // Spring Security User 객체 생성 및 설정
+                    if (resolvedUserCode == null || resolvedUserCode.isBlank()) {
+                        log.warn("WebSocket 연결: USER_CODE를 확인할 수 없어 원본 식별자를 사용합니다. identifier={}"
+                            , identifier);
+                        resolvedUserCode = identifier;
+                    }
+
                     UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userCode, null, Collections.emptyList());
+                        new UsernamePasswordAuthenticationToken(resolvedUserCode, null, Collections.emptyList());
 
                     accessor.setUser(authentication);
 
-                    log.info("WebSocket 연결 성공: userCode={}", userCode);
+                    log.info("WebSocket 연결 성공: principal={}", resolvedUserCode);
                 }
 
                 return message;
             }
         });
+    }
+
+    private String resolveUserCode(String identifier, String token) {
+        try {
+            if (identifier != null && !identifier.isBlank()) {
+                if (!identifier.contains("@")) {
+                    return identifier;
+                }
+
+                return userTblRepository.findByUserEmail(identifier)
+                    .map(user -> user.getUserCode())
+                    .orElse(null);
+            }
+
+            Integer userId = jwtUtil.extractUserId(token);
+            if (userId != null) {
+                return userTblRepository.findById(userId)
+                    .map(user -> user.getUserCode())
+                    .orElse(null);
+            }
+        } catch (Exception e) {
+            log.error("WebSocket USER_CODE 변환 실패: identifier={}", identifier, e);
+        }
+
+        return null;
     }
 }

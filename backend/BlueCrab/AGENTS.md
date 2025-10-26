@@ -515,6 +515,127 @@ mcp__ssh-remote__exec "mysql -h 121.165.24.26 -P 55511 -u KDT_project -p'Kdtkdt!
 - **Query Execution**: SELECT queries are safe, but use UPDATE/DELETE cautiously.
 - **Transactions**: Wrap critical operations in transactions and prepare for rollback.
 
+### MinIO Object Storage Access
+
+Agents can inspect MinIO storage using **mc (MinIO Client)** via MCP SSH for debugging file uploads, profile images, and chat logs.
+
+#### MinIO Client (mc) Setup
+
+##### Installation Status
+```bash
+# Check if mc is installed (✅ Already installed on server)
+mcp__ssh-remote__exec "~/mc --version"
+
+# Verify alias configuration
+mcp__ssh-remote__exec "~/mc alias list"
+```
+
+##### Server Configuration
+```
+Alias: local
+Endpoint: http://127.0.0.1:9000
+Access Key: minioadmin
+Secret Key: minioadmin (⚠️ production should use stronger credentials)
+```
+
+##### Current Buckets
+- `board-attached/` - Board file attachments
+- `profile-img/` - User profile images
+- `consultation-chats/` - Chat logs (when consultation feature is implemented)
+
+#### MinIO Operations via MCP SSH
+
+**List all buckets:**
+```bash
+mcp__ssh-remote__exec "~/mc ls local"
+```
+
+**Check bucket contents:**
+```bash
+# Profile images
+mcp__ssh-remote__exec "~/mc ls local/profile-img"
+
+# Board attachments
+mcp__ssh-remote__exec "~/mc ls local/board-attached"
+
+# Chat logs (if exists)
+mcp__ssh-remote__exec "~/mc ls local/consultation-chats"
+```
+
+**Download file for inspection:**
+```bash
+# Download to temporary location
+mcp__ssh-remote__exec "~/mc cp local/profile-img/profile_123_1234567890.jpg /tmp/debug.jpg"
+
+# View file content (for text files like chat logs)
+mcp__ssh-remote__exec "~/mc cp local/consultation-chats/chat_456_final.txt -"
+```
+
+**Check file metadata:**
+```bash
+mcp__ssh-remote__exec "~/mc stat local/profile-img/profile_123_1234567890.jpg"
+```
+
+**Find files by pattern:**
+```bash
+# Find all .jpg files
+mcp__ssh-remote__exec "~/mc find local/profile-img --name '*.jpg'"
+
+# Find files uploaded today
+mcp__ssh-remote__exec "~/mc find local/board-attached --newer-than 1d"
+
+# Find specific user's profile images
+mcp__ssh-remote__exec "~/mc ls local/profile-img | grep 'profile_123'"
+```
+
+#### Troubleshooting Scenarios
+
+**Debug profile image upload:**
+```bash
+# 1. Check if file exists in MinIO
+mcp__ssh-remote__exec "~/mc ls local/profile-img | grep 'profile_123'"
+
+# 2. Verify file size and metadata
+mcp__ssh-remote__exec "~/mc stat local/profile-img/profile_123_xxx.jpg"
+
+# 3. Check recent uploads (last 1 hour)
+mcp__ssh-remote__exec "~/mc find local/profile-img --newer-than 1h"
+```
+
+**Debug board file attachments:**
+```bash
+# List recent attachments
+mcp__ssh-remote__exec "~/mc ls local/board-attached --recursive"
+
+# Check specific file
+mcp__ssh-remote__exec "~/mc stat local/board-attached/assignment_123_file.pdf"
+```
+
+**Debug chat log archiving:**
+```bash
+# Check if consultation chat was archived
+mcp__ssh-remote__exec "~/mc ls local/consultation-chats | grep 'chat_456'"
+
+# View chat log content
+mcp__ssh-remote__exec "~/mc cp local/consultation-chats/chat_456_final.txt -"
+```
+
+**Verify bucket policy:**
+```bash
+# Check bucket access policy
+mcp__ssh-remote__exec "~/mc policy list local/profile-img"
+
+# View detailed policy (JSON)
+mcp__ssh-remote__exec "~/mc policy get local/profile-img"
+```
+
+#### Precautions
+- **Read-Only Operations**: Prefer `ls`, `stat`, `find` over `rm`, `cp` for debugging
+- **Production Data**: Never delete files without backup verification
+- **Access Control**: MinIO credentials should be rotated regularly in production
+- **File Size**: Use `mc stat` to check file size before downloading large files
+- **Concurrent Access**: MinIO handles concurrent reads/writes, but avoid manual modifications during active uploads
+
 ## 10. Backend Test Endpoints
 
 ### Development/Debugging API Endpoints

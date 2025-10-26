@@ -1,6 +1,7 @@
 package BlueCrab.com.example.controller;
 
 import BlueCrab.com.example.dto.Consultation.ChatMessageDto;
+import BlueCrab.com.example.repository.UserTblRepository;
 import BlueCrab.com.example.service.ChatService;
 import BlueCrab.com.example.service.MinIOService;
 import BlueCrab.com.example.util.JwtUtil;
@@ -34,15 +35,18 @@ public class ChatRestController {
     private final ChatService chatService;
     private final MinIOService minIOService;
     private final JwtUtil jwtUtil;
+    private final UserTblRepository userTblRepository;
 
     public ChatRestController(
         ChatService chatService,
         MinIOService minIOService,
-        JwtUtil jwtUtil
+        JwtUtil jwtUtil,
+        UserTblRepository userTblRepository
     ) {
         this.chatService = chatService;
         this.minIOService = minIOService;
         this.jwtUtil = jwtUtil;
+        this.userTblRepository = userTblRepository;
     }
 
     /**
@@ -59,32 +63,53 @@ public class ChatRestController {
         @RequestHeader("Authorization") String token
     ) {
         try {
-            // JWT에서 userCode 추출
             String actualToken = token.replace("Bearer ", "");
-            String userCode = jwtUtil.getUserCode(actualToken);
-            
+            String userIdentifier = jwtUtil.getUserCode(actualToken);
+            String userCode = resolveUserCode(actualToken, userIdentifier);
+
+            if (userCode == null) {
+                log.warn("채팅 메시지 조회 실패 - 사용자 식별 불가: requestIdx={}, identifier={}",
+                    requestIdx, userIdentifier);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of(
+                        "success", false,
+                        "message", "사용자 정보를 확인할 수 없습니다. 다시 로그인해주세요."
+                    ));
+            }
+
             log.info("채팅 메시지 조회: requestIdx={}, userCode={}", requestIdx, userCode);
-            
-            // 참여자 확인
+
             if (!chatService.isParticipant(requestIdx, userCode)) {
                 log.warn("채팅 참여자가 아님: requestIdx={}, userCode={}", requestIdx, userCode);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", "채팅 참여자만 조회할 수 있습니다."));
+                    .body(Map.of(
+                        "success", false,
+                        "message", "채팅 참여자만 조회할 수 있습니다."
+                    ));
             }
-            
-            // 채팅 메시지 조회
+
             List<ChatMessageDto> messages = chatService.getAllMessages(requestIdx);
-            
-            return ResponseEntity.ok(Map.of(
+
+            Map<String, Object> data = Map.of(
                 "requestIdx", requestIdx,
                 "messageCount", messages.size(),
                 "messages", messages
+            );
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "채팅 메시지 조회 완료",
+                "data", data
             ));
-            
+
         } catch (Exception e) {
             log.error("채팅 메시지 조회 실패: requestIdx={}", requestIdx, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("error", "채팅 메시지 조회에 실패했습니다."));
+                .body(Map.of(
+                    "success", false,
+                    "message", "채팅 메시지 조회에 실패했습니다.",
+                    "error", e.getMessage()
+                ));
         }
     }
 
@@ -102,42 +127,55 @@ public class ChatRestController {
         @RequestHeader("Authorization") String token
     ) {
         try {
-            // JWT에서 userCode 추출
             String actualToken = token.replace("Bearer ", "");
-            String userCode = jwtUtil.getUserCode(actualToken);
-            
+            String userIdentifier = jwtUtil.getUserCode(actualToken);
+            String userCode = resolveUserCode(actualToken, userIdentifier);
+
+            if (userCode == null) {
+                log.warn("채팅 히스토리 다운로드 실패 - 사용자 식별 불가: requestIdx={}, identifier={}",
+                    requestIdx, userIdentifier);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of(
+                        "success", false,
+                        "message", "사용자 정보를 확인할 수 없습니다. 다시 로그인해주세요."
+                    ));
+            }
+
             log.info("채팅 히스토리 다운로드: requestIdx={}, userCode={}", requestIdx, userCode);
-            
-            // 참여자 확인
+
             if (!chatService.isParticipant(requestIdx, userCode)) {
                 log.warn("채팅 참여자가 아님: requestIdx={}, userCode={}", requestIdx, userCode);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", "채팅 참여자만 다운로드할 수 있습니다."));
+                    .body(Map.of(
+                        "success", false,
+                        "message", "채팅 참여자만 다운로드할 수 있습니다."
+                    ));
             }
-            
-            // 채팅 로그 포맷팅
+
             String chatLog = chatService.formatChatLog(requestIdx);
-            
-            // InputStream 생성
+
             byte[] bytes = chatLog.getBytes(StandardCharsets.UTF_8);
             InputStream inputStream = new ByteArrayInputStream(bytes);
-            
-            // 파일명 생성
+
             String fileName = String.format("chat-log-%d.txt", requestIdx);
-            
+
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.TEXT_PLAIN);
             headers.setContentDispositionFormData("attachment", fileName);
             headers.setContentLength(bytes.length);
-            
+
             return ResponseEntity.ok()
                 .headers(headers)
                 .body(new InputStreamResource(inputStream));
-            
+
         } catch (Exception e) {
             log.error("채팅 히스토리 다운로드 실패: requestIdx={}", requestIdx, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("error", "채팅 히스토리 다운로드에 실패했습니다."));
+                .body(Map.of(
+                    "success", false,
+                    "message", "채팅 히스토리 다운로드에 실패했습니다.",
+                    "error", e.getMessage()
+                ));
         }
     }
 
@@ -155,46 +193,97 @@ public class ChatRestController {
         @RequestHeader("Authorization") String token
     ) {
         try {
-            // JWT에서 userCode 추출
             String actualToken = token.replace("Bearer ", "");
-            String userCode = jwtUtil.getUserCode(actualToken);
-            
+            String userIdentifier = jwtUtil.getUserCode(actualToken);
+            String userCode = resolveUserCode(actualToken, userIdentifier);
+
+            if (userCode == null) {
+                log.warn("아카이브 채팅 로그 다운로드 실패 - 사용자 식별 불가: requestIdx={}, identifier={}",
+                    requestIdx, userIdentifier);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of(
+                        "success", false,
+                        "message", "사용자 정보를 확인할 수 없습니다. 다시 로그인해주세요."
+                    ));
+            }
+
             log.info("아카이빙된 채팅 로그 다운로드: requestIdx={}, userCode={}", requestIdx, userCode);
-            
-            // 참여자 확인
+
             if (!chatService.isParticipant(requestIdx, userCode)) {
                 log.warn("채팅 참여자가 아님: requestIdx={}, userCode={}", requestIdx, userCode);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", "채팅 참여자만 다운로드할 수 있습니다."));
+                    .body(Map.of(
+                        "success", false,
+                        "message", "채팅 참여자만 다운로드할 수 있습니다."
+                    ));
             }
-            
-            // MinIO에서 파일 다운로드
-            // 파일명 패턴: chat-log-{requestIdx}-{timestamp}.txt
+
             String objectName = String.format("chat-log-%d-", requestIdx);
-            
+
             try {
                 InputStream inputStream = minIOService.downloadChatLog("consultation-chats", objectName);
-                
+
                 String fileName = String.format("archived-chat-log-%d.txt", requestIdx);
-                
+
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.TEXT_PLAIN);
                 headers.setContentDispositionFormData("attachment", fileName);
-                
+
                 return ResponseEntity.ok()
                     .headers(headers)
                     .body(new InputStreamResource(inputStream));
-                    
+
             } catch (Exception e) {
                 log.warn("MinIO에서 파일 찾을 수 없음: requestIdx={}", requestIdx);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "아카이빙된 채팅 로그를 찾을 수 없습니다."));
+                    .body(Map.of(
+                        "success", false,
+                        "message", "아카이빙된 채팅 로그를 찾을 수 없습니다."
+                    ));
             }
-            
+
         } catch (Exception e) {
             log.error("아카이빙된 채팅 로그 다운로드 실패: requestIdx={}", requestIdx, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("error", "채팅 로그 다운로드에 실패했습니다."));
+                .body(Map.of(
+                    "success", false,
+                    "message", "채팅 로그 다운로드에 실패했습니다.",
+                    "error", e.getMessage()
+                ));
         }
+    }
+
+    private String resolveUserCode(String token, String emailOrUserCode) {
+        String fromIdentifier = convertToUserCode(emailOrUserCode);
+        if (fromIdentifier != null) {
+            return fromIdentifier;
+        }
+
+        Integer userId = jwtUtil.extractUserId(token);
+        if (userId != null) {
+            return userTblRepository.findById(userId)
+                .map(user -> user.getUserCode())
+                .orElse(null);
+        }
+
+        log.warn("JWT에서 사용자 코드를 추출하지 못했습니다: identifier={}", emailOrUserCode);
+        return null;
+    }
+
+    private String convertToUserCode(String emailOrUserCode) {
+        if (emailOrUserCode == null || emailOrUserCode.isBlank()) {
+            return null;
+        }
+
+        if (!emailOrUserCode.contains("@")) {
+            return emailOrUserCode;
+        }
+
+        return userTblRepository.findByUserEmail(emailOrUserCode)
+            .map(user -> user.getUserCode())
+            .orElseGet(() -> {
+                log.warn("사용자 이메일로 userCode 찾을 수 없음: {}", emailOrUserCode);
+                return null;
+            });
     }
 }

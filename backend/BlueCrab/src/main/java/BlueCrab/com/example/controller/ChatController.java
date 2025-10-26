@@ -55,8 +55,16 @@ public class ChatController {
      */
     @MessageMapping("/chat.send")
     public void sendMessage(@Payload ChatMessageDto message, Principal principal) {
-        String senderCode = principal.getName();
-        
+        String senderEmailOrCode = principal.getName();
+        String senderCode = convertToUserCode(senderEmailOrCode);
+
+        if (senderCode == null) {
+            log.warn("메시지 전송 실패 - 사용자 식별 불가: requestIdx={}, identifier={}",
+                message.getRequestIdx(), senderEmailOrCode);
+            sendErrorToUser(senderEmailOrCode, "사용자 정보를 확인할 수 없습니다. 다시 로그인해주세요.");
+            return;
+        }
+
         log.info("메시지 수신: requestIdx={}, sender={}", message.getRequestIdx(), senderCode);
 
         try {
@@ -194,5 +202,29 @@ public class ChatController {
         } catch (Exception e) {
             log.error("에러 메시지 전송 실패: userCode={}", userCode, e);
         }
+    }
+
+    /**
+     * 이메일을 USER_CODE로 변환
+     * JWT에서는 이메일(sub)이 전달되지만, DB에는 USER_CODE(학번)로 저장되어 있음
+     *
+     * @param emailOrUserCode 이메일 또는 USER_CODE
+     * @return USER_CODE (학번)
+     */
+    private String convertToUserCode(String emailOrUserCode) {
+        if (emailOrUserCode == null || emailOrUserCode.isBlank()) {
+            return null;
+        }
+
+        if (!emailOrUserCode.contains("@")) {
+            return emailOrUserCode;
+        }
+
+        return userTblRepository.findByUserEmail(emailOrUserCode)
+            .map(UserTbl::getUserCode)
+            .orElseGet(() -> {
+                log.warn("사용자 이메일로 userCode 찾을 수 없음: {}", emailOrUserCode);
+                return null;
+            });
     }
 }

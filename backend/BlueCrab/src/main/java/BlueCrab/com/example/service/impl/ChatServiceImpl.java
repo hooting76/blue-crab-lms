@@ -2,6 +2,7 @@ package BlueCrab.com.example.service.impl;
 
 import BlueCrab.com.example.dto.Consultation.ChatMessageDto;
 import BlueCrab.com.example.repository.ConsultationRequestRepository;
+import BlueCrab.com.example.repository.UserTblRepository;
 import BlueCrab.com.example.service.ChatService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,12 +36,15 @@ public class ChatServiceImpl implements ChatService {
 
     private final StringRedisTemplate stringRedisTemplate;
     private final ConsultationRequestRepository consultationRequestRepository;
+    private final UserTblRepository userTblRepository;
     private final ObjectMapper objectMapper;
 
     public ChatServiceImpl(StringRedisTemplate stringRedisTemplate,
-                          ConsultationRequestRepository consultationRequestRepository) {
+                          ConsultationRequestRepository consultationRequestRepository,
+                          UserTblRepository userTblRepository) {
         this.stringRedisTemplate = stringRedisTemplate;
         this.consultationRequestRepository = consultationRequestRepository;
+        this.userTblRepository = userTblRepository;
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
     }
@@ -134,8 +138,38 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public boolean isParticipant(Long requestIdx, String userCode) {
-        // DB에서 참여자 확인
-        return consultationRequestRepository.isParticipant(requestIdx, userCode);
+        String actualUserCode = convertToUserCode(userCode);
+
+        if (actualUserCode == null) {
+            log.warn("채팅 참여자 확인 실패 - 사용자 코드 없음: requestIdx={}, identifier={}", requestIdx, userCode);
+            return false;
+        }
+
+        return consultationRequestRepository.isParticipant(requestIdx, actualUserCode);
+    }
+
+    /**
+     * 이메일을 USER_CODE로 변환
+     * JWT에서는 이메일(sub)이 전달되지만, DB에는 USER_CODE(학번)로 저장되어 있음
+     *
+     * @param emailOrUserCode 이메일 또는 USER_CODE
+     * @return USER_CODE (학번)
+     */
+    private String convertToUserCode(String emailOrUserCode) {
+        if (emailOrUserCode == null || emailOrUserCode.isBlank()) {
+            return null;
+        }
+
+        if (!emailOrUserCode.contains("@")) {
+            return emailOrUserCode;
+        }
+
+        return userTblRepository.findByUserEmail(emailOrUserCode)
+            .map(user -> user.getUserCode())
+            .orElseGet(() -> {
+                log.warn("사용자 이메일로 userCode 찾을 수 없음: {}", emailOrUserCode);
+                return null;
+            });
     }
 
     @Override
@@ -172,10 +206,16 @@ public class ChatServiceImpl implements ChatService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         
         for (ChatMessageDto msg : messages) {
-            sb.append("[").append(msg.getSentAt().format(formatter)).append("]\n");
-            sb.append("발신: ").append(msg.getSenderName())
-              .append(" (").append(msg.getSender()).append(")\n");
-            sb.append("내용: ").append(msg.getContent()).append("\n");
+                        LocalDateTime sentAt = msg.getSentAt();
+                        String formattedSentAt = sentAt != null ? sentAt.format(formatter) : "시간 정보 없음";
+
+                        sb.append("[").append(formattedSentAt).append("]\n");
+                        sb.append("발신: ")
+                            .append(msg.getSenderName() != null ? msg.getSenderName() : "알 수 없음")
+                            .append(" (")
+                            .append(msg.getSender() != null ? msg.getSender() : "-" )
+                            .append(")\n");
+                        sb.append("내용: ").append(msg.getContent() != null ? msg.getContent() : "").append("\n");
             sb.append("--------------------------------------------------\n");
         }
         
