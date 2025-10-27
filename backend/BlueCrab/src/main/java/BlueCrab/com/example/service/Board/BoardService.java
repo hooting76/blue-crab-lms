@@ -1,7 +1,7 @@
-// 작성자 : 성태준
+﻿// 작성자 : 성태준
 // 게시글 서비스 인터페이스
 
-package BlueCrab.com.example.service;
+package BlueCrab.com.example.service.Board;
 
 // ========== 임포트 구문 ==========
 
@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 // ========== 프로젝트 내부 클래스 ==========
-import BlueCrab.com.example.entity.BoardTbl;
-import BlueCrab.com.example.repository.BoardRepository;
+import BlueCrab.com.example.entity.Board.BoardTbl;
+import BlueCrab.com.example.repository.Board.BoardRepository;
 
 
 @Service        // 게시글 조회 서비스 (목록, 상세)

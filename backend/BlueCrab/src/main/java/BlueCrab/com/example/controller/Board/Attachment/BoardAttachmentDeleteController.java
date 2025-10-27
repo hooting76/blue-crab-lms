@@ -1,8 +1,8 @@
-// 작성자 : 성태준
+﻿// 작성자 : 성태준
 // 게시글 첨부파일 삭제 전용 컨트롤러
 // 첨부파일 삭제 API 제공 (단일/다중 통합)
 
-package BlueCrab.com.example.controller;
+package BlueCrab.com.example.controller.Board.Attachment;
 
 // ========== 임포트 구문 ==========
 
@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 // ========== 프로젝트 내부 클래스 ==========
 import BlueCrab.com.example.util.JwtUtil;
-import BlueCrab.com.example.service.BoardAttachmentDeleteService;
+import BlueCrab.com.example.service.Board.Attachment.BoardAttachmentDeleteService;
 
 @RestController
 @RequestMapping("/api/board-attachments")

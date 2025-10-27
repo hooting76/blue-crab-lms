@@ -1,8 +1,8 @@
-// 작성자 : 성태준
+﻿// 작성자 : 성태준
 // 게시글 첨부파일 테이블 엔티티
 // 첨부파일의 메타데이터 정보를 저장하는 엔티티
 
-package BlueCrab.com.example.entity;
+package BlueCrab.com.example.entity.Board.Attachment;
 
 // ========== JPA 어노테이션 ==========
 import javax.persistence.Column;

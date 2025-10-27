@@ -1,8 +1,8 @@
-// 작성자 : 성태준
+﻿// 작성자 : 성태준
 // 게시글 첨부파일 업로드 전용 컨트롤러
 // 첨부파일 업로드 API만 제공
 
-package BlueCrab.com.example.controller;
+package BlueCrab.com.example.controller.Board.Attachment;
 
 // ========== 임포트 구문 ==========
 
@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
 
 // ========== 프로젝트 내부 클래스 ==========
 import BlueCrab.com.example.util.JwtUtil;
-import BlueCrab.com.example.service.BoardAttachmentUploadService;
-import BlueCrab.com.example.entity.BoardAttachmentTbl;
+import BlueCrab.com.example.service.Board.Attachment.BoardAttachmentUploadService;
+import BlueCrab.com.example.entity.Board.Attachment.BoardAttachmentTbl;
 
 @RestController
 @RequestMapping("/api/board-attachments")

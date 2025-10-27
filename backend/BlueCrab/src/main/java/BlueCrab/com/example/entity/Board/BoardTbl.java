@@ -1,7 +1,7 @@
-// 작성자 : 성태준
+﻿// 작성자 : 성태준
 // 개시글 테이블 엔티티
 
-package BlueCrab.com.example.entity;
+package BlueCrab.com.example.entity.Board;
 
 // ========== 임포트 구문 ==========
 
@@ -26,6 +26,9 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+
+// ========== 프로젝트 내부 클래스 ==========
+import BlueCrab.com.example.entity.Board.Attachment.BoardAttachmentTbl;
 
 @Entity
 @Table(name = "BOARD_TBL")

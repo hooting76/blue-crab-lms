@@ -1,8 +1,8 @@
-// 작성자 : 성태준
+﻿// 작성자 : 성태준
 // 게시글 첨부파일 Repository
 // 첨부파일 데이터베이스 CRUD 작업 - 업로드 기능 위주로 우선 구현
 
-package BlueCrab.com.example.repository;
+package BlueCrab.com.example.repository.Board.Attachment;
 
 // ========== 임포트 구문 ==========
 
@@ -18,7 +18,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 // ========== 프로젝트 내부 클래스 ==========
-import BlueCrab.com.example.entity.BoardAttachmentTbl;
+import BlueCrab.com.example.entity.Board.Attachment.BoardAttachmentTbl;
 
 @Repository
 public interface BoardAttachmentRepository extends JpaRepository<BoardAttachmentTbl, Integer> {

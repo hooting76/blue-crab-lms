@@ -1,7 +1,7 @@
 // 작성자 : 성태준
 // 게시판 열람 전용 컨트롤러 (목록 조회, 상세 조회, 코드별 조회)
 
-package BlueCrab.com.example.controller;
+package BlueCrab.com.example.controller.Board;
 
 // ========== 임포트 구문 ==========
 
@@ -26,11 +26,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // ========== 프로젝트 내부 클래스 ==========
-import BlueCrab.com.example.entity.BoardTbl;
-import BlueCrab.com.example.entity.BoardAttachmentTbl;
-import BlueCrab.com.example.service.BoardService;
-import BlueCrab.com.example.service.BoardAttachmentQueryService;
-import BlueCrab.com.example.dto.AttachmentLinkRequest;
+import BlueCrab.com.example.entity.Board.BoardTbl;
+import BlueCrab.com.example.entity.Board.Attachment.BoardAttachmentTbl;
+import BlueCrab.com.example.service.Board.BoardService;
+import BlueCrab.com.example.service.Board.Attachment.BoardAttachmentQueryService;
+import BlueCrab.com.example.dto.Board.Attachment.AttachmentLinkRequest;
 import BlueCrab.com.example.util.JwtUtil;
 
 

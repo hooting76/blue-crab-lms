@@ -1,8 +1,8 @@
-// 작성자 : 성태준
+﻿// 작성자 : 성태준
 // 첨부파일 연결 요청 DTO
 // 게시글에 첨부파일 IDX 목록을 연결하기 위한 데이터 전송 객체
 
-package BlueCrab.com.example.dto;
+package BlueCrab.com.example.dto.Board.Attachment;
 
 // ========== Java 표준 라이브러리 ==========
 import java.util.List;

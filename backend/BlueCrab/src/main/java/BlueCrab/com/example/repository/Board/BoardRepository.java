@@ -1,7 +1,7 @@
-// 작성자 : 성태준
+﻿// 작성자 : 성태준
 // 게시글 테이블 Repository 인터페이스
 
-package BlueCrab.com.example.repository;
+package BlueCrab.com.example.repository.Board;
 
 // ========== 임포트 구문 ==========
 
@@ -17,7 +17,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 // ========== 프로젝트 내부 클래스 ==========
-import BlueCrab.com.example.entity.BoardTbl;
+import BlueCrab.com.example.entity.Board.BoardTbl;
 
 public interface BoardRepository extends JpaRepository<BoardTbl, Integer> {
 

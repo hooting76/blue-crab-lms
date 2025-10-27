@@ -1,8 +1,8 @@
-// 작성자 : 성태준
+﻿// 작성자 : 성태준
 // 게시글 첨부파일 다운로드 전용 컨트롤러
 // MinIO에서 파일을 스트리밍하여 다운로드 제공
 
-package BlueCrab.com.example.controller;
+package BlueCrab.com.example.controller.Board.Attachment;
 
 // ========== 임포트 구문 ==========
 
@@ -32,8 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // ========== 프로젝트 내부 클래스 ==========
-import BlueCrab.com.example.entity.BoardAttachmentTbl;
-import BlueCrab.com.example.service.BoardAttachmentQueryService;
+import BlueCrab.com.example.entity.Board.Attachment.BoardAttachmentTbl;
+import BlueCrab.com.example.service.Board.Attachment.BoardAttachmentQueryService;
 
 @RestController
 @RequestMapping("/api/board-attachments")

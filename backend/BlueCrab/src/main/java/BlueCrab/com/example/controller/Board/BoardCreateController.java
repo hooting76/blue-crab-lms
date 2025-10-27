@@ -1,7 +1,7 @@
-// 작성자 : 성태준
+﻿// 작성자 : 성태준
 // 게시글 작성 전용 컨트롤러
 
-package BlueCrab.com.example.controller;
+package BlueCrab.com.example.controller.Board;
 
 // ========== 임포트 구문 ==========
 
@@ -25,8 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // ========== 프로젝트 내부 클래스 ==========
-import BlueCrab.com.example.entity.BoardTbl;
-import BlueCrab.com.example.service.BoardManagementService;
+import BlueCrab.com.example.entity.Board.BoardTbl;
+import BlueCrab.com.example.service.Board.BoardManagementService;
 import BlueCrab.com.example.util.JwtUtil;
 import BlueCrab.com.example.util.Base64ValidationUtil;
 

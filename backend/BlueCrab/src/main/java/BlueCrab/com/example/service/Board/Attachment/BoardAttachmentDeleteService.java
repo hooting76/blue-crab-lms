@@ -1,8 +1,8 @@
-// 작성자 : 성태준
+﻿// 작성자 : 성태준
 // 게시글 첨부파일 삭제 전용 서비스
 // 파일 삭제 관련 비즈니스 로직 처리
 
-package BlueCrab.com.example.service;
+package BlueCrab.com.example.service.Board.Attachment;
 
 // ========== 임포트 구문 ==========
 
@@ -22,8 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // ========== 프로젝트 내부 클래스 ==========
-import BlueCrab.com.example.entity.BoardAttachmentTbl;
-import BlueCrab.com.example.repository.BoardAttachmentRepository;
+import BlueCrab.com.example.entity.Board.Attachment.BoardAttachmentTbl;
+import BlueCrab.com.example.repository.Board.Attachment.BoardAttachmentRepository;
 import BlueCrab.com.example.util.MinIOFileUtil;
 
 @Service

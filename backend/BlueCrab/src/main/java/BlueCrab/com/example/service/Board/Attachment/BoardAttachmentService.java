@@ -1,8 +1,8 @@
-// 작성자 : 성태준
+﻿// 작성자 : 성태준
 // 게시글 첨부파일 통합 서비스 (Facade Pattern)
 // 업로드, 삭제, 조회 서비스들을 통합하여 단일 진입점 제공
 
-package BlueCrab.com.example.service;
+package BlueCrab.com.example.service.Board.Attachment;
 
 // ========== 임포트 구문 ==========
 
@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // ========== 프로젝트 내부 클래스 ==========
-import BlueCrab.com.example.entity.BoardAttachmentTbl;
+import BlueCrab.com.example.entity.Board.Attachment.BoardAttachmentTbl;
 
 @Service
 public class BoardAttachmentService {

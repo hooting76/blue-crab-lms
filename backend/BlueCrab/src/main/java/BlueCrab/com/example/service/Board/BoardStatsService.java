@@ -1,7 +1,7 @@
-// 작성자 : 성태준
+﻿// 작성자 : 성태준
 // 게시글 통계 서비스 (개수 조회, 존재 여부 확인 등)
 
-package BlueCrab.com.example.service;
+package BlueCrab.com.example.service.Board;
 
 // ========== 임포트 구문 ==========
 
@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // ========== 프로젝트 내부 클래스 ==========
-import BlueCrab.com.example.repository.BoardRepository;
+import BlueCrab.com.example.repository.Board.BoardRepository;
 
 
 @Service        // 게시글 통계 서비스
