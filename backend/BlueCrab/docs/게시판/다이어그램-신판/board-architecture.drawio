@@ -47,7 +47,7 @@
           <mxGeometry x="790" y="452" width="210" height="60" as="geometry" />
         </mxCell>
         <mxCell id="attachment-info-controller" value="BoardAttachmentInfoController&#xa;파일 정보 조회" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#e57373;fontSize=11;fontColor=#1a1a1a;" parent="1" vertex="1">
-          <mxGeometry x="729" y="521" width="140" height="60" as="geometry" />
+          <mxGeometry x="718" y="521" width="162" height="60" as="geometry" />
         </mxCell>
         <mxCell id="service-layer" value="Service Layer (Board 패키지)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8e1;strokeColor=#ff8f00;fontSize=16;fontStyle=1;fontColor=#1a1a1a;" parent="1" vertex="1">
           <mxGeometry x="50" y="591" width="1070" height="50" as="geometry" />
@@ -88,7 +88,7 @@
         <mxCell id="attachment-entity" value="BoardAttachmentTbl&#xa;첨부파일 엔티티" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#2196f3;fontSize=11;fontColor=#1a1a1a;" parent="1" vertex="1">
           <mxGeometry x="714" y="911" width="170" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="database" value="MySQL / PostgreSQL Database" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1f8e9;strokeColor=#689f38;fontSize=16;fontStyle=1;fontColor=#1a1a1a;" parent="1" vertex="1">
+        <mxCell id="database" value="MariaDB Database" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1f8e9;strokeColor=#689f38;fontSize=16;fontStyle=1;fontColor=#1a1a1a;" parent="1" vertex="1">
           <mxGeometry x="50" y="981" width="1070" height="50" as="geometry" />
         </mxCell>
         <mxCell id="arrow1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=light-dark(#000000,#FF8000);strokeWidth=2;" parent="1" source="react-app" target="api-gateway" edge="1">
