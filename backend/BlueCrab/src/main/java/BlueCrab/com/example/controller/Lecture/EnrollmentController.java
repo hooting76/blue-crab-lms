@@ -50,7 +50,7 @@ public class EnrollmentController {
     /* 수강신청 목록 조회 (통합 엔드포인트) - POST 방식
      * 
      * Request Body:
-     * - studentIdx: 학생 ID로 필터
+     * - studentIdx: 학생 ID로 필터 (선택, 없으면 JWT에서 자동 추출)
      * - lecSerial: 강의 코드로 필터 ✅
      * - checkEnrollment: 수강 여부 확인 (studentIdx + lecSerial 필요) ✅
      * - enrolled: 현재 수강중인 목록만 (studentIdx 필요)
@@ -58,13 +58,27 @@ public class EnrollmentController {
      * - page, size: 페이징
      */
     @PostMapping("/list")
-    public ResponseEntity<?> getEnrollments(@RequestBody(required = false) Map<String, Object> request) {
+    public ResponseEntity<?> getEnrollments(
+            @RequestBody(required = false) Map<String, Object> request,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         // Request Body에서 파라미터 추출 (null 처리)
         if (request == null) {
             request = new HashMap<>();
         }
         
+        // studentIdx: request body에 있으면 사용, 없으면 JWT에서 추출
         Integer studentIdx = request.get("studentIdx") != null ? ((Number) request.get("studentIdx")).intValue() : null;
+        
+        // JWT에서 userId 추출 (studentIdx가 없을 때)
+        if (studentIdx == null && authHeader != null && authHeader.startsWith("Bearer ")) {
+            try {
+                String token = authHeader.substring(7);
+                studentIdx = jwtUtil.extractUserId(token);
+                logger.info("JWT에서 studentIdx 자동 추출: {}", studentIdx);
+            } catch (Exception e) {
+                logger.warn("JWT에서 studentIdx 추출 실패: {}", e.getMessage());
+            }
+        }
         String lecSerial = (String) request.get("lecSerial");
         boolean checkEnrollment = request.get("checkEnrollment") != null ? (Boolean) request.get("checkEnrollment") : false;
         boolean enrolled = request.get("enrolled") != null ? (Boolean) request.get("enrolled") : false;

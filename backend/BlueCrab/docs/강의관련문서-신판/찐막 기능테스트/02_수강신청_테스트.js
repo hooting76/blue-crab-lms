@@ -5,6 +5,7 @@
  *    await enrollmentTest.runAll()        // 전체 테스트
  * 
  * 📋 개별 API 테스트:
+ *    await enrollmentTest.available()     // 수강신청 가능한 강의 목록
  *    await enrollmentTest.check()         // 수강 여부 확인
  *    await enrollmentTest.list()          // 내 수강 목록
  *    await enrollmentTest.enroll()        // 수강 신청
@@ -63,7 +64,69 @@
     }
     
     // ============================================
-    // 1. 수강 여부 확인
+    // 1. 수강신청 가능한 강의 목록 조회
+    // POST /api/lectures/eligible
+    // ============================================
+    
+    async function testAvailableLectures() {
+        console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('📚 수강신청 가능한 강의 목록');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        
+        // 로그인된 사용자 정보에서 studentId 가져오기
+        const studentId = window.currentUser?.id;
+        if (!studentId) {
+            console.log('❌ 로그인된 사용자 정보를 찾을 수 없습니다.');
+            console.log('💡 먼저 await login()으로 로그인하세요.');
+            return { success: false, error: '사용자 정보 없음' };
+        }
+        
+        const page = prompt('페이지 번호 (기본: 0):', '0');
+        const size = prompt('페이지 크기 (기본: 20):', '20');
+        
+        const data = {
+            studentId: studentId,
+            page: parseInt(page) || 0,
+            size: parseInt(size) || 20
+        };
+        
+        console.log(`📤 학생 ID: ${studentId}, 페이지: ${data.page}`);
+        
+        const result = await apiCall('/lectures/eligible', data);
+        
+        if (result?.success && result.data) {
+            const response = result.data;
+            const lectures = response.eligibleLectures || [];
+            
+            console.log(`\n📊 전체 강의: ${response.totalCount || 0}개`);
+            console.log(`✅ 신청 가능: ${response.eligibleCount || 0}개`);
+            console.log(`❌ 신청 불가: ${response.ineligibleCount || 0}개`);
+            
+            if (lectures.length > 0) {
+                console.log('\n📋 수강 가능한 강의 목록:');
+                lectures.forEach((lec, i) => {
+                    console.log(`  ${i+1}. [${lec.lecSerial || 'N/A'}] ${lec.lecTit || 'N/A'}`);
+                    console.log(`     교수: ${lec.professorName || 'N/A'}, 정원: ${lec.lecCurrent || 0}/${lec.lecMany || 0}`);
+                    console.log(`     학점: ${lec.lecPoint || 'N/A'}, 시간: ${lec.lecTime || 'N/A'}`);
+                    if (lec.eligible === false) {
+                        console.log(`     ⚠️ 부적격 사유: ${lec.reason || 'N/A'}`);
+                    }
+                });
+            } else {
+                console.log('💡 신청 가능한 강의가 없습니다.');
+            }
+            
+            console.log('\n✅ 성공!');
+        } else {
+            console.log('\n❌ 실패:', result.error);
+        }
+        
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+        return result;
+    }
+    
+    // ============================================
+    // 2. 수강 여부 확인
     // POST /api/enrollments/list
     // ============================================
     
@@ -72,21 +135,19 @@
         console.log('🔍 수강 여부 확인');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
-        const studentIdx = prompt('학생 IDX:', '');
         const lecSerial = prompt('강의 코드 (예: CS284):', '');
-        
-        if (!studentIdx || !lecSerial) {
-            console.log('❌ 학생 IDX와 강의 코드가 필요합니다.');
-            return { success: false, error: '필수 정보 미입력' };
+        if (!lecSerial) {
+            console.log('❌ 강의 코드가 필요합니다.');
+            return { success: false, error: '강의 코드 미입력' };
         }
         
         const data = {
-            studentIdx: parseInt(studentIdx),
             lecSerial,
             checkEnrollment: true
+            // studentIdx는 백엔드에서 JWT 토큰으로부터 자동 추출
         };
         
-        console.log(`📤 학생: ${data.studentIdx}, 강의: ${lecSerial}`);
+        console.log(`📤 강의: ${lecSerial} (학생 정보는 JWT에서 자동 추출)`);
         
         const result = await apiCall('/enrollments/list', data);
         
@@ -104,7 +165,7 @@
     }
     
     // ============================================
-    // 2. 내 수강 목록 조회
+    // 3. 내 수강 목록 조회
     // POST /api/enrollments/list
     // ============================================
     
@@ -113,35 +174,38 @@
         console.log('📋 내 수강 목록 조회');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
-        const studentIdx = prompt('학생 IDX:', '');
-        if (!studentIdx) {
-            console.log('❌ 학생 IDX가 필요합니다.');
-            return { success: false, error: '학생 IDX 미입력' };
-        }
-        
         const page = prompt('페이지 번호 (기본: 0):', '0');
         const size = prompt('페이지 크기 (기본: 20):', '20');
         
         const data = {
-            studentIdx: parseInt(studentIdx),
             page: parseInt(page) || 0,
             size: parseInt(size) || 20
+            // ✅ studentIdx는 백엔드에서 JWT 토큰으로부터 자동 추출
         };
         
-        console.log(`📤 학생: ${data.studentIdx}, 페이지: ${data.page}`);
+        console.log(`📤 페이지: ${data.page} (학생 ID는 JWT에서 자동 추출)`);
         
         const result = await apiCall('/enrollments/list', data);
         
         if (result?.success && result.data) {
             const enrollments = result.data.content || [];
             console.log(`\n📊 수강 중인 강의: ${enrollments.length}개`);
+            console.log(`📄 전체 페이지: ${result.data.totalPages || 0}페이지 (총 ${result.data.totalElements || 0}건)`);
             
             if (enrollments.length > 0) {
                 console.log('\n📋 수강 목록:');
+                console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
                 enrollments.forEach((enr, i) => {
-                    console.log(`  ${i+1}. ${enr.lectureName || 'N/A'} [${enr.lectureSerial || 'N/A'}]`);
-                    console.log(`     등록일: ${enr.enrolledAt || 'N/A'}`);
+                    console.log(`\n  ${i+1}. ${enr.lecTit || 'N/A'} [${enr.lecSerial || 'N/A'}]`);
+                    console.log(`     👨‍🏫 교수: ${enr.lecProfName || 'N/A'}`);
+                    console.log(`     📚 학점: ${enr.lecPoint || 'N/A'}점`);
+                    console.log(`     ⏰ 시간: ${enr.lecTime || 'N/A'}`);
+                    console.log(`     📅 등록일: ${enr.enrollmentDate || 'N/A'}`);
+                    console.log(`     📝 상태: ${enr.enrollmentStatus || 'N/A'}`);
                 });
+                console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            } else {
+                console.log('💡 수강 중인 강의가 없습니다.');
             }
             
             console.log('\n✅ 성공!');
@@ -154,7 +218,7 @@
     }
     
     // ============================================
-    // 3. 수강 신청
+    // 4. 수강 신청
     // POST /api/enrollments/enroll
     // ============================================
     
@@ -163,20 +227,18 @@
         console.log('➕ 수강 신청');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
-        const studentIdx = prompt('학생 IDX:', '');
         const lecSerial = prompt('강의 코드 (예: CS284):', '');
-        
-        if (!studentIdx || !lecSerial) {
-            console.log('❌ 학생 IDX와 강의 코드가 필요합니다.');
-            return { success: false, error: '필수 정보 미입력' };
+        if (!lecSerial) {
+            console.log('❌ 강의 코드가 필요합니다.');
+            return { success: false, error: '강의 코드 미입력' };
         }
         
         const data = {
-            studentIdx: parseInt(studentIdx),
             lecSerial
+            // studentIdx는 백엔드에서 JWT 토큰으로부터 자동 추출
         };
         
-        console.log(`📤 학생: ${data.studentIdx}, 강의: ${lecSerial}`);
+        console.log(`📤 강의: ${lecSerial} (학생 정보는 JWT에서 자동 추출)`);
         
         const result = await apiCall('/enrollments/enroll', data);
         
@@ -194,7 +256,7 @@
     }
     
     // ============================================
-    // 4. 수강 취소
+    // 5. 수강 취소
     // DELETE /api/enrollments/{enrollmentIdx}
     // ============================================
     
@@ -230,7 +292,7 @@
     }
     
     // ============================================
-    // 5. 수강신청 통계
+    // 6. 수강신청 통계
     // POST /api/enrollments/list
     // ============================================
     
@@ -282,10 +344,11 @@
         console.log('\n🚀 수강신청 API 전체 테스트 시작');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
         
-        const results = { total: 3, success: 0, failed: 0, tests: [] };
+        const results = { total: 4, success: 0, failed: 0, tests: [] };
         
         try {
             const tests = [
+                { name: '수강신청 가능한 강의 목록', fn: testAvailableLectures },
                 { name: '수강 여부 확인', fn: testCheckEnrollment },
                 { name: '내 수강 목록', fn: testEnrollmentList },
                 { name: '통계 조회', fn: testEnrollmentStats }
@@ -322,6 +385,7 @@
     // ============================================
     
     window.enrollmentTest = {
+        available: testAvailableLectures,
         check: testCheckEnrollment,
         list: testEnrollmentList,
         enroll: testEnroll,
