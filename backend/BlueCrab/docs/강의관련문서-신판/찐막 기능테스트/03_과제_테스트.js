@@ -97,10 +97,21 @@
             console.log(`\n📊 과제 개수: ${assignments.length}개`);
             
             if (assignments.length > 0) {
-                console.log('\n📋 과제 목록:');
+                console.log('\n� 과제 목록:');
                 assignments.forEach((asn, i) => {
-                    console.log(`  ${i+1}. ${asn.assignTitle || 'N/A'}`);
-                    console.log(`     배점: ${asn.assignMaxScore}점, 마감: ${asn.assignDueDate || 'N/A'}`);
+                    // assignmentData가 문자열로 반환되므로 JSON.parse() 필요
+                    let assignmentData = null;
+                    if (asn.assignmentData && typeof asn.assignmentData === 'string') {
+                        try {
+                            assignmentData = JSON.parse(asn.assignmentData);
+                        } catch (e) {
+                            console.error('JSON 파싱 오류:', e);
+                        }
+                    }
+                    
+                    const assignment = assignmentData?.assignment || asn;
+                    console.log(`  ${i+1}. ${assignment.title || asn.assignTitle || 'N/A'}`);
+                    console.log(`     만점: ${assignment.maxScore || asn.assignMaxScore || 'N/A'}점, 마감: ${assignment.dueDate || asn.assignDueDate || 'N/A'}`);
                 });
             }
             
@@ -136,15 +147,28 @@
         
         if (result?.success && result.data) {
             const asn = result.data;
-            console.log('\n📊 과제 정보:');
-            console.log(`  제목: ${asn.assignTitle || 'N/A'}`);
-            console.log(`  내용: ${asn.assignContent || 'N/A'}`);
-            console.log(`  배점: ${asn.assignMaxScore}점`);
-            console.log(`  마감일: ${asn.assignDueDate || 'N/A'}`);
-            console.log(`  생성일: ${asn.assignCreatedAt || 'N/A'}`);
             
-            if (asn.assignFiles) {
-                console.log(`  첨부파일: ${asn.assignFiles}`);
+            // assignmentData가 문자열로 반환되므로 JSON.parse() 필요
+            let assignmentData = null;
+            if (asn.assignmentData && typeof asn.assignmentData === 'string') {
+                try {
+                    assignmentData = JSON.parse(asn.assignmentData);
+                } catch (e) {
+                    console.error('JSON 파싱 오류:', e);
+                }
+            }
+            
+            const assignment = assignmentData?.assignment || asn;
+            
+            console.log('\n📊 과제 정보:');
+            console.log(`  제목: ${assignment.title || asn.assignTitle || 'N/A'}`);
+            console.log(`  내용: ${assignment.description || asn.assignContent || 'N/A'}`);
+            console.log(`  만점: ${assignment.maxScore || asn.assignMaxScore || 'N/A'}점`);
+            console.log(`  마감일: ${assignment.dueDate || asn.assignDueDate || 'N/A'}`);
+            console.log(`  생성일: ${asn.assignCreatedAt || asn.createdAt || 'N/A'}`);
+            
+            if (asn.assignFiles || assignment.files) {
+                console.log(`  첨부파일: ${asn.assignFiles || assignment.files}`);
             }
             
             console.log('\n✅ 성공!');
@@ -169,8 +193,8 @@
         const lecSerial = prompt('강의 코드:', 'ETH201');
         const title = prompt('과제 제목:', '');
         const content = prompt('과제 내용:', '');
-        const maxScore = prompt('배점 (기본: 100):', '100');
-        const dueDate = prompt('마감일 (yyyy-MM-dd HH:mm):', '');
+        const maxScore = prompt('만점 (기본: 100):', '100');
+        const dueDate = prompt('마감일 (yyyyMMdd 형식, 예: 20251231):', '');
         
         if (!lecSerial || !title) {
             console.log('❌ 강의 코드와 제목은 필수입니다.');
@@ -179,10 +203,10 @@
         
         const data = {
             lecSerial,
-            assignTitle: title,
-            assignContent: content || '',
-            assignMaxScore: parseInt(maxScore) || 100,
-            assignDueDate: dueDate || null
+            title: title,
+            description: content || '',
+            maxScore: parseInt(maxScore) || 100,
+            dueDate: dueDate || null
         };
         
         console.log('📤 과제 정보:', data);
