@@ -190,7 +190,7 @@ const fetchNotices = async () => {
   }, [accessToken, selectedLectureSerial]);
 
   // ✅ 과제 삭제 후 목록 갱신 함수 추가
-  const handleDeleteAssignment = async (deletedIdx) => {
+  const handleDeleteAssignment = async () => {
     await getAssignments(accessToken, selectedLectureSerial); // 최신 목록 다시 불러오기
   };
 
