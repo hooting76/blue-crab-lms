@@ -1,4 +1,4 @@
-﻿// 작성자 : 성태준
+// 작성자 : 성태준
 // 게시글 통계 서비스 (개수 조회, 존재 여부 확인 등)
 
 package BlueCrab.com.example.service.Board;

@@ -1,4 +1,4 @@
-﻿// 작성자 : 성태준
+// 작성자 : 성태준
 // 게시글 수정 및 삭제 전용 컨트롤러
 
 package BlueCrab.com.example.controller.Board;

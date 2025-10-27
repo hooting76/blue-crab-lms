@@ -515,8 +515,10 @@
             action: 'professor-view',
             lecSerial: config.lecSerial,
             studentIdx: config.studentIdx
+            // professorIdx는 JWT 토큰에서 자동 추출됩니다
         };
         
+        console.log('💡 professorIdx는 JWT 토큰에서 자동으로 추출됩니다');
         const result = await apiCall(`/enrollments/grade-info`, data);
         
         if (result?.success && result.data) {

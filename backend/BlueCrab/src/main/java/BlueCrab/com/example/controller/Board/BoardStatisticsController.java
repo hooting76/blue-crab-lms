@@ -1,4 +1,4 @@
-﻿// 작성자 : 성태준
+// 작성자 : 성태준
 // 게시글 통계 전용 컨트롤러
 
 package BlueCrab.com.example.controller.Board;

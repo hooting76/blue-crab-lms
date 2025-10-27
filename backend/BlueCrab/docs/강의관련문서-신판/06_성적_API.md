@@ -145,15 +145,20 @@
 
 **설명**: 학생 성적 + 추가 통계(순위, 평균) 조회
 
+**⚠️ 참고**: `professorIdx`는 JWT 토큰에서 자동으로 추출되므로 요청 본문에 포함할 필요가 없습니다.
+
 #### Request Body
 ```json
 {
   "action": "professor-view",
   "lecSerial": "CS284",
-  "studentIdx": 6,
-  "professorIdx": 25
+  "studentIdx": 6
 }
 ```
+
+**필드 설명**:
+- `professorIdx`: ~~요청 본문에 포함 불필요~~ → JWT 토큰에서 자동 추출
+- 인증된 교수의 `USER_IDX`가 자동으로 사용됩니다
 
 #### 응답 예시
 ```json

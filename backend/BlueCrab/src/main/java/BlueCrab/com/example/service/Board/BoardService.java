@@ -1,4 +1,4 @@
-﻿// 작성자 : 성태준
+// 작성자 : 성태준
 // 게시글 서비스 인터페이스
 
 package BlueCrab.com.example.service.Board;

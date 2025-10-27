@@ -1,4 +1,4 @@
-﻿// 작성자 : 성태준
+// 작성자 : 성태준
 // 개시글 테이블 엔티티
 
 package BlueCrab.com.example.entity.Board;

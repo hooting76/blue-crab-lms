@@ -1,4 +1,4 @@
-﻿package BlueCrab.com.example.repository.projection;
+package BlueCrab.com.example.repository.projection;
 
 /**
  * 관리자 대시보드 통계를 위한 Projection Interface

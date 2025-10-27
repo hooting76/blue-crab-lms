@@ -194,22 +194,23 @@ POST /api/enrollments/list
 
 ### 4. 수강신청 취소
 
-**엔드포인트**: `POST /api/enrollments/cancel`
+**엔드포인트**: `DELETE /api/enrollments/{enrollmentIdx}`
 
 **권한**: 학생 (본인만)
 
-#### Request Body
-```json
-{
-  "enrollmentIdx": 42
-}
+#### Path Parameter
+- `enrollmentIdx`: 취소할 수강신청 ID (Integer)
+
+#### 예시
+```
+DELETE /api/enrollments/42
 ```
 
 #### 응답 예시
 ```json
 {
   "success": true,
-  "message": "수강신청이 취소되었습니다."
+  "message": "수강이 취소되었습니다."
 }
 ```
 

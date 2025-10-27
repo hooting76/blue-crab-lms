@@ -9,6 +9,7 @@ import BlueCrab.com.example.entity.UserTbl;
 import BlueCrab.com.example.event.Lecture.GradeUpdateEvent;
 import BlueCrab.com.example.repository.UserTblRepository;
 import BlueCrab.com.example.service.Lecture.EnrollmentService;
+import BlueCrab.com.example.util.JwtUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -42,6 +43,9 @@ public class EnrollmentController {
 
     @Autowired
     private ApplicationEventPublisher eventPublisher;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     /* 수강신청 목록 조회 (통합 엔드포인트) - POST 방식
      * 
@@ -442,7 +446,9 @@ public class EnrollmentController {
      * POST /api/enrollments/grade-info
      */
     @PostMapping("/grade-info")
-    public ResponseEntity<?> getGradeInfo(@RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> getGradeInfo(
+            @RequestBody Map<String, Object> request,
+            @RequestHeader("Authorization") String authHeader) {
         try {
             String action = (String) request.get("action");
             
@@ -450,7 +456,7 @@ public class EnrollmentController {
                 case "get-grade":
                     return handleStudentGradeInfo(request);
                 case "professor-view":
-                    return handleProfessorGradeView(request);
+                    return handleProfessorGradeView(request, authHeader);
                 default:
                     return ResponseEntity.badRequest()
                         .body(createErrorResponse("지원하지 않는 액션입니다."));
@@ -583,11 +589,28 @@ public class EnrollmentController {
     /**
      * 교수용 성적 조회 핸들러
      */
-    private ResponseEntity<?> handleProfessorGradeView(Map<String, Object> request) {
+    private ResponseEntity<?> handleProfessorGradeView(Map<String, Object> request, String authHeader) {
         Integer lecIdx = request.get("lecIdx") != null ? ((Number) request.get("lecIdx")).intValue() : null;
         String lecSerial = (String) request.get("lecSerial");
         Integer studentIdx = request.get("studentIdx") != null ? ((Number) request.get("studentIdx")).intValue() : null;
         Integer professorIdx = request.get("professorIdx") != null ? ((Number) request.get("professorIdx")).intValue() : null;
+        
+        // professorIdx가 요청에 없으면 JWT 토큰에서 추출
+        if (professorIdx == null) {
+            try {
+                String token = authHeader.substring(7); // "Bearer " 제거
+                professorIdx = jwtUtil.extractUserId(token);
+                if (professorIdx == null) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(createErrorResponse("JWT 토큰에서 교수 정보를 찾을 수 없습니다."));
+                }
+                logger.debug("JWT에서 professorIdx 추출: {}", professorIdx);
+            } catch (Exception e) {
+                logger.error("JWT 토큰 파싱 실패", e);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(createErrorResponse("유효하지 않은 인증 토큰입니다."));
+            }
+        }
         
         // lecSerial이 제공된 경우 lecIdx로 변환
         if (lecIdx == null && lecSerial != null && !lecSerial.trim().isEmpty()) {
@@ -600,7 +623,7 @@ public class EnrollmentController {
         
         if (lecIdx == null || studentIdx == null || professorIdx == null) {
             return ResponseEntity.badRequest()
-                .body(createErrorResponse("lecIdx(또는 lecSerial), studentIdx, professorIdx는 필수 파라미터입니다."));
+                .body(createErrorResponse("lecIdx(또는 lecSerial), studentIdx는 필수 파라미터입니다."));
         }
 
         try {
