@@ -371,13 +371,16 @@ public class EnrollmentController {
                 dto.setLecPoint(lecture.getLecPoint());
                 dto.setLecTime(lecture.getLecTime());
                 
-                // 교수코드(USER_CODE)로 교수 이름(USER_NAME) 조회
+                // 교수 IDX(USER_IDX)로 교수 이름(USER_NAME) 조회
                 if (lecture.getLecProf() != null && !lecture.getLecProf().isEmpty()) {
                     try {
-                        userTblRepository.findByUserCode(lecture.getLecProf())
+                        Integer professorIdx = Integer.parseInt(lecture.getLecProf());
+                        userTblRepository.findById(professorIdx)
                             .ifPresent(professor -> dto.setLecProfName(professor.getUserName()));
+                    } catch (NumberFormatException e) {
+                        logger.warn("교수 IDX 파싱 실패 (LEC_PROF: {}): {}", lecture.getLecProf(), e.getMessage());
                     } catch (Exception e) {
-                        logger.warn("교수 정보 조회 실패 (USER_CODE: {}): {}", lecture.getLecProf(), e.getMessage());
+                        logger.warn("교수 정보 조회 실패 (USER_IDX: {}): {}", lecture.getLecProf(), e.getMessage());
                     }
                 }
             }

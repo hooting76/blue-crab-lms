@@ -200,8 +200,6 @@
                     console.log(`     👨‍🏫 교수: ${enr.lecProfName || 'N/A'}`);
                     console.log(`     📚 학점: ${enr.lecPoint || 'N/A'}점`);
                     console.log(`     ⏰ 시간: ${enr.lecTime || 'N/A'}`);
-                    console.log(`     📅 등록일: ${enr.enrollmentDate || 'N/A'}`);
-                    console.log(`     📝 상태: ${enr.enrollmentStatus || 'N/A'}`);
                 });
                 console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
             } else {

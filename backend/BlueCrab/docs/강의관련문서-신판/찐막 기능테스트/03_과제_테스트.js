@@ -73,7 +73,7 @@
         console.log('📋 과제 목록 조회');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
-        const lecSerial = prompt('강의 코드 (예: CS284):', '');
+        const lecSerial = prompt('강의 코드 (예: ETH201):', 'ETH201');
         if (!lecSerial) {
             console.log('❌ 강의 코드가 필요합니다.');
             return { success: false, error: '강의 코드 미입력' };
@@ -166,7 +166,7 @@
         console.log('➕ 과제 생성');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
-        const lecSerial = prompt('강의 코드:', '');
+        const lecSerial = prompt('강의 코드:', 'ETH201');
         const title = prompt('과제 제목:', '');
         const content = prompt('과제 내용:', '');
         const maxScore = prompt('배점 (기본: 100):', '100');
