@@ -35,5 +35,6 @@ footer{width: 100%; height: fit-content; padding: 15px; text-align: center;  box
 @media (max-width:768px){
   #content{
     padding: 0;
+    flex-direction: column-reverse;
   }
 }

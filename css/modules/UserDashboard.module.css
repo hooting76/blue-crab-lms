@@ -31,7 +31,7 @@
     width: 100%;
     box-sizing: border-box;    
     height: auto;
-    max-height: 750px;
+    min-height: 800px;
 }
 
 .notice{
@@ -47,7 +47,7 @@
 
 .noticeFirst, .noticeSecond{
     border-radius: 15px;
-    background-color: #ccc;
+    background-color: #fff;
     width: 49%;
     height: 100%;
 }
@@ -69,7 +69,21 @@
         max-width: 100%;
         gap: 10px;
     }
-    .aside{
+    .calendar{
         display: none;
+    }
+    .aside{
+        max-width: 100%;
+        height: fit-content !important;
+    }
+    .aside > div{
+        height: auto;
+        min-height: fit-content;
+    }
+    .notice{
+        flex-wrap: wrap;
+    }
+    .noticeFirst, .noticeSecond{
+        width: 100%;
     }
 }

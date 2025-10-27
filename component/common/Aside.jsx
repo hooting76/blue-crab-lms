@@ -20,15 +20,19 @@ function Aside(){
     
     // list custom
     const CustomToolbar = () => {
+        const [now, setNow] = useState(moment());
+        useEffect(() => {
+            const timer = setInterval(() => setNow(moment()), 1000); // update every second
+            return () => clearInterval(timer);
+        }, []);
+
         return (
-            <>
             <div className="rbc-toolbar agenda">
                 <span className="time-display">
-                    {moment().format('MM월 DD일 HH시 mm분')}
+                    {now.format('MM월 DD일 HH시 mm분')}
                 </span>
             </div>
-            </>
-        )
+        );
     };
 
     const CustomAgendaEvent = ({ event }) => {
@@ -41,6 +45,15 @@ function Aside(){
             </div>
         );
     };
+
+    const [currentDate, setCurrentDate] = useState(new Date());
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentDate(new Date());
+        }, 1000);
+        return () => clearInterval(timer);
+    }, []);
 
     return(
         <div className={AsideCss.wrap}>
@@ -62,8 +75,8 @@ function Aside(){
                         return `${moment(start).format('HH:mm')} - ${moment(end).format('HH:mm')}`;
                     }
                 }}
-                 // Show only 1 day
-                date={new Date('2025-10-20')}
+                // Show only 1 day
+                date={new Date()}
                 />
         </div>
     );
