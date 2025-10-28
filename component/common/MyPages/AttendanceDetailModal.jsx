@@ -37,7 +37,7 @@ const AttendanceDetailModal = ({ onClose, enrollmentIdx }) => {
     if (enrollmentIdx) {
       FetchAttendanceDetail();
     }
-  }, [enrollmentIdx]);
+  }, []);
 
 
   return (
