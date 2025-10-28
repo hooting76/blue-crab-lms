@@ -144,6 +144,13 @@ useEffect(() => {
       alert('첨부파일은 최대 5개까지 첨부할 수 있습니다.');
       return;
     }
+    const maxFileSize = 1024*1024;
+    for (const file of files) {
+      if (file.size > maxFileSize) { // 첨부파일 크기 제한 초과 시 alert
+        alert(`${file.name} 파일의 크기가 제한을 초과했습니다.`);
+        return;
+      }
+    }
     setSelectedFiles(prev => [...prev, ...files]);
   };
 
