@@ -9,6 +9,7 @@ import BlueCrab.com.example.enums.RequestStatus;
 import BlueCrab.com.example.repository.ConsultationRequestRepository;
 import BlueCrab.com.example.repository.UserTblRepository;
 import BlueCrab.com.example.service.notification.ChatNotificationService;
+import BlueCrab.com.example.service.support.StatusTransitionValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -43,6 +45,8 @@ import java.util.Optional;
 @Service
 @Transactional
 public class ConsultationRequestServiceImpl implements ConsultationRequestService {
+
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private final ConsultationRequestRepository consultationRepository;
     private final UserTblRepository userRepository;
@@ -74,7 +78,134 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Page<ConsultationRequestDto> getConsultationList(ConsultationListRequest request, String userCode) {
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+        Page<ConsultationRequest> consultations;
+        switch (request.getViewType()) {
+            case SENT:
+                if (request.getStatus() == null || request.getStatus().isEmpty()) {
+                    consultations = consultationRepository.findByRequesterUserCodeOrderByCreatedAtDesc(userCode, pageable);
+                } else {
+                    consultations = consultationRepository.findByRequesterUserCodeAndStatusOrderByCreatedAtDesc(
+                        userCode, request.getStatus(), pageable);
+                }
+                break;
+            case RECEIVED:
+                if (request.getStatus() == null || request.getStatus().isEmpty()) {
+                    consultations = consultationRepository.findByRecipientUserCodeOrderByCreatedAtDesc(userCode, pageable);
+                } else {
+                    consultations = consultationRepository.findByRecipientUserCodeAndStatusOrderByCreatedAtDesc(
+                        userCode, request.getStatus(), pageable);
+                }
+                break;
+            case ACTIVE:
+                consultations = consultationRepository.findByStatusAndParticipant(
+                    "IN_PROGRESS", userCode, userCode, pageable);
+                break;
+            case HISTORY:
+                Iterable<String> terminalStatuses = List.of("COMPLETED", "CANCELLED", "REJECTED");
+                if (request.getStartDate() != null && request.getEndDate() != null) {
+                    consultations = consultationRepository.findByStatusInAndParticipantAndDateRange(
+                        terminalStatuses,
+                        userCode,
+                        userCode,
+                        request.getStartDate().atStartOfDay(),
+                        request.getEndDate().atTime(23, 59, 59),
+                        pageable
+                    );
+                } else {
+                    consultations = consultationRepository.findByStatusInAndParticipant(
+                        terminalStatuses,
+                        userCode,
+                        userCode,
+                        pageable
+                    );
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("알 수 없는 ViewType: " + request.getViewType());
+        }
+        return consultations.map(this::toDto);
+    }
+
+    @Override
+    public ConsultationRequestDto changeConsultationStatus(ConsultationStatusRequest statusRequest, String userCode) {
+        ConsultationRequest consultation = consultationRepository
+            .findById(statusRequest.getId())
+            .orElseThrow(() -> new NoSuchElementException("상담을 찾을 수 없습니다."));
+
+        String currentStatus = consultation.getStatus();
+        String newStatus = statusRequest.getStatus() != null
+            ? statusRequest.getStatus().toUpperCase()
+            : null;
+
+        StatusTransitionValidator.validate(currentStatus, newStatus);
+
+        if (StatusTransitionValidator.requiresReason(newStatus)) {
+            if (statusRequest.getReason() == null || statusRequest.getReason().isBlank()) {
+                throw new IllegalArgumentException("사유는 필수입니다.");
+            }
+        }
+
+        validateStatusChangePermission(consultation, userCode, newStatus);
+
+        LocalDateTime now = LocalDateTime.now();
+        consultation.setStatus(newStatus);
+        consultation.setStatusChangedAt(now);
+        if (userCode != null && !userCode.isBlank()) {
+            consultation.setStatusChangedBy(userCode);
+        }
+        consultation.setStatusReason(statusRequest.getReason());
+
+        ConsultationRequest saved;
+        switch (newStatus) {
+            case "IN_PROGRESS":
+                if (consultation.getStartedAt() == null) {
+                    consultation.setStartedAt(now);
+                }
+                consultation.setLastActivityAt(now);
+                saved = consultationRepository.save(consultation);
+                notifyStatusChange(saved, "IN_PROGRESS");
+                break;
+            case "COMPLETED":
+                saved = completeConsultation(consultation, true);
+                notifyStatusChange(saved, "COMPLETED");
+                break;
+            case "CANCELLED":
+                if (consultation.getStartedAt() != null && consultation.getEndedAt() == null) {
+                    consultation.setEndedAt(now);
+                }
+                saved = consultationRepository.save(consultation);
+                notifyStatusChange(saved, "CANCELLED");
+                break;
+            case "APPROVED":
+                saved = consultationRepository.save(consultation);
+                notifyStatusChange(saved, "APPROVED");
+                break;
+            case "REJECTED":
+                saved = consultationRepository.save(consultation);
+                notifyStatusChange(saved, "REJECTED");
+                break;
+            default:
+                saved = consultationRepository.save(consultation);
+                break;
+        }
+        return toDto(saved);
+    }
+
+    @Override
+    public ConsultationRequestDto createConsultation(ConsultationRequestCreateDto createDto) {
+        return doCreateConsultation(createDto);
+    }
+
+    @Deprecated
+    @Override
     public ConsultationRequestDto createRequest(ConsultationRequestCreateDto createDto) {
+        return doCreateConsultation(createDto);
+    }
+
+    private ConsultationRequestDto doCreateConsultation(ConsultationRequestCreateDto createDto) {
         try {
             log.info("상담 요청 생성 시작: requester={}, recipient={}",
                      createDto.getRequesterUserCode(), createDto.getRecipientUserCode());
@@ -92,6 +223,9 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
             consultation.setContent(createDto.getContent());
             consultation.setDesiredDate(createDto.getDesiredDate());
             consultation.setRequestStatusEnum(RequestStatus.PENDING);
+            consultation.setStatus("PENDING");
+            consultation.setStatusChangedAt(LocalDateTime.now());
+            consultation.setStatusChangedBy(createDto.getRequesterUserCode());
 
             // 저장
             ConsultationRequest saved = consultationRepository.save(consultation);
@@ -116,6 +250,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
     }
 
     @Override
+    @Deprecated
     public ConsultationRequestDto approveRequest(ConsultationApproveDto approveDto) {
         try {
             log.info("상담 요청 승인 시작: requestIdx={}", approveDto.getRequestIdx());
@@ -134,6 +269,9 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
             consultation.setRequestStatusEnum(RequestStatus.APPROVED);
             consultation.setAcceptMessage(approveDto.getAcceptMessage());
             consultation.setConsultationStatusEnum(ConsultationStatus.SCHEDULED);
+            consultation.setStatus("APPROVED");
+            consultation.setStatusReason(approveDto.getAcceptMessage());
+            consultation.setStatusChangedAt(LocalDateTime.now());
 
             ConsultationRequest saved = consultationRepository.save(consultation);
 
@@ -157,6 +295,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
     }
 
     @Override
+    @Deprecated
     public ConsultationRequestDto rejectRequest(ConsultationRejectDto rejectDto) {
         try {
             log.info("상담 요청 반려 시작: requestIdx={}", rejectDto.getRequestIdx());
@@ -174,6 +313,9 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
             // 반려 처리
             consultation.setRequestStatusEnum(RequestStatus.REJECTED);
             consultation.setRejectionReason(rejectDto.getRejectionReason());
+            consultation.setStatus("REJECTED");
+            consultation.setStatusReason(rejectDto.getRejectionReason());
+            consultation.setStatusChangedAt(LocalDateTime.now());
 
             ConsultationRequest saved = consultationRepository.save(consultation);
 
@@ -197,6 +339,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
     }
 
     @Override
+    @Deprecated
     public ConsultationRequestDto cancelRequest(ConsultationCancelDto cancelDto) {
         try {
             log.info("상담 요청 취소 시작: requestIdx={}", cancelDto.getRequestIdx());
@@ -215,6 +358,12 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
             // 취소 처리
             consultation.setRequestStatusEnum(RequestStatus.CANCELLED);
             consultation.setCancelReason(cancelDto.getCancelReason());
+            consultation.setStatus("CANCELLED");
+            consultation.setStatusReason(cancelDto.getCancelReason());
+            consultation.setStatusChangedAt(LocalDateTime.now());
+            if (consultation.getStartedAt() != null && consultation.getEndedAt() == null) {
+                consultation.setEndedAt(LocalDateTime.now());
+            }
 
             // 상담이 예정되어 있었다면 상담 상태도 CANCELLED로 변경
             if (consultation.getConsultationStatusEnum() != null) {
@@ -243,6 +392,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
     }
 
     @Override
+    @Deprecated
     public ConsultationRequestDto startConsultation(ConsultationIdDto idDto) {
         try {
             log.info("상담 시작: requestIdx={}", idDto.getRequestIdx());
@@ -257,11 +407,16 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
                     + consultation.getConsultationStatus());
             }
 
-            // 시작 처리
             LocalDateTime now = LocalDateTime.now();
+            ensureConsultationCanStart(consultation, now);
+
+            // 시작 처리
             consultation.setConsultationStatusEnum(ConsultationStatus.IN_PROGRESS);
             consultation.setStartedAt(now);
             consultation.setLastActivityAt(now);
+            consultation.setStatus("IN_PROGRESS");
+            consultation.setStatusChangedAt(now);
+            consultation.setStatusReason(null);
 
             ConsultationRequest saved = consultationRepository.save(consultation);
 
@@ -278,6 +433,9 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
 
             return toDto(saved);
 
+        } catch (IllegalStateException e) {
+            log.warn("상담 시작 조건 불충족: {}", e.getMessage());
+            throw e;
         } catch (Exception e) {
             log.error("상담 시작 실패: {}", e.getMessage(), e);
             throw new RuntimeException("상담 시작에 실패했습니다: " + e.getMessage(), e);
@@ -285,6 +443,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
     }
 
     @Override
+    @Deprecated
     public ConsultationRequestDto endConsultation(ConsultationIdDto idDto) {
         try {
             log.info("상담 종료: requestIdx={}", idDto.getRequestIdx());
@@ -309,6 +468,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
     }
 
     @Override
+    @Deprecated
     public ConsultationRequestDto updateMemo(ConsultationMemoDto memoDto) {
         try {
             log.info("메모 업데이트: requestIdx={}", memoDto.getRequestIdx());
@@ -332,6 +492,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
         }
     }
 
+    @Deprecated
     @Override
     @Transactional(readOnly = true)
     public Page<ConsultationRequestDto> getMyRequests(String requesterUserCode, String requestStatus, Pageable pageable) {
@@ -345,7 +506,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
                     .findByRequesterUserCodeOrderByCreatedAtDesc(requesterUserCode, pageable);
             } else {
                 consultations = consultationRepository
-                    .findByRequesterUserCodeAndRequestStatusOrderByCreatedAtDesc(
+                    .findByRequesterUserCodeAndStatusOrderByCreatedAtDesc(
                         requesterUserCode, requestStatus, pageable);
             }
 
@@ -357,6 +518,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
         }
     }
 
+    @Deprecated
     @Override
     @Transactional(readOnly = true)
     public Page<ConsultationRequestDto> getReceivedRequests(String recipientUserCode, String requestStatus, Pageable pageable) {
@@ -370,7 +532,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
                     .findByRecipientUserCodeOrderByCreatedAtDesc(recipientUserCode, pageable);
             } else {
                 consultations = consultationRepository
-                    .findByRecipientUserCodeAndRequestStatusOrderByCreatedAtDesc(
+                    .findByRecipientUserCodeAndStatusOrderByCreatedAtDesc(
                         recipientUserCode, requestStatus, pageable);
             }
 
@@ -382,6 +544,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
         }
     }
 
+    @Deprecated
     @Override
     @Transactional(readOnly = true)
     public Page<ConsultationRequestDto> getActiveConsultations(String userCode, Pageable pageable) {
@@ -399,6 +562,7 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
         }
     }
 
+    @Deprecated
     @Override
     @Transactional(readOnly = true)
     public Page<ConsultationRequestDto> getConsultationHistory(ConsultationHistoryRequestDto historyDto) {
@@ -535,6 +699,8 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
             int count = 0;
             for (ConsultationRequest consultation : inactiveConsultations) {
                 try {
+                    consultation.setStatusChangedBy("SYSTEM_AUTO");
+                    consultation.setStatusReason("자동 종료: 2시간 무활동");
                     completeConsultation(consultation, true);
                     count++;
                 } catch (Exception completionError) {
@@ -564,6 +730,8 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
             int count = 0;
             for (ConsultationRequest consultation : longRunningConsultations) {
                 try {
+                    consultation.setStatusChangedBy("SYSTEM_AUTO");
+                    consultation.setStatusReason("자동 종료: 24시간 경과");
                     completeConsultation(consultation, true);
                     count++;
                 } catch (Exception completionError) {
@@ -597,11 +765,10 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
         dto.setContent(entity.getContent());
         dto.setDesiredDate(entity.getDesiredDate());
         dto.setScheduledStartAt(entity.getDesiredDate());
-        dto.setRequestStatus(entity.getRequestStatusEnum());
-        dto.setAcceptMessage(entity.getAcceptMessage());
-        dto.setRejectionReason(entity.getRejectionReason());
-        dto.setCancelReason(entity.getCancelReason());
-        dto.setConsultationStatus(entity.getConsultationStatusEnum());
+        dto.setStatus(entity.getStatus());
+        dto.setStatusReason(entity.getStatusReason());
+        dto.setStatusChangedAt(entity.getStatusChangedAt());
+        dto.setStatusChangedBy(entity.getStatusChangedBy());
         dto.setStartedAt(entity.getStartedAt());
         dto.setEndedAt(entity.getEndedAt());
         dto.setDurationMinutes(entity.getDurationMinutes());
@@ -645,12 +812,53 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
             || consultation.getRecipientUserCode().equals(userCode);
     }
 
+    private void validateStatusChangePermission(ConsultationRequest consultation, String userCode, String newStatus) {
+        if (userCode == null || userCode.isBlank()) {
+            return;
+        }
+
+        boolean isRequester = consultation.getRequesterUserCode().equals(userCode);
+        boolean isRecipient = consultation.getRecipientUserCode().equals(userCode);
+
+        if (!isRequester && !isRecipient) {
+            throw new SecurityException("상담 참여자만 접근 가능합니다");
+        }
+
+        String currentStatus = consultation.getStatus();
+
+        switch (currentStatus) {
+            case "PENDING":
+                if ("APPROVED".equals(newStatus) || "REJECTED".equals(newStatus)) {
+                    if (!isRecipient) {
+                        throw new SecurityException("본인에게 온 요청만 처리 가능합니다");
+                    }
+                } else if ("CANCELLED".equals(newStatus) && !isRequester) {
+                    throw new SecurityException("요청자만 취소할 수 있습니다");
+                }
+                break;
+            case "APPROVED":
+                if (("IN_PROGRESS".equals(newStatus) || "CANCELLED".equals(newStatus)) && !isParticipant(consultation, userCode)) {
+                    throw new SecurityException("상담 참여자만 상태를 변경할 수 있습니다");
+                }
+                break;
+            case "IN_PROGRESS":
+                if (("COMPLETED".equals(newStatus) || "CANCELLED".equals(newStatus)) && !isParticipant(consultation, userCode)) {
+                    throw new SecurityException("상담 참여자만 상태를 변경할 수 있습니다");
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
     private ConsultationRequest completeConsultation(ConsultationRequest consultation, boolean sendNotification) {
         Long requestIdx = consultation.getRequestIdx();
         archiveChatLog(requestIdx);
 
         LocalDateTime now = LocalDateTime.now();
         consultation.setConsultationStatusEnum(ConsultationStatus.COMPLETED);
+        consultation.setStatus("COMPLETED");
+        consultation.setStatusChangedAt(now);
         consultation.setEndedAt(now);
 
         if (consultation.getStartedAt() != null) {
@@ -673,6 +881,37 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
         }
 
         return saved;
+    }
+
+    private void notifyStatusChange(ConsultationRequest consultation, String status) {
+        if (chatNotificationService == null || consultation == null) {
+            return;
+        }
+
+        try {
+            switch (status) {
+                case "APPROVED":
+                    chatNotificationService.notifyConsultationApproved(consultation);
+                    break;
+                case "REJECTED":
+                    chatNotificationService.notifyConsultationRejected(consultation);
+                    break;
+                case "CANCELLED":
+                    chatNotificationService.notifyConsultationCancelled(consultation);
+                    break;
+                case "IN_PROGRESS":
+                    chatNotificationService.notifyConsultationStarted(consultation);
+                    break;
+                case "COMPLETED":
+                    chatNotificationService.notifyConsultationEnded(consultation);
+                    break;
+                default:
+                    break;
+            }
+        } catch (Exception notifyError) {
+            log.warn("상태 변경 알림 전송 실패: requestIdx={}, status={}, error={}",
+                     consultation.getRequestIdx(), status, notifyError.getMessage(), notifyError);
+        }
     }
 
     private void archiveChatLog(Long requestIdx) {
@@ -751,5 +990,17 @@ public class ConsultationRequestServiceImpl implements ConsultationRequestServic
         }
 
         return normalized;
+    }
+
+    private void ensureConsultationCanStart(ConsultationRequest consultation, LocalDateTime now) {
+        if (!RequestStatus.APPROVED.equals(consultation.getRequestStatusEnum())) {
+            throw new IllegalStateException("승인된 상담만 시작할 수 있습니다.");
+        }
+
+        LocalDateTime desired = consultation.getDesiredDate();
+        if (desired != null && now.isBefore(desired)) {
+            String formatted = desired.format(DATE_TIME_FORMATTER);
+            throw new IllegalStateException("상담 예정 시간(" + formatted + ") 이전에는 시작할 수 없습니다.");
+        }
     }
 }

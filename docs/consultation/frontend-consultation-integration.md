@@ -1,310 +1,1479 @@
-# 프론트엔드 상담 기능 연동 가이드 (PC 우선)
+# 상담 기능 API 가이드 (간소화 버전)
 
-> **목적**: 백엔드에 구현된 상담 관리·실시간 채팅 기능을 React 프론트엔드에 안정적으로 연결하기 위한 실무형 지침입니다.  
-> **대상**: 마이페이지 `실시간 상담` 화면을 구현하는 프론트엔드 개발자.  
-> **범위**: 데스크톱(PC) 뷰에 집중해 1차 기능 완성 → 이후 반응형 확장 예정.
-
----
-
-## 1. 시스템 개요
-
-- **참여자**
-  - *학생*: 상담 요청 생성·취소, 진행 중 상담 참여, 이력 조회.
-  - *교수/관리자*: 상담 요청 승인·반려, 메모 작성, 읽지 않은 건수 관리.
-- **구현 축**
-  - REST API (`/api/consultation/**`, `/api/chat/**`)로 상담 메타데이터 관리.
-  - STOMP WebSocket (`/ws/chat`)으로 실시간 메시지 및 읽음 이벤트 처리.
-  - Redis(메시지 36h TTL), Oracle DB(상태), MinIO(상담 종료 시 로그 아카이브) 백엔드에서 책임.
-- **권한 판별**
-  - JWT 기반 인증. `user.data.user.userStudent === 1`이면 교수, 0이면 학생(`context/UserContext.jsx:63` 기준).
-- **1차 목표**
-  - 상담 목록/상세/채팅/메모/상태 전환이 모두 동작하는 PC 전용 화면.
-  - 에러/재연결/자동 종료(2h 비활성, 24h 장시간) 등 핵심 예외 처리.
+> **최종 업데이트**: 2025-10-28
+> **대상**: 프론트엔드 개발자
+> **목적**: 간소화된 7개 API로 상담 기능을 쉽고 빠르게 구현하기
 
 ---
 
-## 2. 준비 사항
+## 목차
+1. [개요](#1-개요)
+2. [빠른 시작](#2-빠른-시작)
+3. [핵심 개념](#3-핵심-개념)
+4. [API 레퍼런스](#4-api-레퍼런스)
+5. [실시간 채팅](#5-실시간-채팅)
+6. [프론트엔드 구현 가이드](#6-프론트엔드-구현-가이드)
+7. [사용 시나리오](#7-사용-시나리오)
+8. [에러 처리](#8-에러-처리)
+9. [구현 체크리스트](#9-구현-체크리스트)
+10. [FAQ](#10-faq)
 
-| 항목 | 내용 |
-|------|------|
-| API Base URL | `https://bluecrab.chickenkiller.com/BlueCrab-1.0.0` (기존 로그인 도메인과 동일) |
-| 인증 토큰 | `localStorage.user` 안의 `data.accessToken`, `data.refreshToken` (`component/auth/TokenAuth.jsx:4`) |
-| 필수 라이브러리 | `axios`, `@stomp/stompjs`, `sockjs-client`, (선택) `dayjs` 또는 `date-fns` |
-| 공통 헤더 | `Authorization: Bearer ${accessToken}` |
-| 오류 처리 | 401/403 시 로그인 만료 알림 → 강제 로그아웃/재로그인 유도 |
+---
 
-추가 설치 예시:
+## 1. 개요
+
+### 1.1 시스템 소개
+
+학생과 교수 간 **실시간 온라인 상담**을 제공하는 시스템입니다.
+
+**참여자 역할**
+- **학생**: 상담 신청, 채팅 참여, 상담 취소
+- **교수**: 상담 승인/반려, 채팅 참여, 상담 시작/종료
+- **관리자**: 모든 상담 조회 및 관리
+
+**핵심 기능**
+- 상담 요청 및 승인/반려 워크플로우
+- 실시간 채팅 (WebSocket)
+- 상담 이력 관리 및 로그 다운로드
+- 읽음 처리 및 알림
+
+### 1.2 API 엔드포인트 (7개)
+
+| # | Method | Path | 설명 |
+|---|--------|------|------|
+| 1 | `POST` | `/api/consultation/list` | 목록 조회 (모든 목록 통합) |
+| 2 | `POST` | `/api/consultation/detail` | 상세 조회 |
+| 3 | `POST` | `/api/consultation/create` | 상담 생성 |
+| 4 | `POST` | `/api/consultation/status` | 상태 변경 (승인/반려/취소/시작/종료) |
+| 5 | `POST` | `/api/consultation/read` | 읽음 처리 |
+| 6 | `GET` | `/api/consultation/unread-count` | 읽지 않은 수 |
+| 7 | `WebSocket` | `/ws/consultation/chat` | 실시간 채팅 |
+
+**간소화 효과**: 기존 15개 → 7개 (53% 감소)
+
+### 1.3 핵심 특징
+
+✅ **단순함**: 7개 API만 기억하면 됨
+✅ **일관성**: 모든 API가 POST 방식 (unread-count 제외)
+✅ **통합성**: 비슷한 기능은 하나로 묶음 (list, status)
+✅ **명확성**: 각 API가 하나의 명확한 목적
+
+---
+
+## 2. 빠른 시작
+
+### 2.1 환경 설정
 
 ```bash
-npm install axios @stomp/stompjs sockjs-client dayjs
+# 필수 라이브러리 설치
+npm install @stomp/stompjs sockjs-client
+
+# 날짜 처리 (이미 설치됨)
+npm install date-fns
+```
+
+### 2.2 Base URL 및 인증
+
+```javascript
+// src/config/api.js
+export const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0';
+export const API_URL = `${BASE_URL}/api`;
+export const WS_URL = `${BASE_URL}/ws/consultation/chat`;
+```
+
+**인증 헤더**
+```javascript
+import { readAccessToken } from '../utils/readAccessToken';
+
+const headers = {
+  'Content-Type': 'application/json',
+  'Authorization': `Bearer ${readAccessToken()}`
+};
+```
+
+### 2.3 첫 API 호출
+
+```javascript
+// 상담 목록 조회 예시
+async function getMyConsultations() {
+  const token = readAccessToken();
+
+  const response = await fetch(`${API_URL}/consultation/list`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({
+      viewType: 'SENT',  // 내가 보낸 요청
+      page: 0,
+      size: 10
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`API 오류: ${response.status}`);
+  }
+
+  return await response.json();
+}
 ```
 
 ---
 
-## 3. 데이터 모델 한눈에 보기
+## 3. 핵심 개념
 
-### 3.1 상태 Enum (백엔드 기준)
+### 3.1 상태 관리
 
-| Enum | 값 | 의미 |
-|------|-----|------|
-| `RequestStatus` | `PENDING`, `APPROVED`, `REJECTED`, `CANCELLED` | 상담 요청 승인 전 단계 상태 |
-| `ConsultationStatus` | `SCHEDULED`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED` | 상담 진행 상태 |
-| `ConsultationType` | `ACADEMIC`, `CAREER`, `CAMPUS_LIFE`, `ETC` | 상담 유형 (`ConsultationType.java`) |
+#### 상담 상태 (6개)
 
-### 3.2 주요 DTO 요약
+```
+PENDING      → 요청 대기 (학생이 신청한 상태)
+APPROVED     → 승인됨 (교수가 승인, 상담 예정)
+REJECTED     → 반려됨 ⚫ 종료 상태
+CANCELLED    → 취소됨 ⚫ 종료 상태
+IN_PROGRESS  → 진행 중 (상담 진행 중)
+COMPLETED    → 완료됨 ⚫ 종료 상태
+```
 
-| DTO | 필수 필드 | 선택 필드 | 비고 |
-|-----|-----------|-----------|------|
-| `ConsultationRequestCreateDto` | `recipientUserCode`, `consultationType`, `title` | `content`, `desiredDate` (`yyyy-MM-dd HH:mm:ss`) | `requesterUserCode`는 서버가 JWT로 설정 |
-| `ConsultationRequestDto` (응답) | `requestIdx`, `requesterUserCode`, `recipientUserCode`, `consultationType`, `title`, `requestStatus`, `consultationStatus`, `createdAt` | `content`, `desiredDate`, `acceptMessage`, `rejectionReason`, `cancelReason`, `scheduledStartAt`, `startedAt`, `endedAt`, `durationMinutes`, `lastActivityAt`, `hasUnreadMessages` | 전 목록/상세 응답 공통 포맷 |
-| `ConsultationApproveDto` | `requestIdx` | `acceptMessage` | 교수용 |
-| `ConsultationRejectDto` | `requestIdx`, `rejectionReason` |  | 교수용 |
-| `ConsultationCancelDto` | `requestIdx`, `cancelReason` |  | 학생용 |
-| `ConsultationIdDto` | `requestIdx` | | `/start`, `/end`, `/read` 등 공통 |
-| `ConsultationMemoDto` | `requestIdx` | `memo` | 교수만 작성 가능 |
-| `ConsultationHistoryRequestDto` | (`userCode`는 서버 세팅) | `startDate`, `endDate`, `page`, `size` | 날짜는 `yyyy-MM-dd HH:mm:ss` |
-| `ChatMessageDto` | `requestIdx`, `content` | `sender`, `senderName`, `sentAt` | 전송 시 `sender*`는 서버 할당 |
-| `ChatReadReceiptDto` (WebSocket) | `requestIdx`, `reader`, `readerName`, `readAt`, `lastActivityAt`, `allMessagesRead` | | 읽음 이벤트 payload |
+#### 상태 전환 규칙
+
+```mermaid
+graph LR
+    A[PENDING] --> B[APPROVED]
+    A --> C[REJECTED]
+    B --> D[IN_PROGRESS]
+    B --> E[CANCELLED]
+    D --> F[COMPLETED]
+    D --> E
+```
+
+**상태 전환 표**
+
+| 현재 상태 | 가능한 전환 | 권한 |
+|-----------|-------------|------|
+| `PENDING` | `APPROVED`, `REJECTED` | 교수 |
+| `APPROVED` | `IN_PROGRESS`, `CANCELLED` | 학생/교수 |
+| `IN_PROGRESS` | `COMPLETED`, `CANCELLED` | 학생/교수 |
+| `REJECTED` | 없음 (종료) | - |
+| `CANCELLED` | 없음 (종료) | - |
+| `COMPLETED` | 없음 (종료) | - |
+
+### 3.2 권한 체계
+
+#### 역할 구분
+
+```javascript
+// UserContext에서 역할 판단
+const isProfessor = user.data.user.userStudent === 1;
+const isStudent = user.data.user.userStudent === 0;
+```
+
+#### 권한별 가능한 작업
+
+| 작업 | 학생 | 교수 | 관리자 |
+|------|------|------|--------|
+| 상담 신청 | ✅ | ❌ | ✅ |
+| 상담 승인/반려 | ❌ | ✅ (본인 것만) | ✅ |
+| 상담 시작 | ✅ | ✅ | ✅ |
+| 상담 종료 | ✅ | ✅ | ✅ |
+| 상담 취소 (APPROVED) | ✅ (본인 것만) | ✅ | ✅ |
+| 채팅 | ✅ | ✅ | ✅ |
+
+### 3.3 DTO 구조
+
+#### 공통 응답 포맷
+
+```typescript
+// 성공 응답
+{
+  "success": true,
+  "data": { ... },
+  "timestamp": "2025-10-28T10:00:00"
+}
+
+// 에러 응답
+{
+  "success": false,
+  "message": "에러 메시지",
+  "timestamp": "2025-10-28T10:00:00"
+}
+
+// 페이징 응답 (Spring Page)
+{
+  "content": [ ... ],      // 실제 데이터 배열
+  "totalElements": 100,    // 전체 개수
+  "totalPages": 10,        // 전체 페이지 수
+  "size": 10,              // 페이지 크기
+  "number": 0              // 현재 페이지 (0부터 시작)
+}
+```
+
+#### 상담 상세 DTO
+
+```typescript
+interface ConsultationDTO {
+  requestIdx: number;              // 상담 ID
+  requesterUserCode: string;       // 신청자 학번/교번
+  requesterName: string;           // 신청자 이름
+  recipientUserCode: string;       // 수신자 학번/교번
+  recipientName: string;           // 수신자 이름
+  consultationType: string;        // 상담 유형
+  title: string;                   // 제목
+  content?: string;                // 내용
+  desiredDate?: string;            // 희망 일시
+  status: string;                  // 상태 (PENDING, APPROVED, ...)
+  acceptMessage?: string;          // 승인 메시지
+  rejectionReason?: string;        // 반려 사유
+  cancelReason?: string;           // 취소 사유
+  scheduledStartAt?: string;       // 예정 시작 시간
+  startedAt?: string;              // 실제 시작 시간
+  endedAt?: string;                // 종료 시간
+  durationMinutes?: number;        // 소요 시간 (분)
+  lastActivityAt?: string;         // 마지막 활동 시간
+  hasUnreadMessages: boolean;      // 읽지 않은 메시지 여부
+  createdAt: string;               // 생성 시간
+}
+```
+
+#### 상담 유형
+
+```typescript
+enum ConsultationType {
+  ACADEMIC = 'ACADEMIC',        // 학업 상담
+  CAREER = 'CAREER',            // 진로 상담
+  CAMPUS_LIFE = 'CAMPUS_LIFE',  // 학교생활 상담
+  ETC = 'ETC'                   // 기타
+}
+```
 
 ---
 
-## 4. REST API 연동 가이드
+## 4. API 레퍼런스
 
-### 4.1 목록·상세·상태 관리
+### 4.1 목록 조회
 
-| 구분 | Method & Path | 권한 | 주요 Query/Body | 성공 응답 요약 | 사용 시점 |
-|------|---------------|------|-----------------|----------------|-----------|
-| 상담 요청 생성 | `POST /api/consultation/request` | 학생 | Body: `recipientUserCode`, `consultationType`, `title`, `content?`, `desiredDate?` | `ConsultationRequestDto` (PENDING) | 상담 신청 폼 제출 |
-| 요청 승인 | `POST /api/consultation/approve` | 교수 | Body: `requestIdx`, `acceptMessage?` | 승인된 DTO (`requestStatus=APPROVED`, `consultationStatus=SCHEDULED`) | 교수 승인 액션 |
-| 요청 반려 | `POST /api/consultation/reject` | 교수 | Body: `requestIdx`, `rejectionReason` | 반려 DTO (`requestStatus=REJECTED`) | 교수 반려 |
-| 요청 취소 | `POST /api/consultation/cancel` | 학생 | Body: `requestIdx`, `cancelReason` | 취소 DTO (`requestStatus=CANCELLED`) | 학생이 PENDING/APPROVED 취소 |
-| 상담 시작 | `POST /api/consultation/start` | 학생·교수 | Body: `requestIdx` (`ConsultationIdDto`) | DTO (`consultationStatus=IN_PROGRESS`, `startedAt`) | 상담방 입장 직후(수동 시작 필요 시) |
-| 상담 종료 | `POST /api/consultation/end` | 학생·교수 | Body: `requestIdx` | DTO (`consultationStatus=COMPLETED`, `endedAt`) | 상담 종료 버튼 |
-| 상담 메모 | `POST /api/consultation/memo` | 교수 | Body: `requestIdx`, `memo` | DTO 갱신 | 상담 후 메모 저장 |
-| 내가 보낸 요청 | `POST /api/consultation/my-requests?page&size&status?` | 학생 | Body: 없음 | Page 객체(`content` 배열 + `totalElements`, etc.) | 좌측 목록(학생) |
-| 받은 요청 | `POST /api/consultation/received?page&size&status?` | 교수 | - | Page 응답 | 좌측 목록(교수) |
-| 진행 중 상담 | `POST /api/consultation/active?page&size` | 공통 | - | Page 응답 (`consultationStatus IN_PROGRESS`) | 실시간 탭 |
-| 상담 이력 | `POST /api/consultation/history` | 공통 | Body: `startDate?`, `endDate?`, `page?`, `size?` | Page 응답 (`consultationStatus=COMPLETED`) | 히스토리 탭 |
-| 상담 상세 | `GET /api/consultation/{requestIdx}` | 공통 | Path: 상담 ID | `ConsultationRequestDto` | 상세 패널, 채팅 헤더 |
-| 읽지 않은 요청 수 | `GET /api/consultation/unread-count` | 교수 | - | `{ recipientUserCode, unreadCount }` | 상단 뱃지 |
-| 읽음 처리 | `POST /api/consultation/read` | 공통 | Body: `requestIdx` | `{ success, readAt, allMessagesRead, lastActivityAt, partnerUserCode }` | 채팅창 활성화 시 호출 |
+**Endpoint**: `POST /api/consultation/list`
 
-**에러 포맷**: `{ "success": false, "message": "...", "timestamp": ... }` (400/403/500).  
-**페이징**: Spring `Page` 포맷(`content`, `totalElements`, `totalPages`, `size`, `number`).  
-**날짜 필드**: `yyyy-MM-dd HH:mm:ss` 문자열.
+목록 조회를 **하나의 API로 통합**했습니다. `viewType`으로 구분합니다.
 
-### 4.2 채팅 로그 REST
+#### Request
 
-| 기능 | Method & Path | 설명 |
-|------|---------------|------|
-| Redis 메시지 조회 | `GET /api/chat/messages/{requestIdx}` | 상담 참여자만 허용. 응답 `{ success, data: { messages: ChatMessageDto[] } }` |
-| 현재 로그 다운로드 | `POST /api/chat/history/download/{requestIdx}` | Redis 메시지를 텍스트 파일로 다운로드 (Blob 처리) |
-| 종료 후 아카이브 다운로드 | `GET /api/chat/archive/download/{requestIdx}` | MinIO에 저장된 최종 로그 다운로드. 존재하지 않으면 404 |
+```typescript
+interface ConsultationListRequest {
+  viewType: 'SENT' | 'RECEIVED' | 'ACTIVE' | 'HISTORY';
+  status?: string;        // 선택: 상태 필터 (PENDING, APPROVED, ...)
+  startDate?: string;     // 선택: 기간 필터 시작 (yyyy-MM-dd)
+  endDate?: string;       // 선택: 기간 필터 종료 (yyyy-MM-dd)
+  page: number;           // 페이지 번호 (0부터 시작)
+  size: number;           // 페이지 크기 (기본 10)
+}
+```
 
-프론트에서는 `axios`로 Blob 응답을 받아 파일 저장 처리(`URL.createObjectURL` 활용).
+#### ViewType 설명
+
+| ViewType | 설명 | 권한 | 용도 |
+|----------|------|------|------|
+| `SENT` | 내가 보낸 요청 | 학생 | 학생이 신청한 상담 목록 |
+| `RECEIVED` | 받은 요청 | 교수 | 교수에게 온 상담 요청 목록 |
+| `ACTIVE` | 진행 중 상담 | 공통 | 현재 진행 중인 상담 (`IN_PROGRESS`) |
+| `HISTORY` | 상담 이력 | 공통 | 완료/취소된 상담 이력 |
+
+#### Response
+
+```typescript
+{
+  "content": ConsultationDTO[],
+  "totalElements": number,
+  "totalPages": number,
+  "size": number,
+  "number": number
+}
+```
+
+#### 사용 예시
+
+**1. 내가 보낸 요청 (학생)**
+```javascript
+POST /api/consultation/list
+{
+  "viewType": "SENT",
+  "page": 0,
+  "size": 10
+}
+```
+
+**2. 받은 요청 - 대기 중만 (교수)**
+```javascript
+POST /api/consultation/list
+{
+  "viewType": "RECEIVED",
+  "status": "PENDING",
+  "page": 0,
+  "size": 10
+}
+```
+
+**3. 진행 중 상담 (공통)**
+```javascript
+POST /api/consultation/list
+{
+  "viewType": "ACTIVE",
+  "page": 0,
+  "size": 10
+}
+```
+
+**4. 상담 이력 - 최근 3개월 (공통)**
+```javascript
+POST /api/consultation/list
+{
+  "viewType": "HISTORY",
+  "startDate": "2024-08-01",
+  "endDate": "2024-10-31",
+  "page": 0,
+  "size": 20
+}
+```
 
 ---
 
-## 5. WebSocket 연동
+### 4.2 상세 조회
 
-### 5.1 연결 흐름
+**Endpoint**: `POST /api/consultation/detail`
 
-1. 로그인 후 `accessToken` 확보.
-2. SockJS + STOMP 클라이언트로 `https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/ws/chat?token=${accessToken}` 연결.
-3. 연결 성공 시 구독:
-   - `/user/queue/chat`: 실시간 메시지 수신.
-   - `/user/queue/read-receipts`: 상대방 읽음 이벤트.
-   - (선택) `/user/queue/errors`: 서버 에러 브로드캐스트 대비.
-4. 상담방 입장 시 REST로 기존 메시지 preload → 이후 STOMP 메시지로 append.
-5. 메시지 전송: `/app/chat.send` destination에 `{ requestIdx, content }` payload.
-6. 읽음 처리: `/app/chat.read` destination에 `{ requestIdx }`.
+#### Request
 
-### 5.2 STOMP 클라이언트 샘플
+```typescript
+interface ConsultationDetailRequest {
+  id: number;  // 상담 ID (requestIdx)
+}
+```
 
-```ts
+```javascript
+POST /api/consultation/detail
+{
+  "id": 123
+}
+```
+
+#### Response
+
+```typescript
+ConsultationDTO
+```
+
+#### 사용 시점
+- 목록에서 상담 선택 시
+- 채팅방 입장 전 상담 정보 로드
+- 상태 변경 후 최신 정보 확인
+
+---
+
+### 4.3 상담 생성
+
+**Endpoint**: `POST /api/consultation/create`
+
+**권한**: 학생
+
+#### Request
+
+```typescript
+interface ConsultationCreateRequest {
+  professorId: number;              // 교수 ID
+  consultationDate: string;         // 희망 일시 (ISO 8601: yyyy-MM-ddTHH:mm:ss)
+  location: string;                 // 희망 장소
+  description: string;              // 상담 내용
+  category: ConsultationType;       // 상담 유형
+}
+```
+
+```javascript
+POST /api/consultation/create
+{
+  "professorId": 5,
+  "consultationDate": "2024-03-20T14:00:00",
+  "location": "상담실 A",
+  "description": "진로 상담 요청드립니다",
+  "category": "CAREER"
+}
+```
+
+#### Response
+
+```typescript
+ConsultationDTO  // 생성된 상담 (status: PENDING)
+```
+
+#### 반려된 상담 다시 신청하기
+
+반려된 상담을 다시 신청하려면:
+1. 기존 상담 데이터를 가져와서
+2. 폼에 자동으로 채워주고
+3. 사용자가 수정한 후
+4. `create` API를 **그냥 새로 호출**
+
+```javascript
+// 프론트엔드 예시
+function handleResubmit(rejectedConsultation) {
+  // 폼에 이전 데이터 자동 입력
+  setFormData({
+    professorId: rejectedConsultation.recipientUserCode,
+    consultationDate: rejectedConsultation.desiredDate,
+    location: rejectedConsultation.location || '',
+    description: rejectedConsultation.content || '',
+    category: rejectedConsultation.consultationType
+  });
+
+  // 모달 열기
+  openCreateModal();
+
+  // 사용자가 수정 후 제출하면 create API 호출
+  // → 백엔드는 그냥 새 상담으로 생성
+}
+```
+
+**중요**: 재신청 로직이 없습니다. 그냥 새로운 상담 생성입니다.
+
+---
+
+### 4.4 상태 변경
+
+**Endpoint**: `POST /api/consultation/status`
+
+상태 변경을 **하나의 API로 통합**했습니다.
+
+#### Request
+
+```typescript
+interface ConsultationStatusRequest {
+  id: number;           // 상담 ID
+  status: string;       // 변경할 상태
+  reason?: string;      // 사유 (REJECTED, CANCELLED 시 필수)
+}
+```
+
+#### 상태별 사용 예시
+
+**1. 승인 (교수)**
+```javascript
+POST /api/consultation/status
+{
+  "id": 123,
+  "status": "APPROVED"
+}
+```
+
+**2. 반려 (교수)**
+```javascript
+POST /api/consultation/status
+{
+  "id": 123,
+  "status": "REJECTED",
+  "reason": "해당 기간은 출장으로 상담이 어렵습니다"
+}
+```
+
+**3. 취소 (학생 또는 교수)**
+```javascript
+POST /api/consultation/status
+{
+  "id": 123,
+  "status": "CANCELLED",
+  "reason": "일정이 변경되어 취소합니다"
+}
+```
+
+**4. 상담 시작 (학생 또는 교수)**
+```javascript
+POST /api/consultation/status
+{
+  "id": 123,
+  "status": "IN_PROGRESS"
+}
+```
+
+**5. 상담 종료 (학생 또는 교수)**
+```javascript
+POST /api/consultation/status
+{
+  "id": 123,
+  "status": "COMPLETED"
+}
+```
+
+#### Response
+
+```typescript
+ConsultationDTO  // 변경된 상담
+```
+
+#### 권한 및 검증
+
+| 상태 변경 | 권한 | 조건 |
+|-----------|------|------|
+| `PENDING` → `APPROVED` | 교수 | 본인에게 온 요청 |
+| `PENDING` → `REJECTED` | 교수 | 본인에게 온 요청 + 사유 필수 |
+| `APPROVED` → `IN_PROGRESS` | 학생/교수 | 참여자 |
+| `APPROVED` → `CANCELLED` | 학생/교수 | 참여자 + 사유 필수 |
+| `IN_PROGRESS` → `COMPLETED` | 학생/교수 | 참여자 |
+| `IN_PROGRESS` → `CANCELLED` | 학생/교수 | 참여자 + 사유 필수 |
+
+#### 에러 응답
+
+```javascript
+// 잘못된 상태 전환
+{
+  "success": false,
+  "message": "상태 전환 불가: PENDING -> COMPLETED"
+}
+
+// 권한 없음
+{
+  "success": false,
+  "message": "본인의 상담만 처리 가능합니다"
+}
+
+// 사유 누락
+{
+  "success": false,
+  "message": "반려 사유는 필수입니다"
+}
+```
+
+---
+
+### 4.5 읽음 처리
+
+**Endpoint**: `POST /api/consultation/read`
+
+**권한**: 상담 참여자
+
+#### Request
+
+```typescript
+interface ConsultationReadRequest {
+  id: number;  // 상담 ID
+}
+```
+
+```javascript
+POST /api/consultation/read
+{
+  "id": 123
+}
+```
+
+#### Response
+
+```typescript
+{
+  "success": true,
+  "readAt": "2025-10-28T10:05:00",
+  "allMessagesRead": true,
+  "lastActivityAt": "2025-10-28T10:03:00",
+  "partnerUserCode": "202012345"
+}
+```
+
+#### 사용 시점
+- 채팅방 입장 시
+- 채팅 메시지 로드 완료 후
+- 상세 정보 패널 열람 시
+
+---
+
+### 4.6 읽지 않은 수
+
+**Endpoint**: `GET /api/consultation/unread-count`
+
+**권한**: 교수 (받은 요청 중 읽지 않은 수)
+
+#### Request
+
+쿼리 파라미터 없음
+
+```javascript
+GET /api/consultation/unread-count
+```
+
+#### Response
+
+```typescript
+{
+  "recipientUserCode": "P001",
+  "unreadCount": 3
+}
+```
+
+#### 사용 시점
+- 페이지 로드 시
+- 주기적 폴링 (30초마다)
+- 상단 알림 뱃지 표시
+
+---
+
+### 4.7 채팅 로그 다운로드
+
+#### 진행 중 로그 다운로드
+
+**Endpoint**: `POST /api/chat/history/download/{requestIdx}`
+
+```javascript
+async function downloadChatLog(requestIdx) {
+  const token = readAccessToken();
+
+  const response = await fetch(
+    `${BASE_URL}/api/chat/history/download/${requestIdx}`,
+    {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` }
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('다운로드 실패');
+  }
+
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `chat-log-${requestIdx}-${Date.now()}.txt`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
+}
+```
+
+#### 완료 후 아카이브 다운로드
+
+**Endpoint**: `GET /api/chat/archive/download/{requestIdx}`
+
+```javascript
+async function downloadArchivedLog(requestIdx) {
+  const token = readAccessToken();
+
+  const response = await fetch(
+    `${BASE_URL}/api/chat/archive/download/${requestIdx}`,
+    {
+      method: 'GET',
+      headers: { 'Authorization': `Bearer ${token}` }
+    }
+  );
+
+  if (response.status === 404) {
+    throw new Error('아카이브된 로그를 찾을 수 없습니다');
+  }
+
+  // 이하 동일
+}
+```
+
+---
+
+## 5. 실시간 채팅
+
+### 5.1 WebSocket 연결
+
+#### STOMP 클라이언트 설정
+
+```javascript
+// src/utils/chatClient.js
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import { readAccessToken } from './readAccessToken';
 
-export function createChatClient(accessToken, onMessage, onReceipt, onError) {
+const WS_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/ws/chat';
+
+export function createChatClient(onMessage, onReceipt, onError) {
+  const token = readAccessToken();
+
+  if (!token) {
+    throw new Error('인증 토큰이 없습니다');
+  }
+
   const client = new Client({
-    webSocketFactory: () =>
-      new SockJS(`https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/ws/chat?token=${accessToken}`),
-    connectHeaders: { Authorization: `Bearer ${accessToken}` },
+    webSocketFactory: () => new SockJS(`${WS_URL}?token=${token}`),
+    connectHeaders: {
+      Authorization: `Bearer ${token}`
+    },
     debug: (str) => console.log('[STOMP]', str),
     reconnectDelay: 5000,
+    heartbeatIncoming: 4000,
+    heartbeatOutgoing: 4000
   });
 
   client.onConnect = () => {
+    console.log('[STOMP] 연결 성공');
+
+    // 메시지 구독
     client.subscribe('/user/queue/chat', (frame) => {
-      onMessage(JSON.parse(frame.body));
+      const message = JSON.parse(frame.body);
+      onMessage?.(message);
     });
+
+    // 읽음 이벤트 구독
     client.subscribe('/user/queue/read-receipts', (frame) => {
-      onReceipt(JSON.parse(frame.body));
+      const receipt = JSON.parse(frame.body);
+      onReceipt?.(receipt);
     });
   };
 
-  client.onStompError = (frame) => onError?.(frame.headers['message']);
-  client.onWebSocketError = (evt) => onError?.(evt);
+  client.onStompError = (frame) => {
+    const error = frame.headers['message'] || 'STOMP 에러';
+    console.error('[STOMP]', error);
+    onError?.(error);
+  };
+
+  client.onWebSocketError = (evt) => {
+    console.error('[STOMP] WebSocket 에러:', evt);
+    onError?.('WebSocket 연결 실패');
+  };
 
   client.activate();
   return client;
 }
 ```
 
-### 5.3 메시지 포맷
+### 5.2 메시지 송수신
 
-- **수신 메시지 (`ChatMessageDto`)**
-  ```json
-  {
-    "requestIdx": 123,
-    "sender": "202012345",
-    "senderName": "홍길동",
-    "content": "안녕하세요 교수님.",
-    "sentAt": "2025-10-24 10:05:11"
+#### 메시지 전송
+
+```javascript
+export function sendChatMessage(client, requestIdx, content) {
+  if (!client || !client.connected) {
+    throw new Error('STOMP 클라이언트가 연결되지 않았습니다');
   }
-  ```
-- **읽음 이벤트 (`ChatReadReceiptDto`)**
-  ```json
-  {
-    "requestIdx": 123,
-    "reader": "P001",
-    "readerName": "김교수",
-    "readAt": "2025-10-24 10:10:03",
-    "lastActivityAt": "2025-10-24 10:08:57",
-    "allMessagesRead": true
-  }
-  ```
 
-### 5.4 예외 처리
-
-- 토큰 만료 → 서버가 CONNECT 거부 ⇒ `onWebSocketError` → 로그인 재시도.
-- `allMessagesRead=false` 상태가 유지되면 `/api/consultation/read` 재호출 및 UI 뱃지 유지.
-- 재연결 시: 기존 구독 자동 재생성. 필요한 경우 현재 선택된 상담 ID로 `/api/chat/messages/{id}` 다시 당겨오며 역순 정합성 확인.
-
----
-
-## 6. 프론트 UI & 상태 설계 (PC)
-
-### 6.1 화면 와이어(텍스트)
-
-```
-┌─────────────────────────────────────────────┬───────────────────────────────────────┐
-│ 좌측 패널 (목록 & 필터)                       │ 우측 패널 (상세 + 채팅)                 │
-│ - 탭: [요청함|진행중|이력|받은요청(교수)]      │ ┌ 상담 정보 카드 ┐                     │
-│ - 필터: 상태, 검색(제목/상대), 기간            │ │ 제목 / 유형 / 상태 / 희망일 / 메모  │
-│ - 리스트: requestIdx, 상대, 상태, 미확인 뱃지  │ └───────────────┘                     │
-│                                                 │ ┌ 채팅 메시지 영역 ┐                 │
-│                                                 │ │ Scroll + 메시지 bubble (좌/우) │
-│                                                 │ │ 입력창 + 전송 버튼             │
-│                                                 │ └─────────────────────────────┘     │
-└─────────────────────────────────────────────┴───────────────────────────────────────┘
+  client.publish({
+    destination: '/app/chat.send',
+    body: JSON.stringify({ requestIdx, content })
+  });
+}
 ```
 
-### 6.2 상태 관리 제안
+#### 메시지 수신
 
-- **전역 스토어**: React Query 또는 Zustand 추천.
-  - Query Keys 예: `['consultations', 'myRequests', params]`, `['consultations', 'detail', requestIdx]`.
-- **로컬 상태**
-  - `selectedTab`, `selectedRequestIdx`, `messageList`, `pendingMessage`, `connectionStatus`.
-- **역할 분기**
-  - `isProfessor = user.data.user.userStudent === 1`.
-  - 사이드바(`component/common/MyPages/MyPageSidebar.jsx:73`) already toggles 메뉴. 동일 로직으로 탭 구성.
+```typescript
+interface ChatMessageDTO {
+  requestIdx: number;
+  sender: string;        // 발신자 학번/교번
+  senderName: string;    // 발신자 이름
+  content: string;       // 메시지 내용
+  sentAt: string;        // 전송 시간 (yyyy-MM-dd HH:mm:ss)
+}
+```
 
-### 6.3 필수 UX 요소
+#### 읽음 처리 전송
 
-- 요청 생성 모달(학생).
-- 승인/반려/메모 모달(교수).
-- `hasUnreadMessages` true인 항목에 뱃지/볼드 처리.
-- 자동 종료 임박(23h50m 이상) 알림: `consultationStatus` + `lastActivityAt` 활용해 프론트 경고 표시.
-- 로그 다운로드 버튼(조건: COMPLETED 상담).
-- 네트워크 끊김 표시 (STOMP 연결 상태).
+```javascript
+export function sendReadReceipt(client, requestIdx) {
+  if (!client || !client.connected) {
+    console.warn('[STOMP] 읽음 처리 스킵 (미연결)');
+    return;
+  }
 
-### 6.4 API/소켓 호출 타이밍
+  client.publish({
+    destination: '/app/chat.read',
+    body: JSON.stringify({ requestIdx })
+  });
+}
+```
 
-| 액션 | REST | WS | 비고 |
-|------|------|----|------|
-| 탭 진입 | `my-requests` / `received` / `active` / `history` | - | Tab별로 서버 paging |
-| 상담 선택 | `GET /api/consultation/{id}` → `GET /api/chat/messages/{id}` | `/app/chat.read` | 메시지 로드 후 읽음 처리 |
-| 메시지 전송 | - | `/app/chat.send` | 실패 시 toast + 재전송 UI |
-| 메모 저장 | `POST /memo` | - | 성공 시 상세 재조회 |
-| 상담 종료 | `POST /end` | - | 성공 시 목록 리프레시, STOMP disconnect |
-| 새 상담 요청 | `POST /request` | - | 성공 후 리스트 refresh |
+#### 읽음 이벤트 수신
 
----
+```typescript
+interface ChatReadReceiptDTO {
+  requestIdx: number;
+  reader: string;           // 읽은 사람 학번/교번
+  readerName: string;       // 읽은 사람 이름
+  readAt: string;           // 읽은 시간
+  lastActivityAt: string;   // 마지막 활동 시간
+  allMessagesRead: boolean; // 모든 메시지 읽음 여부
+}
+```
 
-## 7. 구현 단계 체크리스트
+### 5.3 연결 종료
 
-1. **환경 세팅**
-   - [ ] axios 클라이언트 공통화 (`Authorization` 헤더 주입, 401 핸들러).
-   - [ ] STOMP 헬퍼 유틸 제작 (`createChatClient` 등).
-2. **데이터 계층**
-   - [ ] 상담 API 모듈 작성 (`src/api/consultation.ts` 등).
-   - [ ] DTO 매핑 타입 정의(TypeScript 사용 시 인터페이스 생성).
-3. **UI 구조**
-   - [ ] `Consult.jsx` 업데이트: 레이아웃 + 탭 컴포넌트 구성.
-   - [ ] 목록 컴포넌트: 페이징, 필터, 역할별 뷰.
-   - [ ] 상세 카드: 상태별 버튼(승인/반려/취소/시작/종료/메모).
-   - [ ] 채팅 컴포넌트: 메시지 리스트, 입력, 자동 스크롤, typing indicator(선택).
-4. **상태 & 소켓**
-   - [ ] React Query 쿼리/뮤테이션 구성, optimistic update 전략 검토.
-   - [ ] STOMP 연결 생명주기 관리 (마운트/언마운트).
-5. **예외 처리**
-   - [ ] 401/403 → 토스트 + 로그인 리다이렉트.
-   - [ ] `PENDING` 아닌 요청에 대한 승인/반려/취소 버튼 비활성화.
-   - [ ] `IN_PROGRESS` 아닌 상담에 대해 채팅 입력 비활성화.
-   - [ ] 자동 종료 후 수신 메시지(서버 알림) UI 표시.
-6. **QA**
-   - [ ] 학생·교수 계정으로 전체 플로우(요청→승인→채팅→종료) 테스트.
-   - [ ] 네트워크 끊김 후 재연결 시 메시지 중복/손실 없는지 확인.
-   - [ ] 읽음 처리 동기화(둘 다 `allMessagesRead` true 되는지) 확인.
-   - [ ] 로그 다운로드 파일 내용 UTF-8 검증.
-   - [ ] 2h 비활성 자동 종료(스케줄러) 대비 안내 문구 확인(백엔드 로그 필요 시 협업).
+```javascript
+export function disconnectChatClient(client) {
+  if (client && client.connected) {
+    client.deactivate();
+    console.log('[STOMP] 클라이언트 종료');
+  }
+}
+```
 
 ---
 
-## 8. 운영 및 에지 케이스
+## 6. 프론트엔드 구현 가이드
 
-- **Redis TTL 36h**: 장기 상담은 자동 종료/데이터 만료 위험 → 상담 재시작 안내 배너 고려.
-- **MinIO 평문 저장**: 개인정보 포함 메시지 주의 안내(프론트에서 공지 문구/약관 표시 권장).
-- **자동 종료**: 
-  - 2시간 활동 없음 → 백엔드가 `COMPLETED` 전환. UI에서 "자동 종료" 라벨 표시.
-  - 24시간 경과 → 강제 종료. 경과 시간 표기 (예: `durationMinutes`).
-- **알림 연동**: FCM 데이터 payload에서 `type: consultation` 등 활용해 상담 화면으로 deep link 예정. PC 1차 구현에서는 실시간 뱃지 업데이트에 집중.
-- **권한 오류 대비**: 요청자가 아닌 상담 접근 시 서버에서 403 → UI에서 "권한 없음" 안내 후 목록으로 리다이렉트.
-- **동시편집**: 메모는 마지막 저장 기준 덮어쓰기. 저장 전 최신 상세 재조회 권장.
+### 6.1 API 클라이언트 작성
+
+```javascript
+// src/api/consultationApi.js
+import { readAccessToken } from '../utils/readAccessToken';
+
+const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
+
+// 공통 헤더 생성
+function getHeaders() {
+  const token = readAccessToken();
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+}
+
+// 공통 에러 처리
+async function handleResponse(response) {
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.message || `HTTP ${response.status}`);
+  }
+  return response.json();
+}
+
+// 1. 목록 조회
+export async function getConsultationList(params) {
+  const response = await fetch(`${BASE_URL}/consultation/list`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify(params)
+  });
+  return handleResponse(response);
+}
+
+// 2. 상세 조회
+export async function getConsultationDetail(id) {
+  const response = await fetch(`${BASE_URL}/consultation/detail`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ id })
+  });
+  return handleResponse(response);
+}
+
+// 3. 상담 생성
+export async function createConsultation(data) {
+  const response = await fetch(`${BASE_URL}/consultation/create`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify(data)
+  });
+  return handleResponse(response);
+}
+
+// 4. 상태 변경
+export async function changeConsultationStatus(id, status, reason) {
+  const response = await fetch(`${BASE_URL}/consultation/status`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ id, status, reason })
+  });
+  return handleResponse(response);
+}
+
+// 5. 읽음 처리
+export async function markAsRead(id) {
+  const response = await fetch(`${BASE_URL}/consultation/read`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ id })
+  });
+  return handleResponse(response);
+}
+
+// 6. 읽지 않은 수
+export async function getUnreadCount() {
+  const token = readAccessToken();
+  const response = await fetch(`${BASE_URL}/consultation/unread-count`, {
+    method: 'GET',
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  return handleResponse(response);
+}
+
+// 채팅 메시지 조회 (REST)
+export async function getChatMessages(requestIdx) {
+  const token = readAccessToken();
+  const response = await fetch(`${BASE_URL}/chat/messages/${requestIdx}`, {
+    method: 'GET',
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  return handleResponse(response);
+}
+```
+
+### 6.2 React 컴포넌트 예시
+
+#### 목록 컴포넌트
+
+```jsx
+// src/components/ConsultationList.jsx
+import { useState, useEffect } from 'react';
+import { getConsultationList } from '../api/consultationApi';
+
+function ConsultationList({ viewType, onSelect }) {
+  const [consultations, setConsultations] = useState([]);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadConsultations();
+  }, [viewType, page]);
+
+  async function loadConsultations() {
+    setLoading(true);
+    try {
+      const result = await getConsultationList({
+        viewType,
+        page,
+        size: 10
+      });
+      setConsultations(result.content);
+      setTotalPages(result.totalPages);
+    } catch (error) {
+      alert(`목록 조회 실패: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="consultation-list">
+      {loading ? (
+        <div>로딩 중...</div>
+      ) : (
+        <>
+          {consultations.map(consultation => (
+            <div
+              key={consultation.requestIdx}
+              className="consultation-item"
+              onClick={() => onSelect(consultation.requestIdx)}
+            >
+              <h3>{consultation.title}</h3>
+              <p>{consultation.recipientName}</p>
+              <span className={`status ${consultation.status}`}>
+                {consultation.status}
+              </span>
+              {consultation.hasUnreadMessages && (
+                <span className="badge">새 메시지</span>
+              )}
+            </div>
+          ))}
+
+          {/* 페이징 */}
+          <div className="pagination">
+            <button
+              disabled={page === 0}
+              onClick={() => setPage(page - 1)}
+            >
+              이전
+            </button>
+            <span>{page + 1} / {totalPages}</span>
+            <button
+              disabled={page >= totalPages - 1}
+              onClick={() => setPage(page + 1)}
+            >
+              다음
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+```
+
+#### 채팅 컴포넌트
+
+```jsx
+// src/components/ChatPanel.jsx
+import { useState, useEffect, useRef } from 'react';
+import { getChatMessages } from '../api/consultationApi';
+import {
+  createChatClient,
+  sendChatMessage,
+  sendReadReceipt,
+  disconnectChatClient
+} from '../utils/chatClient';
+
+function ChatPanel({ requestIdx, consultation }) {
+  const [client, setClient] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [inputText, setInputText] = useState('');
+  const messagesEndRef = useRef(null);
+
+  // STOMP 연결
+  useEffect(() => {
+    const stompClient = createChatClient(
+      // onMessage
+      (message) => {
+        setMessages(prev => [...prev, message]);
+        scrollToBottom();
+      },
+      // onReceipt
+      (receipt) => {
+        console.log('읽음 처리:', receipt);
+      },
+      // onError
+      (error) => {
+        alert(`채팅 오류: ${error}`);
+      }
+    );
+
+    setClient(stompClient);
+
+    return () => {
+      disconnectChatClient(stompClient);
+    };
+  }, []);
+
+  // 기존 메시지 로드
+  useEffect(() => {
+    if (!requestIdx) return;
+
+    async function loadMessages() {
+      try {
+        const result = await getChatMessages(requestIdx);
+        setMessages(result.data.messages);
+        scrollToBottom();
+
+        // 메시지 로드 후 읽음 처리
+        if (client && client.connected) {
+          sendReadReceipt(client, requestIdx);
+        }
+      } catch (error) {
+        console.error('메시지 로드 실패:', error);
+      }
+    }
+
+    loadMessages();
+  }, [requestIdx, client]);
+
+  // 메시지 전송
+  function handleSend() {
+    if (!inputText.trim() || !client) return;
+
+    try {
+      sendChatMessage(client, requestIdx, inputText);
+      setInputText('');
+    } catch (error) {
+      alert(`전송 실패: ${error.message}`);
+    }
+  }
+
+  function scrollToBottom() {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // 입력창 활성화 조건
+  const isInputEnabled = consultation?.status === 'IN_PROGRESS';
+
+  return (
+    <div className="chat-panel">
+      <div className="messages">
+        {messages.map((msg, idx) => (
+          <div key={idx} className={`message ${msg.sender === myUserCode ? 'mine' : 'other'}`}>
+            <div className="sender">{msg.senderName}</div>
+            <div className="content">{msg.content}</div>
+            <div className="time">{msg.sentAt}</div>
+          </div>
+        ))}
+        <div ref={messagesEndRef} />
+      </div>
+
+      <div className="input-area">
+        <input
+          type="text"
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+          disabled={!isInputEnabled}
+          placeholder={
+            isInputEnabled
+              ? '메시지를 입력하세요'
+              : '상담을 시작해야 메시지를 보낼 수 있습니다'
+          }
+        />
+        <button onClick={handleSend} disabled={!isInputEnabled}>
+          전송
+        </button>
+      </div>
+    </div>
+  );
+}
+```
+
+### 6.3 상태별 UI 표시
+
+```jsx
+// src/components/ConsultationActions.jsx
+import { changeConsultationStatus } from '../api/consultationApi';
+
+function ConsultationActions({ consultation, isProfessor, onUpdate }) {
+
+  async function handleStatusChange(status, reason) {
+    try {
+      await changeConsultationStatus(consultation.requestIdx, status, reason);
+      onUpdate(); // 목록 새로고침
+      alert('상태가 변경되었습니다');
+    } catch (error) {
+      alert(`상태 변경 실패: ${error.message}`);
+    }
+  }
+
+  function handleApprove() {
+    handleStatusChange('APPROVED');
+  }
+
+  function handleReject() {
+    const reason = prompt('반려 사유를 입력하세요:');
+    if (reason) {
+      handleStatusChange('REJECTED', reason);
+    }
+  }
+
+  function handleCancel() {
+    const reason = prompt('취소 사유를 입력하세요:');
+    if (reason) {
+      handleStatusChange('CANCELLED', reason);
+    }
+  }
+
+  function handleStart() {
+    if (confirm('상담을 시작하시겠습니까?')) {
+      handleStatusChange('IN_PROGRESS');
+    }
+  }
+
+  function handleComplete() {
+    if (confirm('상담을 종료하시겠습니까?')) {
+      handleStatusChange('COMPLETED');
+    }
+  }
+
+  // 상태별 버튼 표시
+  const { status } = consultation;
+
+  return (
+    <div className="consultation-actions">
+      {/* 대기 중 - 교수 */}
+      {status === 'PENDING' && isProfessor && (
+        <>
+          <button onClick={handleApprove}>승인</button>
+          <button onClick={handleReject}>반려</button>
+        </>
+      )}
+
+      {/* 대기 중 - 학생 */}
+      {status === 'PENDING' && !isProfessor && (
+        <button onClick={handleCancel}>취소</button>
+      )}
+
+      {/* 승인됨 */}
+      {status === 'APPROVED' && (
+        <>
+          <button onClick={handleStart}>상담 시작</button>
+          <button onClick={handleCancel}>취소</button>
+        </>
+      )}
+
+      {/* 진행 중 */}
+      {status === 'IN_PROGRESS' && (
+        <button onClick={handleComplete}>상담 종료</button>
+      )}
+
+      {/* 완료됨 */}
+      {status === 'COMPLETED' && (
+        <button onClick={() => downloadChatLog(consultation.requestIdx)}>
+          로그 다운로드
+        </button>
+      )}
+
+      {/* 반려/취소됨 */}
+      {(status === 'REJECTED' || status === 'CANCELLED') && (
+        <div className="info">
+          {status === 'REJECTED' ? '반려 사유' : '취소 사유'}:
+          {consultation.rejectionReason || consultation.cancelReason}
+        </div>
+      )}
+    </div>
+  );
+}
+```
 
 ---
 
-## 9. 참고 코드 포인터
+## 7. 사용 시나리오
 
-- 백엔드 컨트롤러/서비스
-  - `backend/BlueCrab/src/main/java/BlueCrab/com/example/controller/ConsultationController.java`
-  - `backend/BlueCrab/src/main/java/BlueCrab/com/example/controller/ChatController.java`
-  - `backend/BlueCrab/src/main/java/BlueCrab/com/example/controller/ChatRestController.java`
-  - `backend/BlueCrab/src/main/java/BlueCrab/com/example/service/ConsultationRequestServiceImpl.java`
-  - `backend/BlueCrab/src/main/java/BlueCrab/com/example/service/impl/ChatServiceImpl.java`
-- 프론트 진입점
-  - `component/common/MyPages/Consult.jsx` (빈 껍데기 – 본문 구현 필요)
-  - `component/common/MyPages/MyPageSidebar.jsx` (사이드 메뉴)
-  - `context/UserContext.jsx` / `component/auth/TokenAuth.jsx` (인증 상태)
+### 7.1 학생 플로우
+
+```
+1. 상담 신청
+   └─> POST /api/consultation/create
+
+2. 목록에서 확인 (PENDING)
+   └─> POST /api/consultation/list (viewType: SENT)
+
+3. 교수 승인 대기
+
+4. 승인 확인 (APPROVED)
+   └─> 목록 새로고침 또는 알림
+
+5. 상담 시작
+   └─> POST /api/consultation/status (status: IN_PROGRESS)
+
+6. 채팅
+   └─> WebSocket으로 메시지 송수신
+
+7. 상담 종료
+   └─> POST /api/consultation/status (status: COMPLETED)
+```
+
+### 7.2 교수 플로우
+
+```
+1. 받은 요청 확인
+   └─> POST /api/consultation/list (viewType: RECEIVED, status: PENDING)
+
+2. 상담 승인 또는 반려
+   └─> POST /api/consultation/status (status: APPROVED | REJECTED)
+
+3. 학생이 시작할 때까지 대기
+
+4. 채팅 참여
+   └─> WebSocket 연결, 메시지 송수신
+
+5. 상담 종료
+   └─> POST /api/consultation/status (status: COMPLETED)
+```
+
+### 7.3 반려 후 재신청
+
+```
+1. 학생이 반려 확인
+   └─> POST /api/consultation/list (viewType: SENT)
+   └─> 반려 사유 확인 (consultation.rejectionReason)
+
+2. "다시 신청하기" 버튼 클릭
+   └─> 폼에 이전 데이터 자동 입력
+
+3. 내용 수정 후 제출
+   └─> POST /api/consultation/create (새 상담 생성)
+
+4. 새 상담이 PENDING 상태로 생성됨
+```
+
+**중요**: 재신청 로직이 없습니다. 프론트엔드에서 폼에 데이터만 채워주고, 백엔드는 그냥 새로운 상담으로 생성합니다.
 
 ---
 
-## 10. 질문 가이드
+## 8. 에러 처리
 
-작업 중 아래 항목이 불확실하면 백엔드 팀에 바로 확인하세요.
+### 8.1 HTTP 에러
 
-1. 교수/학생을 식별하는 표준 필드가 변경될 가능성?
-2. 추가 상담 유형이나 상태 값 계획?
-3. 자동 종료 알림(23h50m 경고) 스펙 확정 여부?
-4. 향후 모바일/반응형 요구사항 예상 일정?
-5. 실시간 알림(Firebase)과의 연동 순서?
+```javascript
+async function handleApiCall(apiFunction) {
+  try {
+    return await apiFunction();
+  } catch (error) {
+    if (error.message.includes('401')) {
+      // 토큰 만료
+      alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+      // 로그인 페이지로 리다이렉트
+      window.location.href = '/login';
+    } else if (error.message.includes('403')) {
+      // 권한 없음
+      alert('권한이 없습니다.');
+    } else if (error.message.includes('404')) {
+      // 찾을 수 없음
+      alert('요청한 정보를 찾을 수 없습니다.');
+    } else {
+      // 기타 에러
+      alert(`오류가 발생했습니다: ${error.message}`);
+    }
+    throw error;
+  }
+}
+```
+
+### 8.2 STOMP 에러
+
+```javascript
+// chatClient.js의 에러 핸들러
+client.onStompError = (frame) => {
+  console.error('[STOMP] 에러:', frame);
+
+  // 토큰 만료
+  if (frame.headers['message']?.includes('Unauthorized')) {
+    alert('인증이 만료되었습니다. 페이지를 새로고침해주세요.');
+    return;
+  }
+
+  // 기타 STOMP 에러
+  alert('채팅 연결에 문제가 발생했습니다.');
+};
+
+client.onWebSocketError = (evt) => {
+  console.error('[STOMP] WebSocket 에러:', evt);
+  alert('네트워크 연결을 확인해주세요.');
+};
+```
+
+### 8.3 재연결 로직
+
+STOMP 클라이언트는 자동 재연결을 지원합니다 (`reconnectDelay: 5000`).
+
+추가로 수동 재연결이 필요하면:
+
+```javascript
+function reconnectChat(requestIdx) {
+  // 기존 클라이언트 종료
+  if (client) {
+    disconnectChatClient(client);
+  }
+
+  // 새 클라이언트 생성
+  const newClient = createChatClient(
+    onMessage,
+    onReceipt,
+    onError
+  );
+
+  setClient(newClient);
+
+  // 메시지 재로드
+  loadMessages(requestIdx);
+}
+```
 
 ---
 
-### 부록 A. 주요 응답 샘플
+## 9. 구현 체크리스트
 
-#### 상담 상세 (`GET /api/consultation/{id}`)
+### 환경 설정
+- [ ] STOMP 라이브러리 설치 (`@stomp/stompjs`, `sockjs-client`)
+- [ ] API Base URL 설정
+- [ ] 토큰 유틸 확인 (`readAccessToken`)
+
+### API 계층
+- [ ] `consultationApi.js` 작성
+  - [ ] `getConsultationList()`
+  - [ ] `getConsultationDetail()`
+  - [ ] `createConsultation()`
+  - [ ] `changeConsultationStatus()`
+  - [ ] `markAsRead()`
+  - [ ] `getUnreadCount()`
+  - [ ] `getChatMessages()`
+- [ ] `chatClient.js` 작성
+  - [ ] `createChatClient()`
+  - [ ] `sendChatMessage()`
+  - [ ] `sendReadReceipt()`
+  - [ ] `disconnectChatClient()`
+
+### UI 컴포넌트
+- [ ] 목록 컴포넌트 (`ConsultationList.jsx`)
+  - [ ] 페이징 처리
+  - [ ] 읽지 않은 뱃지 표시
+  - [ ] 상태별 필터링
+- [ ] 상세 컴포넌트 (`ConsultationDetail.jsx`)
+  - [ ] 상담 정보 표시
+  - [ ] 상태별 액션 버튼
+  - [ ] 반려/취소 사유 표시
+- [ ] 채팅 컴포넌트 (`ChatPanel.jsx`)
+  - [ ] 메시지 리스트
+  - [ ] 자동 스크롤
+  - [ ] 메시지 전송
+  - [ ] 입력창 활성화/비활성화
+- [ ] 상담 신청 폼 (`CreateConsultationModal.jsx`)
+  - [ ] 교수 선택
+  - [ ] 날짜/시간 선택
+  - [ ] 유형/내용 입력
+
+### 상태 관리
+- [ ] 전역 상태 관리 선택 (React Query or Context API)
+- [ ] 로컬 상태 정의
+  - [ ] 선택된 탭
+  - [ ] 선택된 상담 ID
+  - [ ] 메시지 리스트
+  - [ ] STOMP 연결 상태
+
+### 기능 테스트
+- [ ] 상담 신청 → 승인 → 시작 → 채팅 → 종료 (전체 플로우)
+- [ ] 상담 반려 → 재신청
+- [ ] 상담 취소
+- [ ] 읽음 처리 및 뱃지 업데이트
+- [ ] 로그 다운로드
+- [ ] WebSocket 재연결
+- [ ] 에러 처리 (401, 403, 네트워크 끊김)
+
+---
+
+## 10. FAQ
+
+### Q1. 메모 기능은 없나요?
+**A**: 간소화 과정에서 제거되었습니다. 기존 백엔드에는 있지만 DTO에 포함되지 않아 사용성이 낮았습니다. 필요하면 별도로 추가 가능합니다.
+
+### Q2. 반려된 상담을 재신청하려면?
+**A**: 프론트엔드에서 폼에 이전 데이터를 자동으로 채워주고, 사용자가 수정 후 `create` API를 새로 호출하면 됩니다. 백엔드는 재신청 로직 없이 그냥 새 상담으로 생성합니다.
+
+### Q3. 상담을 물리적으로 삭제할 수 있나요?
+**A**: 일반 사용자는 삭제 불가능합니다. 취소(`CANCELLED`) 상태로 변경만 가능합니다. 관리자 전용 삭제 API가 필요하면 별도로 추가할 수 있습니다.
+
+### Q4. list API에서 여러 viewType을 동시에 조회할 수 있나요?
+**A**: 불가능합니다. 한 번에 하나의 `viewType`만 지정할 수 있습니다. 여러 종류가 필요하면 API를 여러 번 호출하세요.
+
+### Q5. 상태를 여러 단계 건너뛸 수 있나요?
+**A**: 불가능합니다. 상태 전환 규칙을 따라야 합니다. 예: `PENDING`에서 바로 `COMPLETED`로 갈 수 없습니다.
+
+### Q6. 채팅 메시지가 손실되면 어떻게 하나요?
+**A**: Redis에 36시간 보관됩니다. 상담 종료 시 MinIO에 아카이브됩니다. 네트워크 끊김 시 재연결 후 REST API로 기존 메시지를 다시 가져오세요.
+
+### Q7. 교수가 여러 학생과 동시에 상담할 수 있나요?
+**A**: 네, 가능합니다. 각 상담은 독립적인 WebSocket 연결을 사용하지 않고, 하나의 WebSocket에서 `requestIdx`로 구분됩니다.
+
+### Q8. 모바일에서도 동작하나요?
+**A**: 네, API는 동일하게 동작합니다. UI는 반응형으로 별도 구현이 필요합니다.
+
+---
+
+## 부록 A. 전체 응답 샘플
+
+### 목록 조회 응답
+
+```json
+{
+  "content": [
+    {
+      "requestIdx": 123,
+      "requesterUserCode": "202012345",
+      "requesterName": "홍길동",
+      "recipientUserCode": "P001",
+      "recipientName": "김교수",
+      "consultationType": "CAREER",
+      "title": "진로 상담 요청",
+      "content": "진로 고민이 있습니다",
+      "desiredDate": "2024-03-20 14:00:00",
+      "status": "PENDING",
+      "hasUnreadMessages": false,
+      "createdAt": "2024-03-15 10:00:00"
+    }
+  ],
+  "totalElements": 1,
+  "totalPages": 1,
+  "size": 10,
+  "number": 0
+}
+```
+
+### 상세 조회 응답
 
 ```json
 {
@@ -313,55 +1482,82 @@ export function createChatClient(accessToken, onMessage, onReceipt, onError) {
   "requesterName": "홍길동",
   "recipientUserCode": "P001",
   "recipientName": "김교수",
-  "consultationType": "ACADEMIC",
-  "title": "학점 상담 요청",
-  "content": "학점 관리가 어렵습니다.",
-  "desiredDate": "2025-10-25 14:00:00",
-  "requestStatus": "APPROVED",
-  "acceptMessage": "오후 2시에 연구실 방문",
-  "consultationStatus": "SCHEDULED",
+  "consultationType": "CAREER",
+  "title": "진로 상담 요청",
+  "content": "진로 고민이 있습니다",
+  "desiredDate": "2024-03-20 14:00:00",
+  "status": "APPROVED",
+  "acceptMessage": "3월 20일 2시에 연구실로 오세요",
+  "rejectionReason": null,
+  "cancelReason": null,
   "scheduledStartAt": null,
   "startedAt": null,
   "endedAt": null,
   "durationMinutes": null,
-  "lastActivityAt": "2025-10-24 11:05:00",
-  "createdAt": "2025-10-24 10:00:00",
-  "hasUnreadMessages": true
+  "lastActivityAt": "2024-03-15 10:30:00",
+  "hasUnreadMessages": false,
+  "createdAt": "2024-03-15 10:00:00"
 }
 ```
 
-#### 진행 중 목록 (`POST /api/consultation/active`)
+### 채팅 메시지 응답
 
 ```json
 {
-  "content": [
-    {
-      "requestIdx": 123,
-      "recipientName": "김교수",
-      "consultationType": "ACADEMIC",
-      "title": "학점 상담 요청",
-      "consultationStatus": "IN_PROGRESS",
-      "lastActivityAt": "2025-10-24 10:58:00",
-      "hasUnreadMessages": false
-    }
-  ],
-  "totalElements": 1,
-  "totalPages": 1,
-  "size": 20,
-  "number": 0
+  "success": true,
+  "data": {
+    "messages": [
+      {
+        "requestIdx": 123,
+        "sender": "202012345",
+        "senderName": "홍길동",
+        "content": "안녕하세요 교수님",
+        "sentAt": "2024-03-20 14:05:00"
+      },
+      {
+        "requestIdx": 123,
+        "sender": "P001",
+        "senderName": "김교수",
+        "content": "네, 안녕하세요",
+        "sentAt": "2024-03-20 14:05:30"
+      }
+    ]
+  }
 }
 ```
 
 ---
 
-## 11. 마무리
+## 부록 B. 에러 코드 목록
 
-- 본 문서는 PC 기능 구현이 완료될 때까지 living document로 유지합니다.
-- 작업 진행 중 발견되는 백엔드/프론트 스펙 차이는 **즉시 문서 반영** 후 팀 공유 바랍니다.
-- 1차 기능 릴리스 후, 반응형 레이아웃 및 모바일 UX 요구사항을 별도 섹션으로 추가 예정입니다.
+| HTTP 상태 | 메시지 예시 | 원인 | 해결 방법 |
+|-----------|-------------|------|-----------|
+| 400 | "상태 전환 불가: PENDING -> COMPLETED" | 잘못된 상태 전환 | 상태 전환 규칙 확인 |
+| 400 | "반려 사유는 필수입니다" | 필수 필드 누락 | reason 필드 추가 |
+| 401 | "Unauthorized" | 토큰 없음/만료 | 재로그인 |
+| 403 | "본인의 상담만 처리 가능합니다" | 권한 없음 | 권한 확인 |
+| 404 | "상담을 찾을 수 없습니다" | 존재하지 않는 ID | ID 확인 |
+| 500 | "서버 오류" | 서버 내부 오류 | 관리자 문의 |
 
-> ⚙️ **다음 단계 제안**  
-> 1. API 모듈 & STOMP 헬퍼부터 구현 → 목업 데이터로 UI 틀 작성.  
-> 2. 학생/교수 더미 계정으로 end-to-end 현황 캡처 후 QA 체크리스트 갱신.  
-> 3. 종료/아카이브 로그 다운로드 기능까지 검증되면, 반응형/푸시 알림 작업 순차 진행.
+---
 
+## 부록 C. 변경 이력
+
+| 버전 | 날짜 | 변경 내용 |
+|------|------|-----------|
+| 2.0 | 2025-10-28 | 간소화 버전 (15개 → 7개 API) |
+| 1.0 | 2025-10-24 | 초기 버전 (15개 API) |
+
+**주요 변경 사항 (v2.0)**
+- 목록 API 4개 → 1개 통합 (`list`)
+- 상태 변경 API 5개 → 1개 통합 (`status`)
+- 메모 기능 제거
+- 재신청 로직 제거 (새로 생성으로 대체)
+- delete 엔드포인트 제거
+
+---
+
+**문서 끝**
+
+> 💡 **피드백**: 이 문서에 대한 피드백은 개발팀에 문의해주세요.
+> 📧 **문의**: backend@bluecrab.com

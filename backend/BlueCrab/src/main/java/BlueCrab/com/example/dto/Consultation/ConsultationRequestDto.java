@@ -1,8 +1,6 @@
 package BlueCrab.com.example.dto.Consultation;
 
 import BlueCrab.com.example.enums.ConsultationType;
-import BlueCrab.com.example.enums.RequestStatus;
-import BlueCrab.com.example.enums.ConsultationStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDateTime;
@@ -24,12 +22,12 @@ public class ConsultationRequestDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime desiredDate;
 
-    private RequestStatus requestStatus;
-    private String acceptMessage;
-    private String rejectionReason;
-    private String cancelReason;
+    private String status;
+    private String statusReason;
 
-    private ConsultationStatus consultationStatus;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime statusChangedAt;
+    private String statusChangedBy;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime scheduledStartAt;
@@ -125,44 +123,36 @@ public class ConsultationRequestDto {
         this.desiredDate = desiredDate;
     }
 
-    public RequestStatus getRequestStatus() {
-        return requestStatus;
+    public String getStatus() {
+        return status;
     }
 
-    public void setRequestStatus(RequestStatus requestStatus) {
-        this.requestStatus = requestStatus;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
-    public String getAcceptMessage() {
-        return acceptMessage;
+    public String getStatusReason() {
+        return statusReason;
     }
 
-    public void setAcceptMessage(String acceptMessage) {
-        this.acceptMessage = acceptMessage;
+    public void setStatusReason(String statusReason) {
+        this.statusReason = statusReason;
     }
 
-    public String getRejectionReason() {
-        return rejectionReason;
+    public LocalDateTime getStatusChangedAt() {
+        return statusChangedAt;
     }
 
-    public void setRejectionReason(String rejectionReason) {
-        this.rejectionReason = rejectionReason;
+    public void setStatusChangedAt(LocalDateTime statusChangedAt) {
+        this.statusChangedAt = statusChangedAt;
     }
 
-    public String getCancelReason() {
-        return cancelReason;
+    public String getStatusChangedBy() {
+        return statusChangedBy;
     }
 
-    public void setCancelReason(String cancelReason) {
-        this.cancelReason = cancelReason;
-    }
-
-    public ConsultationStatus getConsultationStatus() {
-        return consultationStatus;
-    }
-
-    public void setConsultationStatus(ConsultationStatus consultationStatus) {
-        this.consultationStatus = consultationStatus;
+    public void setStatusChangedBy(String statusChangedBy) {
+        this.statusChangedBy = statusChangedBy;
     }
 
     public LocalDateTime getScheduledStartAt() {
