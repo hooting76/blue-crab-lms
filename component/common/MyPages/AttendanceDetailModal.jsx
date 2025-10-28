@@ -9,7 +9,6 @@ const AttendanceDetailModal = ({ onClose, enrollmentIdx }) => {
   const BASE_URL = "https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api";
 
   const FetchAttendanceDetail = async () => {
-  console.log("📡 FetchAttendanceDetail 호출됨");
   try {
     const res = await fetch(`${BASE_URL}/student/attendance/detail`, {
       method: "POST",
@@ -20,7 +19,6 @@ const AttendanceDetailModal = ({ onClose, enrollmentIdx }) => {
       body: JSON.stringify({ enrollmentIdx: Number(enrollmentIdx) }),
     });
 
-    console.log("📬 응답 상태코드:", res.status);
 
     if (!res.ok) {
       const text = await res.text();
@@ -43,9 +41,6 @@ const AttendanceDetailModal = ({ onClose, enrollmentIdx }) => {
     }
     }, [enrollmentIdx, accessToken]);
 
-
-
-  console.log("attendanceDetail : ", attendanceDetail);
 
   return (
     <div className="attendance-detail-modal-container">
