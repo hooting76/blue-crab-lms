@@ -8,7 +8,7 @@ const AssignmentCreateModal = ({ onClose, lecSerial, lecTitle }) => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [dueDate, setDueDate] = useState(null);
-    const maxScore = 10;
+    const [maxScore, setMaxScore] = useState(null);
     const {user} = UseUser();
     const accessToken = user.data.accessToken;
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
@@ -63,7 +63,7 @@ const AssignmentCreateModal = ({ onClose, lecSerial, lecTitle }) => {
                     <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required/>
                 </div>
                 <div>과제 설명:
-                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} required />
+                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} required/>
                 </div>
                 <div>마감일:
                     <DatePicker
@@ -75,7 +75,9 @@ const AssignmentCreateModal = ({ onClose, lecSerial, lecTitle }) => {
                         required
                     />
                 </div>
-                <div>배점: {maxScore}</div>
+                <div>배점: 
+                    <input type="number" value={maxScore} onChange={(e) => setMaxScore(e.target.value)} required/>
+                </div>
 
                 <button className="assignmentCreateSubmitBtn" onClick={submitAssignmentCreate}>과제 생성</button>
                 <br/>
