@@ -192,8 +192,8 @@ public class AttendanceRequestServiceImpl implements AttendanceRequestService {
         }
         attendanceData.getSessions().add(session);
         
-        // 5. summary 재계산
-        AttendanceSummaryDto summary = calculateSummary(attendanceData.getSessions());
+        // 5. summary 재계산 (enrollment 객체 전달하여 gradeConfig 참조)
+        AttendanceSummaryDto summary = calculateSummary(attendanceData.getSessions(), enrollment);
         attendanceData.setSummary(summary);
         
         // 6. JSON 직렬화 및 저장
@@ -341,8 +341,8 @@ public class AttendanceRequestServiceImpl implements AttendanceRequestService {
                     // pendingRequests 업데이트
                     attendanceData.setPendingRequests(remainingRequests);
                     
-                    // summary 재계산
-                    attendanceData.setSummary(calculateSummary(attendanceData.getSessions()));
+                    // summary 재계산 (enrollment 객체 전달하여 gradeConfig 참조)
+                    attendanceData.setSummary(calculateSummary(attendanceData.getSessions(), enrollment));
                     
                     // 저장
                     String updatedJson = serializeToEnrollmentData(attendanceData, enrollment.getEnrollmentData());
@@ -447,13 +447,19 @@ public class AttendanceRequestServiceImpl implements AttendanceRequestService {
     }
     
     /**
-     * sessions 배열을 기반으로 summary 통계 계산
+     * sessions 배열과 gradeConfig를 기반으로 summary 통계 계산
+     * 
+     * @param sessions 출석 세션 목록
+     * @param enrollment 수강 정보 (gradeConfig 포함)
+     * @return 출석 통계 (지각 패널티 반영)
      */
-    private AttendanceSummaryDto calculateSummary(List<AttendanceSessionDto> sessions) {
+    @SuppressWarnings("unchecked")
+    private AttendanceSummaryDto calculateSummary(List<AttendanceSessionDto> sessions, EnrollmentExtendedTbl enrollment) {
         int attended = 0;
         int late = 0;
         int absent = 0;
         
+        // 출석/지각/결석 카운트
         for (AttendanceSessionDto session : sessions) {
             switch (session.getStatus()) {
                 case "출": attended++; break;
@@ -462,15 +468,48 @@ public class AttendanceRequestServiceImpl implements AttendanceRequestService {
             }
         }
         
-        int totalSessions = sessions.size();
-        double attendanceRate = totalSessions > 0 ? (attended * 100.0) / totalSessions : 0.0;
+        // gradeConfig에서 지각 패널티 조회 (기본값: 0.4)
+        double latePenalty = 0.4;
+        try {
+            String enrollmentDataJson = enrollment.getEnrollmentData();
+            if (enrollmentDataJson != null && !enrollmentDataJson.isEmpty()) {
+                Map<String, Object> enrollmentDataMap = objectMapper.readValue(
+                    enrollmentDataJson, 
+                    new TypeReference<Map<String, Object>>() {}
+                );
+                
+                Map<String, Object> gradeConfig = (Map<String, Object>) enrollmentDataMap.get("gradeConfig");
+                if (gradeConfig != null && gradeConfig.containsKey("latePenaltyPerSession")) {
+                    Object penalty = gradeConfig.get("latePenaltyPerSession");
+                    if (penalty instanceof Number) {
+                        latePenalty = ((Number) penalty).doubleValue();
+                        log.debug("지각 패널티 로드: {}", latePenalty);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("gradeConfig 파싱 실패, 기본 패널티 사용: 0.4", e);
+        }
+        
+        // 전체 강의 회차는 80회 고정
+        int totalSessions = 80;
+        
+        // 실제 출석 횟수 = 출석 + (지각 × (1 - 패널티))
+        // 예: 지각 패널티 0.4 → 지각 1회 = 0.6회 출석
+        double effectiveAttendance = attended + (late * (1.0 - latePenalty));
+        
+        // 출석률 = (실제 출석 횟수 / 80) × 100
+        double attendanceRate = (effectiveAttendance * 100.0) / totalSessions;
         attendanceRate = Math.round(attendanceRate * 100.0) / 100.0; // 소수점 2자리
+        
+        log.debug("출석 통계 계산: 출석={}, 지각={}, 결석={}, 패널티={}, 실제출석={}, 출석률={}%", 
+                  attended, late, absent, latePenalty, effectiveAttendance, attendanceRate);
         
         return new AttendanceSummaryDto(
             attended,
             late,
             absent,
-            totalSessions,
+            totalSessions,  // 80회
             attendanceRate,
             LocalDateTime.now()
         );
