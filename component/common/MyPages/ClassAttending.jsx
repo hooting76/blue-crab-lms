@@ -181,19 +181,12 @@ const fetchNotices = async () => {
   useEffect(() => {
   if (!selectedLectureSerial) {
     // 강의가 선택되지 않은 경우 → 과제 목록 초기화
-    setAssignmentList({ content: [] }); // or setAssignmentList([])
+    setAssignmentList({ content: [] });
     return;
   }
   // 강의가 선택되어 있을 때만 과제 목록 불러오기
   getAssignments(accessToken, selectedLectureSerial);
 }, [accessToken, selectedLectureSerial]);
-
-
-
-  useEffect(() => {
-    getAssignments(accessToken, selectedLectureSerial);
-  }, [accessToken, selectedLectureSerial]);
-
 
   // ✅ 과제 삭제 후 목록 갱신 함수 추가
   const handleDeleteAssignment = async () => {
