@@ -3,7 +3,6 @@ import { UseUser } from "../../../hook/UseUser";
 import "../../../css/MyPages/AssignmentDetailModal.css"
 
 const AssignmentDetailModal = ({ onClose, onDelete, assignmentIdx }) => {
-    const maxScore = 10;
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
     const { user } = UseUser();
     const accessToken = user.data.accessToken;
@@ -82,7 +81,7 @@ const AssignmentDetailModal = ({ onClose, onDelete, assignmentIdx }) => {
                         <div>과제 제목: {assignmentData.assignment.title}</div>
                         <div>과제 설명: {assignmentData.assignment.description}</div>
                         <div>마감일: {formatDate(assignmentData.assignment.dueDate)}</div>
-                        <div>배점: {maxScore}</div>
+                        <div>배점: {assignmentData.assignment.maxScore}</div>
                     </>
                 ) : (
                     <div>로딩 중...</div>
