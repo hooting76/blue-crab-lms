@@ -31,9 +31,14 @@ const AttendanceDetailModal = ({onClose, enrollmentIdx}) => {
         }
         };
 
+    console.log("enrollmentIdx : ", enrollmentIdx);
+
     useEffect(() => {
+    if (enrollmentIdx) {
         FetchAttendanceDetail();
+    }
     }, [enrollmentIdx]);
+
     
 
     return (
