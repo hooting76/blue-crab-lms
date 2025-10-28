@@ -262,4 +262,51 @@ public interface UserTblRepository extends JpaRepository<UserTbl, Integer> {
      */
     Optional<UserTbl> findByUserEmailAndUserCodeAndUserNameAndUserPhone(
         String userEmail, String userCode, String userName, String userPhone);
+
+    /**
+     * 역할별 사용자 조회 (FCM 알림용)
+     * userStudent 값으로 학생 또는 교수 목록 조회
+     *
+     * @param userStudent 구분 값 (0: 교수, 1: 학생)
+     * @return List<UserTbl> - 해당 역할의 사용자 목록
+     */
+    List<UserTbl> findAllByUserStudent(Integer userStudent);
+
+    /**
+     * userCode 리스트로 사용자 배치 조회 (FCM 알림용)
+     * N+1 문제 방지를 위한 IN 쿼리
+     *
+     * @param userCodes userCode 리스트
+     * @return List<UserTbl> - 해당 userCode들의 사용자 목록
+     */
+    List<UserTbl> findByUserCodeIn(List<String> userCodes);
+
+    /**
+     * 학부 코드 목록으로 학생 userCode 조회
+     *
+     * @param facultyCodes 학부 코드 리스트
+     * @return 해당 학부에 속한 학생 userCode 목록
+     */
+    @Query("SELECT u.userCode FROM UserTbl u WHERE u.userStudent = 1 AND SUBSTRING(u.userCode, 5, 2) IN :facultyCodes")
+    List<String> findStudentCodesByFacultyCodes(@Param("facultyCodes") List<String> facultyCodes);
+
+    /**
+     * 학부/학과 조합으로 학생 userCode 조회
+     *
+     * @param facultyCode 학부 코드
+     * @param deptCodes 학과 코드 리스트
+     * @return 해당 학부-학과 조합에 속한 학생 userCode 목록
+     */
+    @Query("SELECT u.userCode FROM UserTbl u WHERE u.userStudent = 1 AND SUBSTRING(u.userCode, 5, 2) = :facultyCode AND SUBSTRING(u.userCode, 7, 2) IN :deptCodes")
+    List<String> findStudentCodesByFacultyAndDeptCodes(@Param("facultyCode") String facultyCode,
+                                                       @Param("deptCodes") List<String> deptCodes);
+
+    /**
+     * 입학년도별 학생 userCode 조회
+     *
+     * @param admissionYears 입학년도 문자열 리스트 (예: ["2023"])
+     * @return 해당 입학년도에 해당하는 학생 userCode 목록
+     */
+    @Query("SELECT u.userCode FROM UserTbl u WHERE u.userStudent = 1 AND SUBSTRING(u.userCode, 1, 4) IN :admissionYears")
+    List<String> findStudentCodesByAdmissionYears(@Param("admissionYears") List<String> admissionYears);
 }
