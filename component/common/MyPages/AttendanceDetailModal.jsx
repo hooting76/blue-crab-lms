@@ -44,6 +44,8 @@ const AttendanceDetailModal = ({ onClose, enrollmentIdx }) => {
   }, [enrollmentIdx, accessToken]);
 
 
+  console.log("attendanceDetail : ", attendanceDetail);
+
   return (
     <div className="attendance-detail-modal-container">
       <div className="attendance-detail-modal-content">
