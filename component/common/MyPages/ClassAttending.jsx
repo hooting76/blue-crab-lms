@@ -67,43 +67,40 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
     console.log("selectedEnrollmentIdx : ", selectedEnrollmentIdx);
 
   // 강의 목록 가져오기 (교수/학생 구분)
-const fetchLectureData = async (accessToken, user, isProf) => {
-  try {
-    const requestBody = isProf
-      ? {
-          page: 0,
-          size: 100,
-          professor: String(user.data.user.id)
-        }
-      : {
-          page: 0,
-          size: 100,
-          studentIdx: Number(user.data.user.id)
-        };
+  const fetchLectureData = async (accessToken, user, isProf) => {
+    try {
+      const requestBody = isProf
+        ? { page: 0, size: 100, professor: String(user.data.user.id) }
+        : { page: 0, size: 100, studentIdx: Number(user.data.user.id) };
 
-    const url = isProf
-      ? `${BASE_URL}/lectures`
-      : `${BASE_URL}/enrollments/list`;
+      const url = isProf
+        ? `${BASE_URL}/lectures`
+        : `${BASE_URL}/enrollments/list`;
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody),
-    });
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
 
-    if (!response.ok) {
-      throw new Error('강의 목록을 불러오는 데 실패했습니다.');
+      const data = await response.json();
+      setLectureList(data);
+
+      // ✅ 학생인 경우, 첫 번째 enrollmentIdx 즉시 세팅
+      if (!isProf && data?.content?.length > 0) {
+        const firstLecture = data.content[0];
+        setSelectedLectureSerial(firstLecture.lecSerial);
+        setSelectedEnrollmentIdx(firstLecture.enrollmentIdx);
+      }
+
+    } catch (error) {
+      console.error('강의 목록 조회 에러:', error);
     }
+  };
 
-    const data = await response.json();
-    setLectureList(data);
-  } catch (error) {
-    console.error('강의 목록 조회 에러:', error);
-  }
-};
 
 
 // 공지 목록 불러오기
