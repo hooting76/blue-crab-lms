@@ -64,8 +64,6 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
     }
   };
 
-    console.log("selectedEnrollmentIdx : ", selectedEnrollmentIdx);
-
   // 강의 목록 가져오기 (교수/학생 구분)
   const fetchLectureData = async (accessToken, user, isProf) => {
     try {

@@ -31,8 +31,6 @@ const AttendanceDetailModal = ({onClose, enrollmentIdx}) => {
         }
         };
 
-    console.log("enrollmentIdx : ", enrollmentIdx);
-
     useEffect(() => {
     if (enrollmentIdx) {
         FetchAttendanceDetail();
@@ -58,20 +56,20 @@ const AttendanceDetailModal = ({onClose, enrollmentIdx}) => {
             </tr>
             </thead>
             <tbody>
-            {attendanceDetail && attendanceDetail.data.details.length > 0 ? (
+                {attendanceDetail?.data?.details?.length > 0 ? (
                 attendanceDetail.data.details.map((detail) => (
-                <tr key={detail.sessionNumber}>
+                    <tr key={detail.sessionNumber}>
                     <td>{detail.sessionNumber}</td>
                     <td>{detail.status}</td>
-                </tr>
+                    </tr>
                 ))
-            ) : (
+                ) : (
                 <tr>
-                <td colSpan="2" style={{ textAlign: "center" }}>
+                    <td colSpan="2" style={{ textAlign: "center" }}>
                     출결 데이터가 없습니다.
-                </td>
+                    </td>
                 </tr>
-            )}
+                )}
             </tbody>
         </table>
 
