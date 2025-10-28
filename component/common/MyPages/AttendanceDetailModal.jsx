@@ -1,18 +1,14 @@
 import {useState, useEffect} from "react";
-import { UseUser } from "../../../hook/UseUser";
 import "../../../css/MyPages/AttendanceDetailModal.css";
 
-const AttendanceDetailModal = ({onClose, lecSerial}) => {
-    const {user} = UseUser();
+const AttendanceDetailModal = ({onClose, enrollmentIdx}) => {
     const [attendanceDetail, setAttendanceDetail] = useState();
-    const studentIdx = user.data.user.id;
 
-    
 
      const FetchAttendanceDetail = async () => {
         try {
             const body = {
-                
+                enrollmentIdx: enrollmentIdx
             };
 
             const res = await fetch(`${BASE_URL}/student/attendance/detail`, {

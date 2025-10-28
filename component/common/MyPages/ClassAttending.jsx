@@ -16,6 +16,7 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
   const accessToken = user.data.accessToken;
   const isProf = user.data.user.userStudent === 1;
   const [lectureList, setLectureList] = useState([]);
+  const [selectedEnrollmentIdx, setSelectedEnrollmentIdx] = useState(null);
   const [assignmentList, setAssignmentList] = useState([]);
   const [selectedAssignmentIdx, setSelectedAssignmentIdx] = useState(null);
   const [noticeList, setNoticeList] = useState([]);
@@ -51,8 +52,18 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
 
   // 강의 선택 변경 핸들러
   const handleLectureChange = (e) => {
-  setSelectedLectureSerial(e.target.value); // e.target.value = lecSerial
-};
+    const selectedLecSerial = e.target.value;
+    setSelectedLectureSerial(selectedLecSerial);
+
+    // 학생일 때만 enrollmentIdx 추출
+    if (!isProf && lectureList?.content) {
+      const selectedEnrollment = lectureList.content.find(
+        (lec) => String(lec.lecSerial) === String(selectedLecSerial)
+      );
+      setSelectedEnrollmentIdx(selectedEnrollment?.enrollmentIdx || null);
+    }
+  };
+
 
 
   // 강의 목록 가져오기 (교수/학생 구분)
@@ -94,7 +105,6 @@ const fetchLectureData = async (accessToken, user, isProf) => {
   }
 };
 
-    console.log(lectureList);
 
 // 공지 목록 불러오기
 const fetchNotices = async () => {
@@ -199,8 +209,23 @@ const fetchNotices = async () => {
 
 
   useEffect(() => {
-    fetchNotices();
-  }, [accessToken, selectedLectureSerial]);
+      fetchNotices();
+    }, [accessToken, selectedLectureSerial]);
+
+    useEffect(() => {
+    if (isProf) {
+      if (lectureList.length > 0) {
+        setSelectedLectureSerial(lectureList[0].lecSerial);
+      }
+    } else {
+      if (lectureList?.content?.length > 0) {
+        const firstLecture = lectureList.content[0];
+        setSelectedLectureSerial(firstLecture.lecSerial);
+        setSelectedEnrollmentIdx(firstLecture.enrollmentIdx);
+      }
+    }
+  }, [lectureList, isProf]);
+
 
 
   // 학생 출석 요청
@@ -412,7 +437,7 @@ const fetchNotices = async () => {
                 내 출결 현황
               </button>
               {isAttendanceDetailModalOpen && (
-                <AttendanceDetailModal onClose={closeAttendanceDetailModal} lecSerial={selectedLectureSerial}/>
+                <AttendanceDetailModal onClose={closeAttendanceDetailModal} enrollmentIdx={selectedEnrollmentIdx}/>
               )}
             </>
           )}
