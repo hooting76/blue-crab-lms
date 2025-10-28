@@ -29,6 +29,7 @@ const AttendanceDetailModal = ({ onClose, lecSerial }) => {
     const data = await res.json();
     console.log("✅ 출결내역 데이터:", data);
     setAttendanceDetail(data.data);
+    console.log("attendanceDetail : ", attendanceDetail);
   } catch (err) {
     console.error("❌ 출결내역 조회 에러:", err);
   }
