@@ -1,17 +1,19 @@
 /**
- * 📅 출석 API 테스트 (독립 실행)
+ * 📅 출석 API 테스트 (독립 실행) - 최신 API 엔드포인트
  * 
  * 🚀 사용법:
- *    await attendanceTest.runAll()        // 전체 테스트
+ *    await attendanceTest.runAll()        // 전체 테스트 (학생+교수 조회)
  * 
  * 📋 개별 API 테스트:
- *    await attendanceTest.myStatus()      // 내 출석 현황
- *    await attendanceTest.request()       // 출석 인정 요청
- *    await attendanceTest.myRequests()    // 내 요청 목록
- *    await attendanceTest.profRequests()  // 교수: 요청 목록
- *    await attendanceTest.approve()       // 교수: 요청 승인
- *    await attendanceTest.reject()        // 교수: 요청 반려
- *    await attendanceTest.mark()          // 교수: 출석 직접 입력
+ *    await attendanceTest.myStatus()      // 학생: 내 출석 현황
+ *    await attendanceTest.request()       // 학생: 출석 인정 요청
+ *    await attendanceTest.profView()      // 교수: 출석 현황 조회
+ *    await attendanceTest.approve()       // 교수: 출석 승인/입력
+ *    await attendanceTest.mark()          // 교수: 출석 직접 입력 (approve와 동일)
+ * 
+ * ⚠️ 비활성화 API (백엔드 미구현):
+ *    - myRequests()   // 내 요청 목록
+ *    - reject()       // 출석 요청 반려
  */
 
 (function() {
@@ -66,7 +68,7 @@
     
     // ============================================
     // 1. 학생: 내 출석 현황 조회
-    // POST /api/student/attendance/detail
+    // POST /api/attendance/student/view
     // ============================================
     
     async function testMyAttendanceStatus() {
@@ -74,27 +76,32 @@
         console.log('📊 내 출석 현황');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
-        const enrollmentIdx = prompt('수강신청 IDX (enrollmentIdx):', '');
-        if (!enrollmentIdx) {
-            console.log('❌ enrollmentIdx가 필요합니다.');
-            return { success: false, error: 'enrollmentIdx 미입력' };
+        const lecSerial = prompt('강의 코드 (lecSerial):', 'ETH201');
+        if (!lecSerial) {
+            console.log('❌ lecSerial이 필요합니다.');
+            return { success: false, error: 'lecSerial 미입력' };
         }
         
-        const data = { enrollmentIdx: parseInt(enrollmentIdx) };
-        console.log(`📤 enrollmentIdx: ${enrollmentIdx}`);
+        const data = { lecSerial: lecSerial };
+        console.log(`📤 lecSerial: ${lecSerial}`);
         
-        const result = await apiCall('/student/attendance/detail', data);
+        const result = await apiCall('/attendance/student/view', data);
         
         if (result?.success && result.data) {
-            const d = result.data.data || result.data;
-            console.log('\n📊 출석 정보:');
-            console.log(`  출석 문자열: ${d.attendanceStr || 'N/A'}`);
-            console.log(`  출석률: ${d.attendanceRate || 'N/A'}`);
+            const attendanceData = result.data.data || result.data;
+            const summary = attendanceData.summary || {};
             
-            if (d.attendanceDetails && Array.isArray(d.attendanceDetails)) {
-                console.log(`\n📋 상세 (${d.attendanceDetails.length}회):`);
-                d.attendanceDetails.forEach((att, i) => {
-                    console.log(`  ${att.sessionNumber}회차: ${att.status}`);
+            console.log('\n📊 출석 정보:');
+            console.log(`  출석 문자열: ${attendanceData.attendanceStr || 'N/A'}`);
+            console.log(`  출석: ${summary.attended || 0}회`);
+            console.log(`  지각: ${summary.late || 0}회`);
+            console.log(`  결석: ${summary.absent || 0}회`);
+            console.log(`  출석률: ${summary.attendanceRate || 'N/A'}%`);
+            
+            if (attendanceData.details && Array.isArray(attendanceData.details)) {
+                console.log(`\n📋 상세 (${attendanceData.details.length}회):`);
+                attendanceData.details.forEach((att, i) => {
+                    console.log(`  ${att.sessionNumber}회차: ${att.status} (${att.date || 'N/A'})`);
                 });
             }
             
@@ -109,7 +116,7 @@
     
     // ============================================
     // 2. 학생: 출석 인정 요청
-    // POST /api/student/attendance/request
+    // POST /api/attendance/request
     // ============================================
     
     async function testAttendanceRequest() {
@@ -117,25 +124,22 @@
         console.log('📝 출석 인정 요청');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
-        const lecSerial = prompt('강의 코드:', '');
+        const lecSerial = prompt('강의 코드:', 'ETH201');
         const sessionNumber = prompt('회차 번호:', '');
-        const reason = prompt('요청 사유:', '');
         
-        if (!lecSerial || !sessionNumber || !reason) {
+        if (!lecSerial || !sessionNumber) {
             console.log('❌ 모든 정보가 필요합니다.');
             return { success: false, error: '필수 정보 미입력' };
         }
         
         const data = {
             lecSerial,
-            sessionNumber: parseInt(sessionNumber),
-            requestReason: reason
+            sessionNumber: parseInt(sessionNumber)
         };
         
         console.log(`📤 강의: ${lecSerial}, 회차: ${sessionNumber}`);
-        console.log(`   사유: ${reason}`);
         
-        const result = await apiCall('/student/attendance/request', data);
+        const result = await apiCall('/attendance/request', data);
         
         if (result?.success) {
             console.log('\n✅ 출석 인정 요청 제출 완료!');
@@ -149,7 +153,7 @@
     }
     
     // ============================================
-    // 3. 학생: 내 출석 요청 목록
+    // 3. 학생: 내 출석 요청 목록 (통합 테스트 코드에는 없음 - 유지)
     // POST /api/student/attendance/requests
     // ============================================
     
@@ -157,8 +161,9 @@
         console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         console.log('📋 내 출석 요청 목록');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('⚠️  이 API는 현재 백엔드에 구현되지 않았을 수 있습니다.');
         
-        const studentIdx = prompt('학생 IDX:', '');
+        const studentIdx = prompt('학생 IDX:', window.currentUser?.id || '');
         const lecSerial = prompt('강의 코드 (선택, 빈칸: 전체):', '');
         
         if (!studentIdx) {
@@ -195,47 +200,39 @@
     }
     
     // ============================================
-    // 4. 교수: 출석 요청 목록 조회
-    // POST /api/professor/attendance/requests
+    // 4. 교수: 출석 현황 조회 (전체 학생)
+    // POST /api/attendance/professor/view
     // ============================================
     
     async function testProfessorRequests() {
         console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('👨‍🏫 교수: 출석 요청 목록');
+        console.log('👨‍🏫 교수: 출석 현황 조회');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
-        const lecIdx = prompt('강의 IDX:', '');
-        const status = prompt('상태 필터 (PENDING/APPROVED/REJECTED, 빈칸: 전체):', '');
-        const page = prompt('페이지 (기본: 0):', '0');
-        const size = prompt('크기 (기본: 20):', '20');
+        const lecSerial = prompt('강의 코드:', 'ETH201');
         
-        if (!lecIdx) {
-            console.log('❌ 강의 IDX가 필요합니다.');
-            return { success: false, error: '강의 IDX 미입력' };
+        if (!lecSerial) {
+            console.log('❌ 강의 코드가 필요합니다.');
+            return { success: false, error: '강의 코드 미입력' };
         }
         
-        const data = {
-            lecIdx: parseInt(lecIdx),
-            page: parseInt(page) || 0,
-            size: parseInt(size) || 20
-        };
-        if (status) data.status = status;
+        const data = { lecSerial: lecSerial };
         
-        console.log(`📤 강의: ${lecIdx}${status ? `, 상태: ${status}` : ''}`);
+        console.log(`📤 강의: ${lecSerial}`);
         
-        const result = await apiCall('/professor/attendance/requests', data);
+        const result = await apiCall('/attendance/professor/view', data);
         
         if (result?.success && result.data) {
-            const d = result.data.data || result.data;
-            const requests = d.content || [];
-            console.log(`\n📊 요청 개수: ${requests.length}건`);
-            console.log(`   페이지: ${d.number || 0}/${d.totalPages || 1}`);
+            const students = result.data.data || [];
+            console.log(`\n📊 학생 수: ${students.length}명`);
             
-            if (requests.length > 0) {
-                console.log('\n📋 요청 목록:');
-                requests.forEach((req, i) => {
-                    console.log(`  ${i+1}. [${req.requestIdx}] ${req.studentName} - ${req.sessionNumber}회차`);
-                    console.log(`     상태: ${req.status}, 사유: ${req.requestReason}`);
+            if (students.length > 0) {
+                console.log('\n📋 출석 현황:');
+                students.forEach((student, i) => {
+                    const summary = student.attendanceData?.summary || {};
+                    console.log(`  ${i+1}. ${student.studentName} (${student.studentCode})`);
+                    console.log(`     출석: ${summary.attended || 0}, 지각: ${summary.late || 0}, 결석: ${summary.absent || 0}`);
+                    console.log(`     출석률: ${summary.attendanceRate || 0}%`);
                 });
             }
             
@@ -249,32 +246,43 @@
     }
     
     // ============================================
-    // 5. 교수: 출석 요청 승인
-    // PUT /api/professor/attendance/requests/{requestIdx}/approve
+    // 5. 교수: 출석 승인 (요청 기반이 아닌 직접 입력 방식)
+    // POST /api/attendance/approve
     // ============================================
     
     async function testApproveRequest() {
         console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('✅ 출석 요청 승인');
+        console.log('✅ 출석 승인 (회차별 출석 입력)');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
-        const requestIdx = prompt('요청 IDX:', '');
-        const note = prompt('승인 메모 (선택):', '');
+        const lecSerial = prompt('강의 코드:', 'ETH201');
+        const sessionNumber = prompt('회차 번호:', '');
+        const studentIdx = prompt('학생 IDX:', '');
+        const status = prompt('출석 상태 (출/지/결/조):', '출');
         
-        if (!requestIdx) {
-            console.log('❌ 요청 IDX가 필요합니다.');
-            return { success: false, error: '요청 IDX 미입력' };
+        if (!lecSerial || !sessionNumber || !studentIdx || !status) {
+            console.log('❌ 모든 정보가 필요합니다.');
+            return { success: false, error: '필수 정보 미입력' };
         }
         
-        const data = {};
-        if (note) data.approvalNote = note;
+        const data = {
+            lecSerial: lecSerial,
+            sessionNumber: parseInt(sessionNumber),
+            attendanceRecords: [
+                {
+                    studentIdx: parseInt(studentIdx),
+                    status: status
+                }
+            ]
+        };
         
-        console.log(`📤 요청 IDX: ${requestIdx}`);
+        console.log(`📤 강의: ${lecSerial}, 회차: ${sessionNumber}`);
+        console.log(`   학생 IDX: ${studentIdx}, 상태: ${status}`);
         
-        const result = await apiCall(`/professor/attendance/requests/${requestIdx}/approve`, data, 'PUT');
+        const result = await apiCall('/attendance/approve', data);
         
         if (result?.success) {
-            console.log('\n✅ 출석 요청 승인 완료!');
+            console.log('\n✅ 출석 승인 완료!');
             if (result.data) console.log('📊 결과:', result.data);
         } else {
             console.log('\n❌ 실패:', result.error);
@@ -285,43 +293,23 @@
     }
     
     // ============================================
-    // 6. 교수: 출석 요청 반려
-    // PUT /api/professor/attendance/requests/{requestIdx}/reject
+    // 6. 교수: 출석 요청 반려 (현재 API 없음 - 비활성화)
     // ============================================
     
     async function testRejectRequest() {
         console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         console.log('❌ 출석 요청 반려');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        
-        const requestIdx = prompt('요청 IDX:', '');
-        const reason = prompt('반려 사유:', '');
-        
-        if (!requestIdx || !reason) {
-            console.log('❌ 요청 IDX와 반려 사유가 필요합니다.');
-            return { success: false, error: '필수 정보 미입력' };
-        }
-        
-        const data = { rejectionReason: reason };
-        console.log(`📤 요청 IDX: ${requestIdx}`);
-        console.log(`   반려 사유: ${reason}`);
-        
-        const result = await apiCall(`/professor/attendance/requests/${requestIdx}/reject`, data, 'PUT');
-        
-        if (result?.success) {
-            console.log('\n✅ 출석 요청 반려 완료!');
-            if (result.data) console.log('📊 결과:', result.data);
-        } else {
-            console.log('\n❌ 실패:', result.error);
-        }
+        console.log('⚠️  이 API는 현재 구현되지 않았습니다.');
+        console.log('� 대신 출석 승인 API로 상태를 변경하세요.');
         
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-        return result;
+        return { success: false, error: 'API 미구현' };
     }
     
     // ============================================
-    // 7. 교수: 출석 직접 입력
-    // POST /api/professor/attendance/mark
+    // 7. 교수: 출석 직접 입력 (approve API와 동일하게 변경)
+    // POST /api/attendance/approve
     // ============================================
     
     async function testMarkAttendance() {
@@ -329,25 +317,31 @@
         console.log('✏️  출석 직접 입력');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
-        const enrollmentIdx = prompt('enrollmentIdx:', '');
+        const lecSerial = prompt('강의 코드:', 'ETH201');
         const sessionNumber = prompt('회차 번호:', '');
+        const studentIdx = prompt('학생 IDX:', '');
         const status = prompt('출석 상태 (출/결/지/조):', '');
         
-        if (!enrollmentIdx || !sessionNumber || !status) {
+        if (!lecSerial || !sessionNumber || !studentIdx || !status) {
             console.log('❌ 모든 정보가 필요합니다.');
             return { success: false, error: '필수 정보 미입력' };
         }
         
         const data = {
-            enrollmentIdx: parseInt(enrollmentIdx),
+            lecSerial: lecSerial,
             sessionNumber: parseInt(sessionNumber),
-            status
+            attendanceRecords: [
+                {
+                    studentIdx: parseInt(studentIdx),
+                    status: status
+                }
+            ]
         };
         
-        console.log(`📤 enrollmentIdx: ${enrollmentIdx}, 회차: ${sessionNumber}`);
-        console.log(`   상태: ${status}`);
+        console.log(`📤 강의: ${lecSerial}, 회차: ${sessionNumber}`);
+        console.log(`   학생 IDX: ${studentIdx}, 상태: ${status}`);
         
-        const result = await apiCall('/professor/attendance/mark', data);
+        const result = await apiCall('/attendance/approve', data);
         
         if (result?.success) {
             console.log('\n✅ 출석 입력 완료!');
@@ -368,13 +362,12 @@
         console.log('\n🚀 출석 API 전체 테스트 시작');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
         
-        const results = { total: 3, success: 0, failed: 0, tests: [] };
+        const results = { total: 2, success: 0, failed: 0, tests: [] };
         
         try {
             const tests = [
                 { name: '내 출석 현황', fn: testMyAttendanceStatus },
-                { name: '내 요청 목록', fn: testMyRequests },
-                { name: '교수: 요청 목록', fn: testProfessorRequests }
+                { name: '교수: 출석 현황 조회', fn: testProfessorRequests }
             ];
             
             for (const test of tests) {
@@ -410,16 +403,22 @@
     window.attendanceTest = {
         myStatus: testMyAttendanceStatus,
         request: testAttendanceRequest,
-        myRequests: testMyRequests,
-        profRequests: testProfessorRequests,
+        myRequests: testMyRequests,  // 백엔드 미구현 (경고 표시)
+        profView: testProfessorRequests,
         approve: testApproveRequest,
-        reject: testRejectRequest,
+        reject: testRejectRequest,   // 백엔드 미구현 (경고 표시)
         mark: testMarkAttendance,
         runAll: runAllTests
     };
     
-    console.log('✅ 출석 API 테스트 로드 완료');
+    console.log('✅ 출석 API 테스트 로드 완료 (최신 엔드포인트)');
     console.log('💡 사용: await attendanceTest.runAll() 또는 개별 함수 실행');
+    console.log('');
+    console.log('📋 주요 API:');
+    console.log('   - myStatus()  : 학생 출석 현황 조회 (lecSerial 기반)');
+    console.log('   - request()   : 출석 인정 요청');
+    console.log('   - profView()  : 교수 출석 현황 조회 (전체 학생)');
+    console.log('   - approve()   : 출석 승인/입력');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
 })();
