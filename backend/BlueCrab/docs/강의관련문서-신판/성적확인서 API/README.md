@@ -64,8 +64,8 @@ src/main/java/BlueCrab/com/example/
 - 토큰에서 사용자 정보 추출 및 검증
 
 **권한 관리**:
-- 학생: 본인 것만 조회
-- 교수/관리자: 모든 학생 조회
+- 학생: 본인 것만 조회 (JWT에서 추출한 USER_IDX 사용)
+- 교수/관리자: 모든 학생 조회 (요청 파라미터의 studentIdx 즉, USER_IDX 사용)
 
 **예외 처리**:
 - StudentNotFoundException → 404 NOT_FOUND

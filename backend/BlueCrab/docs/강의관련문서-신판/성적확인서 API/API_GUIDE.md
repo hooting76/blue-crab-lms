@@ -35,8 +35,8 @@ REST API 엔드포인트를 제공하는 컨트롤러
 
 **인증 및 권한**:
 - JwtUtil을 통한 JWT 토큰 검증
-- 학생: 본인 성적만 조회
-- 교수/관리자: 모든 학생 성적 조회
+- 학생: 본인 성적만 조회 (JWT에서 추출한 USER_IDX)
+- 교수/관리자: 모든 학생 성적 조회 (요청의 studentIdx = USER_IDX)
 
 ### 2. CertificateService.java
 성적확인서 생성 비즈니스 로직
