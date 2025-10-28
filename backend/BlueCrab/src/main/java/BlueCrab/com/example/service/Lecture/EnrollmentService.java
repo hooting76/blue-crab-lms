@@ -188,13 +188,37 @@ public class EnrollmentService {
     private String createInitialEnrollmentData() {
         try {
             Map<String, Object> data = new HashMap<>();
-            data.put("enrollment", Map.of(
-                "status", "ENROLLED",
-                "enrollmentDate", getCurrentDateTime()
-            ));
-            data.put("attendance", List.of());
-            data.put("grade", Map.of());
-            data.put("gradeConfig", null);
+            
+            // gradeConfig 초기값 설정 (기본값)
+            Map<String, Object> gradeConfig = new HashMap<>();
+            gradeConfig.put("latePenaltyPerSession", 0.4);
+            gradeConfig.put("gradeDistribution", Map.of("A", 30, "B", 40, "C", 20, "D", 10));
+            gradeConfig.put("totalMaxScore", 0);
+            gradeConfig.put("attendanceMaxScore", 0);
+            gradeConfig.put("assignmentTotalScore", 0);
+            gradeConfig.put("configuredAt", getCurrentDateTime());
+            data.put("gradeConfig", gradeConfig);
+            
+            // attendance 초기값 설정 (빈 구조)
+            Map<String, Object> attendance = new HashMap<>();
+            Map<String, Object> summary = new HashMap<>();
+            summary.put("attended", 0);
+            summary.put("late", 0);
+            summary.put("absent", 0);
+            summary.put("totalSessions", 80);
+            summary.put("attendanceRate", 0.0);
+            attendance.put("summary", summary);
+            attendance.put("sessions", List.of());
+            attendance.put("pendingRequests", List.of());
+            data.put("attendance", attendance);
+            
+            // grade 초기값 설정 (빈 구조)
+            Map<String, Object> grade = new HashMap<>();
+            grade.put("attendanceScore", Map.of());
+            grade.put("assignments", List.of());
+            grade.put("total", Map.of());
+            data.put("grade", grade);
+            
             return objectMapper.writeValueAsString(data);
         } catch (JsonProcessingException e) {
             return "{}";
