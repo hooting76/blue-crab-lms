@@ -71,6 +71,9 @@ public class AssignmentService {
     @Autowired
     private LecTblRepository lecTblRepository;
 
+    @Autowired
+    private GradeManagementService gradeManagementService;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     // ========== 과제 조회 메서드 ==========
@@ -128,7 +131,21 @@ public class AssignmentService {
         String initialData = createInitialAssignmentData(title, description, dueDate, maxScore);
         assignment.setAssignmentData(initialData);
 
-        return assignmentRepository.save(assignment);
+        AssignmentExtendedTbl savedAssignment = assignmentRepository.save(assignment);
+        
+        // ✅ 과제 생성 후 해당 강의의 성적 구성 자동 업데이트
+        // 🔧 임시 비활성화 - 순환 참조 문제 디버깅용
+        /*
+        try {
+            gradeManagementService.updateAssignmentTotalScoreForLecture(lecIdx);
+            logger.info("과제 생성 완료 - 강의 {}의 성적 구성 자동 업데이트됨", lecIdx);
+        } catch (Exception e) {
+            logger.warn("성적 구성 자동 업데이트 실패 (강의 {}): {}", lecIdx, e.getMessage());
+            // 성적 구성 업데이트 실패해도 과제 생성은 성공으로 처리
+        }
+        */
+        
+        return savedAssignment;
     }
 
     /* 과제 수정 */
@@ -138,6 +155,8 @@ public class AssignmentService {
         AssignmentExtendedTbl assignment = assignmentRepository.findById(assignmentIdx)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 과제입니다: " + assignmentIdx));
 
+        Integer lecIdx = assignment.getLecIdx();
+        
         try {
             Map<String, Object> data = parseAssignmentData(assignment.getAssignmentData());
             Map<String, Object> assignmentInfo = (Map<String, Object>) data.getOrDefault("assignment", Map.of());
@@ -151,7 +170,19 @@ public class AssignmentService {
             String jsonData = objectMapper.writeValueAsString(data);
             assignment.setAssignmentData(jsonData);
             
-            return assignmentRepository.save(assignment);
+            AssignmentExtendedTbl updatedAssignment = assignmentRepository.save(assignment);
+            
+            // ✅ maxScore 변경 시 성적 구성 자동 업데이트
+            if (maxScore != null) {
+                try {
+                    gradeManagementService.updateAssignmentTotalScoreForLecture(lecIdx);
+                    logger.info("과제 수정 완료 - 강의 {}의 성적 구성 자동 업데이트됨", lecIdx);
+                } catch (Exception e) {
+                    logger.warn("성적 구성 자동 업데이트 실패 (강의 {}): {}", lecIdx, e.getMessage());
+                }
+            }
+            
+            return updatedAssignment;
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException("과제 데이터 변환 실패", e);
         }
@@ -160,10 +191,19 @@ public class AssignmentService {
     /* 과제 삭제 */
     @Transactional
     public void deleteAssignment(Integer assignmentIdx) {
-        if (!assignmentRepository.existsById(assignmentIdx)) {
-            throw new IllegalArgumentException("존재하지 않는 과제입니다: " + assignmentIdx);
-        }
+        AssignmentExtendedTbl assignment = assignmentRepository.findById(assignmentIdx)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 과제입니다: " + assignmentIdx));
+        
+        Integer lecIdx = assignment.getLecIdx();
         assignmentRepository.deleteById(assignmentIdx);
+        
+        // ✅ 과제 삭제 후 성적 구성 자동 업데이트
+        try {
+            gradeManagementService.updateAssignmentTotalScoreForLecture(lecIdx);
+            logger.info("과제 삭제 완료 - 강의 {}의 성적 구성 자동 업데이트됨", lecIdx);
+        } catch (Exception e) {
+            logger.warn("성적 구성 자동 업데이트 실패 (강의 {}): {}", lecIdx, e.getMessage());
+        }
     }
 
     // ========== 과제 제출 관리 메서드 ==========

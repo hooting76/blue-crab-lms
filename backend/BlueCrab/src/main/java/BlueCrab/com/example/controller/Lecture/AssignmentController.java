@@ -185,7 +185,7 @@ public class AssignmentController {
         try {
             String lecSerial = (String) request.get("lecSerial");
             String title = (String) request.get("title");
-            String body = (String) request.get("body");  // ✅ DTO 패턴: body 필드
+            String description = (String) request.get("description");  // ✅ description으로 변경
             String dueDate = (String) request.get("dueDate");
             
             // ✅ maxScore 파라미터 추가 (기본값 10점)
@@ -212,7 +212,7 @@ public class AssignmentController {
             }
             
             AssignmentExtendedTbl assignment = assignmentService.createAssignment(
-                    lecIdx, title, body, dueDate, maxScore);  // body 전달
+                    lecIdx, title, description, dueDate, maxScore);  // description 전달
             return ResponseEntity.status(HttpStatus.CREATED).body(assignment);
         } catch (IllegalArgumentException e) {
             logger.warn("과제 등록 실패: {}", e.getMessage());

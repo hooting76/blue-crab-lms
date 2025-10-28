@@ -4,7 +4,7 @@
  * 🚀 사용법:
  *    // 1. 성적 구성 설정 (강의 단위 - 전체 수강생 대상)
  *    gradeTest.setContext({ lecSerial: 'ETH201' })
- *    await gradeTest.config()
+ *    await gradeTest.config()  // 과제 만점 자동 조회 (ASSIGNMENT_EXTENDED_TBL)
  * 
  *    // 2. 개별 학생 성적 조회 시에만 studentIdx 추가
  *    gradeTest.setContext({ lecSerial: 'ETH201', studentIdx: 33 })
@@ -18,8 +18,8 @@
  *    await gradeTest.finalize()         // 최종 등급 배정 (lecSerial만 필요)
  * 
  * 💡 성적 계산 로직:
- *    - config() 실행 시 ASSIGNMENT_EXTENDED_TBL에서 과제 만점 자동 조회/합산
- *    - totalMaxScore = attendanceMaxScore + Σ(모든 과제의 maxScore)
+ *    - config() 실행 시 ASSIGNMENT_EXTENDED_TBL에서 실제 과제의 maxScore를 자동 합산
+ *    - totalMaxScore = attendanceMaxScore + Σ(실제 과제의 maxScore)
  *    - 성적은 출석/과제 데이터 기반 자동 계산
  *    - gradeList()로 자동 계산된 성적 조회 가능
  * 
@@ -157,7 +157,9 @@
         }
 
         const attendanceMaxScore = prompt('출석 만점 (기본: 20):', '20');
-        const assignmentTotalScore = prompt('과제 총점 참고값 (기본: 50, 실제는 각 과제 만점 합산):', '50');
+        // 과제 만점은 항상 자동 조회 (ASSIGNMENT_EXTENDED_TBL에서 실제 과제 maxScore 합산)
+        const assignmentTotalScore = null;
+        
         const latePenalty = prompt('지각 감점/회 (기본: 0.3):', '0.3');
 
         console.log('\n📊 등급 분포 (합계 100%)');
@@ -170,7 +172,6 @@
             action: 'set-config',
             lecSerial,
             attendanceMaxScore: parseInt(attendanceMaxScore, 10) || 20,
-            assignmentTotalScore: parseInt(assignmentTotalScore, 10) || 50,
             latePenaltyPerSession: parseFloat(latePenalty) || 0.3,
             gradeDistribution: {
                 A: parseInt(gradeA, 10) || 30,
@@ -179,6 +180,9 @@
                 D: parseInt(gradeD, 10) || 10
             }
         };
+        
+        // assignmentTotalScore는 항상 null (백엔드가 자동으로 ASSIGNMENT_EXTENDED_TBL에서 조회)
+        // data에 포함하지 않음
 
         const totalPercent = Object.values(data.gradeDistribution).reduce((sum, v) => sum + v, 0);
         if (totalPercent !== 100) {
@@ -192,12 +196,11 @@
             console.log('\n✅ 성적 구성 저장 완료!');
             console.log('📊 설정 내용:');
             console.log(`  - 출석 만점: ${data.attendanceMaxScore}점`);
-            console.log(`  - 과제 총점(참고): ${data.assignmentTotalScore}점`);
+            console.log(`  - 과제 총점: 자동 조회 (ASSIGNMENT_EXTENDED_TBL에서 실제 과제 만점 합산)`);
             console.log(`  - 지각 감점: ${data.latePenaltyPerSession}점/회`);
             console.log(`  - 등급 분포: A(${data.gradeDistribution.A}%) B(${data.gradeDistribution.B}%) C(${data.gradeDistribution.C}%) D(${data.gradeDistribution.D}%)`);
             console.log('\n🎯 적용 대상: 강의 전체 수강생 (자동 적용)');
-            console.log('� 과제 만점은 서버에서 ASSIGNMENT_EXTENDED_TBL 조회하여 자동 합산');
-            console.log('�💡 다음 단계: 출석 입력 → 과제 생성/채점 → 성적 조회');
+            console.log('💡 다음 단계: 출석 입력 → 과제 생성/채점 → 성적 조회');
             if (result.data) {
                 console.log('\n📊 서버 응답:', result.data);
                 if (result.data.totalMaxScore) {
