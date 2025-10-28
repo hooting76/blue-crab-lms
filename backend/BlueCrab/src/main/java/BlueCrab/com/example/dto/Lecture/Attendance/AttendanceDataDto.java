@@ -14,6 +14,10 @@ public class AttendanceDataDto {
     private AttendanceSummaryDto summary;                   // 출석 요약 정보
     private List<AttendanceSessionDto> sessions;            // 확정된 출석 기록 배열
     private List<AttendancePendingRequestDto> pendingRequests;  // 대기 중인 요청 배열
+    
+    // 프론트엔드 호환성 필드 (summary 데이터 기반 자동 계산)
+    private String attendanceRate;                          // "n/80" 형식 문자열
+    private String attendanceStr;                           // 출석 문자열 (출/지/결 나열)
 
     // Constructors
 
@@ -50,6 +54,22 @@ public class AttendanceDataDto {
 
     public void setPendingRequests(List<AttendancePendingRequestDto> pendingRequests) {
         this.pendingRequests = pendingRequests;
+    }
+
+    public String getAttendanceRate() {
+        return attendanceRate;
+    }
+
+    public void setAttendanceRate(String attendanceRate) {
+        this.attendanceRate = attendanceRate;
+    }
+
+    public String getAttendanceStr() {
+        return attendanceStr;
+    }
+
+    public void setAttendanceStr(String attendanceStr) {
+        this.attendanceStr = attendanceStr;
     }
 
     @Override

@@ -240,6 +240,9 @@ public class AttendanceRequestServiceImpl implements AttendanceRequestService {
             
             AttendanceDataDto attendanceData = parseAttendanceData(enrollment.getEnrollmentData());
             
+            // 프론트엔드 호환성 필드 설정
+            enrichAttendanceDataForFrontend(attendanceData);
+            
             return AttendanceResponseDto.success("출석 현황 조회 성공", attendanceData);
             
         } catch (Exception e) {
@@ -271,7 +274,12 @@ public class AttendanceRequestServiceImpl implements AttendanceRequestService {
                     dto.setStudentIdx(enrollment.getStudentIdx());
                     dto.setStudentCode(enrollment.getStudent().getUserCode());
                     dto.setStudentName(enrollment.getStudent().getUserName());
-                    dto.setAttendanceData(parseAttendanceData(enrollment.getEnrollmentData()));
+                    
+                    AttendanceDataDto attendanceData = parseAttendanceData(enrollment.getEnrollmentData());
+                    // 프론트엔드 호환성 필드 설정
+                    enrichAttendanceDataForFrontend(attendanceData);
+                    
+                    dto.setAttendanceData(attendanceData);
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -415,6 +423,48 @@ public class AttendanceRequestServiceImpl implements AttendanceRequestService {
         dto.setPendingRequests(new ArrayList<>());
         return dto;
     }
+    
+    /**
+     * 프론트엔드 호환성을 위한 필드 자동 계산 및 설정
+     * - attendanceRate: "출석횟수/총회차" 형식 (예: "1/80")
+     * - attendanceStr: 출석 상태 문자열 나열 (예: "출지결출...")
+     */
+    private void enrichAttendanceDataForFrontend(AttendanceDataDto dto) {
+        if (dto == null) return;
+        
+        // attendanceRate 설정: "n/80" 형식
+        AttendanceSummaryDto summary = dto.getSummary();
+        if (summary != null) {
+            int attended = summary.getAttended() != null ? summary.getAttended() : 0;
+            int totalSessions = summary.getTotalSessions() != null ? summary.getTotalSessions() : 80;
+            dto.setAttendanceRate(attended + "/" + totalSessions);
+        } else {
+            dto.setAttendanceRate("0/80");
+        }
+        
+        // attendanceStr 설정: 출석 상태 문자열 나열
+        List<AttendanceSessionDto> sessions = dto.getSessions();
+        if (sessions != null && !sessions.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            // 회차 순서대로 정렬
+            sessions.stream()
+                .sorted((a, b) -> {
+                    Integer aNum = a.getSessionNumber() != null ? a.getSessionNumber() : 0;
+                    Integer bNum = b.getSessionNumber() != null ? b.getSessionNumber() : 0;
+                    return aNum.compareTo(bNum);
+                })
+                .forEach(session -> {
+                    String status = session.getStatus();
+                    if (status != null && !status.isEmpty()) {
+                        sb.append(status.charAt(0)); // "출", "지", "결" 등 첫 글자만
+                    }
+                });
+            dto.setAttendanceStr(sb.toString());
+        } else {
+            dto.setAttendanceStr("");
+        }
+    }
+
     
     /**
      * AttendanceDataDto를 ENROLLMENT_DATA JSON에 병합
