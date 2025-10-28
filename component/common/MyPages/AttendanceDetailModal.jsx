@@ -1,9 +1,12 @@
 import {useState, useEffect} from "react";
+import { UseUser } from "../../../hook/UseUser";
 import "../../../css/MyPages/AttendanceDetailModal.css";
 
 const AttendanceDetailModal = ({onClose, enrollmentIdx}) => {
+    const {user} = UseUser();
+    const accessToken = user.data.accessToken;
     const [attendanceDetail, setAttendanceDetail] = useState();
-
+    const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
      const FetchAttendanceDetail = async () => {
         try {
