@@ -76,7 +76,7 @@ const AssignmentCreateModal = ({ onClose, lecSerial, lecTitle }) => {
                     />
                 </div>
                 <div>배점: 
-                    <input type="number" value={maxScore} onChange={(e) => setMaxScore(e.target.value)} required/>
+                    <input type="number" value={maxScore} onChange={(e) => setMaxScore(Number(e.target.value))} required/>
                 </div>
 
                 <button className="assignmentCreateSubmitBtn" onClick={submitAssignmentCreate}>과제 생성</button>
