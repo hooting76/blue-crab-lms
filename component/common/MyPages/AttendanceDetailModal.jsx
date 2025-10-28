@@ -6,8 +6,6 @@ const AttendanceDetailModal = ({onClose}) => {
     const {user} = UseUser();
     const [attendanceDetail, setAttendanceDetail] = useState();
 
-    console.log("user : ", user)
-
      const FetchAttendanceDetail = async () => {
         try {
             const body = {

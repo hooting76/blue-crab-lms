@@ -24,6 +24,9 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
   const sessionNumber = 1;
   const requestReason = "";
 
+  
+    console.log("user : ", user)
+
   // 모달 상태들
   const [isEvaluationModalOpen, setIsEvaluationModalOpen] = useState(false);
   const [isAttendanceDetailModalOpen, setIsAttendanceDetailModalOpen] = useState(false);
@@ -389,7 +392,7 @@ const fetchNotices = async () => {
         </div>
 
         <div className="attendanceStatus">
-          출결
+          <p>출결</p>
           {!isProf && ( // 학생
             <>
               <button
