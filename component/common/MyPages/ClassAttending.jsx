@@ -170,7 +170,7 @@ const fetchNotices = async () => {
             setAssignmentList(data);
         } catch (error) {
             console.error('과제 목록 에러:', error);
-            setAssignmentList([]);
+            setAssignmentList({ content: [] }); // 실패 시에도 초기화
         }
     };
 
