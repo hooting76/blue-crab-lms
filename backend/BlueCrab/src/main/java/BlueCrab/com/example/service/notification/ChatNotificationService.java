@@ -192,8 +192,12 @@ public class ChatNotificationService {
         if (consultation.getDesiredDate() != null) {
             extra.put("scheduledStartAt", consultation.getDesiredDate().format(isoFormatter));
         }
-        if (consultation.getAcceptMessage() != null) {
-            extra.put("acceptMessage", consultation.getAcceptMessage());
+        String approveMessage = consultation.getStatusReason();
+        if (approveMessage == null) {
+            approveMessage = consultation.getAcceptMessage();
+        }
+        if (approveMessage != null) {
+            extra.put("acceptMessage", approveMessage);
         }
 
         sendConsultationEvent(
@@ -215,8 +219,12 @@ public class ChatNotificationService {
         }
 
         Map<String, String> extra = new HashMap<>();
-        if (consultation.getRejectionReason() != null) {
-            extra.put("rejectionReason", consultation.getRejectionReason());
+        String rejectionReason = consultation.getStatusReason();
+        if (rejectionReason == null) {
+            rejectionReason = consultation.getRejectionReason();
+        }
+        if (rejectionReason != null) {
+            extra.put("rejectionReason", rejectionReason);
         }
 
         sendConsultationEvent(
@@ -238,8 +246,12 @@ public class ChatNotificationService {
         }
 
         Map<String, String> extra = new HashMap<>();
-        if (consultation.getCancelReason() != null) {
-            extra.put("cancelReason", consultation.getCancelReason());
+        String cancelReason = consultation.getStatusReason();
+        if (cancelReason == null) {
+            cancelReason = consultation.getCancelReason();
+        }
+        if (cancelReason != null) {
+            extra.put("cancelReason", cancelReason);
         }
 
         sendConsultationEvent(
