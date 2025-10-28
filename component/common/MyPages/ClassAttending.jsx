@@ -89,11 +89,12 @@ const fetchLectureData = async (accessToken, user, isProf) => {
 
     const data = await response.json();
     setLectureList(data);
-    console.log(lectureList);
   } catch (error) {
     console.error('강의 목록 조회 에러:', error);
   }
 };
+
+    console.log(lectureList);
 
 // 공지 목록 불러오기
 const fetchNotices = async () => {
