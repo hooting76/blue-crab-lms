@@ -16,7 +16,7 @@ const AttendanceDetailModal = ({ onClose, lecSerial }) => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify(lecSerial),
+      body: JSON.stringify({lecSerial}),
     });
 
 
