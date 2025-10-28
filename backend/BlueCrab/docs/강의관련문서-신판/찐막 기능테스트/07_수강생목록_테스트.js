@@ -106,6 +106,7 @@
 
         const data = {
             lecSerial,
+            studentIdx: null,  // 명시적으로 null 전달 (JWT 자동 추출 방지)
             page: parseInt(page, 10) || 0,
             size: parseInt(size, 10) || 100
         };

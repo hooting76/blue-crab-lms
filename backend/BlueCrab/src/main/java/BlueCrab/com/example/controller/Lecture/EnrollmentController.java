@@ -118,18 +118,11 @@ public class EnrollmentController {
                 return ResponseEntity.ok(statistics);
             }
             
-            // 3. 현재 수강중인 목록 (enrolled = true)
-            if (enrolled && studentIdx != null) {
-                List<EnrollmentExtendedTbl> enrollments = enrollmentService.getEnrolledByStudent(studentIdx);
-                List<EnrollmentDto> dtoList = convertToDtoList(enrollments);
-                return ResponseEntity.ok(dtoList);
-            }
-            
-            // 4. 학생별 수강 목록 (페이징) - DTO 변환
-            if (studentIdx != null && !enrolled) {
+            // 3. 강의별 수강생 목록 (페이징) - lecIdx 우선 처리
+            if (lecIdx != null) {
                 Pageable pageable = PageRequest.of(page, size);
                 Page<EnrollmentExtendedTbl> enrollments = 
-                        enrollmentService.getEnrollmentsByStudentPaged(studentIdx, pageable);
+                        enrollmentService.getEnrollmentsByLecturePaged(lecIdx, pageable);
                 // DTO 리스트로 변환 후 새 Page 객체 생성 (Entity 참조 제거)
                 List<EnrollmentDto> dtoList = enrollments.getContent().stream()
                         .map(this::convertToDto)
@@ -138,11 +131,18 @@ public class EnrollmentController {
                 return ResponseEntity.ok(dtoPage);
             }
             
-            // 5. 강의별 수강생 목록 (페이징) - DTO 변환
-            if (lecIdx != null) {
+            // 4. 현재 수강중인 목록 (enrolled = true)
+            if (enrolled && studentIdx != null) {
+                List<EnrollmentExtendedTbl> enrollments = enrollmentService.getEnrolledByStudent(studentIdx);
+                List<EnrollmentDto> dtoList = convertToDtoList(enrollments);
+                return ResponseEntity.ok(dtoList);
+            }
+            
+            // 5. 학생별 수강 목록 (페이징) - DTO 변환
+            if (studentIdx != null && !enrolled) {
                 Pageable pageable = PageRequest.of(page, size);
                 Page<EnrollmentExtendedTbl> enrollments = 
-                        enrollmentService.getEnrollmentsByLecturePaged(lecIdx, pageable);
+                        enrollmentService.getEnrollmentsByStudentPaged(studentIdx, pageable);
                 // DTO 리스트로 변환 후 새 Page 객체 생성 (Entity 참조 제거)
                 List<EnrollmentDto> dtoList = enrollments.getContent().stream()
                         .map(this::convertToDto)
