@@ -45,53 +45,61 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
     }
   }, [sessionNumber, onClose]);
 
-// ✅ 학생 목록 불러오기
+
+  // 학생 목록 불러오기
   const fetchStudentList = async (accessToken, lecSerial, page) => {
-    if (!accessToken || sessionNumber === null) return; // sessionNumber 없으면 fetch 안함
+  if (!accessToken || sessionNumber === null) return;
 
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(`${BASE_URL}/enrollments/list`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({ lecSerial, page: Math.max(page - 1, 0), size: 20 }),
-      });
+  setLoading(true);
+  setError(null);
 
-      if (!response.ok) {
-        const errMsg = await response.text();
-        throw new Error(errMsg || "학생 목록 조회 실패");
-      }
+  try {
+    const response = await fetch(`${BASE_URL}/enrollments/list`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ lecSerial, page: Math.max(page - 1, 0), size: 20 }),
+    });
 
-      const data = await response.json();
-
-      const sortedList = [...data.content].sort((a, b) =>
-        a.studentName.localeCompare(b.studentName, "ko", { sensitivity: "base" })
-      );
-
-      const initializedList = sortedList.map((student) => ({
-        ...student,
-        attendanceStatus: null,
-      }));
-
-      setStudentList(initializedList);
-      setTotal(data.totalElements);
-    } catch (error) {
-      setError(error.message || "알 수 없는 에러가 발생했습니다.");
-      setStudentList([]);
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      const errMsg = await response.text();
+      throw new Error(errMsg || "학생 목록 조회 실패");
     }
-  };
+
+    const data = await response.json();
+
+    // 서버에서 받아온 목록과 로컬 상태 병합
+    const mergedList = data.content.map((student) => {
+      const existing = studentList.find((s) => s.studentIdx === student.studentIdx);
+      return {
+        ...student,
+        attendanceStatus: existing?.attendanceStatus ?? null, // 기존 상태 유지
+      };
+    });
+
+    const sortedList = mergedList.sort((a, b) =>
+      a.studentName.localeCompare(b.studentName, "ko", { sensitivity: "base" })
+    );
+
+    setStudentList(sortedList);
+    setTotal(data.totalElements);
+  } catch (error) {
+    setError(error.message || "알 수 없는 에러가 발생했습니다.");
+    setStudentList([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     if (accessToken && lecSerial && sessionNumber !== null) {
       fetchStudentList(accessToken, lecSerial, page);
     }
   }, [accessToken, lecSerial, page, sessionNumber]);
+
+
 
   // ✅ 출석 승인 (단일 학생 단위)
   const approveAttendance = async (studentIdx, status) => {
@@ -101,7 +109,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
       attendanceRecords: [
         {
           studentIdx,
-          status, // '출', '지', '결'
+          status // '출', '지', '결'
         },
       ],
     };
@@ -146,7 +154,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
         {
           studentIdx,
           status: "결",
-          reason,
+          reason
         },
       ],
     };
