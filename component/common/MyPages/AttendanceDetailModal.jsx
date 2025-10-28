@@ -31,7 +31,7 @@ const AttendanceDetailModal = ({ onClose, lecSerial }) => {
 
       const data = await res.json();
       console.log("✅ 출결내역 데이터:", data);
-      setAttendanceDetail(data);
+      setAttendanceDetail(data.data);
     } catch (err) {
       console.error("❌ 출결내역 조회 에러:", err);
     }
@@ -45,15 +45,12 @@ const AttendanceDetailModal = ({ onClose, lecSerial }) => {
     }
   }, [lecSerial, accessToken]);
 
-  // 렌더링 중 undefined 접근 방지
-  const attended = attendanceDetail?.summary?.attended ?? 0;
-  const totalSessions = attendanceDetail?.summary?.totalSessions ?? 0;
-
+  
   return (
     <div className="attendance-detail-modal-container">
       <div className="attendance-detail-modal-content">
         <p>
-          총 출석현황 : {attended}/{totalSessions}
+          총 출석현황 : {attendanceDetail.attendanceRate}
         </p>
 
         <table className="notice-table">
