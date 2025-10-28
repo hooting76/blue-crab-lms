@@ -134,6 +134,8 @@ public class AssignmentService {
         AssignmentExtendedTbl savedAssignment = assignmentRepository.save(assignment);
         
         // ✅ 과제 생성 후 해당 강의의 성적 구성 자동 업데이트
+        // 🔧 임시 비활성화 - 순환 참조 문제 디버깅용
+        /*
         try {
             gradeManagementService.updateAssignmentTotalScoreForLecture(lecIdx);
             logger.info("과제 생성 완료 - 강의 {}의 성적 구성 자동 업데이트됨", lecIdx);
@@ -141,6 +143,7 @@ public class AssignmentService {
             logger.warn("성적 구성 자동 업데이트 실패 (강의 {}): {}", lecIdx, e.getMessage());
             // 성적 구성 업데이트 실패해도 과제 생성은 성공으로 처리
         }
+        */
         
         return savedAssignment;
     }
