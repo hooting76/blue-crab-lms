@@ -23,9 +23,31 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
     setPage(newPage);
   };
 
-  // ✅ 학생 목록 불러오기
+
+  // ✅ prompt로 한 번만 sessionNumber 입력받기
+  useEffect(() => {
+    if (sessionNumber === null) {
+      let input = null;
+      while (true) {
+        input = prompt("강의 회차를 입력하세요 (1~80)");
+        if (input === null) {
+          // 취소 버튼 클릭 시 모달 닫기
+          onClose();
+          return;
+        }
+        const number = Number(input);
+        if (!isNaN(number) && number >= 1 && number <= 80) {
+          setSessionNumber(number);
+          break;
+        }
+        alert("1~80 사이의 숫자를 입력해주세요.");
+      }
+    }
+  }, [sessionNumber, onClose]);
+
+// ✅ 학생 목록 불러오기
   const fetchStudentList = async (accessToken, lecSerial, page) => {
-    if (!accessToken) return;
+    if (!accessToken || sessionNumber === null) return; // sessionNumber 없으면 fetch 안함
 
     setLoading(true);
     setError(null);
@@ -36,32 +58,28 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ lecSerial: lecSerial, page: Math.max(page - 1, 0), size: 20 }),
+        body: JSON.stringify({ lecSerial, page: Math.max(page - 1, 0), size: 20 }),
       });
 
       if (!response.ok) {
         const errMsg = await response.text();
-        console.error("서버 에러 응답:", errMsg);
         throw new Error(errMsg || "학생 목록 조회 실패");
       }
 
       const data = await response.json();
 
-      // ✅ 이름순 정렬
       const sortedList = [...data.content].sort((a, b) =>
         a.studentName.localeCompare(b.studentName, "ko", { sensitivity: "base" })
       );
 
-      // 출석 상태를 추적할 수 있도록 초기값 추가
       const initializedList = sortedList.map((student) => ({
         ...student,
-        attendanceStatus: null, // '출', '지', '결' 중 하나가 나중에 들어감
+        attendanceStatus: null,
       }));
 
       setStudentList(initializedList);
       setTotal(data.totalElements);
     } catch (error) {
-      console.error("학생 목록 조회 에러:", error);
       setError(error.message || "알 수 없는 에러가 발생했습니다.");
       setStudentList([]);
     } finally {
@@ -70,10 +88,10 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
   };
 
   useEffect(() => {
-    if (accessToken && lecSerial) {
+    if (accessToken && lecSerial && sessionNumber !== null) {
       fetchStudentList(accessToken, lecSerial, page);
     }
-  }, [accessToken, lecSerial, page]);
+  }, [accessToken, lecSerial, page, sessionNumber]);
 
   // ✅ 출석 승인 (단일 학생 단위)
   const approveAttendance = async (studentIdx, status) => {
@@ -204,77 +222,64 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
           <p style={{ color: "red" }}>{error}</p>
         ) : (
           <>
-          <div className="session-number-input">
-            <label>강의 회차 (1~80): </label>
-            <input
-              type="number"
-              min="1"
-              max="80"
-              value={sessionNumber}
-              onChange={(e) => setSessionNumber(Number(e.target.value))}
-            />
-          </div>
-
-
-          <table className="notice-table">
-            <thead>
-              <tr>
-                <th style={{ width: "20%" }}>학생 번호</th>
-                <th style={{ width: "50%" }}>이름</th>
-                <th style={{ width: "10%" }}>출석</th>
-                <th style={{ width: "10%" }}>지각</th>
-                <th style={{ width: "10%" }}>결석</th>
-              </tr>
-            </thead>
-            <tbody>
-              {studentList.length > 0 ? (
-                studentList.map((student) => (
-                  <tr
-                    key={student.studentIdx}
-                    style={getRowStyle(student.attendanceStatus)}
-                  >
-                    <td>{student.studentIdx}</td>
-                    <td>{student.studentName}</td>
-                    <td>
-                      <button
-                        className="attendanceApproveClick"
-                        onClick={() =>
-                          approveAttendance(student.studentIdx, "출")
-                        }
-                      >
-                        출석
-                      </button>
-                    </td>
-                    <td>
-                      <button
-                        className="attendanceLateClick"
-                        onClick={() =>
-                          approveAttendance(student.studentIdx, "지")
-                        }
-                      >
-                        지각
-                      </button>
-                    </td>
-                    <td>
-                      <button
-                        className="attendanceRejectClick"
-                        onClick={() => handleRejectClick(student)}
-                      >
-                        결석
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
+            <table className="notice-table">
+              <thead>
                 <tr>
-                  <td colSpan="5">학생 목록 없음</td>
+                  <th style={{ width: "20%" }}>학생 번호</th>
+                  <th style={{ width: "50%" }}>이름</th>
+                  <th style={{ width: "10%" }}>출석</th>
+                  <th style={{ width: "10%" }}>지각</th>
+                  <th style={{ width: "10%" }}>결석</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {studentList.length > 0 ? (
+                  studentList.map((student) => (
+                    <tr
+                      key={student.studentIdx}
+                      style={getRowStyle(student.attendanceStatus)}
+                    >
+                      <td>{student.studentIdx}</td>
+                      <td>{student.studentName}</td>
+                      <td>
+                        <button
+                          className="attendanceApproveClick"
+                          onClick={() =>
+                            approveAttendance(student.studentIdx, "출")
+                          }
+                        >
+                          출석
+                        </button>
+                      </td>
+                      <td>
+                        <button
+                          className="attendanceLateClick"
+                          onClick={() =>
+                            approveAttendance(student.studentIdx, "지")
+                          }
+                        >
+                          지각
+                        </button>
+                      </td>
+                      <td>
+                        <button
+                          className="attendanceRejectClick"
+                          onClick={() => handleRejectClick(student)}
+                        >
+                          결석
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5">학생 목록 없음</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </>
         )}
-
         <Pagination page={page} size={20} total={total} onChange={handlePageChange} />
         <button className="approveAttendanceCloseBtn" onClick={onClose}>
           닫기
