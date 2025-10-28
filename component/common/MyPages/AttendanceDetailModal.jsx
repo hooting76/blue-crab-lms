@@ -37,7 +37,7 @@ const AttendanceDetailModal = ({ onClose, enrollmentIdx }) => {
     if (enrollmentIdx) {
       FetchAttendanceDetail();
     }
-  }, []);
+  }, [enrollmentIdx, accessToken]);
 
 
   return (
@@ -45,7 +45,7 @@ const AttendanceDetailModal = ({ onClose, enrollmentIdx }) => {
       <div className="attendance-detail-modal-content">
         <p>
           총 출석현황 :{" "}
-          {attendanceDetail?.attendanceRate ?? "해당사항 없음"}
+          {attendanceDetail?.data.attendanceRate ?? "해당사항 없음"}
         </p>
 
         <table className="notice-table">
@@ -56,8 +56,8 @@ const AttendanceDetailModal = ({ onClose, enrollmentIdx }) => {
             </tr>
           </thead>
           <tbody>
-            {attendanceDetail?.details?.length > 0 ? (
-              attendanceDetail.details.map((detail) => (
+            {attendanceDetail?.data.details?.length > 0 ? (
+              attendanceDetail.data.details.map((detail) => (
                 <tr key={detail.sessionNumber}>
                   <td>{detail.sessionNumber}</td>
                   <td>{detail.status}</td>
