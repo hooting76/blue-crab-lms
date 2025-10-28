@@ -37,7 +37,7 @@ const AttendanceDetailModal = ({onClose, enrollmentIdx}) => {
     }
     }, [enrollmentIdx]);
 
-    
+    console.log("attendanceDetail : ", attendanceDetail);
 
     return (
     <div className="attendance-detail-modal-container">
@@ -45,7 +45,7 @@ const AttendanceDetailModal = ({onClose, enrollmentIdx}) => {
 
         <p>
             총 출석현황 :{" "}
-            {attendanceDetail ? attendanceDetail.data.attendanceRate : "해당사항 없음"}
+            {attendanceDetail ? attendanceDetail.attendanceRate : "해당사항 없음"}
         </p>
 
         <table className="notice-table">
@@ -56,8 +56,8 @@ const AttendanceDetailModal = ({onClose, enrollmentIdx}) => {
             </tr>
             </thead>
             <tbody>
-                {attendanceDetail?.data?.details?.length > 0 ? (
-                attendanceDetail.data.details.map((detail) => (
+                {attendanceDetail?.details?.length > 0 ? (
+                attendanceDetail.details.map((detail) => (
                     <tr key={detail.sessionNumber}>
                     <td>{detail.sessionNumber}</td>
                     <td>{detail.status}</td>
