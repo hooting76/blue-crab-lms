@@ -388,7 +388,7 @@ public class AttendanceRequestServiceImpl implements AttendanceRequestService {
             
             // null 체크 및 초기화
             if (dto.getSummary() == null) {
-                dto.setSummary(new AttendanceSummaryDto(0, 0, 0, 0, 0.0, LocalDateTime.now()));
+                dto.setSummary(new AttendanceSummaryDto(0, 0, 0, 80, 0.0, LocalDateTime.now()));
             }
             if (dto.getSessions() == null) {
                 dto.setSessions(new ArrayList<>());
@@ -410,7 +410,7 @@ public class AttendanceRequestServiceImpl implements AttendanceRequestService {
      */
     private AttendanceDataDto createEmptyAttendanceData() {
         AttendanceDataDto dto = new AttendanceDataDto();
-        dto.setSummary(new AttendanceSummaryDto(0, 0, 0, 0, 0.0, LocalDateTime.now()));
+        dto.setSummary(new AttendanceSummaryDto(0, 0, 0, 80, 0.0, LocalDateTime.now()));
         dto.setSessions(new ArrayList<>());
         dto.setPendingRequests(new ArrayList<>());
         return dto;
