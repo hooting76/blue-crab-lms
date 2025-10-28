@@ -9,6 +9,7 @@ const AttendanceDetailModal = ({ onClose, lecSerial }) => {
   const BASE_URL = "https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api";
 
   const FetchAttendanceDetail = async () => {
+    console.log("FetchAttendanceDetail 호출됨");
   try {
     const res = await fetch(`${BASE_URL}/attendance/student/view`, {
       method: "POST",
@@ -35,11 +36,13 @@ const AttendanceDetailModal = ({ onClose, lecSerial }) => {
 };
 
 
-  useEffect(() => {
+ useEffect(() => {
+    console.log("lecSerial:", lecSerial, "accessToken:", accessToken);
     if (lecSerial && accessToken) {
         FetchAttendanceDetail();
     }
-    }, [lecSerial, accessToken]);
+}, [lecSerial, accessToken]);
+
 
 
     
