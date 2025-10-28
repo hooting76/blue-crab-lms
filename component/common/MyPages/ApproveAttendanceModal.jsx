@@ -35,7 +35,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ lecSerial, page: Math.max(page - 1, 0), size: 20 }),
+        body: JSON.stringify({ lecSerial: lecSerial, page: Math.max(page - 1, 0), size: 20 }),
       });
 
       if (!response.ok) {
