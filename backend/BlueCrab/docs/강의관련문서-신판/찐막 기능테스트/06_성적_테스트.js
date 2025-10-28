@@ -2,16 +2,32 @@
  * 📊 성적 API 테스트 (독립 실행)
  *
  * 🚀 사용법:
- *    gradeTest.setContext({ lecSerial: 'CS284', studentIdx: 6 }) // 기본 컨텍스트 설정
- *    await gradeTest.runAll()                                    // 전체 테스트
+ *    // 1. 성적 구성 설정 (강의 단위 - 전체 수강생 대상)
+ *    gradeTest.setContext({ lecSerial: 'ETH201' })
+ *    await gradeTest.config()
+ * 
+ *    // 2. 개별 학생 성적 조회 시에만 studentIdx 추가
+ *    gradeTest.setContext({ lecSerial: 'ETH201', studentIdx: 33 })
+ *    await gradeTest.studentInfo()
  *
  * 📋 개별 API 테스트:
- *    await gradeTest.config()           // 성적 구성 설정
- *    await gradeTest.studentInfo()      // 학생 성적 조회
- *    await gradeTest.professorView()    // 교수용 성적 조회
- *    await gradeTest.gradeList()        // 전체 성적 목록
- *    await gradeTest.manualUpdate()     // 수동 성적 수정
- *    await gradeTest.finalize()         // 최종 등급 배정
+ *    await gradeTest.config()           // 성적 구성 설정 (과제 만점 자동 반영)
+ *    await gradeTest.studentInfo()      // 학생 성적 조회 (lecSerial + studentIdx)
+ *    await gradeTest.professorView()    // 교수용 성적 조회 (lecSerial + studentIdx)
+ *    await gradeTest.gradeList()        // 전체 성적 목록 (lecSerial만 필요)
+ *    await gradeTest.finalize()         // 최종 등급 배정 (lecSerial만 필요)
+ * 
+ * 💡 성적 계산 로직:
+ *    - config() 실행 시 ASSIGNMENT_EXTENDED_TBL에서 과제 만점 자동 조회/합산
+ *    - totalMaxScore = attendanceMaxScore + Σ(모든 과제의 maxScore)
+ *    - 성적은 출석/과제 데이터 기반 자동 계산
+ *    - gradeList()로 자동 계산된 성적 조회 가능
+ * 
+ * 🧪 테스트 전 준비:
+ *    1. DB ENROLLMENT_EXTENDED_TBL의 ENROLLMENT_DATA 초기화 (수동)
+ *    2. 성적 구성 설정 먼저 실행: await gradeTest.config()
+ *    3. 설정 후 출석/과제 데이터 입력
+ *    4. 최종 성적 조회 및 등급 배정
  */
 
 (function () {
@@ -32,7 +48,7 @@
         return window.authToken || localStorage.getItem('jwtAccessToken');
     }
 
-    async function apiCall(endpoint, data, method = 'POST') {
+    async function apiCall(endpoint, data, method = 'POST', timeoutSeconds = 120) {
         const token = getToken();
         if (!token) {
             console.error('❌ 로그인 필요!');
@@ -40,6 +56,9 @@
         }
 
         const start = performance.now();
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeoutSeconds * 1000);
+        
         try {
             const response = await fetch(`${API_BASE}${endpoint}`, {
                 method,
@@ -47,8 +66,12 @@
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: method === 'GET' || method === 'DELETE' ? undefined : JSON.stringify(data)
+                body: method === 'GET' || method === 'DELETE' ? undefined : JSON.stringify(data),
+                signal: controller.signal
             });
+            
+            clearTimeout(timeoutId);            
+            clearTimeout(timeoutId);
 
             const duration = (performance.now() - start).toFixed(2);
 
@@ -62,7 +85,14 @@
             console.log(`✅ ${method} ${endpoint} (${duration}ms)`);
             return { success: true, data: result, duration };
         } catch (error) {
+            clearTimeout(timeoutId);
             const duration = (performance.now() - start).toFixed(2);
+            
+            if (error.name === 'AbortError') {
+                console.error(`⏱️ 타임아웃 (${timeoutSeconds}초 초과)`);
+                return { success: false, error: `요청 타임아웃 (${timeoutSeconds}초)`, duration };
+            }
+            
             console.error('🔥 예외:', error.message);
             return { success: false, error: error.message, duration };
         }
@@ -83,7 +113,7 @@
     }
 
     function promptLecture() {
-        const lecSerial = prompt('강의 코드 (예: CS284):', context.lecSerial || '');
+        const lecSerial = prompt('강의 코드 (예: ETH201):', context.lecSerial || 'ETH201');
         if (lecSerial) {
             context.lecSerial = lecSerial;
             console.log('✅ 강의 설정:', context.lecSerial);
@@ -114,7 +144,11 @@
 
     async function testGradeConfig() {
         console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('⚙️  성적 구성 설정');
+        console.log('⚙️  성적 구성 설정 (전체 수강생 대상)');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('💡 이 설정은 강의당 1회만 수행 → 모든 수강생에게 자동 적용');
+        console.log('💡 과제 만점은 ASSIGNMENT_EXTENDED_TBL에서 자동 조회/합산');
+        console.log('💡 총 만점 = 출석 만점 + Σ(모든 과제 만점)');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
         const lecSerial = ensureLectureSet();
@@ -123,8 +157,8 @@
         }
 
         const attendanceMaxScore = prompt('출석 만점 (기본: 20):', '20');
-        const assignmentTotalScore = prompt('과제 총점 (기본: 50):', '50');
-        const latePenalty = prompt('지각 감점/회 (기본: 0):', '0');
+        const assignmentTotalScore = prompt('과제 총점 참고값 (기본: 50, 실제는 각 과제 만점 합산):', '50');
+        const latePenalty = prompt('지각 감점/회 (기본: 0.3):', '0.3');
 
         console.log('\n📊 등급 분포 (합계 100%)');
         const gradeA = prompt('A 비율 (기본: 30):', '30');
@@ -135,9 +169,9 @@
         const data = {
             action: 'set-config',
             lecSerial,
-            attendanceMaxScore: parseFloat(attendanceMaxScore) || 20,
-            assignmentTotalScore: parseFloat(assignmentTotalScore) || 50,
-            latePenaltyPerSession: parseFloat(latePenalty) || 0,
+            attendanceMaxScore: parseInt(attendanceMaxScore, 10) || 20,
+            assignmentTotalScore: parseInt(assignmentTotalScore, 10) || 50,
+            latePenaltyPerSession: parseFloat(latePenalty) || 0.3,
             gradeDistribution: {
                 A: parseInt(gradeA, 10) || 30,
                 B: parseInt(gradeB, 10) || 40,
@@ -156,7 +190,20 @@
 
         if (result?.success) {
             console.log('\n✅ 성적 구성 저장 완료!');
-            if (result.data) console.log('📊 응답:', result.data);
+            console.log('📊 설정 내용:');
+            console.log(`  - 출석 만점: ${data.attendanceMaxScore}점`);
+            console.log(`  - 과제 총점(참고): ${data.assignmentTotalScore}점`);
+            console.log(`  - 지각 감점: ${data.latePenaltyPerSession}점/회`);
+            console.log(`  - 등급 분포: A(${data.gradeDistribution.A}%) B(${data.gradeDistribution.B}%) C(${data.gradeDistribution.C}%) D(${data.gradeDistribution.D}%)`);
+            console.log('\n🎯 적용 대상: 강의 전체 수강생 (자동 적용)');
+            console.log('� 과제 만점은 서버에서 ASSIGNMENT_EXTENDED_TBL 조회하여 자동 합산');
+            console.log('�💡 다음 단계: 출석 입력 → 과제 생성/채점 → 성적 조회');
+            if (result.data) {
+                console.log('\n📊 서버 응답:', result.data);
+                if (result.data.totalMaxScore) {
+                    console.log(`📐 계산된 총 만점: ${result.data.totalMaxScore}점`);
+                }
+            }
         } else {
             console.log('\n❌ 실패:', result.error);
         }
@@ -310,45 +357,7 @@
     }
 
     // ============================================
-    // 5. 성적 수동 수정
-    // PUT /api/enrollments/{enrollmentIdx}/grade
-    // ============================================
-
-    async function testManualGradeUpdate() {
-        console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('✏️  성적 수동 수정');
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
-        const enrollmentIdx = prompt('enrollmentIdx:', '');
-        const letterGrade = prompt('등급 (예: A0, B+):', '');
-        const score = prompt('점수 (예: 85.5):', '');
-
-        if (!enrollmentIdx || !letterGrade || !score) {
-            console.log('❌ 모든 정보가 필요합니다.');
-            return { success: false, error: '필수 정보 미입력' };
-        }
-
-        const data = {
-            grade: letterGrade,
-            score: parseFloat(score)
-        };
-
-        console.log(`📤 enrollmentIdx: ${enrollmentIdx}, 등급: ${letterGrade}, 점수: ${data.score}`);
-        const result = await apiCall(`/enrollments/${enrollmentIdx}/grade`, data, 'PUT');
-
-        if (result?.success) {
-            console.log('\n✅ 성적 수정 완료!');
-            if (result.data) console.log('📊 응답:', result.data);
-        } else {
-            console.log('\n❌ 실패:', result.error);
-        }
-
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-        return result;
-    }
-
-    // ============================================
-    // 6. 최종 등급 배정
+    // 5. 최종 등급 배정
     // POST /api/enrollments/grade-finalize
     // ============================================
 
@@ -404,13 +413,14 @@
         console.log('\n🚀 성적 API 전체 테스트 시작');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-        const results = { total: 3, success: 0, failed: 0, tests: [] };
+        const results = { total: 4, success: 0, failed: 0, tests: [] };
 
         try {
             const tests = [
                 { name: '성적 구성 설정', fn: testGradeConfig },
                 { name: '학생 성적 조회', fn: testStudentGradeInfo },
-                { name: '성적 목록 조회', fn: testGradeList }
+                { name: '성적 목록 조회', fn: testGradeList },
+                { name: '최종 등급 배정', fn: testFinalizeGrades }
             ];
 
             for (const test of tests) {
@@ -450,13 +460,27 @@
         studentInfo: testStudentGradeInfo,
         professorView: testProfessorView,
         gradeList: testGradeList,
-        manualUpdate: testManualGradeUpdate,
         finalize: testFinalizeGrades,
         runAll: runAllTests,
         getContext: () => ({ ...context })
     };
 
     console.log('✅ 성적 API 테스트 로드 완료');
-    console.log('💡 사용: gradeTest.setContext({ lecSerial, studentIdx }); await gradeTest.runAll()');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('💡 기본 사용법:');
+    console.log('   // 성적 구성 설정 (강의 전체 대상)');
+    console.log('   gradeTest.setContext({ lecSerial: "ETH201" })');
+    console.log('   await gradeTest.config()');
+    console.log('');
+    console.log('   // 개별 학생 성적 조회');
+    console.log('   gradeTest.setContext({ lecSerial: "ETH201", studentIdx: 33 })');
+    console.log('   await gradeTest.studentInfo()');
+    console.log('');
+    console.log('📌 테스트 순서:');
+    console.log('   1. DB 초기화 (ENROLLMENT_DATA를 빈 값으로)');
+    console.log('   2. await gradeTest.config() - 성적 구성 설정 (lecSerial만)');
+    console.log('   3. 출석/과제 테스트 진행');
+    console.log('   4. await gradeTest.gradeList() - 전체 성적 목록 (lecSerial만)');
+    console.log('   5. await gradeTest.finalize() - 최종 등급 배정');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 })();

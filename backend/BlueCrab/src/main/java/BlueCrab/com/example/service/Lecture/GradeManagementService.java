@@ -99,7 +99,7 @@ public class GradeManagementService {
             
             for (EnrollmentExtendedTbl enrollment : enrollments) {
                 try {
-                    // ✅ Step 1: gradeConfig만 먼저 저장 (calculateStudentGrade가 읽을 수 있도록)
+                    // ✅ gradeConfig만 저장 (성적 계산은 나중에 gradeList/finalize 시 수행)
                     Map<String, Object> currentData = parseEnrollmentData(enrollment.getEnrollmentData());
                     if (currentData == null) {
                         currentData = new HashMap<>();
@@ -111,22 +111,21 @@ public class GradeManagementService {
                     // JSON 직렬화 및 저장
                     String updatedJson = objectMapper.writeValueAsString(currentData);
                     enrollment.setEnrollmentData(updatedJson);
-                    enrollmentRepository.saveAndFlush(enrollment);  // ✅ 즉시 DB 반영
-                    
-                    // ✅ Step 2: 성적 재계산 (gradeConfig를 읽어서 grade 필드를 계산하고 저장)
-                    // 주의: calculateStudentGrade()가 REQUIRES_NEW 트랜잭션이므로 독립적으로 실행됨
-                    gradeCalculationService.calculateStudentGrade(lecIdx, enrollment.getStudentIdx());
                     
                     updatedCount++;
                     
                 } catch (Exception e) {
                     // 개별 학생 처리 실패 시 로그만 남기고 계속 진행
-                    System.err.println("학생 성적 처리 실패 (enrollmentIdx: " + enrollment.getEnrollmentIdx() + 
+                    System.err.println("학생 성적 구성 저장 실패 (enrollmentIdx: " + enrollment.getEnrollmentIdx() + 
                         ", studentIdx: " + enrollment.getStudentIdx() + "): " + e.getMessage());
                     e.printStackTrace();
                     failedCount++;
                 }
             }
+            
+            // ⚡ 일괄 저장 (성적 계산 없이 gradeConfig만 저장하므로 빠름)
+            enrollmentRepository.saveAll(enrollments);
+            enrollmentRepository.flush();
             
             // 모든 학생이 실패한 경우에만 예외 발생
             if (failedCount > 0 && updatedCount == 0) {
