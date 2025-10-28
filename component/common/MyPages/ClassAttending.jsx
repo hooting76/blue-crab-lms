@@ -198,7 +198,7 @@ const fetchNotices = async () => {
 
   useEffect(() => {
     fetchNotices();
-  }, [accessToken, lecSerial]);
+  }, [accessToken, selectedLectureSerial]);
 
 
   // 학생 출석 요청
