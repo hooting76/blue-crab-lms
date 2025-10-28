@@ -207,21 +207,6 @@ const fetchNotices = async () => {
       fetchNotices();
     }, [accessToken, selectedLectureSerial]);
 
-    useEffect(() => {
-    if (isProf) {
-      if (lectureList.length > 0) {
-        setSelectedLectureSerial(lectureList[0].lecSerial);
-      }
-    } else {
-      if (lectureList?.content?.length > 0) {
-        const firstLecture = lectureList.content[0];
-        setSelectedLectureSerial(firstLecture.lecSerial);
-        setSelectedEnrollmentIdx(firstLecture.enrollmentIdx);
-      }
-    }
-  }, [lectureList, isProf]);
-
-
 
   // 학생 출석 요청
  const attendanceRequestSubmit = async () => {
@@ -274,8 +259,8 @@ const fetchNotices = async () => {
   // 모달 오픈/클로즈 핸들러
   const openEvaluationModal = () => setIsEvaluationModalOpen(true);
   const closeEvaluationModal = () => setIsEvaluationModalOpen(false);
-  const openAttendanceDetailModal = () => setIsAssignmentDetailModalOpen(true);
-  const closeAttendanceDetailModal = () => setIsAssignmentDetailModalOpen(false);
+  const openAttendanceDetailModal = () => setIsAttendanceDetailModalOpen(true);
+  const closeAttendanceDetailModal = () => setIsAttendanceDetailModalOpen(false);
   const openAttendanceModal = () => setIsAttendanceModalOpen(true);
   const closeAttendanceModal = () => setIsAttendanceModalOpen(false);
   const openTestModal = () => setIsTestModalOpen(true);
@@ -423,7 +408,7 @@ const fetchNotices = async () => {
 
         <div className="attendanceStatus">
           <p>출결</p>
-          {!isProf && ( // 학생
+          {!isProf && (
             <>
               <button
                 className="attendanceDetailBtn"
@@ -431,11 +416,16 @@ const fetchNotices = async () => {
               >
                 내 출결 현황
               </button>
+
               {isAttendanceDetailModalOpen && (
-                <AttendanceDetailModal onClose={closeAttendanceDetailModal} enrollmentIdx={selectedEnrollmentIdx}/>
+                <AttendanceDetailModal
+                  onClose={closeAttendanceDetailModal}
+                  enrollmentIdx={selectedEnrollmentIdx}
+                />
               )}
             </>
           )}
+
 
           <div className="attendanceCall">
             {!isProf ? ( // 학생
@@ -460,21 +450,6 @@ const fetchNotices = async () => {
 
         <div className="testAssignment">
           <p>시험 및 과제</p>
-
-          {!isProf &&
-            <>
-              <div className="studentTest">
-                중간고사 : 점
-                <br />
-                기말고사 : 점
-              </div>
-              <div className="studentAssignment">
-                과제1 : 점
-                <br />
-                과제2 : 점
-              </div>
-            </>
-          }
 
           {/* 과제 목록 (학생/교수 공용) */}
           <div className="assignmentList">

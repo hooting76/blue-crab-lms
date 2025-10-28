@@ -7,6 +7,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
   const BASE_URL = "https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api";
   const { user } = UseUser();
 
+  const [sessionNumber, setSessionNumber] = useState(1); // 기본값 1
   const [studentList, setStudentList] = useState([]);
   const [showRejectPrompt, setShowRejectPrompt] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
@@ -78,7 +79,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
   const approveAttendance = async (studentIdx, status) => {
     const requestData = {
       lecSerial,
-      sessionNumber: 1,
+      sessionNumber,
       attendanceRecords: [
         {
           studentIdx,
@@ -122,7 +123,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
   const rejectAttendance = async (studentIdx, reason) => {
     const requestData = {
       lecSerial,
-      sessionNumber: 1,
+      sessionNumber,
       attendanceRecords: [
         {
           studentIdx,
@@ -202,6 +203,19 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
         ) : error ? (
           <p style={{ color: "red" }}>{error}</p>
         ) : (
+          <>
+          <div className="session-number-input">
+            <label>강의 회차 (1~80): </label>
+            <input
+              type="number"
+              min="1"
+              max="80"
+              value={sessionNumber}
+              onChange={(e) => setSessionNumber(Number(e.target.value))}
+            />
+          </div>
+
+
           <table className="notice-table">
             <thead>
               <tr>
@@ -258,6 +272,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
               )}
             </tbody>
           </table>
+          </>
         )}
 
         <Pagination page={page} size={20} total={total} onChange={handlePageChange} />
