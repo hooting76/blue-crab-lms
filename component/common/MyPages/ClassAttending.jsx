@@ -21,7 +21,6 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
   const [noticeList, setNoticeList] = useState([]);
   const page = 0;
   const NOTICE_BOARD_CODE = 3;
-  const sessionNumber = 1;
   const requestReason = "";
 
   
@@ -203,12 +202,18 @@ const fetchNotices = async () => {
   // 학생 출석 요청
  const attendanceRequestSubmit = async () => {
   try {
+    // 사용자에게 sessionNumber 입력 받기
+    const inputSession = prompt("회차 번호를 입력하세요:");
+    if (!inputSession) {
+      alert("회차 번호가 입력되지 않았습니다.");
+      return;
+    }
+
     const body = {
       lecSerial: String(selectedLectureSerial),
-      sessionNumber: sessionNumber,
-      requestReason: requestReason || null
+      sessionNumber: Number(inputSession), // 입력값을 숫자로 변환
+      requestReason: requestReason || null,
     };
-
 
     const res = await fetch(`${BASE_URL}/attendance/request`, {
       method: 'POST',
@@ -221,13 +226,14 @@ const fetchNotices = async () => {
 
     const data = await res.json();
     if (!res.ok) throw new Error(`출석 요청 실패: ${data.message || 'Unknown error'}`);
-    alert("출석 요청을 성공적으로 보냈습니다.")
+    alert("출석 요청을 성공적으로 보냈습니다.");
     console.log('✅ 출석 요청 성공:', data);
   } catch (err) {
     console.error('❌ 출석 요청 에러:', err);
     alert("출석 요청 실패");
   }
 };
+
 
   // 과제 상세 모달 이동
   const toAssignmentDetailModal = (assignmentIdx) => {
