@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import '../../../css/MyPages/ClassAttending.css';
 import { UseUser } from '../../../hook/UseUser';
 import ClassAttendingNotice from './ClassAttendingNotice.jsx';
+import AttendanceDetailModal from './AttendanceDetailModal.jsx';
 import ApproveAttendanceModal from './ApproveAttendanceModal.jsx';
 import TestModal from './TestModal.jsx';
 import AssignmentCreateModal from './AssignmentCreateModal.jsx';
@@ -25,6 +26,7 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
 
   // 모달 상태들
   const [isEvaluationModalOpen, setIsEvaluationModalOpen] = useState(false);
+  const [isAttendanceDetailModalOpen, setIsAttendanceDetailModalOpen] = useState(false);
   const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
   const [isTestModalOpen, setIsTestModalOpen] = useState(false);
   const [isAssignmentCreateModalOpen, setIsAssignmentCreateModalOpen] = useState(false);
@@ -239,6 +241,8 @@ const fetchNotices = async () => {
   // 모달 오픈/클로즈 핸들러
   const openEvaluationModal = () => setIsEvaluationModalOpen(true);
   const closeEvaluationModal = () => setIsEvaluationModalOpen(false);
+  const openAttendanceDetailModal = () => setIsAssignmentDetailModalOpen(true);
+  const closeAttendanceDetailModal = () => setIsAssignmentDetailModalOpen(false);
   const openAttendanceModal = () => setIsAttendanceModalOpen(true);
   const closeAttendanceModal = () => setIsAttendanceModalOpen(false);
   const openTestModal = () => setIsTestModalOpen(true);
@@ -388,22 +392,18 @@ const fetchNotices = async () => {
           출결
           {!isProf && ( // 학생
             <>
-              <div className="attendance">
-                출석일수
-                <br />
-                전체 (강의일수)일 중
-                <br />
-                (출석일수)회
-              </div>
-              <div className="absence">
-                결석일수
-                <br />
-                전체 (강의일수)일 중
-                <br />
-                (결석일수)회
-              </div>
+              <button
+                className="attendanceDetailBtn"
+                onClick={openAttendanceDetailModal}
+              >
+                내 출결 현황
+              </button>
+              {isAttendanceDetailModalOpen && (
+                <AttendanceDetailModal onClose={closeAttendanceDetailModal} />
+              )}
             </>
           )}
+
           <div className="attendanceCall">
             {!isProf ? ( // 학생
               <button className="attendanceCallBtn" onClick={attendanceRequestSubmit}>
@@ -415,8 +415,15 @@ const fetchNotices = async () => {
               </button>
             )}
           </div>
-          {isAttendanceModalOpen && <ApproveAttendanceModal onClose={closeAttendanceModal} lecSerial={selectedLectureSerial}/>}
+
+          {isAttendanceModalOpen && (
+            <ApproveAttendanceModal
+              onClose={closeAttendanceModal}
+              lecSerial={selectedLectureSerial}
+            />
+          )}
         </div>
+
 
         <div className="testAssignment">
           <p>시험 및 과제</p>
