@@ -16,13 +16,14 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
   const accessToken = user.data.accessToken;
   const isProf = user.data.user.userStudent === 1;
   const [lectureList, setLectureList] = useState([]);
+  const [selectedEnrollmentIdx, setSelectedEnrollmentIdx] = useState(null);
   const [assignmentList, setAssignmentList] = useState([]);
   const [selectedAssignmentIdx, setSelectedAssignmentIdx] = useState(null);
   const [noticeList, setNoticeList] = useState([]);
   const page = 0;
   const NOTICE_BOARD_CODE = 3;
-  const sessionNumber = 1;
   const requestReason = "";
+
 
   // 모달 상태들
   const [isEvaluationModalOpen, setIsEvaluationModalOpen] = useState(false);
@@ -51,48 +52,54 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
 
   // 강의 선택 변경 핸들러
   const handleLectureChange = (e) => {
-  setSelectedLectureSerial(e.target.value); // e.target.value = lecSerial
-};
+    const selectedLecSerial = e.target.value;
+    setSelectedLectureSerial(selectedLecSerial);
 
+    // 학생일 때만 enrollmentIdx 추출
+    if (!isProf && lectureList?.content) {
+      const selectedEnrollment = lectureList.content.find(
+        (lec) => String(lec.lecSerial) === String(selectedLecSerial)
+      );
+      setSelectedEnrollmentIdx(selectedEnrollment?.enrollmentIdx || null);
+    }
+  };
 
   // 강의 목록 가져오기 (교수/학생 구분)
-const fetchLectureData = async (accessToken, user, isProf) => {
-  try {
-    const requestBody = isProf
-      ? {
-          page: 0,
-          size: 100,
-          professor: String(user.data.user.id)
-        }
-      : {
-          page: 0,
-          size: 100,
-          studentIdx: Number(user.data.user.id)
-        };
+  const fetchLectureData = async (accessToken, user, isProf) => {
+    try {
+      const requestBody = isProf
+        ? { page: 0, size: 100, professor: String(user.data.user.id) }
+        : { page: 0, size: 100, studentIdx: Number(user.data.user.id) };
 
-    const url = isProf
-      ? `${BASE_URL}/lectures`
-      : `${BASE_URL}/enrollments/list`;
+      const url = isProf
+        ? `${BASE_URL}/lectures`
+        : `${BASE_URL}/enrollments/list`;
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody),
-    });
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
 
-    if (!response.ok) {
-      throw new Error('강의 목록을 불러오는 데 실패했습니다.');
+      const data = await response.json();
+      setLectureList(data);
+
+      // ✅ 학생인 경우, 첫 번째 enrollmentIdx 즉시 세팅
+      if (!isProf && data?.content?.length > 0) {
+        const firstLecture = data.content[0];
+        setSelectedLectureSerial(firstLecture.lecSerial);
+        setSelectedEnrollmentIdx(firstLecture.enrollmentIdx);
+      }
+
+    } catch (error) {
+      console.error('강의 목록 조회 에러:', error);
     }
+  };
 
-    const data = await response.json();
-    setLectureList(data);
-  } catch (error) {
-    console.error('강의 목록 조회 에러:', error);
-  }
-};
+
 
 // 공지 목록 불러오기
 const fetchNotices = async () => {
@@ -196,16 +203,41 @@ const fetchNotices = async () => {
   };
 
 
+  useEffect(() => {
+      fetchNotices();
+    }, [accessToken, selectedLectureSerial]);
+
+    useEffect(() => {
+    if (isProf) {
+      if (lectureList.length > 0) {
+        setSelectedLectureSerial(lectureList[0].lecSerial);
+      }
+    } else {
+      if (lectureList?.content?.length > 0) {
+        const firstLecture = lectureList.content[0];
+        setSelectedLectureSerial(firstLecture.lecSerial);
+        setSelectedEnrollmentIdx(firstLecture.enrollmentIdx);
+      }
+    }
+  }, [lectureList, isProf]);
+
+
 
   // 학생 출석 요청
  const attendanceRequestSubmit = async () => {
   try {
+    // 사용자에게 sessionNumber 입력 받기
+    const inputSession = prompt("회차 번호를 입력하세요:");
+    if (!inputSession) {
+      alert("회차 번호가 입력되지 않았습니다.");
+      return;
+    }
+
     const body = {
       lecSerial: String(selectedLectureSerial),
-      sessionNumber: sessionNumber,
-      requestReason: requestReason || null
+      sessionNumber: Number(inputSession), // 입력값을 숫자로 변환
+      requestReason: requestReason || null,
     };
-
 
     const res = await fetch(`${BASE_URL}/attendance/request`, {
       method: 'POST',
@@ -218,13 +250,14 @@ const fetchNotices = async () => {
 
     const data = await res.json();
     if (!res.ok) throw new Error(`출석 요청 실패: ${data.message || 'Unknown error'}`);
-    alert("출석 요청을 성공적으로 보냈습니다.")
+    alert("출석 요청을 성공적으로 보냈습니다.");
     console.log('✅ 출석 요청 성공:', data);
   } catch (err) {
     console.error('❌ 출석 요청 에러:', err);
     alert("출석 요청 실패");
   }
 };
+
 
   // 과제 상세 모달 이동
   const toAssignmentDetailModal = (assignmentIdx) => {
@@ -389,7 +422,7 @@ const fetchNotices = async () => {
         </div>
 
         <div className="attendanceStatus">
-          출결
+          <p>출결</p>
           {!isProf && ( // 학생
             <>
               <button
@@ -399,7 +432,7 @@ const fetchNotices = async () => {
                 내 출결 현황
               </button>
               {isAttendanceDetailModalOpen && (
-                <AttendanceDetailModal onClose={closeAttendanceDetailModal} />
+                <AttendanceDetailModal onClose={closeAttendanceDetailModal} enrollmentIdx={selectedEnrollmentIdx}/>
               )}
             </>
           )}

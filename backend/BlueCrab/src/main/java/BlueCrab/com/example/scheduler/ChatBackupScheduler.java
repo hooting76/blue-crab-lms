@@ -70,7 +70,7 @@ public class ChatBackupScheduler {
         }
 
         List<ConsultationRequest> inProgressConsultations =
-            consultationRequestRepository.findByConsultationStatus("IN_PROGRESS");
+            consultationRequestRepository.findByStatus("IN_PROGRESS");
 
         if (inProgressConsultations.isEmpty()) {
             log.debug("[Scheduler] 백업 대상 상담이 없습니다.");

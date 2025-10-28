@@ -5,6 +5,8 @@ import BlueCrab.com.example.dto.Consultation.ChatReadReceiptDto;
 import BlueCrab.com.example.dto.Consultation.ConsultationReadReceiptDto;
 import BlueCrab.com.example.entity.ConsultationRequest;
 import BlueCrab.com.example.entity.UserTbl;
+import BlueCrab.com.example.enums.ConsultationStatus;
+import BlueCrab.com.example.enums.RequestStatus;
 import BlueCrab.com.example.repository.ConsultationRequestRepository;
 import BlueCrab.com.example.repository.UserTblRepository;
 import BlueCrab.com.example.service.ChatService;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * WebSocket 채팅 Controller
@@ -36,6 +39,8 @@ import java.time.LocalDateTime;
 @Slf4j
 @Controller
 public class ChatController {
+
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatService chatService;
@@ -76,31 +81,45 @@ public class ChatController {
             return;
         }
 
-        log.info("메시지 수신: requestIdx={}, sender={}", message.getRequestIdx(), senderCode);
+        Long requestIdx = message.getRequestIdx();
+        if (requestIdx == null) {
+            log.warn("메시지 전송 실패 - 상담 ID 누락: sender={}", senderCode);
+            sendErrorToUser(senderCode, "상담 정보를 확인할 수 없습니다. 다시 시도해주세요.");
+            return;
+        }
+
+        log.info("메시지 수신: requestIdx={}, sender={}", requestIdx, senderCode);
 
         try {
             // 1. 권한 검증 (해당 상담방의 참여자인지)
-            if (!chatService.isParticipant(message.getRequestIdx(), senderCode)) {
-                log.warn("권한 없음: requestIdx={}, userCode={}", message.getRequestIdx(), senderCode);
+            if (!chatService.isParticipant(requestIdx, senderCode)) {
+                log.warn("권한 없음: requestIdx={}, userCode={}", requestIdx, senderCode);
                 throw new SecurityException("해당 상담방에 접근 권한이 없습니다.");
             }
+
+            ConsultationRequest consultation = consultationRequestRepository
+                .findById(requestIdx)
+                .orElseThrow(() -> new IllegalStateException("상담을 찾을 수 없습니다."));
+
+            LocalDateTime now = LocalDateTime.now();
+            validateChatAvailability(consultation, now);
 
             // 2. 메시지 정보 설정
             message.setSender(senderCode);
             message.setSenderName(getSenderName(senderCode));
-            message.setSentAt(LocalDateTime.now());
+            message.setSentAt(now);
 
             // 3. Redis에 저장 + TTL 36시간 연장
             chatService.saveMessage(message);
 
             // 4. DB 업데이트 (lastActivityAt)
-            updateLastActivity(message.getRequestIdx());
+            updateLastActivity(requestIdx);
             
             // 5. 첫 메시지인 경우 상담 시작 처리 (트리거 미발동 대비)
-            markStartedIfNeeded(message.getRequestIdx());
+            markStartedIfNeeded(requestIdx);
 
             // 6. 상대방 찾기 (서버에서 결정 - 보안)
-            String recipientCode = getPartnerUserCode(message.getRequestIdx(), senderCode);
+            String recipientCode = getPartnerUserCode(requestIdx, senderCode);
 
             log.info("메시지 전송: recipient={}, content={}", recipientCode, message.getContent());
 
@@ -131,7 +150,9 @@ public class ChatController {
             log.error("메시지 전송 실패 (권한): {}", e.getMessage());
             // 클라이언트에게 에러 메시지 전송 (선택 사항)
             sendErrorToUser(senderCode, "권한이 없습니다.");
-            
+        } catch (IllegalStateException e) {
+            log.warn("메시지 전송 실패 (상태 위반): requestIdx={}, reason={}", requestIdx, e.getMessage());
+            sendErrorToUser(senderCode, e.getMessage());
         } catch (Exception e) {
             log.error("메시지 전송 실패: requestIdx={}", message.getRequestIdx(), e);
             sendErrorToUser(senderCode, "메시지 전송에 실패했습니다.");
@@ -231,6 +252,27 @@ public class ChatController {
         }
     }
 
+    private void validateChatAvailability(ConsultationRequest consultation, LocalDateTime now) {
+        RequestStatus requestStatus = consultation.getRequestStatusEnum();
+        if (!RequestStatus.APPROVED.equals(requestStatus)) {
+            throw new IllegalStateException("교수 승인이 완료된 상담만 채팅을 사용할 수 있습니다.");
+        }
+
+        ConsultationStatus status = consultation.getConsultationStatusEnum();
+        if (ConsultationStatus.CANCELLED.equals(status) || ConsultationStatus.COMPLETED.equals(status)) {
+            throw new IllegalStateException("종료되었거나 취소된 상담입니다.");
+        }
+        if (status == null) {
+            throw new IllegalStateException("상담이 아직 준비되지 않았습니다.");
+        }
+
+        LocalDateTime desired = consultation.getDesiredDate();
+        if (desired != null && now.isBefore(desired)) {
+            String formatted = desired.format(DATE_TIME_FORMATTER);
+            throw new IllegalStateException("상담 예정 시간(" + formatted + ") 이전에는 채팅을 시작할 수 없습니다.");
+        }
+    }
+
     /**
      * 마지막 활동 시간 업데이트
      */
@@ -256,13 +298,23 @@ public class ChatController {
             ConsultationRequest consultation = consultationRequestRepository.findById(requestIdx)
                 .orElseThrow(() -> new RuntimeException("상담을 찾을 수 없습니다."));
 
-            // SCHEDULED 상태이고 started_at이 null인 경우
-            if ("SCHEDULED".equals(consultation.getConsultationStatus()) 
+            if (!RequestStatus.APPROVED.equals(consultation.getRequestStatusEnum())) {
+                log.debug("자동 시작 건너뜀 - 승인되지 않은 상담: requestIdx={}", requestIdx);
+                return;
+            }
+
+            if (ConsultationStatus.SCHEDULED.equals(consultation.getConsultationStatusEnum())
                 && consultation.getStartedAt() == null) {
-                
-                consultation.setConsultationStatus("IN_PROGRESS");
-                consultation.setStartedAt(LocalDateTime.now());
-                consultation.setLastActivityAt(LocalDateTime.now());
+
+                LocalDateTime now = LocalDateTime.now();
+                if (isBeforeScheduledStart(consultation, now)) {
+                    log.info("자동 시작 대기 - 예정 시간 전: requestIdx={}", requestIdx);
+                    return;
+                }
+
+                consultation.setConsultationStatusEnum(ConsultationStatus.IN_PROGRESS);
+                consultation.setStartedAt(now);
+                consultation.setLastActivityAt(now);
                 ConsultationRequest saved = consultationRequestRepository.save(consultation);
                 log.info("첫 메시지로 상담 자동 시작: requestIdx={}", saved.getRequestIdx());
             }
@@ -270,6 +322,11 @@ public class ChatController {
         } catch (Exception e) {
             log.error("상담 시작 처리 실패: requestIdx={}", requestIdx, e);
         }
+    }
+
+    private boolean isBeforeScheduledStart(ConsultationRequest consultation, LocalDateTime now) {
+        LocalDateTime desired = consultation.getDesiredDate();
+        return desired != null && now.isBefore(desired);
     }
 
     /**

@@ -110,7 +110,7 @@ public class OrphanedRoomCleanupScheduler {
 
             ConsultationRequest consultation = consultationOpt.get();
 
-            if (!"IN_PROGRESS".equals(consultation.getConsultationStatus())) {
+            if (!"IN_PROGRESS".equals(consultation.getStatus())) {
                 requestSnapshots.forEach(snapshot -> deleteSnapshot(snapshot, "상담 종료 상태"));
                 continue;
             }
