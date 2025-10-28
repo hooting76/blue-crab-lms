@@ -179,18 +179,21 @@ const fetchNotices = async () => {
   }, [accessToken, user, isProf]);
 
   useEffect(() => {
-      if (accessToken && selectedLectureSerial) {
-          fetchNotices();
-      }
-      }, [accessToken, selectedLectureSerial, page, currentPage]);
+  if (!selectedLectureSerial) {
+    // 강의가 선택되지 않은 경우 → 과제 목록 초기화
+    setAssignmentList({ content: [] }); // or setAssignmentList([])
+    return;
+  }
+  // 강의가 선택되어 있을 때만 과제 목록 불러오기
+  getAssignments(accessToken, selectedLectureSerial);
+}, [accessToken, selectedLectureSerial]);
+
 
 
   useEffect(() => {
     getAssignments(accessToken, selectedLectureSerial);
   }, [accessToken, selectedLectureSerial]);
 
-  console.log("selectedLectureSerial : ", selectedLectureSerial);
-  console.log("assignmentList : ", assignmentList);
 
   // ✅ 과제 삭제 후 목록 갱신 함수 추가
   const handleDeleteAssignment = async () => {
