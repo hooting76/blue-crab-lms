@@ -146,7 +146,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
   };
 
   // ✅ 결석 처리
-  const rejectAttendance = async (studentIdx, reason) => {
+  const rejectAttendance = async (studentIdx, rejectReason) => {
     const requestData = {
       lecSerial,
       sessionNumber,
@@ -154,7 +154,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
         {
           studentIdx,
           status: "결",
-          reason
+          rejectReason
         },
       ],
     };
