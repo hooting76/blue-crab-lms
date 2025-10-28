@@ -7,7 +7,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
   const BASE_URL = "https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api";
   const { user } = UseUser();
 
-  const [sessionNumber, setSessionNumber] = useState(1); // 기본값 1
+  const [sessionNumber, setSessionNumber] = useState(null);
   const [studentList, setStudentList] = useState([]);
   const [showRejectPrompt, setShowRejectPrompt] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
