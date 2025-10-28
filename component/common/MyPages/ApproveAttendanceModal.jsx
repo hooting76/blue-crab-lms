@@ -197,7 +197,6 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
   return (
     <div className="approve-attendance-modal-container">
       <div className="approve-attendance-modal-content">
-        <h2>출석 승인</h2>
         {loading ? (
           <p>불러오는 중...</p>
         ) : error ? (
