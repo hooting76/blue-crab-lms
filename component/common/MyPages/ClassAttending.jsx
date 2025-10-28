@@ -259,8 +259,8 @@ const fetchNotices = async () => {
   // 모달 오픈/클로즈 핸들러
   const openEvaluationModal = () => setIsEvaluationModalOpen(true);
   const closeEvaluationModal = () => setIsEvaluationModalOpen(false);
-  const openAttendanceDetailModal = () => setIsAssignmentDetailModalOpen(true);
-  const closeAttendanceDetailModal = () => setIsAssignmentDetailModalOpen(false);
+  const openAttendanceDetailModal = () => setIsAttendanceDetailModalOpen(true);
+  const closeAttendanceDetailModal = () => setIsAttendanceDetailModalOpen(false);
   const openAttendanceModal = () => setIsAttendanceModalOpen(true);
   const closeAttendanceModal = () => setIsAttendanceModalOpen(false);
   const openTestModal = () => setIsTestModalOpen(true);
@@ -408,7 +408,7 @@ const fetchNotices = async () => {
 
         <div className="attendanceStatus">
           <p>출결</p>
-          {!isProf && ( // 학생
+          {!isProf && (
             <>
               <button
                 className="attendanceDetailBtn"
@@ -416,11 +416,16 @@ const fetchNotices = async () => {
               >
                 내 출결 현황
               </button>
+
               {isAttendanceDetailModalOpen && (
-                <AttendanceDetailModal onClose={closeAttendanceDetailModal} enrollmentIdx={selectedEnrollmentIdx}/>
+                <AttendanceDetailModal
+                  onClose={closeAttendanceDetailModal}
+                  enrollmentIdx={selectedEnrollmentIdx}
+                />
               )}
             </>
           )}
+
 
           <div className="attendanceCall">
             {!isProf ? ( // 학생
