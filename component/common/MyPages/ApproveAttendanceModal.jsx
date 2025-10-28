@@ -35,7 +35,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ lecSerial, page: Math.max(page - 1, 0), size: 20 }),
+        body: JSON.stringify({ lecSerial: lecSerial, page: Math.max(page - 1, 0), size: 20 }),
       });
 
       if (!response.ok) {
@@ -197,7 +197,6 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
   return (
     <div className="approve-attendance-modal-container">
       <div className="approve-attendance-modal-content">
-        <h2>출석 승인</h2>
         {loading ? (
           <p>불러오는 중...</p>
         ) : error ? (
