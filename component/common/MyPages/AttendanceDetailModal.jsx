@@ -47,7 +47,7 @@ const AttendanceDetailModal = ({ onClose, lecSerial }) => {
       <div className="attendance-detail-modal-content">
         <p>
           총 출석현황 :{" "}
-          {attendanceDetail.summary.attend}/{attendanceDetail.summary.totalSessions}
+          {attendanceDetail.summary.attended}/{attendanceDetail.summary.totalSessions}
         </p>
 
         <table className="notice-table">
