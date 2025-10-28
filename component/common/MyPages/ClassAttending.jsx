@@ -451,21 +451,6 @@ const fetchNotices = async () => {
         <div className="testAssignment">
           <p>시험 및 과제</p>
 
-          {!isProf &&
-            <>
-              <div className="studentTest">
-                중간고사 : 점
-                <br />
-                기말고사 : 점
-              </div>
-              <div className="studentAssignment">
-                과제1 : 점
-                <br />
-                과제2 : 점
-              </div>
-            </>
-          }
-
           {/* 과제 목록 (학생/교수 공용) */}
           <div className="assignmentList">
             {isProf && (

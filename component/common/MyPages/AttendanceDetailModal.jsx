@@ -5,7 +5,7 @@ import "../../../css/MyPages/AttendanceDetailModal.css";
 const AttendanceDetailModal = ({ onClose, enrollmentIdx }) => {
   const { user } = UseUser();
   const accessToken = user.data.accessToken;
-  const [attendanceDetail, setAttendanceDetail] = useState(null);
+  const [attendanceDetail, setAttendanceDetail] = useState({});
   const BASE_URL = "https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api";
 
   const FetchAttendanceDetail = async () => {
@@ -38,10 +38,11 @@ const AttendanceDetailModal = ({ onClose, enrollmentIdx }) => {
 
 
   useEffect(() => {
-    if (enrollmentIdx, accessToken) {
-      FetchAttendanceDetail();
+    if (enrollmentIdx && accessToken) {
+        FetchAttendanceDetail();
     }
-  }, [enrollmentIdx, accessToken]);
+    }, [enrollmentIdx, accessToken]);
+
 
 
   console.log("attendanceDetail : ", attendanceDetail);
