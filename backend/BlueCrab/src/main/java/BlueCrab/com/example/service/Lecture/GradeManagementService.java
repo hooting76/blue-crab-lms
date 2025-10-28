@@ -3,7 +3,9 @@
 
 package BlueCrab.com.example.service.Lecture;
 
+import BlueCrab.com.example.entity.Lecture.AssignmentExtendedTbl;
 import BlueCrab.com.example.entity.Lecture.EnrollmentExtendedTbl;
+import BlueCrab.com.example.repository.Lecture.AssignmentExtendedTblRepository;
 import BlueCrab.com.example.repository.Lecture.EnrollmentExtendedTblRepository;
 import BlueCrab.com.example.repository.Lecture.LecTblRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -38,6 +40,9 @@ public class GradeManagementService {
     private LecTblRepository lecTblRepository;
 
     @Autowired
+    private AssignmentExtendedTblRepository assignmentRepository;
+
+    @Autowired
     private GradeCalculationService gradeCalculationService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -52,7 +57,7 @@ public class GradeManagementService {
         try {
             Integer lecIdx = (Integer) request.get("lecIdx");
             Integer attendanceMaxScore = (Integer) request.get("attendanceMaxScore");
-            // assignmentTotalScore는 선택적 (과제 생성 시 자동 계산되므로 기본값 사용)
+            // assignmentTotalScore는 선택적 - null이면 실제 과제에서 자동 조회
             Integer assignmentTotalScore = request.get("assignmentTotalScore") != null ? 
                 (Integer) request.get("assignmentTotalScore") : null;
             
@@ -69,10 +74,15 @@ public class GradeManagementService {
                 throw new IllegalArgumentException("존재하지 않는 강의입니다: " + lecIdx);
             }
 
+            // ✅ assignmentTotalScore가 null이면 실제 과제 만점 자동 조회
+            if (assignmentTotalScore == null) {
+                assignmentTotalScore = calculateTotalAssignmentScore(lecIdx);
+            }
+
             // 성적 구성 JSON 생성
             Map<String, Object> gradeConfig = new HashMap<>();
             gradeConfig.put("attendanceMaxScore", attendanceMaxScore != null ? attendanceMaxScore : 20);
-            gradeConfig.put("assignmentTotalScore", assignmentTotalScore != null ? assignmentTotalScore : 50);
+            gradeConfig.put("assignmentTotalScore", assignmentTotalScore);
             
             // 지각 감점 설정 추가 (교수 재량)
             gradeConfig.put("latePenaltyPerSession", latePenaltyPerSession);
@@ -85,10 +95,8 @@ public class GradeManagementService {
             gradeConfig.put("configuredAt", getCurrentDateTime());
 
             // 총 만점 계산 (출석 + 과제)
-            // assignmentTotalScore가 null이면 기본값 사용 (과제 생성 시 동적 계산됨)
             int attendanceScore = (Integer) gradeConfig.get("attendanceMaxScore");
-            int assignmentScore = gradeConfig.get("assignmentTotalScore") != null ? 
-                (Integer) gradeConfig.get("assignmentTotalScore") : 0;
+            int assignmentScore = (Integer) gradeConfig.get("assignmentTotalScore");
             int totalMaxScore = attendanceScore + assignmentScore;
             gradeConfig.put("totalMaxScore", totalMaxScore);
 
@@ -417,6 +425,105 @@ public class GradeManagementService {
 
         } catch (Exception e) {
             return Map.of("success", false, "message", "등급 배정 오류: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 강의의 모든 과제 만점 합계 자동 계산
+     * ASSIGNMENT_EXTENDED_TBL에서 실제 과제 데이터를 조회하여 maxScore 합산
+     */
+    private Integer calculateTotalAssignmentScore(Integer lecIdx) {
+        try {
+            List<AssignmentExtendedTbl> assignments = assignmentRepository.findByLecIdx(lecIdx);
+            
+            int totalScore = 0;
+            ObjectMapper mapper = new ObjectMapper();
+            
+            for (AssignmentExtendedTbl assignment : assignments) {
+                String assignmentData = assignment.getAssignmentData();
+                if (assignmentData != null && !assignmentData.trim().isEmpty()) {
+                    try {
+                        Map<String, Object> data = mapper.readValue(assignmentData, new TypeReference<Map<String, Object>>() {});
+                        Map<String, Object> assignmentInfo = (Map<String, Object>) data.get("assignment");
+                        
+                        if (assignmentInfo != null && assignmentInfo.containsKey("maxScore")) {
+                            Object maxScoreObj = assignmentInfo.get("maxScore");
+                            if (maxScoreObj instanceof Number) {
+                                totalScore += ((Number) maxScoreObj).intValue();
+                            }
+                        }
+                    } catch (Exception e) {
+                        // JSON 파싱 실패 시 해당 과제 건너뛰기
+                        System.err.println("과제 데이터 파싱 실패 (ASSIGNMENT_IDX=" + assignment.getAssignmentIdx() + "): " + e.getMessage());
+                    }
+                }
+            }
+            
+            System.out.println("강의 " + lecIdx + "의 과제 " + assignments.size() + "개, 총 만점: " + totalScore + "점");
+            return totalScore;
+            
+        } catch (Exception e) {
+            System.err.println("과제 만점 계산 중 오류: " + e.getMessage());
+            return 0; // 오류 발생 시 0점 반환
+        }
+    }
+
+    /**
+     * 강의의 모든 수강생 성적 구성에서 assignmentTotalScore와 totalMaxScore 자동 업데이트
+     * 과제 생성/수정/삭제 후 호출되어 실시간 반영
+     */
+    @Transactional
+    @SuppressWarnings("unchecked")
+    public void updateAssignmentTotalScoreForLecture(Integer lecIdx) {
+        try {
+            // 1. 실제 과제 만점 합계 계산
+            Integer newAssignmentTotalScore = calculateTotalAssignmentScore(lecIdx);
+            
+            // 2. 해당 강의의 모든 수강생 조회
+            List<EnrollmentExtendedTbl> enrollments = enrollmentRepository.findByLecIdx(lecIdx);
+            
+            if (enrollments.isEmpty()) {
+                System.out.println("강의 " + lecIdx + "에 수강생이 없어 성적 구성 업데이트를 건너뜁니다.");
+                return;
+            }
+            
+            // 3. 각 수강생의 gradeConfig 업데이트
+            for (EnrollmentExtendedTbl enrollment : enrollments) {
+                String enrollmentJson = enrollment.getEnrollmentData();
+                Map<String, Object> enrollmentData = parseEnrollmentData(enrollmentJson);
+                
+                Map<String, Object> gradeConfig = (Map<String, Object>) enrollmentData.get("gradeConfig");
+                
+                if (gradeConfig != null) {
+                    // attendanceMaxScore 가져오기
+                    Integer attendanceMaxScore = gradeConfig.get("attendanceMaxScore") != null ?
+                            ((Number) gradeConfig.get("attendanceMaxScore")).intValue() : 20;
+                    
+                    // assignmentTotalScore와 totalMaxScore 업데이트
+                    gradeConfig.put("assignmentTotalScore", newAssignmentTotalScore);
+                    gradeConfig.put("totalMaxScore", attendanceMaxScore + newAssignmentTotalScore);
+                    gradeConfig.put("updatedAt", getCurrentDateTime());
+                    
+                    enrollmentData.put("gradeConfig", gradeConfig);
+                    
+                    try {
+                        String updatedJson = objectMapper.writeValueAsString(enrollmentData);
+                        enrollment.setEnrollmentData(updatedJson);
+                    } catch (JsonProcessingException e) {
+                        System.err.println("enrollmentData JSON 변환 실패 (ENROLLMENT_IDX=" + enrollment.getEnrollmentIdx() + "): " + e.getMessage());
+                    }
+                }
+            }
+            
+            // 4. 일괄 저장
+            enrollmentRepository.saveAll(enrollments);
+            enrollmentRepository.flush();
+            
+            System.out.println("✅ 강의 " + lecIdx + "의 성적 구성 자동 업데이트 완료: 과제 만점 " + newAssignmentTotalScore + "점, 수강생 " + enrollments.size() + "명");
+            
+        } catch (Exception e) {
+            System.err.println("❌ 성적 구성 자동 업데이트 실패 (강의 " + lecIdx + "): " + e.getMessage());
+            throw new RuntimeException("성적 구성 자동 업데이트 실패", e);
         }
     }
 
