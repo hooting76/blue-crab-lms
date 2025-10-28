@@ -8,7 +8,6 @@
  *    await assignmentTest.list()          // 과제 목록 조회
  *    await assignmentTest.detail()        // 과제 상세 조회
  *    await assignmentTest.create()        // 과제 생성
- *    await assignmentTest.submit()        // 과제 제출
  *    await assignmentTest.grade()         // 과제 채점
  *    await assignmentTest.submissions()   // 제출 현황 조회
  */
