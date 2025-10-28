@@ -38,7 +38,7 @@ const AttendanceDetailModal = ({ onClose, enrollmentIdx }) => {
 
 
   useEffect(() => {
-    if (enrollmentIdx) {
+    if (enrollmentIdx, accessToken) {
       FetchAttendanceDetail();
     }
   }, [enrollmentIdx, accessToken]);
