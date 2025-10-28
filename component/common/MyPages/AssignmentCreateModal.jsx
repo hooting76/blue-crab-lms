@@ -33,7 +33,7 @@ const AssignmentCreateModal = ({ onClose, lecSerial, lecTitle }) => {
             const assignmentData = {
                 lecSerial: lecSerial,
                 title: title,
-                body: description,
+                description: description,
                 maxScore: maxScore,
                 dueDate: formatDateToYYYYMMDD(dueDate)
             }

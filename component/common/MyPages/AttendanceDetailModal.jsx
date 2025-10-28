@@ -1,12 +1,17 @@
 import {useState, useEffect} from "react";
+import { UseUser } from "../../../hook/UseUser";
 import "../../../css/MyPages/AttendanceDetailModal.css";
 
 const AttendanceDetailModal = ({onClose}) => {
+    const {user} = UseUser();
     const [attendanceDetail, setAttendanceDetail] = useState();
+
+    console.log("user : ", user)
 
      const FetchAttendanceDetail = async () => {
         try {
             const body = {
+                
             };
 
             const res = await fetch(`${BASE_URL}/student/attendance/detail`, {
@@ -26,25 +31,50 @@ const AttendanceDetailModal = ({onClose}) => {
         }
         };
 
-    return (
-        <div className="attendance-detail-modal-container">
-            <div className="attendance-detail-modal-content">
-                {assignmentData ? (
-                    <>
-                        <div>과제 제목: {assignmentData.assignment.title}</div>
-                        <div>과제 설명: {assignmentData.assignment.description}</div>
-                        <div>마감일: {formatDate(assignmentData.assignment.dueDate)}</div>
-                        <div>배점: {assignmentData.assignment.maxScore}</div>
-                    </>
-                ) : (
-                    <div>로딩 중...</div>
-                )}
+    useEffect(() => {
+        FetchAttendanceDetail();
+    }, [enrollmentIdx]);
+    
 
-                
-                <button className="attendanceDetailCloseBtn" onClick={onClose}>닫기</button>
-            </div>
+    return (
+    <div className="attendance-detail-modal-container">
+        <div className="attendance-detail-modal-content">
+
+        <p>
+            총 출석현황 :{" "}
+            {attendanceDetail ? attendanceDetail.data.attendanceRate : "해당사항 없음"}
+        </p>
+
+        <table className="notice-table">
+            <thead>
+            <tr>
+                <th style={{ width: "50%" }}>회차</th>
+                <th style={{ width: "50%" }}>출결여부</th>
+            </tr>
+            </thead>
+            <tbody>
+            {attendanceDetail && attendanceDetail.data.details.length > 0 ? (
+                attendanceDetail.data.details.map((detail) => (
+                <tr key={detail.sessionNumber}>
+                    <td>{detail.sessionNumber}</td>
+                    <td>{detail.status}</td>
+                </tr>
+                ))
+            ) : (
+                <tr>
+                <td colSpan="2" style={{ textAlign: "center" }}>
+                    출결 데이터가 없습니다.
+                </td>
+                </tr>
+            )}
+            </tbody>
+        </table>
+
+        <button className="attendanceDetailCloseBtn" onClick={onClose}>닫기</button>
         </div>
+    </div>
     );
+
 }
 
 export default AttendanceDetailModal;
