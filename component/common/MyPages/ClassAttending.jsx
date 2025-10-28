@@ -420,7 +420,7 @@ const fetchNotices = async () => {
               {isAttendanceDetailModalOpen && (
                 <AttendanceDetailModal
                   onClose={closeAttendanceDetailModal}
-                  enrollmentIdx={selectedEnrollmentIdx}
+                  lecSerial={selectedLectureSerial}
                 />
               )}
             </>

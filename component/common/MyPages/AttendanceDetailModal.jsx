@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { UseUser } from "../../../hook/UseUser";
 import "../../../css/MyPages/AttendanceDetailModal.css";
 
-const AttendanceDetailModal = ({ onClose, enrollmentIdx }) => {
+const AttendanceDetailModal = ({ onClose, lecSerial }) => {
   const { user } = UseUser();
   const accessToken = user.data.accessToken;
   const [attendanceDetail, setAttendanceDetail] = useState({});
@@ -10,13 +10,13 @@ const AttendanceDetailModal = ({ onClose, enrollmentIdx }) => {
 
   const FetchAttendanceDetail = async () => {
   try {
-    const res = await fetch(`${BASE_URL}/student/attendance/detail`, {
+    const res = await fetch(`${BASE_URL}/attendance/student/view`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify({ enrollmentIdx: Number(enrollmentIdx) }),
+      body: JSON.stringify(lecSerial),
     });
 
 
@@ -28,7 +28,7 @@ const AttendanceDetailModal = ({ onClose, enrollmentIdx }) => {
 
     const data = await res.json();
     console.log("✅ 출결내역 데이터:", data);
-    setAttendanceDetail(data.data || data);
+    setAttendanceDetail(data.data);
   } catch (err) {
     console.error("❌ 출결내역 조회 에러:", err);
   }
@@ -36,10 +36,10 @@ const AttendanceDetailModal = ({ onClose, enrollmentIdx }) => {
 
 
   useEffect(() => {
-    if (enrollmentIdx && accessToken) {
+    if (lecSerial && accessToken) {
         FetchAttendanceDetail();
     }
-    }, [enrollmentIdx, accessToken]);
+    }, [lecSerial, accessToken]);
 
 
   return (
@@ -47,7 +47,7 @@ const AttendanceDetailModal = ({ onClose, enrollmentIdx }) => {
       <div className="attendance-detail-modal-content">
         <p>
           총 출석현황 :{" "}
-          {attendanceDetail.attendanceRate ?? "해당사항 없음"}
+          {attendanceDetail.summary.attend}/{attendanceDetail.summary.totalSessions}
         </p>
 
         <table className="notice-table">
@@ -58,8 +58,8 @@ const AttendanceDetailModal = ({ onClose, enrollmentIdx }) => {
             </tr>
           </thead>
           <tbody>
-            {attendanceDetail?.details?.length > 0 ? (
-              attendanceDetail.details.map((detail) => (
+            {attendanceDetail?.sessions?.length > 0 ? (
+              attendanceDetail.sessions.map((detail) => (
                 <tr key={detail.sessionNumber}>
                   <td>{detail.sessionNumber}</td>
                   <td>{detail.status}</td>
