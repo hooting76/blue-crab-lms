@@ -207,21 +207,6 @@ const fetchNotices = async () => {
       fetchNotices();
     }, [accessToken, selectedLectureSerial]);
 
-    useEffect(() => {
-    if (isProf) {
-      if (lectureList.length > 0) {
-        setSelectedLectureSerial(lectureList[0].lecSerial);
-      }
-    } else {
-      if (lectureList?.content?.length > 0) {
-        const firstLecture = lectureList.content[0];
-        setSelectedLectureSerial(firstLecture.lecSerial);
-        setSelectedEnrollmentIdx(firstLecture.enrollmentIdx);
-      }
-    }
-  }, [lectureList, isProf]);
-
-
 
   // 학생 출석 요청
  const attendanceRequestSubmit = async () => {
