@@ -119,7 +119,7 @@ function Header({ currentPage, setCurrentPage }) {
               >
                 <tbody>
                 {/* 공지사항 → 기본 학사공지로 진입 */}
-                  <tr><td onClick={() => { setCurrentPage("학사공지"); closeAllSubMenus(); }}>공지사항</td></tr>
+                  <tr><td id='cmntP' onClick={() => { setCurrentPage("학사공지"); closeAllSubMenus(); }}>공지사항</td></tr>
                 
                 {/* FAQ */}
                   <tr><td onClick={() => { setCurrentPage("FAQ"); closeAllSubMenus(); }}>FAQ</td></tr>
