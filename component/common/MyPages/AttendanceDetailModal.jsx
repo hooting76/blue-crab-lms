@@ -2,9 +2,12 @@ import {useState, useEffect} from "react";
 import { UseUser } from "../../../hook/UseUser";
 import "../../../css/MyPages/AttendanceDetailModal.css";
 
-const AttendanceDetailModal = ({onClose}) => {
+const AttendanceDetailModal = ({onClose, lecSerial}) => {
     const {user} = UseUser();
     const [attendanceDetail, setAttendanceDetail] = useState();
+    const studentIdx = user.data.user.id;
+
+    
 
      const FetchAttendanceDetail = async () => {
         try {

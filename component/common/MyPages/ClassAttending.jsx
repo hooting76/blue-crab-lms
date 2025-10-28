@@ -23,8 +23,6 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
   const NOTICE_BOARD_CODE = 3;
   const requestReason = "";
 
-  
-    console.log("user : ", user)
 
   // 모달 상태들
   const [isEvaluationModalOpen, setIsEvaluationModalOpen] = useState(false);
@@ -408,7 +406,7 @@ const fetchNotices = async () => {
                 내 출결 현황
               </button>
               {isAttendanceDetailModalOpen && (
-                <AttendanceDetailModal onClose={closeAttendanceDetailModal} />
+                <AttendanceDetailModal onClose={closeAttendanceDetailModal} lecSerial={selectedLectureSerial}/>
               )}
             </>
           )}
