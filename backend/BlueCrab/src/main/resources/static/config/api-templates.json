@@ -1124,5 +1124,78 @@
     ],
     "headers": [],
     "bodyTemplate": null
+  },
+  "adminNotificationPreview": {
+    "name": "🔍 알림 대상자 미리보기",
+    "category": "🔔 관리자 알림",
+    "description": "필터 조건에 맞는 대상자 수 확인",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/admin/notifications/preview",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "filterType": "ROLE",
+      "userStudent": 1,
+      "lectureIds": null,
+      "userCodes": null
+    }
+  },
+  "adminNotificationSend": {
+    "name": "📤 알림 발송",
+    "category": "🔔 관리자 알림",
+    "description": "필터링된 사용자에게 FCM 알림 발송",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/admin/notifications/send",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "title": "공지사항",
+      "body": "오늘 17시에 전체 회의가 있습니다.",
+      "data": {
+        "type": "announcement",
+        "link": "/announcements/123"
+      },
+      "filterCriteria": {
+        "filterType": "ALL"
+      }
+    }
+  },
+  "adminNotificationHistory": {
+    "name": "📋 알림 발송 이력 조회",
+    "category": "🔔 관리자 알림",
+    "description": "발송한 알림의 이력 조회 (페이지네이션)",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/admin/notifications/history",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {
+      "page": 0,
+      "size": 20
+    }
+  },
+  "adminFilterOptionsCourses": {
+    "name": "📚 강좌 목록 조회",
+    "category": "🔔 관리자 알림",
+    "description": "강좌별 필터에 사용할 강좌 목록",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/admin/filter-options/courses",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {}
+  },
+  "adminFilterOptionsRoles": {
+    "name": "👥 역할 목록 조회",
+    "category": "🔔 관리자 알림",
+    "description": "역할별 필터에 사용할 역할 옵션",
+    "auth": true,
+    "method": "POST",
+    "endpoint": "/api/admin/filter-options/roles",
+    "params": [],
+    "headers": [],
+    "bodyTemplate": {}
   }
 }

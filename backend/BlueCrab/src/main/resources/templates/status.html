@@ -6,6 +6,7 @@
     <title>BlueCrab API 테스트 도구</title>
     <link rel="stylesheet" th:href="@{/css/api-tester.css}" href="/css/api-tester.css">
     <link rel="stylesheet" th:href="@{/css/chat-tester.css}" href="/css/chat-tester.css">
+    <link rel="stylesheet" th:href="@{/css/notification-tester.css}" href="/css/notification-tester.css">
 </head>
 <body>
     <div class="container">
@@ -339,6 +340,149 @@
                 </div>
             </div>
 
+            <!-- 관리자 알림 테스트 -->
+            <div class="section notification-tester-section layout-span-3" id="notificationTesterSection">
+                <div class="notification-section-header">
+                    <div>
+                        <h3 class="notification-section-title">🔔 관리자 알림 테스트 (FCM)</h3>
+                        <p class="notification-section-subtitle">관리자 전용 FCM 엔드포인트를 실시간으로 호출해 필터링과 발송 결과를 검증합니다.</p>
+                    </div>
+                    <button type="button" class="notification-refresh-btn" id="notificationReloadOptionsBtn">↻ 옵션 새로고침</button>
+                </div>
+
+                <div class="notification-grid">
+                    <div class="notification-card">
+                        <h4>1. 대상자 필터링</h4>
+                        <div class="notification-status info" id="notificationFilterStatus">필터 옵션을 불러오는 중입니다...</div>
+
+                        <div class="notification-field-group">
+                            <label for="notificationFilterType">필터 타입</label>
+                            <select id="notificationFilterType">
+                                <option value="ALL">ALL · 전체 사용자</option>
+                                <option value="ROLE">ROLE · 역할별 (학생/교수)</option>
+                                <option value="COURSE">COURSE · 강좌별</option>
+                                <option value="CUSTOM">CUSTOM · 직접 userCode 지정</option>
+                                <option value="FACULTY">FACULTY · 학부별</option>
+                                <option value="DEPARTMENT">DEPARTMENT · 학과별</option>
+                                <option value="ADMISSION_YEAR">ADMISSION_YEAR · 입학년도별</option>
+                                <option value="GRADE">GRADE · 학년별</option>
+                            </select>
+                        </div>
+
+                        <div class="notification-conditional" data-filter="ROLE">
+                            <div class="notification-field-group">
+                                <label for="notificationRoleSelect">대상 역할</label>
+                                <select id="notificationRoleSelect">
+                                    <option value="">-- 역할 선택 --</option>
+                                </select>
+                                <div class="notification-note">학생=1, 교수=0 (API 응답 기준)</div>
+                            </div>
+                        </div>
+
+                        <div class="notification-conditional" data-filter="COURSE">
+                            <div class="notification-field-group">
+                                <label for="notificationCourseSelect">강좌 선택</label>
+                                <select id="notificationCourseSelect" multiple size="6"></select>
+                                <div class="notification-note">여러 강좌를 선택하면 모든 수강생이 대상이 됩니다.</div>
+                            </div>
+                        </div>
+
+                        <div class="notification-conditional" data-filter="CUSTOM">
+                            <div class="notification-field-group">
+                                <label for="notificationUserCodes">userCode 목록</label>
+                                <textarea id="notificationUserCodes" rows="4" placeholder="한 줄 또는 쉼표로 구분하여 입력하세요."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="notification-conditional" data-filter="FACULTY">
+                            <div class="notification-field-group">
+                                <label for="notificationFacultySelect">학부 선택</label>
+                                <select id="notificationFacultySelect" multiple size="6"></select>
+                                <div class="notification-note">주전공 학부 코드 기준으로 필터링합니다.</div>
+                            </div>
+                        </div>
+
+                        <div class="notification-conditional" data-filter="DEPARTMENT">
+                            <div class="notification-field-group">
+                                <label for="notificationDepartmentSelect">학과 선택</label>
+                                <select id="notificationDepartmentSelect" multiple size="8"></select>
+                                <div class="notification-note">학부/학과 조합을 여러 개 선택할 수 있습니다.</div>
+                            </div>
+                        </div>
+
+                        <div class="notification-conditional" data-filter="ADMISSION_YEAR">
+                            <div class="notification-field-group">
+                                <label for="notificationAdmissionYears">입학년도</label>
+                                <input type="text" id="notificationAdmissionYears" placeholder="예: 2023, 2024">
+                                <div class="notification-note">콤마 또는 공백으로 구분된 4자리 연도</div>
+                            </div>
+                        </div>
+
+                        <div class="notification-conditional" data-filter="GRADE">
+                            <div class="notification-field-group">
+                                <label for="notificationGradeYears">학년</label>
+                                <input type="text" id="notificationGradeYears" placeholder="예: 1, 2, 3">
+                                <div class="notification-note">현재 연도 기준으로 입학년도를 계산합니다.</div>
+                            </div>
+                        </div>
+
+                        <button type="button" class="primary full-width" id="notificationPreviewBtn">🎯 대상 미리보기</button>
+                    </div>
+
+                    <div class="notification-card">
+                        <h4>2. 메시지 구성</h4>
+                        <div class="notification-field-group">
+                            <label for="notificationTitle">알림 제목</label>
+                            <input type="text" id="notificationTitle" placeholder="예: 시스템 점검 안내">
+                        </div>
+                        <div class="notification-field-group">
+                            <label for="notificationBody">알림 내용</label>
+                            <textarea id="notificationBody" rows="4" placeholder="사용자에게 전달할 메시지를 입력하세요."></textarea>
+                        </div>
+                        <div class="notification-field-group">
+                            <label for="notificationData">FCM 데이터 payload (선택)</label>
+                            <textarea id="notificationData" rows="3" placeholder='예: {"type":"NOTICE","link":"/announcements/123"}'></textarea>
+                            <div class="notification-note">JSON 형식의 key-value 데이터를 입력하면 앱에서 추가 처리가 가능합니다.</div>
+                        </div>
+                        <div class="notification-actions">
+                            <button type="button" class="success" id="notificationSendBtn">🚀 알림 발송</button>
+                            <button type="button" class="danger" id="notificationClearLogBtn">로그 지우기</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notification-result-grid">
+                    <div class="notification-card">
+                        <h4>미리보기 결과</h4>
+                        <div class="notification-preview-summary">
+                            <div class="notification-preview-count" id="notificationPreviewCount">-명</div>
+                            <div class="notification-preview-detail" id="notificationPreviewDetail">필터를 선택하고 "대상 미리보기"를 실행하세요.</div>
+                        </div>
+                    </div>
+                    <div class="notification-card">
+                        <h4>발송 로그</h4>
+                        <div class="notification-log" id="notificationLog">
+                            <div class="notification-log-empty">아직 로그가 없습니다.</div>
+                        </div>
+                    </div>
+                    <div class="notification-card notification-history-card">
+                        <div class="notification-history-header">
+                            <h4>발송 이력 조회</h4>
+                            <div class="notification-history-controls">
+                                <label for="notificationHistoryPage">페이지</label>
+                                <input type="number" id="notificationHistoryPage" value="0" min="0">
+                                <label for="notificationHistorySize">크기</label>
+                                <input type="number" id="notificationHistorySize" value="10" min="1">
+                                <button type="button" id="notificationHistoryBtn">📚 조회</button>
+                            </div>
+                        </div>
+                        <div class="notification-history-list" id="notificationHistoryList">
+                            <div class="notification-history-empty">조회 결과가 여기에 표시됩니다.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="section attachments-section layout-span-3">
                 <div class="section-header-inline">
                     <h3>📎 첨부파일 워크플로</h3>
@@ -501,6 +645,7 @@
     <script th:src="@{/js/body-template-manager.js}" src="/js/body-template-manager.js"></script>
     <script th:src="@{/js/api-tester.js}" src="/js/api-tester.js"></script>
     <script th:src="@{/js/attachment-tools.js}" src="/js/attachment-tools.js"></script>
+    <script th:src="@{/js/notification-tester.js}" src="/js/notification-tester.js"></script>
     <script th:src="@{/js/chat-tester.js}" src="/js/chat-tester.js"></script>
 </body>
 </html>
