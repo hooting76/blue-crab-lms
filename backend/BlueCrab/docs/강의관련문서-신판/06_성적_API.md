@@ -41,12 +41,15 @@
 **필드 설명**:
 - `action`: "set-config" (고정값)
 - `lecSerial`: 강의 코드
-- `attendanceMaxScore`: 출석 배점 (기본값: 20)
-- `assignmentTotalScore`: 과제 총점 (기본값: 50)
-- `latePenaltyPerSession`: 지각당 감점 (기본값: 0.0)
+- `attendanceMaxScore`: 출석 배점 (기본값: 120)
+- `assignmentTotalScore`: **자동 조회** - ASSIGNMENT_EXTENDED_TBL에서 실제 과제 만점 합산
+- `latePenaltyPerSession`: 지각당 감점 (기본값: 0.7)
 - `gradeDistribution`: 등급 분포 비율 (A/B/C/D %)
 
+**⚠️ 중요**: `assignmentTotalScore`는 요청 본문에 포함하지 않습니다. 백엔드가 ASSIGNMENT_EXTENDED_TBL에서 자동으로 조회하여 설정합니다.
+
 #### 응답 예시
+
 ```json
 {
   "success": true,
@@ -54,17 +57,17 @@
   "data": {
     "lecIdx": 1,
     "gradeConfig": {
-      "attendanceMaxScore": 20,
-      "assignmentTotalScore": 50,
-      "latePenaltyPerSession": 0.5,
+      "attendanceMaxScore": 120,
+      "assignmentTotalScore": 157,
+      "latePenaltyPerSession": 0.7,
       "gradeDistribution": {
         "A": 30,
         "B": 40,
         "C": 20,
         "D": 10
       },
-      "totalMaxScore": 70,
-      "configuredAt": "2025-10-26T10:30:00"
+      "totalMaxScore": 277,
+      "configuredAt": "2025-10-29T10:38:20"
     },
     "updatedEnrollments": 23,
     "failedEnrollments": 0
@@ -92,6 +95,7 @@
 ```
 
 #### 응답 예시
+
 ```json
 {
   "success": true,
@@ -101,34 +105,36 @@
     "lecIdx": 1,
     "lecSerial": "CS284",
     "grade": {
-      "attendance": {
-        "score": 18.5,
-        "maxScore": 20,
-        "percentage": 92.5,
-        "details": "1출2출3결4지5출6출7출8출"
+      "attendanceScore": {
+        "currentScore": 115.7,
+        "maxScore": 120.0,
+        "percentage": 96.42,
+        "presentCount": 75,
+        "lateCount": 4,
+        "absentCount": 1,
+        "latePenalty": 2.8,
+        "attendanceRate": 79
       },
-      "assignment": {
-        "score": 45,
-        "maxScore": 50,
-        "percentage": 90.0,
-        "submissions": [
-          {
-            "assignIdx": 1,
-            "score": 95,
-            "maxScore": 100
-          },
-          {
-            "assignIdx": 2,
-            "score": 85,
-            "maxScore": 100
-          }
-        ]
-      },
+      "assignments": [
+        {
+          "name": "세계 각국의 위생정책의 사례",
+          "score": 70.0,
+          "maxScore": 70.0,
+          "percentage": 100.0,
+          "submitted": true
+        },
+        {
+          "name": "나이팅게일 선서에 대한 현대적인 분석",
+          "score": 48.0,
+          "maxScore": 50.0,
+          "percentage": 96.0,
+          "submitted": true
+        }
+      ],
       "total": {
-        "score": 63.5,
-        "maxScore": 70,
-        "percentage": 90.71,
-        "letterGrade": "A+"
+        "score": 270.7,
+        "maxScore": 277.0,
+        "percentage": 97.73
       }
     }
   }
@@ -161,6 +167,7 @@
 - 인증된 교수의 `USER_IDX`가 자동으로 사용됩니다
 
 #### 응답 예시
+
 ```json
 {
   "success": true,
@@ -169,20 +176,36 @@
     "studentIdx": 6,
     "lecIdx": 1,
     "grade": {
-      "attendance": { /* 동일 */ },
-      "assignment": { /* 동일 */ },
+      "attendanceScore": {
+        "currentScore": 115.7,
+        "maxScore": 120.0,
+        "percentage": 96.42,
+        "presentCount": 75,
+        "lateCount": 4,
+        "absentCount": 1,
+        "latePenalty": 2.8
+      },
+      "assignments": [
+        {
+          "name": "세계 각국의 위생정책의 사례",
+          "score": 70.0,
+          "maxScore": 70.0,
+          "percentage": 100.0,
+          "submitted": true
+        }
+      ],
       "total": {
-        "score": 63.5,
-        "maxScore": 70,
-        "percentage": 90.71,
-        "letterGrade": "A+"
+        "score": 270.7,
+        "maxScore": 277.0,
+        "percentage": 97.73,
+        "letterGrade": "A"
       }
     },
     "professorView": true,
     "statistics": {
-      "rank": 2,
-      "totalStudents": 23,
-      "classAverage": 78.5
+      "rank": 1,
+      "totalStudents": 1,
+      "classAverage": 97.73
     }
   }
 }
@@ -347,32 +370,45 @@
 ## 📊 성적 계산 로직
 
 ### 1. 출석 점수 계산
+
 ```
-출석 점수 = (출석 인정 회차 / 전체 회차) × attendanceMaxScore
-- 출석 인정: "출", "지", "조"
-- 지각 감점: latePenaltyPerSession × 지각 횟수
+출석 점수 = (출석 인정 회차 / 전체 회차) × attendanceMaxScore - 지각 감점
+- 출석 인정: attended + late (출석 + 지각)
+- 지각 감점: latePenaltyPerSession × lateCount
 ```
 
 **예시**:
-- 전체 16회차, 출석 12회, 지각 2회, 결석 2회
-- attendanceMaxScore = 20, latePenaltyPerSession = 0.5
-- 출석 점수 = (14/16) × 20 - (2 × 0.5) = 17.5 - 1 = 16.5점
+- 전체 80회차, 출석 75회, 지각 4회, 결석 1회
+- attendanceMaxScore = 120, latePenaltyPerSession = 0.7
+- 출석 인정 = 75 + 4 = 79회
+- 출석 점수 = (79/80) × 120 - (4 × 0.7) = 118.5 - 2.8 = 115.7점
 
 ### 2. 과제 점수 계산
+
 ```
-과제 점수 = Σ(각 과제 점수) / Σ(각 과제 배점) × assignmentTotalScore
+각 과제별 점수 계산 후 합산
+총 과제 점수 = Σ(각 과제 점수)
 ```
 
 **예시**:
-- 과제1: 95/100, 과제2: 85/100
-- assignmentTotalScore = 50
-- 과제 점수 = (95+85)/(100+100) × 50 = 45점
+- 과제1 "세계 각국의 위생정책의 사례": 70/70점
+- 과제2 "나이팅게일 선서에 대한 현대적인 분석": 48/50점
+- 과제3 "장미그래프에 대한 분석": 37/37점
+- 총 과제 점수 = 70 + 48 + 37 = 155점
 
 ### 3. 총점 계산
+
 ```
-총점 = 출석 점수 + 과제 점수
+총점 = 출석 점수 + 총 과제 점수
 백분율 = (총점 / totalMaxScore) × 100
 ```
+
+**예시**:
+- 출석 점수 = 115.7점
+- 총 과제 점수 = 155점
+- 총점 = 115.7 + 155 = 270.7점
+- totalMaxScore = 277점
+- 백분율 = (270.7 / 277) × 100 = 97.73%
 
 ### 4. 등급 배정 (상대평가)
 
@@ -394,44 +430,57 @@
 ## 📈 DTO 구조
 
 ### GradeConfig (JSON)
+
 ```json
 {
-  "attendanceMaxScore": 20,
-  "assignmentTotalScore": 50,
-  "latePenaltyPerSession": 0.5,
-  "totalMaxScore": 70,
+  "attendanceMaxScore": 120,
+  "assignmentTotalScore": 157,
+  "latePenaltyPerSession": 0.7,
+  "totalMaxScore": 277,
   "gradeDistribution": {
     "A": 30,
     "B": 40,
     "C": 20,
     "D": 10
   },
-  "configuredAt": "2025-10-26T10:30:00"
+  "configuredAt": "2025-10-29T10:38:20"
 }
 ```
 
 ### Grade (JSON - enrollmentData 내)
+
 ```json
 {
-  "attendance": {
-    "score": 18.5,
-    "maxScore": 20,
-    "percentage": 92.5,
-    "details": "1출2출3결4지5출6출7출8출"
+  "attendanceScore": {
+    "currentScore": 115.7,
+    "maxScore": 120.0,
+    "percentage": 96.42,
+    "presentCount": 75,
+    "lateCount": 4,
+    "absentCount": 1,
+    "latePenalty": 2.8,
+    "attendanceRate": 79
   },
-  "assignment": {
-    "score": 45,
-    "maxScore": 50,
-    "percentage": 90.0,
-    "submissions": [...]
-  },
+  "assignments": [
+    {
+      "name": "세계 각국의 위생정책의 사례",
+      "score": 70.0,
+      "maxScore": 70.0,
+      "percentage": 100.0,
+      "submitted": true
+    }
+  ],
   "total": {
-    "score": 63.5,
-    "maxScore": 70,
-    "percentage": 90.71,
-    "letterGrade": "A+",
-    "rank": 2
-  }
+    "score": 270.7,
+    "maxScore": 277.0,
+    "percentage": 97.73
+  },
+  "letterGrade": "A",
+  "finalized": true,
+  "finalizedDate": "2025-10-29 11:54:17",
+  "rank": 1,
+  "totalStudents": 1,
+  "passingStudents": 1
 }
 ```
 
@@ -440,13 +489,29 @@
 ## 🔗 관련 테이블
 
 ### ENROLLMENT_EXTENDED_TBL
+
 **enrollmentData 내 성적 데이터**:
+
 ```json
 {
-  "gradeConfig": { /* 성적 구성 설정 */ },
-  "grade": { /* 계산된 성적 정보 */ },
-  "attendance": "1출2출3결4지...",
-  "attendanceRate": "14/16"
+  "gradeConfig": {
+    "attendanceMaxScore": 120,
+    "assignmentTotalScore": 157,
+    "totalMaxScore": 277,
+    "latePenaltyPerSession": 0.7,
+    "gradeDistribution": { "A": 30, "B": 40, "C": 20, "D": 10 }
+  },
+  "attendance": {
+    "summary": { "attended": 75, "late": 4, "absent": 1, "totalSessions": 80 },
+    "sessions": [...]
+  },
+  "grade": {
+    "attendanceScore": { "currentScore": 115.7, "maxScore": 120.0 },
+    "assignments": [...],
+    "total": { "score": 270.7, "percentage": 97.73 },
+    "letterGrade": "A",
+    "finalized": true
+  }
 }
 ```
 
@@ -455,14 +520,17 @@
 ## 🔄 이벤트
 
 ### GradeUpdateEvent
+
 성적 변경 시 자동으로 재계산을 트리거하는 이벤트
 
 **발행 상황**:
+
 - 출석 업데이트 시
 - 과제 채점 시
 - 성적 구성 변경 시
 
 **처리**:
+
 - `GradeUpdateEventListener`가 수신
 - `GradeCalculationService.calculateStudentGrade()` 호출
 - 성적 자동 재계산 및 저장
@@ -472,25 +540,26 @@
 ## ⚠️ 주의사항
 
 1. **lecSerial 사용**: `lecIdx` 대신 `lecSerial` 권장
-2. **트랜잭션**: 성적 계산 중 데이터 무결성 보장 필요
-3. **권한 검증**: 교수는 담당 강의만, 학생은 본인만 조회 가능
-4. **재계산**: 출석/과제 업데이트 시 자동 재계산됨
-5. **최종 등급**: 한 번 배정 후 수정 시 주의 필요
+2. **과제 총점 자동 계산**: assignmentTotalScore는 ASSIGNMENT_EXTENDED_TBL에서 자동 합산
+3. **트랜잭션**: 성적 계산 중 데이터 무결성 보장 필요
+4. **권한 검증**: 교수는 담당 강의만, 학생은 본인만 조회 가능
+5. **자동 재계산**: 출석/과제 업데이트 시 GradeUpdateEvent 발행으로 자동 재계산
+6. **최종 등급**: 한 번 배정 후 수정 시 주의 필요 (finalized 플래그 확인)
 
 ---
 
 ## 💡 사용 시나리오
 
 ### 시나리오 1: 학기 초 성적 구성 설정
+
 ```javascript
-// 1. 성적 구성 설정
+// 1. 성적 구성 설정 (assignmentTotalScore는 자동 계산됨)
 POST /api/enrollments/grade-config
 {
   "action": "set-config",
-  "lecSerial": "CS284",
-  "attendanceMaxScore": 20,
-  "assignmentTotalScore": 50,
-  "latePenaltyPerSession": 0.5
+  "lecSerial": "ETH201",
+  "attendanceMaxScore": 120,
+  "latePenaltyPerSession": 0.7
 }
 ```
 

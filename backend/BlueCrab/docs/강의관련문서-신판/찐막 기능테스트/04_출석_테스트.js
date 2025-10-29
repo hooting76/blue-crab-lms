@@ -258,7 +258,7 @@
         const lecSerial = prompt('강의 코드:', 'ETH201');
         const sessionNumber = prompt('회차 번호:', '');
         const studentIdx = prompt('학생 IDX:', '');
-        const status = prompt('출석 상태 (출/지/결/조):', '출');
+        const status = prompt('출석 상태 (출/지/결):', '출');
         
         if (!lecSerial || !sessionNumber || !studentIdx || !status) {
             console.log('❌ 모든 정보가 필요합니다.');
@@ -320,7 +320,7 @@
         const lecSerial = prompt('강의 코드:', 'ETH201');
         const sessionNumber = prompt('회차 번호:', '');
         const studentIdx = prompt('학생 IDX:', '');
-        const status = prompt('출석 상태 (출/결/지/조):', '');
+        const status = prompt('출석 상태 (출/결/지):', '');
         
         if (!lecSerial || !sessionNumber || !studentIdx || !status) {
             console.log('❌ 모든 정보가 필요합니다.');

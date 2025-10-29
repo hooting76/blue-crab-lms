@@ -84,18 +84,25 @@
   "success": true,
   "message": "출석 조회 성공",
   "data": {
-    "attendanceStr": "1출2출3결4지5출6출7출8출",
-    "attendanceRate": "6/8",
-    "details": [
-      {"sessionNumber": 1, "status": "출"},
-      {"sessionNumber": 2, "status": "출"},
-      {"sessionNumber": 3, "status": "결"},
-      {"sessionNumber": 4, "status": "지"},
-      {"sessionNumber": 5, "status": "출"},
-      {"sessionNumber": 6, "status": "출"},
-      {"sessionNumber": 7, "status": "출"},
-      {"sessionNumber": 8, "status": "출"}
-    ]
+    "summary": {
+      "attended": 6,
+      "late": 1,
+      "absent": 1,
+      "totalSessions": 8,
+      "attendanceRate": 75.0,
+      "updatedAt": "2025-10-29 10:47:34"
+    },
+    "sessions": [
+      {"sessionNumber": 1, "status": "출", "requestDate": "2025-10-29 10:42:00", "approvedDate": "2025-10-29 10:44:35", "approvedBy": 23},
+      {"sessionNumber": 2, "status": "출", "requestDate": "2025-10-29 10:42:01", "approvedDate": "2025-10-29 10:44:36", "approvedBy": 23},
+      {"sessionNumber": 3, "status": "결", "requestDate": "2025-10-29 10:42:02", "approvedDate": "2025-10-29 10:44:37", "approvedBy": 23},
+      {"sessionNumber": 4, "status": "지", "requestDate": "2025-10-29 10:42:03", "approvedDate": "2025-10-29 10:44:38", "approvedBy": 23},
+      {"sessionNumber": 5, "status": "출", "requestDate": "2025-10-29 10:42:04", "approvedDate": "2025-10-29 10:44:39", "approvedBy": 23},
+      {"sessionNumber": 6, "status": "출", "requestDate": "2025-10-29 10:42:05", "approvedDate": "2025-10-29 10:44:40", "approvedBy": 23},
+      {"sessionNumber": 7, "status": "출", "requestDate": "2025-10-29 10:42:06", "approvedDate": "2025-10-29 10:44:41", "approvedBy": 23},
+      {"sessionNumber": 8, "status": "출", "requestDate": "2025-10-29 10:42:07", "approvedDate": "2025-10-29 10:44:42", "approvedBy": 23}
+    ],
+    "pendingRequests": []
   }
 }
 ```
@@ -462,8 +469,27 @@
 **enrollmentData 내 출석 정보**:
 ```json
 {
-  "attendance": "1출2출3결4지5출6출7출8출",
-  "attendanceRate": "6/8"
+  "attendance": {
+    "summary": {
+      "attended": 75,
+      "late": 4,
+      "absent": 1,
+      "totalSessions": 80,
+      "attendanceRate": 95.25,
+      "updatedAt": "2025-10-29 10:47:34"
+    },
+    "sessions": [
+      {
+        "sessionNumber": 1,
+        "status": "출",
+        "requestDate": "2025-10-29 10:42:00",
+        "approvedDate": "2025-10-29 10:44:35",
+        "approvedBy": 23,
+        "tempApproved": false
+      }
+    ],
+    "pendingRequests": []
+  }
 }
 ```
 
@@ -471,29 +497,37 @@
 
 ## 📈 비즈니스 로직
 
-### 출석 문자열 형식
-```
-"1출2출3결4지5출6출7출8출"
-```
-- 숫자: 회차 번호
-- 한글: 출석 상태
-  - `출`: 출석
-  - `결`: 결석
-  - `지`: 지각
-  - `조`: 조퇴
+### 출석 데이터 구조
+**sessions 배열**: 각 회차별 상세 정보
+- `sessionNumber`: 회차 번호 (1~80)
+- `status`: 출석 상태 (`"출"`, `"결"`, `"지"`, `"조"`)
+- `requestDate`: 출석 요청 일시
+- `approvedDate`: 승인 일시
+- `approvedBy`: 승인한 교수 USER_IDX
+- `tempApproved`: 임시 승인 여부
+
+**summary 객체**: 자동 계산되는 통계
+- `attended`: 출석 횟수
+- `late`: 지각 횟수
+- `absent`: 결석 횟수
+- `totalSessions`: 전체 세션 수
+- `attendanceRate`: 출석률 (%)
+- `updatedAt`: 마지막 업데이트 일시
 
 ### 출석률 계산
+
 ```java
-출석 인정 = "출", "지", "조" 포함 개수
-전체 회차 = 총 세션 수
-출석률 = (출석 인정 / 전체 회차) * 100
+출석 인정 = attended + late  // "출", "지", "조" 카운트
+전체 회차 = totalSessions
+출석률 (%) = (출석 인정 / 전체 회차) × 100
 ```
 
 ### 출석 요청 승인 프로세스
+
 1. 요청 상태 확인 (PENDING만 처리 가능)
 2. 권한 확인 (담당 교수만 가능)
-3. 출석 문자열 업데이트 (`결` → `출`)
-4. 출석률 재계산
+3. `sessions` 배열에 새로운 출석 레코드 추가
+4. `summary` 통계 자동 업데이트
 5. 요청 상태 변경 (APPROVED)
 6. 처리 일시 기록
 7. 알림 발송 (선택)
@@ -503,18 +537,20 @@
 ## ⚠️ 주의사항
 
 1. **lecSerial 사용**: `lecIdx` 대신 `lecSerial` 권장
-2. **출석 문자열 파싱**: 정규식을 사용하여 안전하게 파싱
+2. **출석 데이터 구조**: sessions 배열 방식으로 관리 (문자열 파싱 불필요)
 3. **동시성 제어**: 출석 데이터 업데이트 시 트랜잭션 처리 필요
 4. **권한 검증**:
    - 학생: 본인 출석만 조회/요청 가능
    - 교수: 담당 강의 출석만 관리 가능
 5. **중복 요청 방지**: 같은 회차에 대한 중복 요청 차단
+6. **자동 계산**: summary 통계는 백엔드에서 자동 계산
 
 ---
 
 ## 🔄 이벤트
 
 ### AttendanceApprovedEvent
+
 출석 요청 승인 시 발행되는 이벤트 (알림 전송용)
 
 ```java
