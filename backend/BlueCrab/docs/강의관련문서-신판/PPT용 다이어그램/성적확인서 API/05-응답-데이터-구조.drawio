@@ -1,0 +1,236 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" version="28.2.8">
+  <diagram name="응답 데이터 구조" id="response-structure">
+    <mxGraphModel dx="1678" dy="914" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="light-dark(#FFFFFF,#FFFFFF)" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="성적확인서 API 응답 데이터 구조" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;fontColor=light-dark(#0D47A1,#0000FF);" parent="1" vertex="1">
+          <mxGeometry x="250" y="50" width="610" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="root" value="" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#0050ef;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#001DBC;strokeWidth=3;fontColor=#ffffff;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="80" y="100" width="360" height="134" as="geometry" />
+        </mxCell>
+        <mxCell id="root-title" value="📦 Response Root" style="text;strokeColor=none;fillColor=#1976D2;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#FFFFFF;fontSize=14;fontStyle=1;" parent="root" vertex="1">
+          <mxGeometry y="26" width="360" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="root-1" value="status: String = &#39;success&#39;" style="text;strokeColor=#001DBC;fillColor=#0050ef;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=12;strokeWidth=1;" parent="root" vertex="1">
+          <mxGeometry y="56" width="360" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="root-2" value="message: String = &#39;성적확인서 조회 성공&#39;" style="text;strokeColor=#001DBC;fillColor=#0050ef;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=12;strokeWidth=1;" parent="root" vertex="1">
+          <mxGeometry y="82" width="360" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="root-3" value="data: TranscriptResponse {...}" style="text;strokeColor=#001DBC;fillColor=#0050ef;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=12;fontStyle=1;strokeWidth=1;" parent="root" vertex="1">
+          <mxGeometry y="108" width="360" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="transcript" value="" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#008a00;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#005700;strokeWidth=2;fontColor=#ffffff;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="80" y="280" width="360" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="transcript-title" value="📄 TranscriptResponse" style="text;strokeColor=none;fillColor=#388E3C;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#FFFFFF;fontSize=14;fontStyle=1;" parent="transcript" vertex="1">
+          <mxGeometry y="26" width="360" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="transcript-1" value="student: StudentInfo {...}" style="text;strokeColor=#005700;fillColor=#008a00;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=12;strokeWidth=1;" parent="transcript" vertex="1">
+          <mxGeometry y="56" width="360" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="transcript-2" value="courses: List&lt;CourseDto&gt; [...]" style="text;strokeColor=#005700;fillColor=#008a00;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=12;strokeWidth=1;" parent="transcript" vertex="1">
+          <mxGeometry y="82" width="360" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="transcript-3" value="semesterSummaries: Map&lt;String, SemesterSummary&gt;" style="text;strokeColor=#005700;fillColor=#008a00;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=12;strokeWidth=1;" parent="transcript" vertex="1">
+          <mxGeometry y="108" width="360" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="transcript-4" value="overallSummary: OverallSummary {...}" style="text;strokeColor=#005700;fillColor=#008a00;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=12;strokeWidth=1;" parent="transcript" vertex="1">
+          <mxGeometry y="134" width="360" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="student" value="" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#a20025;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#6F0000;strokeWidth=2;fontColor=#ffffff;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="80" y="480" width="360" height="122" as="geometry" />
+        </mxCell>
+        <mxCell id="student-title" value="👤 StudentInfo" style="text;strokeColor=none;fillColor=#7B1FA2;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#FFFFFF;fontSize=14;fontStyle=1;" parent="student" vertex="1">
+          <mxGeometry y="26" width="360" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="student-1" value="studentIdx: Integer" style="text;strokeColor=#6F0000;fillColor=#a20025;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=11;strokeWidth=1;" parent="student" vertex="1">
+          <mxGeometry y="56" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="student-2" value="studentCode, name, admissionYear, currentGrade" style="text;strokeColor=#6F0000;fillColor=#a20025;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=11;strokeWidth=1;" parent="student" vertex="1">
+          <mxGeometry y="78" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="student-3" value="certificateNumber: String, issuedAt: LocalDateTime" style="text;strokeColor=#6F0000;fillColor=#a20025;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=11;strokeWidth=1;" parent="student" vertex="1">
+          <mxGeometry y="100" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="course" value="" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#fa6800;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#C73500;strokeWidth=2;fontColor=#000000;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="520" y="100" width="360" height="276" as="geometry" />
+        </mxCell>
+        <mxCell id="course-title" value="📚 CourseDto (과목 정보)" style="text;strokeColor=none;fillColor=#F57C00;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#FFFFFF;fontSize=14;fontStyle=1;" parent="course" vertex="1">
+          <mxGeometry y="26" width="360" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="course-1" value="lecIdx: Integer, lecTitle: String" style="text;strokeColor=#C73500;fillColor=#fa6800;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#000000;fontSize=11;strokeWidth=1;" parent="course" vertex="1">
+          <mxGeometry y="56" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="course-2" value="professorName: String" style="text;strokeColor=#C73500;fillColor=#fa6800;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#000000;fontSize=11;strokeWidth=1;" parent="course" vertex="1">
+          <mxGeometry y="78" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="course-3" value="year: Integer, semester: Integer" style="text;strokeColor=#C73500;fillColor=#fa6800;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#000000;fontSize=11;strokeWidth=1;" parent="course" vertex="1">
+          <mxGeometry y="100" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="course-4" value="credits: Integer (학점)" style="text;strokeColor=#C73500;fillColor=#fa6800;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#000000;fontSize=11;strokeWidth=1;" parent="course" vertex="1">
+          <mxGeometry y="122" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="course-5" value="letterGrade: String (A/B/C/D/F/진행중/미확정)" style="text;strokeColor=#C73500;fillColor=#fa6800;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#000000;fontSize=11;fontStyle=1;strokeWidth=1;" parent="course" vertex="1">
+          <mxGeometry y="144" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="course-6" value="gpa: Double (0.0 ~ 4.0)" style="text;strokeColor=#C73500;fillColor=#fa6800;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#000000;fontSize=11;fontStyle=1;strokeWidth=1;" parent="course" vertex="1">
+          <mxGeometry y="166" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="course-7" value="percentage: Double (백분율 점수)" style="text;strokeColor=#C73500;fillColor=#fa6800;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#000000;fontSize=11;strokeWidth=1;" parent="course" vertex="1">
+          <mxGeometry y="188" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="course-8" value="rank: Integer, totalStudents: Integer" style="text;strokeColor=#C73500;fillColor=#fa6800;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#000000;fontSize=11;strokeWidth=1;" parent="course" vertex="1">
+          <mxGeometry y="210" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="course-9" value="status: String (COMPLETED/FAILED/IN_PROGRESS...)" style="text;strokeColor=#C73500;fillColor=#fa6800;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#000000;fontSize=11;fontStyle=1;strokeWidth=1;" parent="course" vertex="1">
+          <mxGeometry y="232" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="course-10" value="attendanceRate: Double (출석률 %)" style="text;strokeColor=#C73500;fillColor=#fa6800;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#000000;fontSize=11;strokeWidth=1;" parent="course" vertex="1">
+          <mxGeometry y="254" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="semester" value="" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#0050ef;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#001DBC;strokeWidth=2;fontColor=#ffffff;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="520" y="390" width="360" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="semester-title" value="📅 SemesterSummary (학기별 통계)" style="text;strokeColor=none;fillColor=#0288D1;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#FFFFFF;fontSize=14;fontStyle=1;" parent="semester" vertex="1">
+          <mxGeometry y="26" width="360" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="semester-1" value="semesterKey: String (예: &#39;2025-1&#39;)" style="text;strokeColor=#001DBC;fillColor=#0050ef;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=11;strokeWidth=1;" parent="semester" vertex="1">
+          <mxGeometry y="56" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="semester-2" value="year: Integer, semester: Integer" style="text;strokeColor=#001DBC;fillColor=#0050ef;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=11;strokeWidth=1;" parent="semester" vertex="1">
+          <mxGeometry y="78" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="semester-3" value="courseCount: Integer (과목 수)" style="text;strokeColor=#001DBC;fillColor=#0050ef;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=11;strokeWidth=1;" parent="semester" vertex="1">
+          <mxGeometry y="100" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="semester-4" value="earnedCredits, attemptedCredits: Integer" style="text;strokeColor=#001DBC;fillColor=#0050ef;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=11;fontStyle=1;strokeWidth=1;" parent="semester" vertex="1">
+          <mxGeometry y="122" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="semester-5" value="semesterGpa: Double (학기 평점)" style="text;strokeColor=#001DBC;fillColor=#0050ef;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=11;fontStyle=1;strokeWidth=1;" parent="semester" vertex="1">
+          <mxGeometry y="144" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="semester-6" value="averagePercentage: Double (평균 백분율)" style="text;strokeColor=#001DBC;fillColor=#0050ef;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=11;strokeWidth=1;" parent="semester" vertex="1">
+          <mxGeometry y="166" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="semester-7" value="gradeACount, gradeBCount, ..., gradeFCount: Integer" style="text;strokeColor=#001DBC;fillColor=#0050ef;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=11;strokeWidth=1;" parent="semester" vertex="1">
+          <mxGeometry y="188" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="overall" value="" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#a0522d;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#6D1F00;strokeWidth=2;fontColor=#ffffff;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="950" y="392" width="360" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="overall-title" value="🎓 OverallSummary (전체 통계)" style="text;strokeColor=#BD7000;fillColor=#f0a30a;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#000000;fontSize=14;fontStyle=1;" parent="overall" vertex="1">
+          <mxGeometry y="26" width="360" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="overall-1" value="totalCourses: Integer (총 과목 수)" style="text;strokeColor=#6D1F00;fillColor=#a0522d;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=11;strokeWidth=1;" parent="overall" vertex="1">
+          <mxGeometry y="56" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="overall-2" value="totalEarnedCredits, totalAttemptedCredits: Integer" style="text;strokeColor=#6D1F00;fillColor=#a0522d;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=11;fontStyle=1;strokeWidth=1;" parent="overall" vertex="1">
+          <mxGeometry y="78" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="overall-3" value="cumulativeGpa: Double (누적 평점)" style="text;strokeColor=#6D1F00;fillColor=#a0522d;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=11;fontStyle=1;strokeWidth=1;" parent="overall" vertex="1">
+          <mxGeometry y="100" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="overall-4" value="averagePercentage: Double (전체 평균 백분율)" style="text;strokeColor=#6D1F00;fillColor=#a0522d;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=11;strokeWidth=1;" parent="overall" vertex="1">
+          <mxGeometry y="122" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="overall-5" value="completionRate: Double (학점 취득률 %)" style="text;strokeColor=#6D1F00;fillColor=#a0522d;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=11;strokeWidth=1;" parent="overall" vertex="1">
+          <mxGeometry y="144" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="overall-6" value="totalGradeACount ~ totalGradeFCount: Integer" style="text;strokeColor=#6D1F00;fillColor=#a0522d;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=11;strokeWidth=1;" parent="overall" vertex="1">
+          <mxGeometry y="166" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="overall-7" value="(A/B/C/D/F 학점별 취득 과목 수)" style="text;strokeColor=#6D1F00;fillColor=#a0522d;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#ffffff;fontSize=10;strokeWidth=1;" parent="overall" vertex="1">
+          <mxGeometry y="188" width="360" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="rel1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#1976D2;endArrow=diamondThin;endFill=1;startArrow=none;startFill=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="root" target="transcript" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel1-label" value="contains" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontColor=#1A1A1A;backgroundColor=#FFFFFF;" parent="rel1" vertex="1" connectable="0">
+          <mxGeometry x="-0.1" y="1" relative="1" as="geometry">
+            <mxPoint x="25" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#388E3C;endArrow=diamondThin;endFill=1;startArrow=none;startFill=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="transcript" target="student" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel2-label" value="1:1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontColor=#1A1A1A;backgroundColor=#FFFFFF;fontStyle=1;" parent="rel2" vertex="1" connectable="0">
+          <mxGeometry x="-0.1" y="1" relative="1" as="geometry">
+            <mxPoint x="15" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#F57C00;endArrow=diamondThin;endFill=1;startArrow=none;startFill=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" parent="1" source="transcript-2" target="course" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="480" y="375" />
+              <mxPoint x="480" y="175" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel3-label" value="1:N" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontColor=#1A1A1A;backgroundColor=#FFFFFF;fontStyle=1;" parent="rel3" vertex="1" connectable="0">
+          <mxGeometry x="-0.1" y="1" relative="1" as="geometry">
+            <mxPoint x="5" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#0288D1;endArrow=diamondThin;endFill=1;startArrow=none;startFill=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="transcript-3" target="semester-1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="480" y="401" />
+              <mxPoint x="480" y="457" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel4-label" value="1:N" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontColor=#1A1A1A;backgroundColor=#FFFFFF;fontStyle=1;" parent="rel4" vertex="1" connectable="0">
+          <mxGeometry x="-0.1" y="1" relative="1" as="geometry">
+            <mxPoint x="5" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#C62828;endArrow=diamondThin;endFill=1;startArrow=none;startFill=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="student" target="overall" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="260" y="622" />
+              <mxPoint x="900" y="622" />
+              <mxPoint x="900" y="360" />
+              <mxPoint x="1130" y="360" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel5-label" value="1:1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontColor=#1A1A1A;backgroundColor=#FFFFFF;fontStyle=1;" parent="rel5" vertex="1" connectable="0">
+          <mxGeometry x="-0.1" y="1" relative="1" as="geometry">
+            <mxPoint x="15" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend-box" value="" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;dashed=1;fillColor=#0050ef;fontColor=#ffffff;strokeColor=#001DBC;" parent="1" vertex="1">
+          <mxGeometry x="950" y="100" width="360" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-title" value="📌 핵심 필드 설명" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=light-dark(#000000,#000000);" parent="1" vertex="1">
+          <mxGeometry x="970" y="110" width="320" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-1" value="• letterGrade: A/B/C/D/F (finalized=true)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=light-dark(#000000,#000000);" parent="1" vertex="1">
+          <mxGeometry x="970" y="145" width="320" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-2" value="                     &#39;진행중&#39;/&#39;미확정&#39; (finalized=false)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=light-dark(#000000,#000000);" parent="1" vertex="1">
+          <mxGeometry x="970" y="163" width="320" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-3" value="• gpa: 4.0 만점 (A=4.0, B=3.0, C=2.0, D=1.0, F=0.0)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=light-dark(#000000,#000000);" parent="1" vertex="1">
+          <mxGeometry x="970" y="188" width="320" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-4" value="• earnedCredits: COMPLETED 상태 과목의 학점 합계" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=light-dark(#000000,#000000);" parent="1" vertex="1">
+          <mxGeometry x="970" y="213" width="320" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-5" value="• attemptedCredits: 전체 과목의 학점 합계" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=light-dark(#000000,#000000);" parent="1" vertex="1">
+          <mxGeometry x="970" y="238" width="320" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-6" value="• completionRate: (취득학점 / 신청학점) × 100" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=light-dark(#000000,#000000);" parent="1" vertex="1">
+          <mxGeometry x="970" y="258" width="320" height="20" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
