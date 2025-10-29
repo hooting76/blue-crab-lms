@@ -2,14 +2,14 @@ package BlueCrab.com.example.controller.Lecture.Transcript;
 
 import BlueCrab.com.example.dto.Lecture.Transcript.TranscriptResponseDto;
 import BlueCrab.com.example.service.Lecture.Transcript.TranscriptService;
+import BlueCrab.com.example.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,6 +32,7 @@ import java.util.Map;
 public class TranscriptController {
     
     private final TranscriptService transcriptService;
+    private final JwtUtil jwtUtil;
     
     /**
      * 성적확인서 조회
@@ -46,25 +47,34 @@ public class TranscriptController {
      * @return 성적확인서
      */
     @PostMapping("/view")
-    public ResponseEntity<Map<String, Object>> viewTranscript(@RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity<Map<String, Object>> viewTranscript(
+            @RequestBody Map<String, Object> requestBody,
+            HttpServletRequest request) {
         long startTime = System.currentTimeMillis();
         Map<String, Object> response = new HashMap<>();
         
         try {
-            // 1. JWT에서 USER_IDX 추출
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication == null || !authentication.isAuthenticated()) {
-                log.warn("인증되지 않은 요청");
+            // 1. JWT 토큰에서 USER_IDX 추출
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                log.warn("Authorization 헤더 없음");
                 response.put("status", "error");
                 response.put("message", "인증이 필요합니다");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
             
+            String token = authHeader.substring(7);
             Integer authenticatedUserIdx;
             try {
-                authenticatedUserIdx = Integer.parseInt(authentication.getName());
-            } catch (NumberFormatException e) {
-                log.error("JWT 토큰에서 USER_IDX 파싱 실패: {}", authentication.getName());
+                authenticatedUserIdx = jwtUtil.extractUserId(token);
+                if (authenticatedUserIdx == null) {
+                    log.error("JWT 토큰에서 USER_IDX 추출 실패");
+                    response.put("status", "error");
+                    response.put("message", "잘못된 인증 정보입니다");
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+                }
+            } catch (Exception e) {
+                log.error("JWT 토큰 파싱 실패", e);
                 response.put("status", "error");
                 response.put("message", "잘못된 인증 정보입니다");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
