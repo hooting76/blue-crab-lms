@@ -23,6 +23,11 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/api/transcript")
+@CrossOrigin(origins = {
+    "https://dtmch.synology.me:56000",
+    "https://bluecrab.chickenkiller.com",
+    "https://bluecrab-front-test.chickenkiller.com"
+})
 @RequiredArgsConstructor
 public class TranscriptController {
     

@@ -36,6 +36,11 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/api/attendance")
+@CrossOrigin(origins = {
+    "https://dtmch.synology.me:56000",
+    "https://bluecrab.chickenkiller.com",
+    "https://bluecrab-front-test.chickenkiller.com"
+})
 public class AttendanceController {
     
     @Autowired
