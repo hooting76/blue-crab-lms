@@ -42,7 +42,7 @@ public class UserFilterCriteria {
 
     /**
      * 역할별 필터용
-     * 0: 교수, 1: 학생
+     * 0: 학생, 1: 교수
      * filterType=ROLE일 때 사용
      */
     private Integer userStudent;
