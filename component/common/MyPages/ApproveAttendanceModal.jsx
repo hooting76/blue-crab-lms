@@ -6,9 +6,12 @@ import Pagination from "../notices/Pagination";
 const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
   const BASE_URL = "https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api";
   const { user } = UseUser();
+  const accessToken = user.data.accessToken;
 
+  // ✅ 상태 관리
   const [sessionNumber, setSessionNumber] = useState(null);
   const [studentList, setStudentList] = useState([]);
+  const [attendanceCache, setAttendanceCache] = useState({}); // ✅ 회차별 캐시
   const [showRejectPrompt, setShowRejectPrompt] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -17,105 +20,104 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
 
-  const accessToken = user.data.accessToken;
-
-  const handlePageChange = (newPage) => {
-    setPage(newPage);
-  };
-
-
-  // ✅ prompt로 한 번만 sessionNumber 입력받기
+  // ✅ 회차 입력 받기
   useEffect(() => {
-    if (sessionNumber === null) {
-      let input = null;
-      while (true) {
-        input = prompt("강의 회차를 입력하세요 (1~80)");
-        if (input === null) {
-          // 취소 버튼 클릭 시 모달 닫기
-          onClose();
-          return;
-        }
-        const number = Number(input);
-        if (!isNaN(number) && number >= 1 && number <= 80) {
-          setSessionNumber(number);
-          break;
-        }
-        alert("1~80 사이의 숫자를 입력해주세요.");
+    if (sessionNumber !== null) return;
+    let input = null;
+    while (true) {
+      input = prompt("강의 회차를 입력하세요 (1~80)");
+      if (input === null) {
+        onClose();
+        return;
       }
+      const number = Number(input);
+      if (!isNaN(number) && number >= 1 && number <= 80) {
+        setSessionNumber(number);
+        break;
+      }
+      alert("1~80 사이의 숫자를 입력해주세요.");
     }
   }, [sessionNumber, onClose]);
 
+  // ✅ 학생 목록 불러오기 (API)
+  const fetchStudentList = async (pageNum, sessionNum) => {
+    if (!accessToken || sessionNum === null) return;
+    setLoading(true);
+    setError(null);
 
-  // 학생 목록 불러오기
-  const fetchStudentList = async (accessToken, lecSerial, page) => {
-  if (!accessToken || sessionNumber === null) return;
+    try {
+      const res = await fetch(`${BASE_URL}/enrollments/list`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ lecSerial, page: Math.max(pageNum - 1, 0), size: 20 }),
+      });
 
-  setLoading(true);
-  setError(null);
+      if (!res.ok) throw new Error(await res.text() || "학생 목록 조회 실패");
 
-  try {
-    const response = await fetch(`${BASE_URL}/enrollments/list`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify({ lecSerial, page: Math.max(page - 1, 0), size: 20 }),
-    });
+      const data = await res.json();
 
-    if (!response.ok) {
-      const errMsg = await response.text();
-      throw new Error(errMsg || "학생 목록 조회 실패");
+      // ✅ 새 목록 병합 (이전 출결 상태 유지)
+      setAttendanceCache((prevCache) => {
+        const prevList = prevCache[sessionNum] || [];
+        const mergedList = data.content.map((student) => {
+          const existing = prevList.find((s) => s.studentIdx === student.studentIdx);
+          return {
+            ...student,
+            attendanceStatus: existing?.attendanceStatus ?? null,
+          };
+        });
+
+        const sortedList = mergedList.sort((a, b) =>
+          a.studentName.localeCompare(b.studentName, "ko", { sensitivity: "base" })
+        );
+
+        return {
+          ...prevCache,
+          [sessionNum]: sortedList,
+        };
+      });
+
+      setTotal(data.totalElements);
+    } catch (err) {
+      setError(err.message || "알 수 없는 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const data = await response.json();
-
-    // 서버에서 받아온 목록과 로컬 상태 병합
-    const mergedList = data.content.map((student) => {
-      const existing = studentList.find((s) => s.studentIdx === student.studentIdx);
-      return {
-        ...student,
-        attendanceStatus: existing?.attendanceStatus ?? null, // 기존 상태 유지
-      };
-    });
-
-    const sortedList = mergedList.sort((a, b) =>
-      a.studentName.localeCompare(b.studentName, "ko", { sensitivity: "base" })
-    );
-
-    setStudentList(sortedList);
-    setTotal(data.totalElements);
-  } catch (error) {
-    setError(error.message || "알 수 없는 에러가 발생했습니다.");
-    setStudentList([]);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  // ✅ 회차 or 페이지 변경 시 처리
   useEffect(() => {
-    if (accessToken && lecSerial && sessionNumber !== null) {
-      fetchStudentList(accessToken, lecSerial, page);
+    if (!sessionNumber || !accessToken || !lecSerial) return;
+
+    // 1️⃣ 캐시에 데이터가 있으면 API 요청 없이 사용
+    if (attendanceCache[sessionNumber]) {
+      setStudentList(attendanceCache[sessionNumber]);
+    } else {
+      // 2️⃣ 없으면 API 호출
+      fetchStudentList(page, sessionNumber);
     }
-  }, [accessToken, lecSerial, page, sessionNumber]);
+  }, [sessionNumber, page, accessToken, lecSerial]);
 
+  // ✅ attendanceCache 변경 시 studentList 동기화
+  useEffect(() => {
+    if (attendanceCache[sessionNumber]) {
+      setStudentList(attendanceCache[sessionNumber]);
+    }
+  }, [attendanceCache, sessionNumber]);
 
-
-  // ✅ 출석 승인 (단일 학생 단위)
-  const approveAttendance = async (studentIdx, status) => {
+  // ✅ 출석/지각/결석 처리
+  const updateAttendance = async (studentIdx, status, reason = "") => {
     const requestData = {
       lecSerial,
       sessionNumber,
-      attendanceRecords: [
-        {
-          studentIdx,
-          status // '출', '지', '결'
-        },
-      ],
+      attendanceRecords: [{ studentIdx, status, rejectReason: reason }],
     };
 
     try {
-      const response = await fetch(`${BASE_URL}/attendance/approve`, {
+      const res = await fetch(`${BASE_URL}/attendance/approve`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -124,101 +126,43 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
         body: JSON.stringify(requestData),
       });
 
-      const data = await response.json();
+      const data = await res.json();
 
-      if (response.ok) {
-        console.log("✅ 출석 승인 성공:", data);
+      if (!res.ok) throw new Error(data.message || "출결 처리 실패");
 
-        // ✅ 승인된 학생 상태를 로컬에서 업데이트
-        setStudentList((prevList) =>
-          prevList.map((s) =>
-            s.studentIdx === studentIdx
-              ? { ...s, attendanceStatus: status }
-              : s
-          )
+      // ✅ 출결 상태 캐시 및 화면 모두 업데이트
+      setAttendanceCache((prevCache) => {
+        const updated = (prevCache[sessionNumber] || []).map((s) =>
+          s.studentIdx === studentIdx ? { ...s, attendanceStatus: status } : s
         );
-      } else {
-        console.error("❌ 출석 승인 실패:", data);
-      }
-    } catch (error) {
-      console.error("❌ 네트워크 오류:", error);
-    }
-  };
-
-  // ✅ 결석 처리
-  const rejectAttendance = async (studentIdx, rejectReason) => {
-    const requestData = {
-      lecSerial,
-      sessionNumber,
-      attendanceRecords: [
-        {
-          studentIdx,
-          status: "결",
-          rejectReason
-        },
-      ],
-    };
-
-    try {
-      const response = await fetch(`${BASE_URL}/attendance/approve`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(requestData),
+        return { ...prevCache, [sessionNumber]: updated };
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        console.log("✅ 결석 처리 완료:", data);
-
-        // ✅ 결석 학생 색상 갱신
-        setStudentList((prevList) =>
-          prevList.map((s) =>
-            s.studentIdx === studentIdx
-              ? { ...s, attendanceStatus: "결" }
-              : s
-          )
-        );
-      } else {
-        console.error("❌ 결석 처리 실패:", data);
-      }
+      console.log("✅ 출결 처리 성공:", data);
     } catch (error) {
-      console.error("❌ 네트워크 오류:", error);
+      console.error("❌ 출결 처리 오류:", error);
+      alert("출결 처리 중 문제가 발생했습니다.");
     }
   };
 
-  // ✅ 결석 버튼 클릭 시 모달 오픈
+  // ✅ 결석 사유 모달
   const handleRejectClick = (student) => {
     setSelectedStudent(student);
     setShowRejectPrompt(true);
   };
 
-  // ✅ 결석 사유 제출
   const handleRejectSubmit = async () => {
-    if (!rejectReason || !selectedStudent) return;
-    await rejectAttendance(selectedStudent.studentIdx, rejectReason);
-
-    // 모달 닫기 및 상태 초기화
+    if (!rejectReason.trim() || !selectedStudent) return;
+    await updateAttendance(selectedStudent.studentIdx, "결", rejectReason);
     setShowRejectPrompt(false);
     setRejectReason("");
     setSelectedStudent(null);
   };
 
-  // ✅ 색상 스타일 함수
+  // ✅ 색상 스타일
   const getRowStyle = (status) => {
-    switch (status) {
-      case "출":
-        return { backgroundColor: "#d2f8d2" }; // 연초록
-      case "지":
-        return { backgroundColor: "#fff8b3" }; // 연노랑
-      case "결":
-        return { backgroundColor: "#ffd6d6" }; // 연빨강
-      default:
-        return {};
-    }
+    const colors = { 출: "#d2f8d2", 지: "#fff8b3", 결: "#ffd6d6" };
+    return { backgroundColor: colors[status] || "transparent" };
   };
 
   return (
@@ -233,11 +177,11 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
             <table className="notice-table">
               <thead>
                 <tr>
-                  <th style={{ width: "20%" }}>학생 번호</th>
-                  <th style={{ width: "50%" }}>이름</th>
-                  <th style={{ width: "10%" }}>출석</th>
-                  <th style={{ width: "10%" }}>지각</th>
-                  <th style={{ width: "10%" }}>결석</th>
+                  <th>학생 번호</th>
+                  <th>이름</th>
+                  <th>출석</th>
+                  <th>지각</th>
+                  <th>결석</th>
                 </tr>
               </thead>
               <tbody>
@@ -250,32 +194,17 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
                       <td>{student.studentIdx}</td>
                       <td>{student.studentName}</td>
                       <td>
-                        <button
-                          className="attendanceApproveClick"
-                          onClick={() =>
-                            approveAttendance(student.studentIdx, "출")
-                          }
-                        >
+                        <button onClick={() => updateAttendance(student.studentIdx, "출")}>
                           출석
                         </button>
                       </td>
                       <td>
-                        <button
-                          className="attendanceLateClick"
-                          onClick={() =>
-                            approveAttendance(student.studentIdx, "지")
-                          }
-                        >
+                        <button onClick={() => updateAttendance(student.studentIdx, "지")}>
                           지각
                         </button>
                       </td>
                       <td>
-                        <button
-                          className="attendanceRejectClick"
-                          onClick={() => handleRejectClick(student)}
-                        >
-                          결석
-                        </button>
+                        <button onClick={() => handleRejectClick(student)}>결석</button>
                       </td>
                     </tr>
                   ))
@@ -286,14 +215,16 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
                 )}
               </tbody>
             </table>
+
+            <Pagination page={page} size={20} total={total} onChange={setPage} />
+            <button className="approveAttendanceCloseBtn" onClick={onClose}>
+              닫기
+            </button>
           </>
         )}
-        <Pagination page={page} size={20} total={total} onChange={handlePageChange} />
-        <button className="approveAttendanceCloseBtn" onClick={onClose}>
-          닫기
-        </button>
       </div>
 
+      {/* ✅ 결석 사유 모달 */}
       {showRejectPrompt && (
         <div className="reject-reason-modal">
           <div className="modal-content">
