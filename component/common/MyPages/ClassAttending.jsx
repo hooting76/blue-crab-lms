@@ -85,6 +85,15 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
     }
   };
 
+ // 강의 제목 가져오기
+  const getSelectedLectureTitle = () => {
+  const selected = isProf
+    ? lectureList.find((lec) => String(lec.lecSerial) === String(selectedLectureSerial))
+    : lectureList?.content?.find((lec) => String(lec.lecSerial) === String(selectedLectureSerial));
+
+  return selected ? selected.lecTit : '';
+};
+
 
 
 // 공지 목록 불러오기
@@ -465,6 +474,7 @@ const fetchNotices = async () => {
             <GradeConfigModal
               onClose={closeGradeConfigModal}
               lecSerial={selectedLectureSerial}
+              lecTitle={getSelectedLectureTitle()}
             />
           )}
 
