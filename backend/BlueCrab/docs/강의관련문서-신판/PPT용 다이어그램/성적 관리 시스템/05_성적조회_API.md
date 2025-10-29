@@ -9,12 +9,24 @@
 ### 학생용 성적 조회
 
 - **엔드포인트**: `POST /api/enrollments/grade-info`
+- **Action**: `get-grade`
 - **권한**: 학생 (본인만 조회)
 
-### 교수용 전체 성적 조회
+### 교수용 개별 학생 성적 조회
+
+- **엔드포인트**: `POST /api/enrollments/grade-info`
+- **Action**: `professor-view`
+- **권한**: 교수
+
+### 전체 성적 목록 조회
 
 - **엔드포인트**: `POST /api/enrollments/grade-list`
+- **Action**: `list-all`
 - **권한**: 교수 (해당 강의 전체 수강생)
+
+**⚠️ 중요**: 
+- 성적 데이터는 **ENROLLMENT_EXTENDED_TBL.ENROLLMENT_DATA** JSON 필드에 저장됩니다
+- 모든 성적 정보(출석, 과제, 총점, 등급)는 JSON 내부에 구조화되어 있습니다
 
 ---
 
@@ -25,9 +37,12 @@
 ```json
 {
   "action": "get-grade",
-  "enrollmentIdx": 1
+  "lecSerial": "ETH201",
+  "studentIdx": 33
 }
 ```
+
+**⚠️ 주의**: `lecSerial` + `studentIdx` 조합으로 조회합니다 (enrollmentIdx 아님!)
 
 ### 📤 Response
 
@@ -61,8 +76,10 @@
       },
       "assignments": [
         {
-          "taskName": "중간과제",
+          "assignmentIdx": 15,
+          "title": "중간과제",
           "score": 45,
+          "maxScore": 50,
           "gradedAt": "2025-02-16T10:00:00",
           "feedback": "잘했습니다."
         }
@@ -79,56 +96,97 @@
 
 ---
 
-## 2️⃣ 교수용 전체 성적 조회
+## 2️⃣ 교수용 개별 학생 성적 조회
+
+### 📥 Request
+
+```json
+{
+  "action": "professor-view",
+  "lecSerial": "ETH201",
+  "studentIdx": 33
+}
+```
+
+**⚠️ 주의**: 
+- `professorIdx`는 JWT 토큰에서 자동으로 추출됩니다
+- 교수는 자신이 담당하는 강의의 학생 성적만 조회 가능
+
+### 📤 Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "studentName": "김철수",
+    "studentIdx": 33,
+    "lecName": "블록체인 기초",
+    "lecSerial": "ETH201",
+    "totalScore": 120.5,
+    "percentage": 43.5,
+    "grade": null,
+    "classStats": {
+      "average": 65.3,
+      "highest": 98.5,
+      "lowest": 23.0
+    }
+  }
+}
+```
+
+---
+
+## 3️⃣ 전체 성적 목록 조회
 
 ### 📥 Request (교수)
 
 ```json
 {
-  "action": "professor-view",
-  "lecSerial": "ETH201"
+  "action": "list-all",
+  "lecSerial": "ETH201",
+  "page": 0,
+  "size": 20,
+  "sortBy": "percentage",
+  "sortOrder": "desc"
 }
 ```
+
+**필드 설명**:
+- `sortBy`: 정렬 기준 (`percentage` | `name` | `studentId`)
+- `sortOrder`: 정렬 순서 (`desc` | `asc`)
 
 ### 📤 Response (교수)
 
 ```json
 {
   "success": true,
-  "data": [
-    {
-      "enrollmentIdx": 1,
-      "studentIdx": 33,
-      "studentName": "김철수",
-      "grade": {
-        "attendanceScore": {
-          "currentScore": 75.5
-        },
-        "total": {
-          "currentScore": 120.5,
-          "percentage": 43.5
-        },
-        "letterGrade": null
+  "data": {
+    "content": [
+      {
+        "enrollmentIdx": 1,
+        "studentIdx": 33,
+        "studentName": "김철수",
+        "percentage": 71.5,
+        "grade": null
+      },
+      {
+        "enrollmentIdx": 2,
+        "studentIdx": 34,
+        "studentName": "이영희",
+        "percentage": 43.5,
+        "grade": null
       }
-    },
-    {
-      "enrollmentIdx": 2,
-      "studentIdx": 34,
-      "studentName": "이영희",
-      "grade": {
-        "attendanceScore": {
-          "currentScore": 105.0
-        },
-        "total": {
-          "currentScore": 198.0,
-          "percentage": 71.5
-        },
-        "letterGrade": null
-      }
-    }
-  ]
+    ],
+    "totalElements": 42,
+    "totalPages": 3,
+    "number": 0
+  }
 }
 ```
+
+**⚠️ 주의**: 
+- 기본 정렬은 `percentage` 내림차순 (높은 점수 우선)
+- 페이징 처리 지원
 
 ---
 
@@ -136,32 +194,50 @@
 
 ```plaintext
 [학생 조회]
-학생 → API: 내 성적 조회
-API → DB: ENROLLMENT_EXTENDED_TBL WHERE ENROLLMENT_IDX = 1
+학생 → API: 내 성적 조회 (action: get-grade, lecSerial, studentIdx)
+API → DB: ENROLLMENT_EXTENDED_TBL 조회 (lecSerial + studentIdx)
 DB → API: ENROLLMENT_DATA 반환
-API → 학생: 출석/과제/총점 정보
+API → 학생: 출석/과제/총점 상세 정보
 
-[교수 조회]
-교수 → API: 전체 성적 조회
-API → DB: ENROLLMENT_EXTENDED_TBL WHERE LEC_IDX = 42
-DB → API: 42명 ENROLLMENT_DATA 반환
-API → 교수: 전체 수강생 성적 목록
+[교수 개별 조회]
+교수 → API: 학생 성적 조회 (action: professor-view, lecSerial, studentIdx)
+API → JWT: professorIdx 추출
+API → DB: ENROLLMENT_EXTENDED_TBL 조회 (lecSerial + studentIdx)
+API → DB: 반 통계 계산 (같은 강의 전체 평균)
+DB → API: ENROLLMENT_DATA + classStats 반환
+API → 교수: 학생 성적 + 반 통계
+
+[전체 목록 조회]
+교수 → API: 전체 성적 목록 (action: list-all, lecSerial, sortBy, sortOrder)
+API → DB: ENROLLMENT_EXTENDED_TBL 조회 (LEC_IDX + 정렬)
+DB → API: 전체 수강생 ENROLLMENT_DATA 반환
+API → 교수: 페이징된 성적 목록
 ```
 
 ---
 
 ## 💡 주요 차이점
 
-### 학생 View
+### 학생 View (action: get-grade)
 
+- **엔드포인트**: `POST /api/enrollments/grade-info`
 - **상세 정보**: 출석 세부 내역, 과제별 점수, 피드백
-- **제한**: 본인 성적만 조회 가능
+- **제한**: 본인 성적만 조회 가능 (lecSerial + studentIdx)
 - **letterGrade**: 최종 등급 배정 전까지 `null`
 
-### 교수 View
+### 교수 개별 View (action: professor-view)
 
+- **엔드포인트**: `POST /api/enrollments/grade-info`
+- **추가 정보**: 반 통계 (평균, 최고점, 최저점)
+- **권한**: 담당 강의 학생만 조회 가능
+- **JWT**: professorIdx 자동 추출
+
+### 교수 전체 목록 (action: list-all)
+
+- **엔드포인트**: `POST /api/enrollments/grade-list`
 - **전체 목록**: 모든 수강생의 성적 요약
-- **간략 정보**: 출석 점수, 총점, 퍼센테이지
+- **간략 정보**: 학생명, 백분율, 등급만 표시
+- **정렬/페이징**: sortBy, sortOrder, page, size 지원
 - **활용**: 최종 등급 배정을 위한 전체 분포 확인
 
 ---
