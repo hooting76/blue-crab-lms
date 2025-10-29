@@ -29,7 +29,7 @@ function CourseDetail({ lectureDetails, setIsModalOpen, currentPage, setCurrentP
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ lecSerial: lectureDetails.lecSerial }),
+        body: JSON.stringify({ lecSerial: lectureDetails.lecSerial })
       });
 
       if (!response.ok) throw new Error('강의 상세 정보를 불러오는데 실패했습니다.');
