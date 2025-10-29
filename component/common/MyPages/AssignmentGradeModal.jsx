@@ -70,7 +70,7 @@ const assignmentGrade = async (student) => {
   const requestData = {
     studentIdx: student.studentIdx,
     score: Number(score),
-    feedback
+    feedback: feedback
   };
 
   try {

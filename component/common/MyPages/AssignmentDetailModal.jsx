@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
 import { UseUser } from "../../../hook/UseUser";
-import "../../../css/MyPages/AssignmentDetailModal.css"
-import AssignmentSubmitModal from "./AssignmentSubmitModal";
+import "../../../css/MyPages/AssignmentDetailModal.css";
+import AssignmentGradeModal from './AssignmentGradeModal.jsx';
 
-const AssignmentDetailModal = ({ onClose, onDelete, assignmentIdx }) => {
+const AssignmentDetailModal = ({ onClose, onDelete, lecSerial, assignmentIdx }) => {
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
     const { user } = UseUser();
     const accessToken = user.data.accessToken;
     const isProf = user.data.user.userStudent === 1;
     const [assignmentData, setAssignmentData] = useState();
-    const [isAssignmentSubmitModalOpen, setIsAssignmentSubmitModalOpen] = useState(false);
+    const [isAssignmentGradeModalOpen, setIsAssignmentGradeModalOpen] = useState(false);
 
-    const openAssignmentSubmitModal = () => setIsAssignmentSubmitModalOpen(true);
-    const closeAssignmentSubmitModal = () => setIsAssignmentSubmitModalOpen(false);
+    const openAssignmentGradeModal = () => setIsAssignmentGradeModalOpen(true);
+    const closeAssignmentGradeModal = () => setIsAssignmentGradeModalOpen(false);
 
     // ✅ 과제 상세 불러오기
     const fetchAssignmentData = async () => {
@@ -92,22 +92,26 @@ const AssignmentDetailModal = ({ onClose, onDelete, assignmentIdx }) => {
                     <div>로딩 중...</div>
                 )}
 
-                {isProf ? (
-                    <button className="assignmentDeleteBtn" onClick={assignmentDelete}>
-                        과제 삭제
-                    </button>
-                ) : (
-                    <button className="assignmentSubmitBtn" onClick={openAssignmentSubmitModal}>
-                        과제 제출
-                    </button>
-                )}
-
-                {isAssignmentSubmitModalOpen &&
-                    <AssignmentSubmitModal
-                        onClose={closeAssignmentSubmitModal}
-                        assignIdx={assignmentIdx}
-                    />
+                {isProf &&
+                    <>
+                        <button className="assignmentDeleteBtn" onClick={assignmentDelete}>
+                            과제 삭제
+                        </button>
+                        <br/>
+                        <button className="assignmentGradeModalBtn" onClick={openAssignmentGradeModal}>
+                            과제 채점
+                        </button>
+                    </>
                 }
+
+
+                {isAssignmentGradeModalOpen && (
+                    <AssignmentGradeModal
+                    onClose={closeAssignmentGradeModal}
+                    lecSerial={lecSerial}
+                    assignmentIdx={assignmentIdx}
+                    />
+                )}
                 <br/>
                 <button className="assignmentDetailCloseBtn" onClick={onClose}>닫기</button>
             </div>

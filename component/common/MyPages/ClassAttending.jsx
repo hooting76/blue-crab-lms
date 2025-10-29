@@ -11,7 +11,6 @@ import CourseDetail from './CourseDetail';
 import AssignmentDetailModal from './AssignmentDetailModal.jsx';
 import GradeConfigModal from './GradeConfigModal.jsx';
 import MyScoreModal from './MyScoreModal.jsx';
-import AssignmentGradeModal from './AssignmentGradeModal.jsx';
 
 function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, setSelectedLectureSerial }) {
   const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
@@ -37,7 +36,6 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
   const [isAssignmentDetailModalOpen, setIsAssignmentDetailModalOpen] = useState(false);
   const [isGradeConfigModalOpen, setIsGradeConfigModalOpen] = useState(false);
   const [isMyScoreModalOpen, setIsMyScoreModalOpen] = useState(false);
-  const [isAssignmentGradeModalOpen, setIsAssignmentGradeModalOpen] = useState(false);
 
 
   // 강의 목록 받아올 때 첫 강의로 기본 선택 설정
@@ -321,8 +319,6 @@ const gradeFinalize = async() => {
   const closeAssignmentDetailModal = () => setIsAssignmentDetailModalOpen(false);
   const openMyScoreModal = () => setIsMyScoreModalOpen(true);
   const closeMyScoreModal = () => setIsMyScoreModalOpen(false);
-  const openAssignmentGradeModal = () => setIsAssignmentGradeModalOpen(true);
-  const closeAssignmentGradeModal = () => setIsAssignmentGradeModalOpen(false);
 
   // 과목별 공지 페이지 렌더링
   if (currentPage === "수강/강의과목 공지사항") {
@@ -552,10 +548,6 @@ const gradeFinalize = async() => {
                 <button className="assignmentCreateModalBtn" onClick={openAssignmentCreateModal}>
                   과제 생성
                 </button>
-                <br/>
-                <button className="assignmentGradeModalBtn" onClick={openAssignmentGradeModal}>
-                  과제 채점
-                </button>
               </>
             )}
             <br />
@@ -616,18 +608,13 @@ const gradeFinalize = async() => {
           {isAssignmentDetailModalOpen && (
             <AssignmentDetailModal
               onClose={closeAssignmentDetailModal}
-              onDelete={handleDeleteAssignment}   // ✅ 추가
-              assignmentIdx={selectedAssignmentIdx}
-            />
-          )}
-
-          {isAssignmentGradeModalOpen && (
-            <AssignmentGradeModal
-              onClose={closeAssignmentGradeModal}
+              onDelete={handleDeleteAssignment}
               lecSerial={selectedLectureSerial}
               assignmentIdx={selectedAssignmentIdx}
             />
           )}
+
+          
 
         </div>
       </div>
