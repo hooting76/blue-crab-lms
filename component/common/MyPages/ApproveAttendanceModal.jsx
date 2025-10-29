@@ -205,13 +205,13 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
                       <td>{student.studentIdx}</td>
                       <td>{student.studentName}</td>
                       <td>
-                        <button onClick={() => updateAttendance(student.studentIdx, "출")}>출석</button>
+                        <button className="attendanceApproveClick" onClick={() => updateAttendance(student.studentIdx, "출")}>출석</button>
                       </td>
                       <td>
-                        <button onClick={() => updateAttendance(student.studentIdx, "지")}>지각</button>
+                        <button className="attendanceLateClick" onClick={() => updateAttendance(student.studentIdx, "지")}>지각</button>
                       </td>
                       <td>
-                        <button onClick={() => handleRejectClick(student)}>결석</button>
+                        <button className="attendanceRejectClick" onClick={() => handleRejectClick(student)}>결석</button>
                       </td>
                     </tr>
                   ))
