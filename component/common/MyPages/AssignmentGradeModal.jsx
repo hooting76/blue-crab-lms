@@ -3,7 +3,7 @@ import { UseUser } from "../../../hook/UseUser";
 import "../../../css/MyPages/AssignmentGradeModal.css";
 import Pagination from "../notices/Pagination";
 
-const AssignmentGradeModal = ({ onClose, assignmentIdx }) => {
+const AssignmentGradeModal = ({ onClose, lecSerial, assignmentIdx }) => {
   const BASE_URL = "https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api";
   const { user } = UseUser();
   const accessToken = user?.data?.accessToken;

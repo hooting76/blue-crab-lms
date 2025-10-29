@@ -608,7 +608,8 @@ const gradeFinalize = async() => {
           {isAssignmentDetailModalOpen && (
             <AssignmentDetailModal
               onClose={closeAssignmentDetailModal}
-              onDelete={handleDeleteAssignment}   // ✅ 추가
+              onDelete={handleDeleteAssignment}
+              lecSerial={selectedLectureSerial}
               assignmentIdx={selectedAssignmentIdx}
             />
           )}

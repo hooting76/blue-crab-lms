@@ -4,7 +4,7 @@ import "../../../css/MyPages/AssignmentDetailModal.css"
 import AssignmentSubmitModal from "./AssignmentSubmitModal";
 import AssignmentGradeModal from './AssignmentGradeModal.jsx';
 
-const AssignmentDetailModal = ({ onClose, onDelete, assignmentIdx }) => {
+const AssignmentDetailModal = ({ onClose, onDelete, lecSerial, assignmentIdx }) => {
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
     const { user } = UseUser();
     const accessToken = user.data.accessToken;
@@ -122,6 +122,7 @@ const AssignmentDetailModal = ({ onClose, onDelete, assignmentIdx }) => {
                 {isAssignmentGradeModalOpen && (
                     <AssignmentGradeModal
                     onClose={closeAssignmentGradeModal}
+                    lecSerial={lecSerial}
                     assignmentIdx={assignmentIdx}
                     />
                 )}
