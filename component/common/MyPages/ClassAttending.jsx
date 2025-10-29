@@ -11,6 +11,7 @@ import CourseDetail from './CourseDetail';
 import AssignmentDetailModal from './AssignmentDetailModal.jsx';
 import GradeConfigModal from './GradeConfigModal.jsx';
 import MyScoreModal from './MyScoreModal.jsx';
+import AssignmentGradeModal from './AssignmentGradeModal.jsx';
 
 function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, setSelectedLectureSerial }) {
   const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
@@ -36,6 +37,7 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
   const [isAssignmentDetailModalOpen, setIsAssignmentDetailModalOpen] = useState(false);
   const [isGradeConfigModalOpen, setIsGradeConfigModalOpen] = useState(false);
   const [isMyScoreModalOpen, setIsMyScoreModalOpen] = useState(false);
+  const [isAssignmentGradeModalOpen, setIsAssignmentGradeModalOpen] = useState(false);
 
 
   // 강의 목록 받아올 때 첫 강의로 기본 선택 설정
@@ -227,7 +229,7 @@ const fetchNotices = async () => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(body)
     });
 
     const data = await res.json();
@@ -237,6 +239,53 @@ const fetchNotices = async () => {
   } catch (err) {
     console.error('❌ 출석 요청 에러:', err);
     alert("출석 요청 실패");
+  }
+};
+
+// 최종 등급 배정
+const gradeFinalize = async() => {
+  const inputThreshold = prompt("통과 기준 점수를 입력하세요:");
+    if (!inputThreshold) {
+      alert("통과 기준 점수가 입력되지 않았습니다.");
+      return;
+    }
+
+  const distributionA = Number(prompt("A등급 학생의 비율(%)"));
+  const distributionB = Number(prompt("B등급 학생의 비율(%)"));
+  const distributionC = Number(prompt("C등급 학생의 비율(%)"));
+  const distributionD = Number(prompt("D등급 학생의 비율(%)"));
+    if (distributionA + distributionB + distributionC + distributionD != 100) {
+      alert("등급 비율 백분위 합계가 100이 아닙니다.");
+      return;
+    }
+
+  const requestBody = {
+    action: "finalize",
+    lecSerial: selectedLectureSerial,
+    passingThreshold: Number(inputThreshold),
+    gradeDistribution: {
+      A: distributionA,
+      B: distributionB,
+      C: distributionC,
+      D: distributionD
+    }
+  }
+
+  try {
+    const response = await fetch(`${BASE_URL}/enrollments/grade-finalize`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(requestBody)
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(`등급 배정 실패: ${data.message || 'Unknown error'}`);
+    alert("최종 등급을 배정했습니다.");
+  } catch (err) {
+    console.error('최종 등급 배정 에러 : ', err);
+    alert("등급 배정 실패");
   }
 };
 
@@ -272,6 +321,8 @@ const fetchNotices = async () => {
   const closeAssignmentDetailModal = () => setIsAssignmentDetailModalOpen(false);
   const openMyScoreModal = () => setIsMyScoreModalOpen(true);
   const closeMyScoreModal = () => setIsMyScoreModalOpen(false);
+  const openAssignmentGradeModal = () => setIsAssignmentGradeModalOpen(true);
+  const closeAssignmentGradeModal = () => setIsAssignmentGradeModalOpen(false);
 
   // 과목별 공지 페이지 렌더링
   if (currentPage === "수강/강의과목 공지사항") {
@@ -497,9 +548,15 @@ const fetchNotices = async () => {
           {/* 과제 목록 (학생/교수 공용) */}
           <div className="assignmentList">
             {isProf && (
-              <button className="assignmentCreateModalBtn" onClick={openAssignmentCreateModal}>
-                과제 생성
-              </button>
+              <>
+                <button className="assignmentCreateModalBtn" onClick={openAssignmentCreateModal}>
+                  과제 생성
+                </button>
+                <br/>
+                <button className="assignmentGradeModalBtn" onClick={openAssignmentGradeModal}>
+                  과제 채점
+                </button>
+              </>
             )}
             <br />
             <table className="assignment-list">
@@ -541,6 +598,10 @@ const fetchNotices = async () => {
             </table>
           </div>
 
+          <div>
+            <button onClick={gradeFinalize} className='gradeFinalizeBtn'>최종 등급 배정</button>
+          </div>
+
           {isProf && isAssignmentCreateModalOpen && (
             <AssignmentCreateModal
               lecSerial={selectedLectureSerial}
@@ -552,7 +613,6 @@ const fetchNotices = async () => {
             />
           )}
 
-
           {isAssignmentDetailModalOpen && (
             <AssignmentDetailModal
               onClose={closeAssignmentDetailModal}
@@ -561,6 +621,12 @@ const fetchNotices = async () => {
             />
           )}
 
+          {isAssignmentGradeModalOpen && (
+            <AssignmentGradeModal
+              onClose={closeAssignmentGradeModal}
+              lecSerial={selectedLectureSerial}
+            />
+          )}
 
         </div>
       </div>

@@ -144,7 +144,8 @@
 .testModalBtn,
 .assignmentCreateModalBtn,
 .gradeConfigBtn,
-.myScoreBtn {
+.myScoreBtn,
+.gradeFinalizeBtn {
   font-size: var(--font-mid);
 }
 
@@ -155,7 +156,8 @@
 .testModalBtn:hover,
 .assignmentCreateModalBtn:hover,
 .gradeConfigBtn:hover,
-.myScoreBtn:hover {
+.myScoreBtn:hover,
+.gradeFinalizeBtn:hover {
   cursor: pointer;
 }
 

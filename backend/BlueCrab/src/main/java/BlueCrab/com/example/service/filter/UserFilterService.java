@@ -100,7 +100,7 @@ public class UserFilterService {
     /**
      * 역할별 사용자 조회 (학생/교수)
      *
-     * @param userStudent 0: 교수, 1: 학생
+     * @param userStudent 0: 학생, 1: 교수
      * @return userCode 리스트
      */
     private List<String> getUsersByRole(Integer userStudent) {
