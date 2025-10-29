@@ -67,6 +67,9 @@ console.log("assignIdx:", assignIdx);
       body: JSON.stringify(requestBody)
     });
 
+
+    const text = await response.text();
+    console.log("서버 응답 원문:", text);
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || "과제 제출 실패");
 
