@@ -252,7 +252,7 @@ const fetchNotices = async () => {
   const openAttendanceModal = () => setIsAttendanceModalOpen(true);
   const closeAttendanceModal = () => setIsAttendanceModalOpen(false);
   const openGradeConfigModal = () => setIsGradeConfigModalOpen(true);
-  const closeGradeConfigModal = () => setIsGradeConfigModalOpen(false);s
+  const closeGradeConfigModal = () => setIsGradeConfigModalOpen(false);
   const openAssignmentCreateModal = () => setIsAssignmentCreateModalOpen(true);
   const closeAssignmentCreateModal = () => setIsAssignmentCreateModalOpen(false);
   const openClassDetailModal = () => setIsClassDetailModalOpen(true);
