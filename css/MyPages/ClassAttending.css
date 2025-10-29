@@ -142,7 +142,8 @@
 .attendanceDetailBtn,
 .attendanceCallBtn,
 .testModalBtn,
-.assignmentCreateModalBtn {
+.assignmentCreateModalBtn,
+.gradeConfigBtn {
   font-size: var(--font-mid);
 }
 
@@ -151,7 +152,8 @@
 .studentEvaluationBtn:hover,
 .attendanceCallBtn:hover,
 .testModalBtn:hover,
-.assignmentCreateModalBtn:hover {
+.assignmentCreateModalBtn:hover,
+.gradeConfigBtn:hover {
   cursor: pointer;
 }
 
