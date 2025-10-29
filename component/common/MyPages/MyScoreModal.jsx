@@ -47,7 +47,38 @@ console.log("scoreDetail : ", scoreDetail);
                             <span>출석 만점 : {scoreDetail.attendanceScore.maxScore}</span>
                         </div>
                         <div>과제<br/>
-                            
+                            <table className="notice-table">
+                                <thead>
+                                    <tr>
+                                        <th style={{ width: "10%" }}>번호</th>
+                                        <th style={{ width: "50%" }}>제목</th>
+                                        <th style={{ width: "20%" }}>제출여부</th>
+                                        <th style={{ width: "10%" }}>점수</th>
+                                        <th style={{ width: "20%" }}>만점</th>
+                                        <th style={{ width: "10%" }}>백분율</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {scoreDetail.assignments.length > 0 ? (
+                                        scoreDetail.assignments.map((assign) => {
+                                            return (
+                                                <tr key={assign.name}>
+                                                    <td>{assign.index + 1}</td>
+                                                    <td>{assign.name}</td>
+                                                    <td>{assign.submitted ? "제출" : "미제출"}</td>
+                                                    <td>{assign.score}</td>
+                                                    <td>{assign.maxScore}</td>
+                                                    <td>{assign.percentage}</td>
+                                                </tr>
+                                            );
+                                        })
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="4">과제 목록이 없습니다.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
                         <div>총점<br/>
                             <span>점수 : {scoreDetail.total.score}</span>
