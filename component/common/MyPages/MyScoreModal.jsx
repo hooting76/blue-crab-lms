@@ -51,10 +51,10 @@ console.log("scoreDetail : ", scoreDetail);
                                 <thead>
                                     <tr>
                                         <th style={{ width: "10%" }}>번호</th>
-                                        <th style={{ width: "50%" }}>제목</th>
+                                        <th style={{ width: "40%" }}>제목</th>
                                         <th style={{ width: "20%" }}>제출여부</th>
                                         <th style={{ width: "10%" }}>점수</th>
-                                        <th style={{ width: "20%" }}>만점</th>
+                                        <th style={{ width: "10%" }}>만점</th>
                                         <th style={{ width: "10%" }}>백분율</th>
                                     </tr>
                                 </thead>
