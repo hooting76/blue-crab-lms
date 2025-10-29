@@ -33,7 +33,7 @@ function MyScoreModal({onClose, lecSerial, lecTitle}) {
         fetchMyScore();
     }, []);
 
-console.log("scoreDetail : ", scoreDetail);
+console.log("data : ", data);
 
     return (
         <div className="myScore-modal-container">
@@ -42,20 +42,19 @@ console.log("scoreDetail : ", scoreDetail);
                     <>
                         <div>과목 : {lecTitle}</div>
                         <div>출석
-                            <span>출석률 : {scoreDetail.attendance.percentage}%</span>
-                            <span>출석 점수 : {scoreDetail.attendance.score}</span>
-                            <span>출석 만점 : {scoreDetail.attendance.maxScore}</span>
+                            <span>출석률 : {scoreDetail.attendanceScore.percentage}%</span>
+                            <span>출석 점수 : {scoreDetail.attendanceScore.currentScore}</span>
+                            <span>출석 만점 : {scoreDetail.attendanceScore.maxScore}</span>
                         </div>
-                        <div>과제
-                            <span>과제 총점 : {scoreDetail.assignment.score}</span>
-                            <span>과제 만점 : {scoreDetail.assignment.maxScore}</span>
-                            <span>과제 점수 백분율 : {scoreDetail.assignment.percentage}</span>
-                        </div>
+                        {/* <div>과제
+                            <span>과제 총점 : {scoreDetail.assignments.score}</span>
+                            <span>과제 만점 : {scoreDetail.assignments.maxScore}</span>
+                            <span>과제 점수 백분율 : {scoreDetail.assignments.percentage}</span>
+                        </div> */}
                         <div>총점
                             <span>점수 : {scoreDetail.total.score}</span>
                             <span>만점 : {scoreDetail.total.maxScore}</span>
                             <span>순위 백분율 : {scoreDetail.total.percentage}</span>
-                            <div>등급 : {scoreDetail.total.letterGrade}</div>
                         </div>
                     </>
                 ) : (
