@@ -28,7 +28,7 @@ const AssignmentSubmitModal = ({ onClose, assignIdx }) => {
     try {
       const uploadUrls = submissionFiles.map((file) => ({
         name: file.name,
-        url: `/uploads/students/${studentIdx}/${file.name}`
+        url: `${BASE_URL}/uploads/students/${studentIdx}/${file.name}`
       }));
 
       // 🟢 과제 제출 요청 (JSON 전송)
@@ -36,7 +36,7 @@ const AssignmentSubmitModal = ({ onClose, assignIdx }) => {
         assignIdx,
         studentIdx,
         submissionContent,
-        submissionFiles: uploadUrls
+        submissionFiles: JSON.stringify(uploadUrls)
       };
 
       const response = await fetch(`${BASE_URL}/assignments/submit`, {
