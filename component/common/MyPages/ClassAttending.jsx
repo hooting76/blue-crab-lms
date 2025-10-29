@@ -227,7 +227,7 @@ const fetchNotices = async () => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(body)
     });
 
     const data = await res.json();
@@ -237,6 +237,53 @@ const fetchNotices = async () => {
   } catch (err) {
     console.error('❌ 출석 요청 에러:', err);
     alert("출석 요청 실패");
+  }
+};
+
+// 최종 등급 배정
+const gradeFinalize = async() => {
+  const inputThreshold = prompt("통과 기준 점수를 입력하세요:");
+    if (!inputThreshold) {
+      alert("통과 기준 점수가 입력되지 않았습니다.");
+      return;
+    }
+
+  const distributionA = Number(prompt("A등급 학생의 비율(%)"));
+  const distributionB = Number(prompt("B등급 학생의 비율(%)"));
+  const distributionC = Number(prompt("C등급 학생의 비율(%)"));
+  const distributionD = Number(prompt("D등급 학생의 비율(%)"));
+    if (distributionA + distributionB + distributionC + distributionD != 100) {
+      alert("등급 비율 백분위 합계가 100이 아닙니다.");
+      return;
+    }
+
+  const requestBody = {
+    action: "finalize",
+    lecSerial: selectedLectureSerial,
+    passingThreshold: Number(inputThreshold),
+    gradeDistribution: {
+      A: distributionA,
+      B: distributionB,
+      C: distributionC,
+      D: distributionD
+    }
+  }
+
+  try {
+    const response = await fetch(`${BASE_URL}/enrollments/grade-finalize`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(requestBody)
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(`등급 배정 실패: ${data.message || 'Unknown error'}`);
+    alert("최종 등급을 배정했습니다.");
+  } catch (err) {
+    console.error('최종 등급 배정 에러 : ', err);
+    alert("등급 배정 실패");
   }
 };
 
@@ -539,6 +586,10 @@ const fetchNotices = async () => {
                 )}
               </tbody>
             </table>
+          </div>
+
+          <div>
+            <button onClick={gradeFinalize} className='gradeFinalizeBtn'>최종 등급 배정</button>
           </div>
 
           {isProf && isAssignmentCreateModalOpen && (
