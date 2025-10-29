@@ -24,6 +24,11 @@ const AssignmentSubmitModal = ({ onClose, assignIdx }) => {
     return;
   }
 
+  console.log("accessToken:", accessToken);
+console.log("studentIdx:", studentIdx);
+console.log("assignIdx:", assignIdx);
+
+
   try {
     // 1️⃣ 파일 업로드
     const uploadUrls = [];
@@ -50,7 +55,7 @@ const AssignmentSubmitModal = ({ onClose, assignIdx }) => {
       assignIdx,
       studentIdx,
       submissionContent,
-      submissionFiles: JSON.stringify(uploadUrls),
+      submissionFiles: JSON.stringify(uploadUrls)
     };
 
     const response = await fetch(`${BASE_URL}/assignments/submit`, {
@@ -59,7 +64,7 @@ const AssignmentSubmitModal = ({ onClose, assignIdx }) => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify(requestBody),
+      body: JSON.stringify(requestBody)
     });
 
     const data = await response.json();
