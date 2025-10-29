@@ -625,6 +625,7 @@ const gradeFinalize = async() => {
             <AssignmentGradeModal
               onClose={closeAssignmentGradeModal}
               lecSerial={selectedLectureSerial}
+              assignmentIdx={selectedAssignmentIdx}
             />
           )}
 

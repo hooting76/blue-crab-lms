@@ -3,7 +3,7 @@ import { UseUser } from "../../../hook/UseUser";
 import "../../../css/MyPages/AssignmentGradeModal.css";
 import Pagination from "../notices/Pagination";
 
-const AssignmentGradeModal = ({ onClose, lecSerial }) => {
+const AssignmentGradeModal = ({ onClose, lecSerial, assignmentIdx }) => {
   const BASE_URL = "https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api";
   const { user } = UseUser();
   const accessToken = user?.data?.accessToken;
@@ -66,15 +66,14 @@ const AssignmentGradeModal = ({ onClose, lecSerial }) => {
     if (score === null) return; // 취소 시 종료
 
     const requestData = {
-      assignmentIdx,
       studentIdx: student.data.user.id,
       score: Number(score),
       feedback
     };
 
     try {
-      const res = await fetch(`${BASE_URL}/assignments/grade`, {
-        method: "POST",
+      const res = await fetch(`${BASE_URL}/assignments/${assignmentIdx}/grade`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
