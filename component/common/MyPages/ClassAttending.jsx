@@ -486,7 +486,7 @@ const fetchNotices = async () => {
             />
           )}
 
-          {isMyScoreOpen && (
+          {isMyScoreModalOpen && (
             <MyScoreModal
               onClose={closeMyScoreModal}
               lecSerial={selectedLectureSerial}
