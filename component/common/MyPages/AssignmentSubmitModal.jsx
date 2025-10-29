@@ -41,7 +41,7 @@ const AssignmentSubmitModal = ({ onClose, assignIdx }) => {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-        body: formData, // JSON.stringify() ❌
+        body: JSON.stringify(formData)
       });
 
       const data = await response.json();
@@ -87,6 +87,7 @@ const AssignmentSubmitModal = ({ onClose, assignIdx }) => {
           <button className="assignmentSubmitBtn" onClick={assignSubmit}>
             제출하기
           </button>
+          <br/>
           <button className="assignmentSubmitCloseBtn" onClick={onClose}>
             닫기
           </button>
