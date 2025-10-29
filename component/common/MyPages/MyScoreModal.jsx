@@ -50,12 +50,11 @@ console.log("scoreDetail : ", scoreDetail);
                             <table className="notice-table">
                                 <thead>
                                     <tr>
-                                        <th style={{ width: "10%" }}>번호</th>
                                         <th style={{ width: "40%" }}>제목</th>
                                         <th style={{ width: "20%" }}>제출여부</th>
                                         <th style={{ width: "10%" }}>점수</th>
                                         <th style={{ width: "10%" }}>만점</th>
-                                        <th style={{ width: "10%" }}>백분율</th>
+                                        <th style={{ width: "20%" }}>백분율</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -63,7 +62,6 @@ console.log("scoreDetail : ", scoreDetail);
                                         scoreDetail.assignments.map((assign) => {
                                             return (
                                                 <tr key={assign.name}>
-                                                    <td>{assign.index + 1}</td>
                                                     <td>{assign.name}</td>
                                                     <td>{assign.submitted ? "제출" : "미제출"}</td>
                                                     <td>{assign.score}</td>
