@@ -57,40 +57,43 @@ const AssignmentGradeModal = ({ onClose, lecSerial, assignmentIdx }) => {
   }, [page]);
 
   // ✅ 특정 학생 과제 채점
-  const assignmentGrade = async (student) => {
-    if (!student) return alert("학생 정보가 없습니다.");
+const assignmentGrade = async (student) => {
+  if (!student) return alert("학생 정보가 없습니다.");
 
-    const score = prompt(`${student.studentName} 학생의 점수를 입력하세요:`); // 간단 입력
-    const feedback = prompt("피드백을 입력하세요:") || "";
+  let score = prompt(`${student.studentName} 학생의 점수를 입력하세요:`); 
+  if (score === null) return; // 취소 시 종료
+  score = score.trim();
+  if (score === "" || isNaN(score)) return alert("유효한 점수를 입력해주세요.");
 
-    if (score === null) return; // 취소 시 종료
+  const feedback = prompt("피드백을 입력하세요:") || "";
 
-    const requestData = {
-      studentIdx: student.studentIdx,
-      score: Number(score),
-      feedback
-    };
-
-    try {
-      const res = await fetch(`${BASE_URL}/assignments/${assignmentIdx}/grade`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(requestData)
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "과제 채점 실패");
-
-      alert("✅ 과제 채점이 완료되었습니다!");
-      console.log("✅ 과제 채점 성공:", data);
-    } catch (err) {
-      console.error("❌ 과제 채점 오류:", err);
-      alert("과제 채점 중 문제가 발생했습니다: " + err.message);
-    }
+  const requestData = {
+    studentIdx: student.studentIdx,
+    score: Number(score),
+    feedback
   };
+
+  try {
+    const res = await fetch(`${BASE_URL}/assignments/${assignmentIdx}/grade`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(requestData)
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "과제 채점 실패");
+
+    alert("✅ 과제 채점이 완료되었습니다!");
+    console.log("✅ 과제 채점 성공:", data);
+  } catch (err) {
+    console.error("❌ 과제 채점 오류:", err);
+    alert("과제 채점 중 문제가 발생했습니다: " + err.message);
+  }
+};
+
 
   return (
     <div className="assignmentGrade-modal-container">
