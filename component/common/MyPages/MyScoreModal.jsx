@@ -22,7 +22,6 @@ function MyScoreModal({onClose, lecSerial, lecTitle}) {
             })
         if (!response.ok) throw new Error('성적 상세 정보를 불러오는데 실패했습니다.');
                 const data = await response.json();
-                console.log("data : ", data);
                 setScoreDetail(data.data.grade);
             } catch (err) {
                 setError(err.message);
@@ -34,7 +33,7 @@ function MyScoreModal({onClose, lecSerial, lecTitle}) {
         fetchMyScore();
     }, []);
 
-
+console.log("scoreDetail : ", scoreDetail);
 
     return (
         <div className="myScore-modal-container">
@@ -42,17 +41,15 @@ function MyScoreModal({onClose, lecSerial, lecTitle}) {
                 {scoreDetail ? (
                     <>
                         <div>과목 : {lecTitle}</div>
-                        <div>출석
+                        <div>출석<br/>
                             <span>출석률 : {scoreDetail.attendanceScore.percentage}%</span>
                             <span>출석 점수 : {scoreDetail.attendanceScore.currentScore}</span>
                             <span>출석 만점 : {scoreDetail.attendanceScore.maxScore}</span>
                         </div>
-                        {/* <div>과제
-                            <span>과제 총점 : {scoreDetail.assignments.score}</span>
-                            <span>과제 만점 : {scoreDetail.assignments.maxScore}</span>
-                            <span>과제 점수 백분율 : {scoreDetail.assignments.percentage}</span>
-                        </div> */}
-                        <div>총점
+                        <div>과제<br/>
+                            
+                        </div>
+                        <div>총점<br/>
                             <span>점수 : {scoreDetail.total.score}</span>
                             <span>만점 : {scoreDetail.total.maxScore}</span>
                             <span>순위 백분율 : {scoreDetail.total.percentage}</span>

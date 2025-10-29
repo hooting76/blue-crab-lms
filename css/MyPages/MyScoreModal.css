@@ -25,6 +25,10 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
+.myScore-modal-content div span {
+    margin: 10px;
+}
+
 .myScoreModalCloseBtn {
     font-size: var(--font-mid);
 }
