@@ -6,7 +6,7 @@
 
 ## 📌 기본 정보
 
-- **엔드포인트**: `POST /api/enrollments/register`
+- **엔드포인트**: `POST /api/enrollments/enroll`
 - **권한**: 학생
 - **설명**: 학생이 특정 강의에 수강 신청
 
@@ -24,24 +24,23 @@
 | 필드 | 타입 | 필수 | 설명 |
 |------|------|------|------|
 | lecSerial | String | ✅ | 강의 코드 |
-| studentIdx | Integer | ✅ | 학생 ID (JWT에서 자동 추출 가능) |
+| studentIdx | Integer | ✅ | 학생 USER_IDX |
 
 ---
 
 ## 📤 Response
 
-### 성공 (200)
+### 성공 (201)
 
 ```json
 {
-  "success": true,
-  "message": "수강신청이 완료되었습니다.",
-  "data": {
-    "enrollmentIdx": 1,
-    "lecIdx": 42,
-    "studentIdx": 33,
-    "enrollmentData": "{}"
-  }
+  "enrollmentIdx": 101,
+  "lecIdx": 42,
+  "studentIdx": 33,
+  "enrollmentData": "{}",
+  "enrollmentStatus": null,
+  "createdAt": "2025-02-01T10:42:11",
+  "updatedAt": "2025-02-01T10:42:11"
 }
 ```
 
@@ -61,16 +60,17 @@
 ### ENROLLMENT_EXTENDED_TBL
 
 **새 레코드 생성**:
+
 - `ENROLLMENT_IDX`: 자동 생성
 - `LEC_IDX`: 강의 ID
-- `STUDENT_IDX`: 학생 ID
+- `STUDENT_IDX`: 학생 USER_IDX
 - `ENROLLMENT_DATA`: `{}` (초기값)
 
 ---
 
 ## 🔄 시퀀스 다이어그램
 
-```
+```text
 학생 → API: 수강신청 요청
 API → DB: ENROLLMENT_EXTENDED_TBL INSERT
 DB → API: enrollmentIdx 반환

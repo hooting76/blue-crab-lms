@@ -94,13 +94,14 @@
 
 | 기능 | 엔드포인트 | 메서드 | 권한 |
 |------|------------|--------|------|
-| 수강신청 | `/api/enrollments/register` | POST | 학생 |
+| 수강신청 | `/api/enrollments/enroll` | POST | 학생 |
 | 성적 구성 설정 | `/api/enrollments/grade-config` | POST | 교수 |
 | 출석 요청 | `/api/attendance/request` | POST | 학생 |
 | 출석 승인 | `/api/attendance/approve` | POST | 교수 |
-| 과제 생성 | `/api/assignments/create` | POST | 교수 |
-| 과제 채점 | `/api/assignments/grade` | POST | 교수 |
-| 성적 조회 | `/api/enrollments/grade-info` | POST | 학생/교수 |
+| 과제 생성 | `/api/assignments` | POST | 교수 |
+| 과제 채점 | `/api/assignments/{id}/grade` | PUT | 교수 |
+| 성적 조회 (학생) | `/api/enrollments/grade-info` | POST | 학생 |
+| 성적 조회 (교수) | `/api/enrollments/grade-list` | POST | 교수 |
 | 최종 등급 배정 | `/api/enrollments/grade-finalize` | POST | 교수 |
 
 ---
@@ -108,9 +109,10 @@
 ## 💡 사용 예시
 
 ### 학생 관점
+
 ```javascript
 // 1. 수강신청
-POST /api/enrollments/register
+POST /api/enrollments/enroll
 
 // 2. 출석 요청
 POST /api/attendance/request
@@ -120,6 +122,7 @@ POST /api/enrollments/grade-info
 ```
 
 ### 교수 관점
+
 ```javascript
 // 1. 성적 구성 설정
 POST /api/enrollments/grade-config
@@ -128,12 +131,15 @@ POST /api/enrollments/grade-config
 POST /api/attendance/approve
 
 // 3. 과제 생성
-POST /api/assignments/create
+POST /api/assignments
 
 // 4. 과제 채점
-POST /api/assignments/grade
+PUT /api/assignments/{id}/grade
 
-// 5. 최종 등급 배정
+// 5. 전체 성적 조회
+POST /api/enrollments/grade-list
+
+// 6. 최종 등급 배정
 POST /api/enrollments/grade-finalize
 ```
 

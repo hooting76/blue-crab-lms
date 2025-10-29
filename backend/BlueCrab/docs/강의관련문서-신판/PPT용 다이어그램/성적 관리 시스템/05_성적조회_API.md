@@ -8,12 +8,12 @@
 
 ### 학생용 성적 조회
 
-- **엔드포인트**: `GET /api/enrollments/my-grade?enrollmentIdx={enrollmentIdx}`
+- **엔드포인트**: `POST /api/enrollments/grade-info`
 - **권한**: 학생 (본인만 조회)
 
 ### 교수용 전체 성적 조회
 
-- **엔드포인트**: `GET /api/enrollments/grades?lecSerial={lecSerial}`
+- **엔드포인트**: `POST /api/enrollments/grade-list`
 - **권한**: 교수 (해당 강의 전체 수강생)
 
 ---
@@ -22,8 +22,11 @@
 
 ### 📥 Request
 
-```http
-GET /api/enrollments/my-grade?enrollmentIdx=1
+```json
+{
+  "action": "get-grade",
+  "enrollmentIdx": 1
+}
 ```
 
 ### 📤 Response
@@ -78,13 +81,16 @@ GET /api/enrollments/my-grade?enrollmentIdx=1
 
 ## 2️⃣ 교수용 전체 성적 조회
 
-### 📥 Request
+### 📥 Request (교수)
 
-```http
-GET /api/enrollments/grades?lecSerial=ETH201
+```json
+{
+  "action": "professor-view",
+  "lecSerial": "ETH201"
+}
 ```
 
-### 📤 Response
+### 📤 Response (교수)
 
 ```json
 {

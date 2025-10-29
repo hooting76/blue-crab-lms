@@ -6,7 +6,7 @@
 
 ## 📌 기본 정보
 
-- **엔드포인트**: `POST /api/enrollments/assign-grades`
+- **엔드포인트**: `POST /api/enrollments/grade-finalize`
 - **권한**: 교수
 - **설명**: 전체 수강생의 점수 분포를 기준으로 상대평가 등급 배정
 
@@ -16,6 +16,7 @@
 
 ```json
 {
+  "action": "finalize",
   "lecSerial": "ETH201",
   "gradeDistribution": {
     "A": 30,

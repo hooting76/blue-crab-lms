@@ -6,12 +6,12 @@
 
 ## 📌 기본 정보
 
-### 출석 요청 (학생)
+## 출석 요청 (학생)
 
 - **엔드포인트**: `POST /api/attendance/request`
 - **권한**: 학생
 
-### 출석 승인/거부 (교수)
+## 출석 승인/거부 (교수)
 
 - **엔드포인트**: `POST /api/attendance/approve`
 - **권한**: 교수
@@ -24,46 +24,48 @@
 
 ```json
 {
-  "enrollmentIdx": 1,
+  "lecSerial": "ETH201",
   "sessionNumber": 5,
-  "status": "출",
   "requestReason": "수업 참여"
 }
 ```
 
 | 필드 | 타입 | 필수 | 설명 |
 |------|------|------|------|
-| enrollmentIdx | Integer | ✅ | 수강 ID |
+| lecSerial | String | ✅ | 강의 코드 (LEC_SERIAL) |
 | sessionNumber | Integer | ✅ | 차시 번호 (1~80) |
-| status | String | ✅ | `"출"` / `"지"` / `"결"` |
-| requestReason | String | ❌ | 요청 사유 |
+| requestReason | String | ❌ | 요청 사유 (선택) |
 
 ### 📤 Response
 
 ```json
 {
   "success": true,
-  "message": "5차시 출석 요청이 등록되었습니다.",
-  "requestIdx": 123
+  "message": "출석 요청이 완료되었습니다.",
+  "data": {
+    "summary": {
+      "presentCount": 0,
+      "lateCount": 0,
+      "absentCount": 0,
+      "totalSessions": 80,
+      "attendanceRate": 0.0
+    },
+    "pendingRequests": [
+      {
+        "sessionNumber": 5,
+        "requestDate": "2025-01-15T10:00:00",
+        "expiresAt": "2025-01-22T00:00:00",
+        "tempApproved": true
+      }
+    ],
+    "sessions": []
+  }
 }
 ```
 
 ### 🗄️ DB 변화
 
-**ATTENDANCE_REQUEST_TBL 새 레코드 생성**:
-
-```json
-{
-  "REQUEST_IDX": 123,
-  "ENROLLMENT_IDX": 1,
-  "SESSION_NUMBER": 5,
-  "STATUS": "출",
-  "REQUEST_REASON": "수업 참여",
-  "APPROVAL_STATUS": "대기중"
-}
-```
-
-**ENROLLMENT_DATA 업데이트**:
+**ENROLLMENT_EXTENDED_TBL.ENROLLMENT_DATA**에 `attendance.pendingRequests[]` 항목이 추가됩니다.
 
 ```json
 {
@@ -73,13 +75,13 @@
     },
     "pendingRequests": [
       {
-        "requestIdx": 123,
         "sessionNumber": 5,
-        "status": "출",
-        "requestReason": "수업 참여",
-        "approvalStatus": "대기중"
+        "requestDate": "2025-01-15T10:00:00",
+        "expiresAt": "2025-01-22T00:00:00",
+        "tempApproved": true
       }
-    ]
+    ],
+    "sessions": []
   }
 }
 ```
@@ -92,39 +94,38 @@
 
 ```json
 {
-  "requestIdx": 123,
-  "approvalStatus": "승인",
-  "rejectionReason": ""
+  "lecSerial": "ETH201",
+  "sessionNumber": 5,
+  "attendanceRecords": [
+    {
+      "studentIdx": 33,
+      "status": "출",
+      "rejectReason": null
+    }
+  ]
 }
 ```
 
 | 필드 | 타입 | 필수 | 설명 |
 |------|------|------|------|
-| requestIdx | Integer | ✅ | 출석 요청 ID |
-| approvalStatus | String | ✅ | `"승인"` / `"거부"` |
-| rejectionReason | String | ❌ | 거부 사유 (거부 시 필수) |
+| lecSerial | String | ✅ | 강의 코드 |
+| sessionNumber | Integer | ✅ | 차시 번호 |
+| attendanceRecords[].studentIdx | Integer | ✅ | 학생 USER_IDX |
+| attendanceRecords[].status | String | ✅ | `"출"` / `"지"` / `"결"` |
+| attendanceRecords[].rejectReason | String | ❌ | 거부 사유 (`"결"` 처리 시 선택) |
 
 ### 📤 Response (승인)
 
 ```json
 {
   "success": true,
-  "message": "5차시 출석이 승인되었습니다."
+  "message": "출석 승인이 완료되었습니다. (1/1)"
 }
 ```
 
 ### 🗄️ DB 변화 (승인)
 
-**ATTENDANCE_REQUEST_TBL 업데이트**:
-
-```json
-{
-  "APPROVAL_STATUS": "승인",
-  "APPROVED_AT": "2025-01-15T14:30:00"
-}
-```
-
-**ENROLLMENT_DATA 업데이트**:
+**ENROLLMENT_EXTENDED_TBL.ENROLLMENT_DATA**의 출석 JSON이 확정 출석과 요약 정보로 갱신됩니다.
 
 ```json
 {
@@ -137,8 +138,9 @@
       {
         "sessionNumber": 5,
         "status": "출",
-        "requestedAt": "2025-01-15T10:00:00",
-        "approvedAt": "2025-01-15T14:30:00"
+        "requestDate": "2025-01-15T10:00:00",
+        "approvedAt": "2025-01-15T14:30:00",
+        "approvedBy": 17
       }
     ],
     "pendingRequests": []
@@ -159,16 +161,13 @@
 ```plaintext
 [학생 출석 요청]
 학생 → API: 5차시 출석 요청
-API → DB: ATTENDANCE_REQUEST_TBL INSERT
 API → DB: ENROLLMENT_DATA.pendingRequests 추가
 API → 학생: 요청 완료
 
 [교수 승인]
 교수 → API: 요청 승인
-API → DB: ATTENDANCE_REQUEST_TBL 승인 상태 업데이트
-API → DB: ENROLLMENT_DATA.sessions 추가
-API → 이벤트: GradeUpdateEvent 발행
-이벤트 → API: 출석 점수 자동 재계산
+API → DB: ENROLLMENT_DATA.sessions 추가 + summary 재계산
+API → GradeCalculationService: calculateStudentGrade 실행
 API → DB: grade.attendanceScore 업데이트
 API → 교수: 승인 완료
 ```
@@ -183,14 +182,14 @@ API → 교수: 승인 완료
 - **지각 1회**: 출석 점수의 50% (예: 0.75점)
 - **결석**: 0점
 
-### 승인 시 이벤트 발행
+### 승인 시 성적 재계산
 
 ```java
-eventPublisher.publishEvent(new GradeUpdateEvent(enrollmentIdx));
+gradeCalculationService.calculateStudentGrade(lecIdx, studentIdx);
 ```
 
-- GradeCalculationService가 자동으로 전체 성적 재계산
-- `attendanceScore`, `total`, `letterGrade` 모두 업데이트
+- 트랜잭션 커밋 후 `GradeCalculationService`가 출석 반영 점수를 재계산
+- `attendanceScore`, `total`, `letterGrade`가 모두 최신 상태로 갱신
 
 ---
 

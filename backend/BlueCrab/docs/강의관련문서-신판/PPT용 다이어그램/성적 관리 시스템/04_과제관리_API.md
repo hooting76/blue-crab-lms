@@ -8,12 +8,12 @@
 
 ### 과제 생성 (교수)
 
-- **엔드포인트**: `POST /api/assignments/create`
+- **엔드포인트**: `POST /api/assignments`
 - **권한**: 교수
 
 ### 과제 채점 (교수)
 
-- **엔드포인트**: `POST /api/assignments/grade`
+- **엔드포인트**: `PUT /api/assignments/{id}/grade`
 - **권한**: 교수
 
 ---

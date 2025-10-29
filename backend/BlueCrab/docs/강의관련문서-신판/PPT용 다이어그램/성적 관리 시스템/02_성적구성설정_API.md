@@ -6,7 +6,7 @@
 
 ## 📌 기본 정보
 
-- **엔드포인트**: `POST /api/enrollments/config/grade`
+- **엔드포인트**: `POST /api/enrollments/grade-config`
 - **권한**: 교수
 - **설명**: 출석 만점, 과제 총점을 설정하여 전체 수강생의 성적 구조 초기화
 
@@ -16,6 +16,7 @@
 
 ```json
 {
+  "action": "set-config",
   "lecSerial": "ETH201",
   "attendanceMaxScore": 120,
   "assignmentTotalScore": 157
@@ -24,6 +25,7 @@
 
 | 필드 | 타입 | 필수 | 설명 |
 |------|------|------|------|
+| action | String | ✅ | 반드시 `"set-config"` |
 | lecSerial | String | ✅ | 강의 코드 |
 | attendanceMaxScore | Integer | ✅ | 출석 만점 (예: 120점) |
 | assignmentTotalScore | Integer | ✅ | 과제 총점 (자동 계산 권장) |
@@ -35,7 +37,16 @@
 ```json
 {
   "success": true,
-  "message": "42개 수강생의 성적 구조가 설정되었습니다."
+  "message": "성적 구성이 설정되었습니다.",
+  "data": {
+    "lecIdx": 42,
+    "updatedCount": 42,
+    "gradeConfig": {
+      "attendanceMaxScore": 120,
+      "assignmentTotalScore": 157,
+      "totalMaxScore": 277
+    }
+  }
 }
 ```
 
@@ -105,6 +116,7 @@ API → 교수: 성공 메시지
 ## 📋 다음 단계
 
 성적 구성 설정 완료 후:
+
 1. 교수가 **출석 관리** 시작 가능
 2. 교수가 **과제 생성** 시작 가능
 
