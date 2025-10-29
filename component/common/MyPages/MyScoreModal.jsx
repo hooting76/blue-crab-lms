@@ -5,12 +5,10 @@ import "../../../css/MyPages/MyScoreModal.css";
 function MyScoreModal({onClose, lecSerial, lecTitle}) {
     const {user} = UseUser();
     const accessToken = user.data.accessToken;
-    const studentIdx = user.data.use.id;
+    const studentIdx = user.data.user.id;
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
     const [scoreDetail, setScoreDetail] = useState();
-
-    console.log("user : ", user);
 
     const fetchMyScore = async() => {
         try {
