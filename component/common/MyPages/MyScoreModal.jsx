@@ -33,6 +33,8 @@ function MyScoreModal({onClose, lecSerial, lecTitle}) {
         fetchMyScore();
     }, []);
 
+console.log("scoreDetail : ", scoreDetail);
+
     return (
         <div className="myScore-modal-container">
             <div className="myScore-modal-content">
