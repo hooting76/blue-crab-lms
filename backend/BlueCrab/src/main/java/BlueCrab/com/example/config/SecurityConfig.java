@@ -114,8 +114,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable()) // REST API이므로 CSRF 보호 비활성화
-            // CORS는 Tomcat web.xml에서 처리하므로 완전히 비활성화
-            .cors(cors -> cors.disable())
+            // CORS는 web.xml과 @CrossOrigin에서 처리 (비활성화하지 않음)
+            // .cors(cors -> cors.disable()) 제거 - CORS 필터가 작동하도록 허용
             .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint)) // 인증 실패 시 처리
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션리스 JWT 방식 사용
             .authorizeHttpRequests(auth -> auth
