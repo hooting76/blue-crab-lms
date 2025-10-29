@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {UseUser} from "../../../hook/UseUser";
+import "../../../css/MyPages/GradeConfigModal.css";
 
 const GradeConfigModal = ({onClose, lecSerial}) => {
     const {user} = UseUser();
