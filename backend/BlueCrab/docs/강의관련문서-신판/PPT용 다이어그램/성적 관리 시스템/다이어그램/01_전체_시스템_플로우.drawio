@@ -1,0 +1,191 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0" version="28.2.8">
+  <diagram name="성적 관리 시스템 전체 플로우" id="grade-system-flow">
+    <mxGraphModel dx="1426" dy="777" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" background="#FFFFFF" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- 제목 -->
+        <mxCell id="title" value="성적 관리 시스템 백엔드 프로세스" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=28;fontStyle=1;fontColor=#1A1A1A;" parent="1" vertex="1">
+          <mxGeometry x="350" y="30" width="700" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- 수강신청 완료됨 (시작점) -->
+        <mxCell id="start" value="[수강신청 완료됨]" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_1;whiteSpace=wrap;fillColor=#E3F2FD;strokeColor=#1976D2;fontColor=#0D47A1;fontSize=16;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="600" y="100" width="200" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- ① 성적 구성 설정 -->
+        <mxCell id="step1" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#388E3C;strokeWidth=3;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="450" y="200" width="500" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="step1-title" value="① 성적 구성 설정 (교수)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;fontColor=#1B5E20;" parent="1" vertex="1">
+          <mxGeometry x="550" y="210" width="300" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="step1-api" value="POST /api/enrollments/config/grade" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontColor=#2E7D32;fontFamily=Courier New;" parent="1" vertex="1">
+          <mxGeometry x="470" y="245" width="350" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="step1-desc" value="→ 전체 수강생 ENROLLMENT_DATA 초기화" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#1A1A1A;" parent="1" vertex="1">
+          <mxGeometry x="470" y="270" width="450" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- DB 아이콘 1 -->
+        <mxCell id="db1" value="MariaDB" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#FFF3E0;strokeColor=#F57C00;strokeWidth=2;fontColor=#E65100;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1000" y="220" width="80" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- ② 출석 관리 -->
+        <mxCell id="step2" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1F5FE;strokeColor=#0288D1;strokeWidth=3;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="450" y="340" width="500" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="step2-title" value="② 출석 관리" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;fontColor=#01579B;" parent="1" vertex="1">
+          <mxGeometry x="550" y="350" width="300" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="step2-api1" value="학생: POST /api/attendance/request" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#0277BD;fontFamily=Courier New;" parent="1" vertex="1">
+          <mxGeometry x="470" y="385" width="350" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="step2-api2" value="교수: POST /api/attendance/approve" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#0277BD;fontFamily=Courier New;" parent="1" vertex="1">
+          <mxGeometry x="470" y="410" width="350" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="step2-event" value="→ GradeUpdateEvent 발행 🔔" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#D32F2F;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="470" y="435" width="300" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- DB 아이콘 2 -->
+        <mxCell id="db2" value="MariaDB" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#FFF3E0;strokeColor=#F57C00;strokeWidth=2;fontColor=#E65100;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1000" y="370" width="80" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- ③ 과제 관리 -->
+        <mxCell id="step3" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;strokeWidth=3;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="450" y="500" width="500" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="step3-title" value="③ 과제 관리" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;fontColor=#4A148C;" parent="1" vertex="1">
+          <mxGeometry x="550" y="510" width="300" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="step3-api1" value="생성: POST /api/assignments/create" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#6A1B9A;fontFamily=Courier New;" parent="1" vertex="1">
+          <mxGeometry x="470" y="545" width="350" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="step3-api2" value="채점: PUT /api/assignments/{id}/grade" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#6A1B9A;fontFamily=Courier New;" parent="1" vertex="1">
+          <mxGeometry x="470" y="570" width="350" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="step3-event" value="→ GradeUpdateEvent 발행 🔔" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#D32F2F;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="470" y="595" width="300" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- DB 아이콘 3 -->
+        <mxCell id="db3" value="MariaDB" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#FFF3E0;strokeColor=#F57C00;strokeWidth=2;fontColor=#E65100;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1000" y="530" width="80" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- ④ 성적 조회 -->
+        <mxCell id="step4" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F57F17;strokeWidth=3;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="450" y="660" width="500" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="step4-title" value="④ 성적 조회" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;fontColor=#F57F17;" parent="1" vertex="1">
+          <mxGeometry x="550" y="670" width="300" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="step4-api1" value="학생: GET /api/enrollments/my-grade" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#F9A825;fontFamily=Courier New;" parent="1" vertex="1">
+          <mxGeometry x="470" y="705" width="350" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="step4-api2" value="교수: GET /api/enrollments/grades" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#F9A825;fontFamily=Courier New;" parent="1" vertex="1">
+          <mxGeometry x="470" y="730" width="350" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- ⑤ 최종 등급 배정 -->
+        <mxCell id="step5" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEBEE;strokeColor=#C62828;strokeWidth=3;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="450" y="800" width="500" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="step5-title" value="⑤ 최종 등급 배정 (교수)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;fontColor=#B71C1C;" parent="1" vertex="1">
+          <mxGeometry x="550" y="810" width="300" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="step5-api" value="POST /api/enrollments/assign-grades" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontColor=#C62828;fontFamily=Courier New;" parent="1" vertex="1">
+          <mxGeometry x="470" y="845" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="step5-desc" value="→ 상대평가 알고리즘 실행 (A 30%, B 40%, C 20%, D/F 10%)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#1A1A1A;" parent="1" vertex="1">
+          <mxGeometry x="470" y="870" width="450" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- DB 아이콘 5 -->
+        <mxCell id="db5" value="MariaDB" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#FFF3E0;strokeColor=#F57C00;strokeWidth=2;fontColor=#E65100;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1000" y="820" width="80" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 학기 종료 (끝점) -->
+        <mxCell id="end" value="학기 종료" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_1;whiteSpace=wrap;fillColor=#C8E6C9;strokeColor=#388E3C;fontColor=#1B5E20;fontSize=16;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="600" y="940" width="200" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 화살표들 -->
+        <mxCell id="arrow0" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#1976D2;endArrow=block;endFill=1;" parent="1" source="start" target="step1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#388E3C;endArrow=block;endFill=1;" parent="1" source="step1" target="step2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#0288D1;endArrow=block;endFill=1;" parent="1" source="step2" target="step3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#7B1FA2;endArrow=block;endFill=1;" parent="1" source="step3" target="step4" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#F57F17;endArrow=block;endFill=1;" parent="1" source="step4" target="step5" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#C62828;endArrow=block;endFill=1;" parent="1" source="step5" target="end" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- DB 연결선들 -->
+        <mxCell id="db-arrow1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#F57C00;endArrow=classic;endFill=1;dashed=1;" parent="1" source="step1" target="db1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="db-arrow2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#F57C00;endArrow=classic;endFill=1;dashed=1;" parent="1" source="step2" target="db2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="db-arrow3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#F57C00;endArrow=classic;endFill=1;dashed=1;" parent="1" source="step3" target="db3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="db-arrow5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#F57C00;endArrow=classic;endFill=1;dashed=1;" parent="1" source="step5" target="db5" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- 범례 -->
+        <mxCell id="legend-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#9E9E9E;strokeWidth=2;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="50" y="200" width="280" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-title" value="📋 범례" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#1A1A1A;" parent="1" vertex="1">
+          <mxGeometry x="120" y="210" width="140" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-student" value="학생 액션" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1F5FE;strokeColor=#0288D1;strokeWidth=2;fontColor=#01579B;fontSize=13;" parent="1" vertex="1">
+          <mxGeometry x="70" y="250" width="100" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-professor" value="교수 액션" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#388E3C;strokeWidth=2;fontColor=#1B5E20;fontSize=13;" parent="1" vertex="1">
+          <mxGeometry x="190" y="250" width="100" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-event" value="🔔 이벤트 발행" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#D32F2F;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="70" y="300" width="200" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-db-icon" value="DB" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=5;fillColor=#FFF3E0;strokeColor=#F57C00;strokeWidth=1;fontColor=#E65100;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="70" y="335" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-db-text" value="MariaDB 저장" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#1A1A1A;" parent="1" vertex="1">
+          <mxGeometry x="120" y="342" width="150" height="25" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

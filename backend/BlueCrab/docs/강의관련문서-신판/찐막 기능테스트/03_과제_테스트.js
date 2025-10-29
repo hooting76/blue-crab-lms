@@ -9,7 +9,6 @@
  *    await assignmentTest.detail()        // 과제 상세 조회
  *    await assignmentTest.create()        // 과제 생성
  *    await assignmentTest.grade()         // 과제 채점
- *    await assignmentTest.submissions()   // 제출 현황 조회
  */
 
 (function() {
@@ -224,46 +223,6 @@
     }
     
     // ============================================
-    // 4. 과제 제출 (학생)
-    // POST /api/assignments/{assignmentIdx}/submit
-    // ============================================
-    
-    async function testSubmitAssignment() {
-        console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('📤 과제 제출');
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        
-        const assignmentIdx = prompt('과제 IDX:', '');
-        const studentIdx = prompt('학생 IDX:', '');
-        const content = prompt('제출 내용:', '');
-        
-        if (!assignmentIdx || !studentIdx) {
-            console.log('❌ 과제 IDX와 학생 IDX가 필요합니다.');
-            return { success: false, error: '필수 정보 미입력' };
-        }
-        
-        const data = {
-            studentIdx: parseInt(studentIdx),
-            submissionContent: content || '',
-            submittedAt: new Date().toISOString()
-        };
-        
-        console.log(`📤 과제: ${assignmentIdx}, 학생: ${studentIdx}`);
-        
-        const result = await apiCall(`/assignments/${assignmentIdx}/submit`, data);
-        
-        if (result?.success) {
-            console.log('\n✅ 과제 제출 성공!');
-            if (result.data) console.log('📊 결과:', result.data);
-        } else {
-            console.log('\n❌ 실패:', result.error);
-        }
-        
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-        return result;
-    }
-    
-    // ============================================
     // 5. 과제 채점 (교수)
     // PUT /api/assignments/{assignmentIdx}/grade
     // ============================================
@@ -305,48 +264,6 @@
     }
     
     // ============================================
-    // 6. 제출 현황 조회 (교수)
-    // POST /api/assignments/submissions
-    // ============================================
-    
-    async function testSubmissions() {
-        console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('📊 과제 제출 현황');
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        
-        const assignmentIdx = prompt('과제 IDX:', '');
-        if (!assignmentIdx) {
-            console.log('❌ 과제 IDX가 필요합니다.');
-            return { success: false, error: '과제 IDX 미입력' };
-        }
-        
-        const data = { assignmentIdx: parseInt(assignmentIdx) };
-        console.log(`📤 과제 IDX: ${assignmentIdx}`);
-        
-        const result = await apiCall('/assignments/submissions', data);
-        
-        if (result?.success && result.data) {
-            const submissions = result.data.submissions || result.data || [];
-            console.log(`\n📊 제출 현황: ${submissions.length}건`);
-            
-            if (submissions.length > 0) {
-                console.log('\n📋 제출 목록:');
-                submissions.forEach((sub, i) => {
-                    console.log(`  ${i+1}. 학생: ${sub.studentName || sub.studentIdx}`);
-                    console.log(`     제출일: ${sub.submittedAt || 'N/A'}, 점수: ${sub.score || '미채점'}`);
-                });
-            }
-            
-            console.log('\n✅ 성공!');
-        } else {
-            console.log('\n❌ 실패:', result.error);
-        }
-        
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-        return result;
-    }
-    
-    // ============================================
     // 전체 테스트 실행
     // ============================================
     
@@ -354,13 +271,12 @@
         console.log('\n🚀 과제 API 전체 테스트 시작');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
         
-        const results = { total: 3, success: 0, failed: 0, tests: [] };
+        const results = { total: 2, success: 0, failed: 0, tests: [] };
         
         try {
             const tests = [
                 { name: '과제 목록 조회', fn: testAssignmentList },
-                { name: '과제 상세 조회', fn: testAssignmentDetail },
-                { name: '제출 현황 조회', fn: testSubmissions }
+                { name: '과제 상세 조회', fn: testAssignmentDetail }
             ];
             
             for (const test of tests) {
@@ -397,9 +313,7 @@
         list: testAssignmentList,
         detail: testAssignmentDetail,
         create: testCreateAssignment,
-        submit: testSubmitAssignment,
         grade: testGradeAssignment,
-        submissions: testSubmissions,
         runAll: runAllTests
     };
     

@@ -2,7 +2,7 @@
 
 ## 📋 개요
 
-과제 조회, 생성, 제출, 채점, 통계 기능을 제공하는 API 문서입니다.
+과제 조회, 생성, 채점, 통계 기능을 제공하는 API 문서입니다.
 
 **컨트롤러**: `AssignmentController.java`  
 **기본 경로**: `/api/assignments`  
@@ -239,40 +239,7 @@ POST /api/assignments/list
 
 ---
 
-### 6. 과제 제출
-
-**엔드포인트**: `POST /api/assignments/submit`
-
-**권한**: 학생 (수강 중인 강의만)
-
-#### Request Body
-```json
-{
-  "assignIdx": 1,
-  "studentIdx": 6,
-  "submissionContent": "과제를 완료했습니다.",
-  "submissionFiles": "[{\"name\":\"homework.zip\",\"url\":\"/uploads/students/6/homework.zip\"}]"
-}
-```
-
-#### 응답 예시
-```json
-{
-  "success": true,
-  "message": "과제가 제출되었습니다.",
-  "data": {
-    "submissionIdx": 50,
-    "assignIdx": 1,
-    "studentIdx": 6,
-    "submittedAt": "2025-11-10T14:30:00",
-    "isLate": false
-  }
-}
-```
-
----
-
-### 7. 과제 채점
+### 6. 과제 채점
 
 **엔드포인트**: `POST /api/assignments/grade`
 
@@ -303,71 +270,35 @@ POST /api/assignments/list
 
 ---
 
-### 8. 내 제출 내역 조회 (학생용)
+### 7. 성적 조회 (학생용)
 
-**엔드포인트**: `POST /api/assignments/my-submissions`
+**엔드포인트**: `GET /api/enrollments/my-grade`
 
 **권한**: 학생
 
-#### Request Body
-```json
-{
-  "studentIdx": 6,
-  "lecSerial": "CS284"
-}
+**설명**: 학생이 자신의 과제 점수를 포함한 성적을 조회합니다. (과제 제출 기능은 별도 제공하지 않으며, 교수가 직접 채점)
+
+#### Request 파라미터
 ```
-
-#### 응답 예시
-```json
-[
-  {
-    "submissionIdx": 50,
-    "assignIdx": 1,
-    "assignTitle": "자료구조 과제 1",
-    "submittedAt": "2025-11-10T14:30:00",
-    "score": 95,
-    "maxScore": 100,
-    "isLate": false,
-    "feedback": "잘했습니다."
-  }
-]
-```
-
----
-
-### 9. 제출 현황 조회 (교수용)
-
-**엔드포인트**: `POST /api/assignments/submissions`
-
-**권한**: 교수
-
-#### Request Body
-```json
-{
-  "assignIdx": 1,
-  "page": 0,
-  "size": 50
-}
+enrollmentIdx: 수강 ID
 ```
 
 #### 응답 예시
 ```json
 {
-  "content": [
-    {
-      "submissionIdx": 50,
-      "studentIdx": 6,
-      "studentCode": "240105045",
-      "studentName": "집갈래",
-      "submittedAt": "2025-11-10T14:30:00",
-      "score": 95,
-      "isGraded": true,
-      "isLate": false
+  "success": true,
+  "data": {
+    "grade": {
+      "assignments": [
+        {
+          "taskName": "자료구조 과제 1",
+          "score": 95,
+          "gradedAt": "2025-11-12T10:00:00",
+          "feedback": "잘했습니다."
+        }
+      ]
     }
-  ],
-  "totalElements": 23,
-  "totalPages": 1,
-  "submissionRate": "46%"
+  }
 }
 ```
 
@@ -397,12 +328,8 @@ POST /api/assignments/list
   "submissionIdx": Integer,
   "assignIdx": Integer,
   "studentIdx": Integer,
-  "submissionContent": String,
-  "submissionFiles": String (JSON array),
-  "submittedAt": String (ISO-8601),
   "score": Integer,
   "feedback": String,
-  "isLate": Boolean,
   "isGraded": Boolean
 }
 ```
@@ -426,28 +353,20 @@ POST /api/assignments/list
 ## ⚠️ 주의사항
 
 1. **lecSerial 사용**: `lecIdx` 대신 `lecSerial` 권장
-2. **마감일 체크**: 제출 시 `isLate` 자동 계산
-3. **파일 처리**: `assignFiles`와 `submissionFiles`는 JSON 배열 문자열
-4. **권한 검증**:
+2. **파일 처리**: `assignFiles`는 JSON 배열 문자열
+3. **권한 검증**:
    - 교수: 담당 강의 과제만 생성/수정/삭제/채점 가능
-   - 학생: 수강 중인 강의 과제만 제출 가능
+   - 학생: 수강 중인 강의 과제 성적만 조회 가능
 
 ---
 
 ## 📈 비즈니스 로직
 
-### 과제 제출 프로세스
-1. 수강 여부 확인
-2. 마감일 체크 (`isLate` 계산)
-3. 중복 제출 확인 (기존 제출 덮어쓰기 또는 새 버전)
-4. 파일 업로드 처리
-5. 제출 기록 저장
-6. 이벤트 발행 (알림 등)
-
-### 지각 제출 판정
-```java
-isLate = submittedAt.isAfter(assignDueDate)
-```
+### 과제 채점 프로세스
+1. 과제 생성 (교수)
+2. 교수가 직접 채점 (제출 기능 없음)
+3. GradeUpdateEvent 발행으로 자동 성적 재계산
+4. 학생 성적 조회에서 과제 점수 확인
 
 ---
 
