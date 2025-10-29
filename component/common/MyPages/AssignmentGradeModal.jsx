@@ -59,6 +59,7 @@ const AssignmentGradeModal = ({ onClose, lecSerial, assignmentIdx }) => {
   // ✅ 특정 학생 과제 채점
   const assignmentGrade = async (student) => {
     if (!student) return alert("학생 정보가 없습니다.");
+    console.log("student : ", student);
 
     const score = prompt(`${student.studentName} 학생의 점수를 입력하세요:`); // 간단 입력
     const feedback = prompt("피드백을 입력하세요:") || "";
