@@ -83,6 +83,8 @@ const assignmentGrade = async (student) => {
       body: JSON.stringify(requestData)
     });
 
+    console.log("requestData : ", requestData);
+
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || "과제 채점 실패");
 
