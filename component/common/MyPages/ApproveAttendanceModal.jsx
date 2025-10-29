@@ -6,12 +6,12 @@ import Pagination from "../notices/Pagination";
 const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
   const BASE_URL = "https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api";
   const { user } = UseUser();
-  const accessToken = user.data.accessToken;
+  const accessToken = user?.data?.accessToken;
 
   // ✅ 상태 관리
   const [sessionNumber, setSessionNumber] = useState(null);
   const [studentList, setStudentList] = useState([]);
-  const [attendanceCache, setAttendanceCache] = useState({}); // ✅ 회차별 캐시
+  const [attendanceCache, setAttendanceCache] = useState({}); // { [sessionNumber]: { [page]: students[] } }
   const [showRejectPrompt, setShowRejectPrompt] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -23,6 +23,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
   // ✅ 회차 입력 받기
   useEffect(() => {
     if (sessionNumber !== null) return;
+
     let input = null;
     while (true) {
       input = prompt("강의 회차를 입력하세요 (1~80)");
@@ -39,9 +40,9 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
     }
   }, [sessionNumber, onClose]);
 
-  // ✅ 학생 목록 불러오기 (API)
+  // ✅ 학생 목록 불러오기
   const fetchStudentList = async (pageNum, sessionNum) => {
-    if (!accessToken || sessionNum === null) return;
+    if (!accessToken || !lecSerial || !sessionNum) return;
     setLoading(true);
     setError(null);
 
@@ -59,11 +60,12 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
 
       const data = await res.json();
 
-      // ✅ 새 목록 병합 (이전 출결 상태 유지)
-      setAttendanceCache((prevCache) => {
-        const prevList = prevCache[sessionNum] || [];
+      setAttendanceCache((prev) => {
+        const sessionCache = prev[sessionNum] || {};
+        const prevPageList = sessionCache[pageNum] || [];
+
         const mergedList = data.content.map((student) => {
-          const existing = prevList.find((s) => s.studentIdx === student.studentIdx);
+          const existing = prevPageList.find((s) => s.studentIdx === student.studentIdx);
           return {
             ...student,
             attendanceStatus: existing?.attendanceStatus ?? null,
@@ -75,40 +77,43 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
         );
 
         return {
-          ...prevCache,
-          [sessionNum]: sortedList,
+          ...prev,
+          [sessionNum]: {
+            ...sessionCache,
+            [pageNum]: sortedList,
+          },
         };
       });
 
       setTotal(data.totalElements);
     } catch (err) {
-      setError(err.message || "알 수 없는 오류가 발생했습니다.");
+      setError(err.message || "학생 목록 조회 중 오류 발생");
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ 회차 or 페이지 변경 시 처리
+  // ✅ 회차나 페이지 변경 시 캐시 확인 후 fetch
   useEffect(() => {
-    if (!sessionNumber || !accessToken || !lecSerial) return;
+    if (!accessToken || !lecSerial || !sessionNumber) return;
 
-    // 1️⃣ 캐시에 데이터가 있으면 API 요청 없이 사용
-    if (attendanceCache[sessionNumber]) {
-      setStudentList(attendanceCache[sessionNumber]);
+    const cachedPage = attendanceCache[sessionNumber]?.[page];
+    if (cachedPage) {
+      setStudentList(cachedPage);
     } else {
-      // 2️⃣ 없으면 API 호출
       fetchStudentList(page, sessionNumber);
     }
   }, [sessionNumber, page, accessToken, lecSerial]);
 
-  // ✅ attendanceCache 변경 시 studentList 동기화
+  // ✅ 캐시 변경 시 현재 페이지 데이터 동기화
   useEffect(() => {
-    if (attendanceCache[sessionNumber]) {
-      setStudentList(attendanceCache[sessionNumber]);
+    const cachedPage = attendanceCache[sessionNumber]?.[page];
+    if (cachedPage) {
+      setStudentList(cachedPage);
     }
-  }, [attendanceCache, sessionNumber]);
+  }, [attendanceCache, sessionNumber, page]);
 
-  // ✅ 출석/지각/결석 처리
+  // ✅ 출결 처리 (출석, 지각, 결석)
   const updateAttendance = async (studentIdx, status, reason = "") => {
     const requestData = {
       lecSerial,
@@ -127,25 +132,34 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
       });
 
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.message || "출결 처리 실패");
 
-      // ✅ 출결 상태 캐시 및 화면 모두 업데이트
-      setAttendanceCache((prevCache) => {
-        const updated = (prevCache[sessionNumber] || []).map((s) =>
+      // ✅ 캐시 및 화면 데이터 동기화
+      setAttendanceCache((prev) => {
+        const sessionCache = prev[sessionNumber] || {};
+        const pageCache = sessionCache[page] || [];
+
+        const updatedPage = pageCache.map((s) =>
           s.studentIdx === studentIdx ? { ...s, attendanceStatus: status } : s
         );
-        return { ...prevCache, [sessionNumber]: updated };
+
+        return {
+          ...prev,
+          [sessionNumber]: {
+            ...sessionCache,
+            [page]: updatedPage,
+          },
+        };
       });
 
       console.log("✅ 출결 처리 성공:", data);
-    } catch (error) {
-      console.error("❌ 출결 처리 오류:", error);
+    } catch (err) {
+      console.error("❌ 출결 처리 오류:", err);
       alert("출결 처리 중 문제가 발생했습니다.");
     }
   };
 
-  // ✅ 결석 사유 모달
+  // ✅ 결석 사유 모달 처리
   const handleRejectClick = (student) => {
     setSelectedStudent(student);
     setShowRejectPrompt(true);
@@ -187,21 +201,14 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
               <tbody>
                 {studentList.length > 0 ? (
                   studentList.map((student) => (
-                    <tr
-                      key={student.studentIdx}
-                      style={getRowStyle(student.attendanceStatus)}
-                    >
+                    <tr key={student.studentIdx} style={getRowStyle(student.attendanceStatus)}>
                       <td>{student.studentIdx}</td>
                       <td>{student.studentName}</td>
                       <td>
-                        <button onClick={() => updateAttendance(student.studentIdx, "출")}>
-                          출석
-                        </button>
+                        <button onClick={() => updateAttendance(student.studentIdx, "출")}>출석</button>
                       </td>
                       <td>
-                        <button onClick={() => updateAttendance(student.studentIdx, "지")}>
-                          지각
-                        </button>
+                        <button onClick={() => updateAttendance(student.studentIdx, "지")}>지각</button>
                       </td>
                       <td>
                         <button onClick={() => handleRejectClick(student)}>결석</button>
@@ -217,6 +224,7 @@ const ApproveAttendanceModal = ({ onClose, lecSerial }) => {
             </table>
 
             <Pagination page={page} size={20} total={total} onChange={setPage} />
+
             <button className="approveAttendanceCloseBtn" onClick={onClose}>
               닫기
             </button>
