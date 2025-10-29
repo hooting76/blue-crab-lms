@@ -1,9 +1,12 @@
 package BlueCrab.com.example.controller;
 
 import BlueCrab.com.example.dto.filter.UserFilterCriteria;
+import BlueCrab.com.example.dto.notification.EmailNotificationRequest;
+import BlueCrab.com.example.dto.notification.EmailNotificationResponse;
 import BlueCrab.com.example.dto.notification.NotificationHistoryDto;
 import BlueCrab.com.example.dto.notification.NotificationSendRequest;
 import BlueCrab.com.example.dto.notification.NotificationSendResponse;
+import BlueCrab.com.example.service.EmailNotificationService;
 import BlueCrab.com.example.service.NotificationService;
 import BlueCrab.com.example.service.filter.UserFilterService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +40,9 @@ public class AdminNotificationController {
 
     @Autowired
     private UserFilterService userFilterService;
+
+    @Autowired
+    private EmailNotificationService emailNotificationService;
 
     /**
      * 필터 조건 미리보기 - 대상자 수 확인
@@ -103,6 +109,47 @@ public class AdminNotificationController {
         String adminId = authentication.getName();
 
         NotificationSendResponse response = notificationService.sendNotification(
+            request,
+            adminId
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 이메일 발송
+     *
+     * POST /api/admin/notifications/send/email
+     *
+     * Request Body:
+     * {
+     *   "subject": "공지사항",
+     *   "body": "<p>안녕하세요...</p>",
+     *   "sendAsHtml": true,
+     *   "filterCriteria": {
+     *     "filterType": "FACULTY",
+     *     "facultyCodes": ["01"]
+     *   }
+     * }
+     *
+     * Response:
+     * {
+     *   "targetCount": 150,
+     *   "resolvedEmailCount": 120,
+     *   "successCount": 118,
+     *   "failureCount": 2,
+     *   "skippedWithoutEmail": 30,
+     *   "failedRecipients": ["john@example.com", ...]
+     * }
+     */
+    @PostMapping("/send/email")
+    public ResponseEntity<EmailNotificationResponse> sendEmailNotification(
+            @Valid @RequestBody EmailNotificationRequest request,
+            Authentication authentication) {
+
+        String adminId = authentication.getName();
+
+        EmailNotificationResponse response = emailNotificationService.sendBulkEmail(
             request,
             adminId
         );

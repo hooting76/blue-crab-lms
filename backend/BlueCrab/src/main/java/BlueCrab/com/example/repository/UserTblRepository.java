@@ -267,7 +267,7 @@ public interface UserTblRepository extends JpaRepository<UserTbl, Integer> {
      * 역할별 사용자 조회 (FCM 알림용)
      * userStudent 값으로 학생 또는 교수 목록 조회
      *
-     * @param userStudent 구분 값 (0: 교수, 1: 학생)
+     * @param userStudent 구분 값 (0: 학생, 1: 교수)
      * @return List<UserTbl> - 해당 역할의 사용자 목록
      */
     List<UserTbl> findAllByUserStudent(Integer userStudent);
@@ -282,31 +282,38 @@ public interface UserTblRepository extends JpaRepository<UserTbl, Integer> {
     List<UserTbl> findByUserCodeIn(List<String> userCodes);
 
     /**
-     * 학부 코드 목록으로 학생 userCode 조회
+     * 학부 코드 목록으로 학생 userCode 조회 (SERIAL_CODE_TABLE 사용)
+     * USER_STUDENT: 0=학생, 1=교수
      *
      * @param facultyCodes 학부 코드 리스트
      * @return 해당 학부에 속한 학생 userCode 목록
      */
-    @Query("SELECT u.userCode FROM UserTbl u WHERE u.userStudent = 1 AND SUBSTRING(u.userCode, 5, 2) IN :facultyCodes")
+    @Query("SELECT u.userCode FROM UserTbl u " +
+           "INNER JOIN SerialCodeTable s ON u.userIdx = s.userIdx " +
+           "WHERE u.userStudent = 0 AND s.serialCode IN :facultyCodes")
     List<String> findStudentCodesByFacultyCodes(@Param("facultyCodes") List<String> facultyCodes);
 
     /**
-     * 학부/학과 조합으로 학생 userCode 조회
+     * 학부/학과 조합으로 학생 userCode 조회 (SERIAL_CODE_TABLE 사용)
+     * USER_STUDENT: 0=학생, 1=교수
      *
      * @param facultyCode 학부 코드
      * @param deptCodes 학과 코드 리스트
      * @return 해당 학부-학과 조합에 속한 학생 userCode 목록
      */
-    @Query("SELECT u.userCode FROM UserTbl u WHERE u.userStudent = 1 AND SUBSTRING(u.userCode, 5, 2) = :facultyCode AND SUBSTRING(u.userCode, 7, 2) IN :deptCodes")
+    @Query("SELECT u.userCode FROM UserTbl u " +
+           "INNER JOIN SerialCodeTable s ON u.userIdx = s.userIdx " +
+           "WHERE u.userStudent = 0 AND s.serialCode = :facultyCode AND s.serialSub IN :deptCodes")
     List<String> findStudentCodesByFacultyAndDeptCodes(@Param("facultyCode") String facultyCode,
                                                        @Param("deptCodes") List<String> deptCodes);
 
     /**
      * 입학년도별 학생 userCode 조회
+     * USER_STUDENT: 0=학생, 1=교수
      *
      * @param admissionYears 입학년도 문자열 리스트 (예: ["2023"])
      * @return 해당 입학년도에 해당하는 학생 userCode 목록
      */
-    @Query("SELECT u.userCode FROM UserTbl u WHERE u.userStudent = 1 AND SUBSTRING(u.userCode, 1, 4) IN :admissionYears")
+    @Query("SELECT u.userCode FROM UserTbl u WHERE u.userStudent = 0 AND SUBSTRING(u.userCode, 1, 4) IN :admissionYears")
     List<String> findStudentCodesByAdmissionYears(@Param("admissionYears") List<String> admissionYears);
 }

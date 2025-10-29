@@ -57,6 +57,10 @@
         elements.gradeInput = document.getElementById('notificationGradeYears');
         elements.previewBtn = document.getElementById('notificationPreviewBtn');
         elements.sendBtn = document.getElementById('notificationSendBtn');
+        elements.emailSendBtn = document.getElementById('notificationEmailSendBtn');
+        elements.emailSubject = document.getElementById('notificationEmailSubject');
+        elements.emailBody = document.getElementById('notificationEmailBody');
+        elements.emailHtml = document.getElementById('notificationEmailHtml');
         elements.clearLogBtn = document.getElementById('notificationClearLogBtn');
         elements.reloadBtn = document.getElementById('notificationReloadOptionsBtn');
         elements.historyBtn = document.getElementById('notificationHistoryBtn');
@@ -76,6 +80,9 @@
         elements.filterType.addEventListener('change', onFilterTypeChange);
         elements.previewBtn.addEventListener('click', handlePreviewClick);
         elements.sendBtn.addEventListener('click', handleSendClick);
+        if (elements.emailSendBtn) {
+            elements.emailSendBtn.addEventListener('click', handleEmailSendClick);
+        }
         elements.clearLogBtn.addEventListener('click', clearNotificationLog);
         elements.reloadBtn.addEventListener('click', () => loadNotificationFilterOptions(true));
         elements.historyBtn.addEventListener('click', loadNotificationHistory);
@@ -355,6 +362,84 @@
         })();
     }
 
+    function handleEmailSendClick() {
+        (async () => {
+            try {
+                const filterCriteria = buildFilterCriteria();
+                const subject = (elements.emailSubject?.value || '').trim();
+                const body = (elements.emailBody?.value || '').trim();
+
+                if (!subject) {
+                    throw new Error('이메일 제목을 입력하세요.');
+                }
+                if (!body) {
+                    throw new Error('이메일 본문을 입력하세요.');
+                }
+
+                const payload = {
+                    subject,
+                    body,
+                    sendAsHtml: elements.emailHtml ? Boolean(elements.emailHtml.checked) : true,
+                    filterCriteria
+                };
+
+                if (elements.emailSendBtn) elements.emailSendBtn.disabled = true;
+                setFilterStatus('이메일 발송 요청 중...', 'info');
+
+                const responseRaw = await apiClient.post('/api/admin/notifications/send/email', payload);
+                const response = unwrapApiResponse(responseRaw, '이메일 발송에 실패했습니다.');
+
+                const targetCount = Number.isFinite(response.targetCount)
+                    ? response.targetCount
+                    : Number(response?.targetCount ?? 0);
+                const resolvedEmailCount = Number.isFinite(response.resolvedEmailCount)
+                    ? response.resolvedEmailCount
+                    : Number(response?.resolvedEmailCount ?? 0);
+                const successCount = Number.isFinite(response.successCount)
+                    ? response.successCount
+                    : Number(response?.successCount ?? 0);
+                const failureCount = Number.isFinite(response.failureCount)
+                    ? response.failureCount
+                    : Number(response?.failureCount ?? 0);
+                const skippedWithoutEmail = Number.isFinite(response.skippedWithoutEmail)
+                    ? response.skippedWithoutEmail
+                    : Math.max(0, targetCount - resolvedEmailCount);
+
+                updatePreviewDisplay(targetCount, filterCriteria);
+
+                const failedList = Array.isArray(response.failedRecipients) ? response.failedRecipients : [];
+
+                if (failedList.length) {
+                    const failedSample = failedList.slice(0, 5).join(', ');
+                    const suffix = failedList.length > 5 ? ` 외 ${failedList.length - 5}건` : '';
+                    addNotificationLog(
+                        `⚠️ 이메일 발송 일부 실패 · 실패 ${failureCount.toLocaleString()}건 · 대상: ${failedSample}${suffix}`,
+                        'warning'
+                    );
+                }
+
+                addNotificationLog(
+                    `📧 이메일 발송 완료 · 대상 ${targetCount.toLocaleString()}명 · 이메일 ${resolvedEmailCount.toLocaleString()}건 · 성공 ${successCount.toLocaleString()} · 실패 ${failureCount.toLocaleString()} · 주소 없음 ${skippedWithoutEmail.toLocaleString()}`,
+                    failureCount > 0 || skippedWithoutEmail > 0 ? 'warning' : 'success'
+                );
+                setFilterStatus(
+                    failureCount > 0
+                        ? '이메일 발송이 완료되었지만 일부 실패가 있습니다.'
+                        : skippedWithoutEmail > 0
+                            ? '이메일 발송 완료 (주소가 없는 대상은 제외되었습니다).'
+                            : '이메일 발송이 완료되었습니다.',
+                    failureCount > 0 ? 'warning' : 'success'
+                );
+            } catch (error) {
+                console.error('Email send failed:', error);
+                setFilterStatus(`이메일 발송 실패: ${error.message || error}`, 'error');
+                addNotificationLog(`❌ 이메일 발송 실패: ${error.message || error}`, 'error');
+            } finally {
+                if (elements.emailSendBtn) elements.emailSendBtn.disabled = false;
+            }
+        })();
+    }
+
     function loadNotificationHistory() {
         (async () => {
             try {
@@ -552,6 +637,7 @@
     function toggleFilterButtons(disabled) {
         if (elements.previewBtn) elements.previewBtn.disabled = disabled;
         if (elements.reloadBtn) elements.reloadBtn.disabled = disabled;
+        if (elements.emailSendBtn) elements.emailSendBtn.disabled = disabled;
     }
 
     function renderNotificationHistory(page) {

@@ -444,8 +444,24 @@
                             <textarea id="notificationData" rows="3" placeholder='예: {"type":"NOTICE","link":"/announcements/123"}'></textarea>
                             <div class="notification-note">JSON 형식의 key-value 데이터를 입력하면 앱에서 추가 처리가 가능합니다.</div>
                         </div>
+                        <hr class="notification-section-divider">
+                        <h5>이메일 알림</h5>
+                        <div class="notification-field-group">
+                            <label for="notificationEmailSubject">이메일 제목</label>
+                            <input type="text" id="notificationEmailSubject" placeholder="예: 시스템 점검 안내 (이메일)">
+                        </div>
+                        <div class="notification-field-group">
+                            <label for="notificationEmailBody">이메일 본문</label>
+                            <textarea id="notificationEmailBody" rows="6" placeholder="HTML 또는 일반 텍스트로 입력하세요."></textarea>
+                            <label class="notification-inline-checkbox">
+                                <input type="checkbox" id="notificationEmailHtml" checked>
+                                <span>HTML 본문으로 전송</span>
+                            </label>
+                            <div class="notification-note">HTML 체크 해제 시 일반 텍스트로 전송됩니다.</div>
+                        </div>
                         <div class="notification-actions">
                             <button type="button" class="success" id="notificationSendBtn">🚀 알림 발송</button>
+                            <button type="button" class="secondary" id="notificationEmailSendBtn">📧 이메일 발송</button>
                             <button type="button" class="danger" id="notificationClearLogBtn">로그 지우기</button>
                         </div>
                     </div>
