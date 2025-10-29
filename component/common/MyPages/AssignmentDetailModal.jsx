@@ -123,7 +123,7 @@ const AssignmentDetailModal = ({ onClose, onDelete, assignmentIdx }) => {
                     <AssignmentGradeModal
                     onClose={closeAssignmentGradeModal}
                     lecSerial={selectedLectureSerial}
-                    assignmentIdx={selectedAssignmentIdx}
+                    assignmentIdx={assignmentIdx}
                     />
                 )}
                 <br/>
