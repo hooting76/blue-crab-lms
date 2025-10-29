@@ -19,42 +19,61 @@ const AssignmentSubmitModal = ({ onClose, assignIdx }) => {
 
   // ✅ 과제 제출 함수
   const assignSubmit = async () => {
-    if (!submissionContent || submissionFiles.length === 0) {
-      alert("내용과 파일 둘 다 제출해야 합니다.");
-      return;
+  if (!submissionContent || submissionFiles.length === 0) {
+    alert("내용과 파일 둘 다 제출해야 합니다.");
+    return;
+  }
+
+  try {
+    // 1️⃣ 파일 업로드
+    const uploadUrls = [];
+    for (const file of submissionFiles) {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const uploadRes = await fetch(`${BASE_URL}/uploads`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${accessToken}` },
+        body: formData,
+      });
+      const uploadData = await uploadRes.json();
+      if (!uploadRes.ok) throw new Error(uploadData.message);
+
+      uploadUrls.push({
+        name: file.name,
+        url: uploadData.url, // 업로드 API가 반환하는 경로
+      });
     }
 
-    // FormData를 사용해야 파일 전송 가능
-    const formData = new FormData();
-    formData.append("assignIdx", assignIdx);
-    formData.append("studentIdx", studentIdx);
-    formData.append("submissionContent", submissionContent);
+    // 2️⃣ 과제 제출 (JSON 전송)
+    const requestBody = {
+      assignIdx,
+      studentIdx,
+      submissionContent,
+      submissionFiles: JSON.stringify(uploadUrls),
+    };
 
-    // 여러 파일 첨부 가능
-    submissionFiles.forEach((file) => {
-      formData.append("submissionFiles", file);
+    const response = await fetch(`${BASE_URL}/assignments/submit`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(requestBody),
     });
 
-    try {
-      const response = await fetch(`${BASE_URL}/assignments/submit`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(formData)
-      });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || "과제 제출 실패");
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "과제 제출 실패");
+    alert("✅ 과제 제출이 완료되었습니다!");
+    console.log("✅ 과제 제출 성공:", data);
+    onClose();
+  } catch (err) {
+    console.error("❌ 과제 제출 오류:", err);
+    alert("과제 제출 중 문제가 발생했습니다: " + err.message);
+  }
+};
 
-      alert("✅ 과제 제출이 완료되었습니다!");
-      console.log("✅ 과제 제출 성공:", data);
-      onClose(); // 제출 후 모달 닫기
-    } catch (err) {
-      console.error("❌ 과제 제출 오류:", err);
-      alert("과제 제출 중 문제가 발생했습니다: " + err.message);
-    }
-  };
 
   return (
     <div className="assignmentSubmit-modal-container">
