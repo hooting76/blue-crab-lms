@@ -20,12 +20,12 @@ const ProfAttendanceDetailModal = ({onClose, lecSerial}) => {
             });
 
             if (!response.ok) {
-                const text = await res.text();
+                const text = await response.text();
                 console.error("❌ 출결내역 조회 실패 응답:", text);
                 throw new Error("출결내역 조회 실패");
             }
 
-             const data = await res.json();
+             const data = await response.json();
             console.log("✅ 출결내역 데이터:", data.data);
             setProfAttendanceDetail(data.data);
             } catch (err) {
@@ -64,7 +64,7 @@ const ProfAttendanceDetailModal = ({onClose, lecSerial}) => {
               ))
             ) : (
               <tr>
-                <td colSpan="2" style={{ textAlign: "center" }}>
+                <td colSpan="3" style={{ textAlign: "center" }}>
                   출결 데이터가 없습니다.
                 </td>
               </tr>
