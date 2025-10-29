@@ -10,6 +10,8 @@ function MyScoreModal({onClose, lecSerial, lecTitle}) {
 
     const [scoreDetail, setScoreDetail] = useState();
 
+    console.log("user : ", user);
+
     const fetchMyScore = async() => {
         try {
             const response = await fetch(`${BASE_URL}/enrollments/grade-info`, {
