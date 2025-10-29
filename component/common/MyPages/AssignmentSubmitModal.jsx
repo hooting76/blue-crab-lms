@@ -36,7 +36,7 @@ const AssignmentSubmitModal = ({ onClose, assignIdx }) => {
         assignIdx,
         studentIdx,
         submissionContent,
-        submissionFiles: JSON.stringify(uploadUrls)
+        submissionFiles: uploadUrls
       };
 
       const response = await fetch(`${BASE_URL}/assignments/submit`, {
