@@ -122,7 +122,6 @@ const AssignmentDetailModal = ({ onClose, onDelete, assignmentIdx }) => {
                 {isAssignmentGradeModalOpen && (
                     <AssignmentGradeModal
                     onClose={closeAssignmentGradeModal}
-                    lecSerial={selectedLectureSerial}
                     assignmentIdx={assignmentIdx}
                     />
                 )}
