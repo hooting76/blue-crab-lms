@@ -1,0 +1,185 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0" version="28.2.8">
+  <diagram name="성적 관리 DB ERD" id="grade-db-erd">
+    <mxGraphModel dx="1920" dy="1080" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" background="#FFFFFF" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- 제목 -->
+        <mxCell id="title" value="성적 관리 시스템 - MariaDB 구조" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=32;fontStyle=1;fontColor=#1A1A1A;" parent="1" vertex="1">
+          <mxGeometry x="640" y="40" width="640" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- 설명 박스 -->
+        <mxCell id="note" value="핵심 테이블: ENROLLMENT_EXTENDED_TBL (성적 JSON 저장)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#F57C00;strokeWidth=2;fontSize=18;fontColor=#E65100;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="640" y="120" width="640" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- USER_TBL -->
+        <mxCell id="userTable" value="👤 USER_TBL" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;fillColor=#E57373;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;strokeColor=#B71C1C;strokeWidth=3;fontColor=#FFFFFF;fontSize=18;" parent="1" vertex="1">
+          <mxGeometry x="280" y="260" width="320" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="userPk" value="🔑 USER_IDX (PK) : INT" style="text;strokeColor=#B71C1C;fillColor=#E57373;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;overflow=hidden;rotatable=0;fontColor=#FFFFFF;fontSize=16;" parent="userTable" vertex="1">
+          <mxGeometry x="0" y="40" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="userCode" value="USER_CODE : VARCHAR (학번)" style="text;strokeColor=#B71C1C;fillColor=#E57373;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="userTable" vertex="1">
+          <mxGeometry x="0" y="80" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="userName" value="USER_NAME : VARCHAR" style="text;strokeColor=#B71C1C;fillColor=#E57373;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="userTable" vertex="1">
+          <mxGeometry x="0" y="120" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="userEmail" value="USER_EMAIL : VARCHAR" style="text;strokeColor=#B71C1C;fillColor=#E57373;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="userTable" vertex="1">
+          <mxGeometry x="0" y="160" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="userStudent" value="USER_STUDENT : TINYINT (0=학생)" style="text;strokeColor=#B71C1C;fillColor=#E57373;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="userTable" vertex="1">
+          <mxGeometry x="0" y="200" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="userGrade" value="USER_GRADE : INT (현재 학년)" style="text;strokeColor=#B71C1C;fillColor=#E57373;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="userTable" vertex="1">
+          <mxGeometry x="0" y="240" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="userYear" value="USER_ADMISSION_YEAR : INT" style="text;strokeColor=#B71C1C;fillColor=#E57373;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="userTable" vertex="1">
+          <mxGeometry x="0" y="280" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="userMajor" value="USER_MAJOR : VARCHAR" style="text;strokeColor=#B71C1C;fillColor=#E57373;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="userTable" vertex="1">
+          <mxGeometry x="0" y="320" width="320" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- LEC_TBL -->
+        <mxCell id="lecTable" value="📖 LEC_TBL" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;fillColor=#64B5F6;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;strokeColor=#1976D2;strokeWidth=3;fontColor=#FFFFFF;fontSize=18;" parent="1" vertex="1">
+          <mxGeometry x="1230" y="260" width="320" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="lecPk" value="🔑 LEC_IDX (PK) : INT" style="text;strokeColor=#1976D2;fillColor=#64B5F6;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=16;" parent="lecTable" vertex="1">
+          <mxGeometry x="0" y="40" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="lecSerial" value="LEC_SERIAL : VARCHAR" style="text;strokeColor=#1976D2;fillColor=#64B5F6;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="lecTable" vertex="1">
+          <mxGeometry x="0" y="80" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="lecTitle" value="LEC_TIT : VARCHAR" style="text;strokeColor=#1976D2;fillColor=#64B5F6;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="lecTable" vertex="1">
+          <mxGeometry x="0" y="120" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="lecCredit" value="LEC_CREDIT : INT (학점)" style="text;strokeColor=#1976D2;fillColor=#64B5F6;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="lecTable" vertex="1">
+          <mxGeometry x="0" y="160" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="lecYear" value="LEC_YEAR : INT" style="text;strokeColor=#1976D2;fillColor=#64B5F6;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="lecTable" vertex="1">
+          <mxGeometry x="0" y="200" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="lecSemester" value="LEC_SEMESTER : INT" style="text;strokeColor=#1976D2;fillColor=#64B5F6;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="lecTable" vertex="1">
+          <mxGeometry x="0" y="240" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="lecProfessor" value="PROFESSOR_IDX : INT (FK)" style="text;strokeColor=#1976D2;fillColor=#64B5F6;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="lecTable" vertex="1">
+          <mxGeometry x="0" y="280" width="320" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ENROLLMENT_EXTENDED_TBL -->
+        <mxCell id="enrollTable" value="📦 ENROLLMENT_EXTENDED_TBL" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=50;fillColor=#81C784;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;strokeColor=#388E3C;strokeWidth=4;fontColor=#FFFFFF;fontSize=20;" parent="1" vertex="1">
+          <mxGeometry x="770" y="260" width="360" height="460" as="geometry" />
+        </mxCell>
+        <mxCell id="enrollPk" value="🔑 ENROLLMENT_IDX (PK) : BIGINT" style="text;strokeColor=#388E3C;fillColor=#81C784;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=4;fontColor=#FFFFFF;fontSize=16;fontStyle=1;" parent="enrollTable" vertex="1">
+          <mxGeometry x="0" y="50" width="360" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="enrollUserFk" value="🔗 STUDENT_IDX (FK → USER_TBL)" style="text;strokeColor=#388E3C;fillColor=#81C784;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="enrollTable" vertex="1">
+          <mxGeometry x="0" y="90" width="360" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="enrollLecFk" value="🔗 LEC_IDX (FK → LEC_TBL)" style="text;strokeColor=#388E3C;fillColor=#81C784;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="enrollTable" vertex="1">
+          <mxGeometry x="0" y="130" width="360" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="enrollJson" value="⭐ ENROLLMENT_DATA : JSON (성적/출석 데이터)" style="text;strokeColor=#388E3C;fillColor=#81C784;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=4;fontColor=#FFFFFF;fontSize=15;fontStyle=1;" parent="enrollTable" vertex="1">
+          <mxGeometry x="0" y="170" width="360" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="enrollStatus" value="ENROLLMENT_STATUS : VARCHAR" style="text;strokeColor=#388E3C;fillColor=#81C784;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="enrollTable" vertex="1">
+          <mxGeometry x="0" y="210" width="360" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="enrollCreated" value="CREATED_AT / UPDATED_AT : DATETIME" style="text;strokeColor=#388E3C;fillColor=#81C784;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="enrollTable" vertex="1">
+          <mxGeometry x="0" y="250" width="360" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="enrollNotes" value="※ attendance/grade 정보가 모두 JSON에 포함" style="text;strokeColor=#388E3C;fillColor=#81C784;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=4;fontColor=#FFFFFF;fontSize=14;fontStyle=2;" parent="enrollTable" vertex="1">
+          <mxGeometry x="0" y="290" width="360" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ASSIGNMENT_EXTENDED_TBL -->
+        <mxCell id="assignTable" value="📝 ASSIGNMENT_EXTENDED_TBL" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=45;fillColor=#CE93D8;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;strokeColor=#7B1FA2;strokeWidth=3;fontColor=#FFFFFF;fontSize=18;" parent="1" vertex="1">
+          <mxGeometry x="820" y="760" width="320" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="assignPk" value="🔑 TASK_IDX (PK) : BIGINT" style="text;strokeColor=#7B1FA2;fillColor=#CE93D8;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=16;" parent="assignTable" vertex="1">
+          <mxGeometry x="0" y="45" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="assignLecFk" value="🔗 LEC_IDX (FK → LEC_TBL)" style="text;strokeColor=#7B1FA2;fillColor=#CE93D8;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="assignTable" vertex="1">
+          <mxGeometry x="0" y="85" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="assignName" value="TASK_NAME : VARCHAR" style="text;strokeColor=#7B1FA2;fillColor=#CE93D8;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="assignTable" vertex="1">
+          <mxGeometry x="0" y="125" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="assignScore" value="TASK_SCORE : INT" style="text;strokeColor=#7B1FA2;fillColor=#CE93D8;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="assignTable" vertex="1">
+          <mxGeometry x="0" y="165" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="assignDue" value="DUE_DATE : DATETIME" style="text;strokeColor=#7B1FA2;fillColor=#CE93D8;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="assignTable" vertex="1">
+          <mxGeometry x="0" y="205" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="assignNote" value="※ ENROLLMENT_DATA.grade.assignments[] 업데이트" style="text;strokeColor=#7B1FA2;fillColor=#CE93D8;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=14;fontStyle=2;" parent="assignTable" vertex="1">
+          <mxGeometry x="0" y="245" width="320" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ATTENDANCE_REQUEST_TBL -->
+        <mxCell id="attendanceTable" value="📅 ATTENDANCE_REQUEST_TBL" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=45;fillColor=#FFA726;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;strokeColor=#EF6C00;strokeWidth=3;fontColor=#FFFFFF;fontSize=18;" parent="1" vertex="1">
+          <mxGeometry x="1210" y="760" width="320" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="attPk" value="🔑 REQUEST_IDX (PK) : BIGINT" style="text;strokeColor=#EF6C00;fillColor=#FFA726;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=16;" parent="attendanceTable" vertex="1">
+          <mxGeometry x="0" y="45" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="attEnrollFk" value="🔗 ENROLLMENT_IDX (FK → ENROLLMENT_EXTENDED_TBL)" style="text;strokeColor=#EF6C00;fillColor=#FFA726;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="attendanceTable" vertex="1">
+          <mxGeometry x="0" y="85" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="attSession" value="SESSION_NUMBER : INT" style="text;strokeColor=#EF6C00;fillColor=#FFA726;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="attendanceTable" vertex="1">
+          <mxGeometry x="0" y="125" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="attStatus" value="STATUS : ENUM('출','지','결')" style="text;strokeColor=#EF6C00;fillColor=#FFA726;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="attendanceTable" vertex="1">
+          <mxGeometry x="0" y="165" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="attApproval" value="APPROVAL_STATUS : ENUM('대기중','승인','거부')" style="text;strokeColor=#EF6C00;fillColor=#FFA726;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=15;" parent="attendanceTable" vertex="1">
+          <mxGeometry x="0" y="205" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="attNote" value="※ 승인 시 ENROLLMENT_DATA.attendance.sessions[] 반영" style="text;strokeColor=#EF6C00;fillColor=#FFA726;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;fontColor=#FFFFFF;fontSize=14;fontStyle=2;" parent="attendanceTable" vertex="1">
+          <mxGeometry x="0" y="245" width="320" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- 관계선 -->
+        <mxCell id="relUserEnroll" value="1:N" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=3;strokeColor=#4CAF50;fontColor=#1A1A1A;fontSize=18;fontStyle=1;endArrow=block;endFill=0;" parent="1" source="userTable" target="enrollTable" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="640" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="relLecEnroll" value="1:N" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=3;strokeColor=#4CAF50;fontColor=#1A1A1A;fontSize=18;fontStyle=1;endArrow=block;endFill=0;" parent="1" source="lecTable" target="enrollTable" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1200" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="relAssignLec" value="N:1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#7B1FA2;fontColor=#4A148C;fontSize=16;endArrow=block;endFill=0;dashed=1;" parent="1" source="assignTable" target="lecTable" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1140" y="760" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="relAssignEnroll" value="업데이트" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#7B1FA2;fontColor=#4A148C;fontSize=14;endArrow=classic;endFill=1;dashed=1;" parent="1" source="assignTable" target="enrollTable" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="940" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="relAttendanceEnroll" value="N:1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#EF6C00;fontColor=#C65000;fontSize=16;endArrow=block;endFill=0;" parent="1" source="attendanceTable" target="enrollTable" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1100" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="relAttendanceJson" value="JSON 업데이트" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#EF6C00;fontColor=#C65000;fontSize=14;endArrow=classic;endFill=1;dashed=1;" parent="1" source="attendanceTable" target="enrollTable" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1000" y="720" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 관계 설명 박스 -->
+        <mxCell id="legendRel" value="관계 요약\n• USER 1명 ↔ ENROLLMENT 다수\n• LEC 1개 ↔ ENROLLMENT 다수\n• ENROLLMENT_DATA JSON에 출석·과제·총점 저장" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#9E9E9E;strokeWidth=2;fontColor=#424242;fontSize=16;" parent="1" vertex="1">
+          <mxGeometry x="1540" y="760" width="360" height="180" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
