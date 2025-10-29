@@ -60,16 +60,16 @@ const AssignmentGradeModal = ({ onClose, lecSerial }) => {
   const assignmentGrade = async (student) => {
     if (!student) return alert("학생 정보가 없습니다.");
 
-    const submissionIdx = student.submissionIdx;
     const score = prompt(`${student.studentName} 학생의 점수를 입력하세요:`); // 간단 입력
     const feedback = prompt("피드백을 입력하세요:") || "";
 
     if (score === null) return; // 취소 시 종료
 
     const requestData = {
-      submissionIdx,
+      assignmentIdx,
+      studentIdx: student.data.user.id,
       score: Number(score),
-      feedback,
+      feedback
     };
 
     try {
