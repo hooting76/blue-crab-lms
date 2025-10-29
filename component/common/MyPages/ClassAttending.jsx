@@ -3,6 +3,7 @@ import '../../../css/MyPages/ClassAttending.css';
 import { UseUser } from '../../../hook/UseUser';
 import ClassAttendingNotice from './ClassAttendingNotice.jsx';
 import AttendanceDetailModal from './AttendanceDetailModal.jsx';
+import ProfAttendanceDetailModal from './ProfAttendanceDetailModal.jsx';
 import ApproveAttendanceModal from './ApproveAttendanceModal.jsx';
 import TestModal from './TestModal.jsx';
 import AssignmentCreateModal from './AssignmentCreateModal.jsx';
@@ -16,7 +17,6 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
   const accessToken = user.data.accessToken;
   const isProf = user.data.user.userStudent === 1;
   const [lectureList, setLectureList] = useState([]);
-  const [selectedEnrollmentIdx, setSelectedEnrollmentIdx] = useState(null);
   const [assignmentList, setAssignmentList] = useState([]);
   const [selectedAssignmentIdx, setSelectedAssignmentIdx] = useState(null);
   const [noticeList, setNoticeList] = useState([]);
@@ -28,6 +28,7 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
   // 모달 상태들
   const [isEvaluationModalOpen, setIsEvaluationModalOpen] = useState(false);
   const [isAttendanceDetailModalOpen, setIsAttendanceDetailModalOpen] = useState(false);
+  const [isProfAttendanceDetailModalOpen, setIsProfAttendanceDetailModalOpen] = useState(false);
   const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
   const [isTestModalOpen, setIsTestModalOpen] = useState(false);
   const [isAssignmentCreateModalOpen, setIsAssignmentCreateModalOpen] = useState(false);
@@ -54,14 +55,6 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
   const handleLectureChange = (e) => {
     const selectedLecSerial = e.target.value;
     setSelectedLectureSerial(selectedLecSerial);
-
-    // 학생일 때만 enrollmentIdx 추출
-    if (!isProf && lectureList?.content) {
-      const selectedEnrollment = lectureList.content.find(
-        (lec) => String(lec.lecSerial) === String(selectedLecSerial)
-      );
-      setSelectedEnrollmentIdx(selectedEnrollment?.enrollmentIdx || null);
-    }
   };
 
   // 강의 목록 가져오기 (교수/학생 구분)
@@ -86,13 +79,6 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
 
       const data = await response.json();
       setLectureList(data);
-
-      // ✅ 학생인 경우, 첫 번째 enrollmentIdx 즉시 세팅
-      if (!isProf && data?.content?.length > 0) {
-        const firstLecture = data.content[0];
-        setSelectedLectureSerial(firstLecture.lecSerial);
-        setSelectedEnrollmentIdx(firstLecture.enrollmentIdx);
-      }
 
     } catch (error) {
       console.error('강의 목록 조회 에러:', error);
@@ -261,6 +247,8 @@ const fetchNotices = async () => {
   const closeEvaluationModal = () => setIsEvaluationModalOpen(false);
   const openAttendanceDetailModal = () => setIsAttendanceDetailModalOpen(true);
   const closeAttendanceDetailModal = () => setIsAttendanceDetailModalOpen(false);
+  const openProfAttendanceDetailModal = () => setIsProfAttendanceDetailModalOpen(true);
+  const closeProfAttendanceDetailModal = () => setIsProfAttendanceDetailModalOpen(false);
   const openAttendanceModal = () => setIsAttendanceModalOpen(true);
   const closeAttendanceModal = () => setIsAttendanceModalOpen(false);
   const openTestModal = () => setIsTestModalOpen(true);
@@ -408,7 +396,7 @@ const fetchNotices = async () => {
 
         <div className="attendanceStatus">
           <p>출결</p>
-          {!isProf && (
+          {!isProf ? (
             <>
               <button
                 className="attendanceDetailBtn"
@@ -420,6 +408,22 @@ const fetchNotices = async () => {
               {isAttendanceDetailModalOpen && (
                 <AttendanceDetailModal
                   onClose={closeAttendanceDetailModal}
+                  lecSerial={selectedLectureSerial}
+                />
+              )}
+            </>
+          ) : (
+            <>
+              <button
+                className="attendanceDetailBtn"
+                onClick={openProfAttendanceDetailModal}
+              >
+                출결 현황 조회
+              </button>
+
+              {isProfAttendanceDetailModalOpen && (
+                <ProfAttendanceDetailModal
+                  onClose={closeProfAttendanceDetailModal}
                   lecSerial={selectedLectureSerial}
                 />
               )}

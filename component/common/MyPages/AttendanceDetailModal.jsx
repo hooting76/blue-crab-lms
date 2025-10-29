@@ -11,16 +11,15 @@ const AttendanceDetailModal = ({ onClose, lecSerial }) => {
   // 안전한 Fetch 함수
   const FetchAttendanceDetail = async () => {
     if (!lecSerial || !accessToken) return; // 필요한 값 없으면 바로 종료
-    console.log("FetchAttendanceDetail 호출됨");
 
     try {
       const res = await fetch(`${BASE_URL}/attendance/student/view`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`
         },
-        body: JSON.stringify({ lecSerial }),
+        body: JSON.stringify({ lecSerial })
       });
 
       if (!res.ok) {
@@ -39,7 +38,6 @@ const AttendanceDetailModal = ({ onClose, lecSerial }) => {
 
   // useEffect에서 user와 lecSerial이 준비되면 Fetch 호출
   useEffect(() => {
-    console.log("useEffect 실행:", lecSerial, accessToken);
     if (lecSerial && accessToken) {
       FetchAttendanceDetail();
     }
