@@ -44,7 +44,7 @@ function CourseDetailEdit({ lectureDetails, currentPage, setCurrentPage }) {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
                 },
-                body: JSON.stringify(requestBody),
+                body: JSON.stringify(requestBody)
             });
 
             if (!response.ok) throw new Error('서버 에러가 발생했습니다.');

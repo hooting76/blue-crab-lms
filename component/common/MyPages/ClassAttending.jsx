@@ -5,11 +5,11 @@ import ClassAttendingNotice from './ClassAttendingNotice.jsx';
 import AttendanceDetailModal from './AttendanceDetailModal.jsx';
 import ProfAttendanceDetailModal from './ProfAttendanceDetailModal.jsx';
 import ApproveAttendanceModal from './ApproveAttendanceModal.jsx';
-import TestModal from './TestModal.jsx';
 import AssignmentCreateModal from './AssignmentCreateModal.jsx';
 import ProfNoticeWritingPage from './ProfNoticeWritingPage.jsx';
 import CourseDetail from './CourseDetail';
 import AssignmentDetailModal from './AssignmentDetailModal.jsx';
+import GradeConfigModal from './GradeConfigModal.jsx';
 
 function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, setSelectedLectureSerial }) {
   const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
@@ -30,10 +30,10 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
   const [isAttendanceDetailModalOpen, setIsAttendanceDetailModalOpen] = useState(false);
   const [isProfAttendanceDetailModalOpen, setIsProfAttendanceDetailModalOpen] = useState(false);
   const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
-  const [isTestModalOpen, setIsTestModalOpen] = useState(false);
   const [isAssignmentCreateModalOpen, setIsAssignmentCreateModalOpen] = useState(false);
   const [isClassDetailModalOpen, setIsClassDetailModalOpen] = useState(false);
   const [isAssignmentDetailModalOpen, setIsAssignmentDetailModalOpen] = useState(false);
+  const [isGradeConfigModalOpen, setIsGradeConfigModalOpen] = useState(false);
 
 
   // 강의 목록 받아올 때 첫 강의로 기본 선택 설정
@@ -251,8 +251,8 @@ const fetchNotices = async () => {
   const closeProfAttendanceDetailModal = () => setIsProfAttendanceDetailModalOpen(false);
   const openAttendanceModal = () => setIsAttendanceModalOpen(true);
   const closeAttendanceModal = () => setIsAttendanceModalOpen(false);
-  const openTestModal = () => setIsTestModalOpen(true);
-  const closeTestModal = () => setIsTestModalOpen(false);
+  const openGradeConfigModal = () => setIsGradeConfigModalOpen(true);
+  const closeGradeConfigModal = () => setIsGradeConfigModalOpen(false);s
   const openAssignmentCreateModal = () => setIsAssignmentCreateModalOpen(true);
   const closeAssignmentCreateModal = () => setIsAssignmentCreateModalOpen(false);
   const openClassDetailModal = () => setIsClassDetailModalOpen(true);
@@ -455,6 +455,19 @@ const fetchNotices = async () => {
         <div className="testAssignment">
           <p>시험 및 과제</p>
 
+          {isProf && (
+            <button className="gradeConfigBtn" onClick={openGradeConfigModal}>
+              성적 구성 설정
+            </button>
+          )}
+
+          {isGradeConfigModalOpen && (
+            <GradeConfigModal
+              onClose={closeGradeConfigModal}
+              lecSerial={selectedLectureSerial}
+            />
+          )}
+
           {/* 과제 목록 (학생/교수 공용) */}
           <div className="assignmentList">
             {isProf && (
@@ -523,7 +536,6 @@ const fetchNotices = async () => {
           )}
 
 
-          {isProf && isTestModalOpen && <TestModal onClose={closeTestModal} />}
         </div>
       </div>
     </div>
