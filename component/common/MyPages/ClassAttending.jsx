@@ -10,6 +10,7 @@ import ProfNoticeWritingPage from './ProfNoticeWritingPage.jsx';
 import CourseDetail from './CourseDetail';
 import AssignmentDetailModal from './AssignmentDetailModal.jsx';
 import GradeConfigModal from './GradeConfigModal.jsx';
+import MyScoreModal from './MyScoreModal.jsx';
 
 function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, setSelectedLectureSerial }) {
   const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
@@ -34,6 +35,7 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
   const [isClassDetailModalOpen, setIsClassDetailModalOpen] = useState(false);
   const [isAssignmentDetailModalOpen, setIsAssignmentDetailModalOpen] = useState(false);
   const [isGradeConfigModalOpen, setIsGradeConfigModalOpen] = useState(false);
+  const [isMyScoreModalOpen, setIsMyScoreModalOpen] = useState(false);
 
 
   // 강의 목록 받아올 때 첫 강의로 기본 선택 설정
@@ -268,6 +270,8 @@ const fetchNotices = async () => {
   const closeClassDetailModal = () => setIsClassDetailModalOpen(false);
   const openAssignmentDetailModal = () => setIsAssignmentDetailModalOpen(true);
   const closeAssignmentDetailModal = () => setIsAssignmentDetailModalOpen(false);
+  const openMyScoreModal = () => setIsMyScoreModalOpen(true);
+  const closeMyScoreModal = () => setIsMyScoreModalOpen(false);
 
   // 과목별 공지 페이지 렌더링
   if (currentPage === "수강/강의과목 공지사항") {
@@ -464,15 +468,27 @@ const fetchNotices = async () => {
         <div className="testAssignment">
           <p>시험 및 과제</p>
 
-          {isProf && (
+          {isProf ? (
             <button className="gradeConfigBtn" onClick={openGradeConfigModal}>
               성적 구성 설정
+            </button>
+          ) : (
+            <button className="myScoreBtn" onClick={openMyScoreModal}>
+              내 성적 보기
             </button>
           )}
 
           {isGradeConfigModalOpen && (
             <GradeConfigModal
               onClose={closeGradeConfigModal}
+              lecSerial={selectedLectureSerial}
+              lecTitle={getSelectedLectureTitle()}
+            />
+          )}
+
+          {isMyScoreOpen && (
+            <MyScoreModal
+              onClose={closeMyScoreModal}
               lecSerial={selectedLectureSerial}
               lecTitle={getSelectedLectureTitle()}
             />
