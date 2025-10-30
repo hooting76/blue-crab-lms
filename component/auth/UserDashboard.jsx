@@ -3,6 +3,7 @@ import CalendarComp from '../common/Calendar/CalendarComp';
 import Aside from '../common/Aside';
 import { getNoticesByCode } from '../api/noticeAPI';
 import UserDashCss from '../../css/modules/UserDashboard.module.css';
+import { FaBook, FaWarehouse, FaStamp } from 'react-icons/fa';
 
 // firebase  service-worker config
 import pushNotificationManager from '../../firebase/PushNotification';
@@ -17,6 +18,7 @@ function UserDashboard() {
           pushManager.initialize();          
         } catch (error) {
           console.log('푸시 알림 초기화 실패', error);
+          alert('푸시 알림 초기화 실패');
         }
       }
     }, []);
@@ -79,7 +81,36 @@ function UserDashboard() {
               </ul>
             </div>
             <div className={UserDashCss.noticeSecond}>
-              <h4>취업정보</h4>
+              <h4>quick menu</h4>
+              <ol>
+                <li>
+                  <span><FaBook/></span>
+                  <span>나의강의실</span>
+                  <p>
+                    <span>수강중 수업</span>
+                    <span>종강 수업</span>
+                  </p>
+                  {/* 수강중 수업 */}
+                  {/* 종강 수업*/}
+                </li>
+                <li>
+                  <span><FaStamp/></span>
+                  <span>출석확인</span>
+                  <p>해당사항이 없습니다.</p>
+                  {/* 졸업(재학)증명서 */}
+                  {/* 성적확인서 */}
+                </li>
+                <li>
+                  <span><FaWarehouse/></span>
+                  <span>시설대여</span>
+                  <p>
+                    <span>대여문의</span>
+                    <span>신청목록</span>
+                  </p>
+                  {/* 대여문의 */}
+                  {/* 신청목록 */}
+                </li>
+              </ol>
             </div>
           </section>
           {/* notice wrap end*/}
