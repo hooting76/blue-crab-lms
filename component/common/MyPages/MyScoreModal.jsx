@@ -83,6 +83,7 @@ console.log("scoreDetail : ", scoreDetail);
                             <span>만점 : {scoreDetail.total.maxScore}</span>
                             <span>점수 백분율 : {scoreDetail.total.percentage}</span>
                         </div>
+                        <div>등급 : {scoreDetail.total.letterGrade}</div>
                     </>
                 ) : (
                     <div>로딩 중...</div>
