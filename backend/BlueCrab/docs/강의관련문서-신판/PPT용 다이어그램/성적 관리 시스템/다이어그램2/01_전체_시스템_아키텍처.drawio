@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" version="28.2.5">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" version="28.2.8">
   <diagram name="전체 시스템 아키텍처" id="system-architecture">
-    <mxGraphModel dx="2037" dy="1110" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" background="light-dark(#FFFFFF,#FFFFFF)" math="0" shadow="0">
+    <mxGraphModel dx="1678" dy="914" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" background="light-dark(#FFFFFF,#FFFFFF)" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -10,22 +10,22 @@
         <mxCell id="archTitle" value="📐 3계층 아키텍처" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;fontColor=light-dark(#1A1A1A,#000000);" parent="1" vertex="1">
           <mxGeometry x="60" y="130" width="300" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="frontend" value="🌐 Frontend Layer" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1976D2;strokeWidth=4;fillColor=#E3F2FD;fontSize=20;fontColor=#0D47A1;fontStyle=1;" parent="1" vertex="1">
+        <mxCell id="frontend" value="🌐 Frontend Layer" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#006EAF;strokeWidth=4;fillColor=#1ba1e2;fontSize=20;fontColor=#ffffff;fontStyle=1;" parent="1" vertex="1">
           <mxGeometry x="60" y="200" width="300" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="frontendDetail" value="&lt;blockquote style=&quot;margin: 0 0 0 40px; border: none; padding: 0px;&quot;&gt;• React 컴포넌트&lt;div&gt;• 학생/교수 대시보드&lt;/div&gt;&lt;div&gt;• 실시간 성적 조회&lt;/div&gt;&lt;div&gt;• 출석 요청 인터페이스&lt;/div&gt;&lt;/blockquote&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1976D2;strokeWidth=2;fillColor=#FFFFFF;fontSize=16;fontColor=#1565C0;align=left;" parent="1" vertex="1">
+        <mxCell id="frontendDetail" value="&lt;blockquote style=&quot;margin: 0 0 0 40px; border: none; padding: 0px;&quot;&gt;• React 컴포넌트&lt;div&gt;• 학생/교수 대시보드&lt;/div&gt;&lt;div&gt;• 실시간 성적 조회&lt;/div&gt;&lt;div&gt;• 출석 요청 인터페이스&lt;/div&gt;&lt;/blockquote&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#001DBC;strokeWidth=2;fillColor=#0050ef;fontSize=16;fontColor=#ffffff;align=left;" parent="1" vertex="1">
           <mxGeometry x="60" y="280" width="300" height="120" as="geometry" />
         </mxCell>
-        <mxCell id="backend" value="⚙️ Backend API Layer" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#388E3C;strokeWidth=4;fillColor=#E8F5E9;fontSize=20;fontColor=#1B5E20;fontStyle=1;" parent="1" vertex="1">
+        <mxCell id="backend" value="⚙️ Backend API Layer" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#2D7600;strokeWidth=4;fillColor=#60a917;fontSize=20;fontColor=#ffffff;fontStyle=1;" parent="1" vertex="1">
           <mxGeometry x="60" y="420" width="300" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="backendDetail" value="&lt;blockquote style=&quot;margin: 0 0 0 40px; border: none; padding: 0px;&quot;&gt;• Spring Boot REST API&lt;div&gt;• 14개 핵심 엔드포인트&lt;/div&gt;&lt;div&gt;• JWT 인증/권한 관리&lt;/div&gt;&lt;div&gt;• GradeUpdateEvent 처리&lt;/div&gt;&lt;div style=&quot;&quot;&gt;• JSON 기반 성적 계산&lt;/div&gt;&lt;/blockquote&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#388E3C;strokeWidth=2;fillColor=#FFFFFF;fontSize=16;fontColor=#2E7D32;align=left;" parent="1" vertex="1">
+        <mxCell id="backendDetail" value="&lt;blockquote style=&quot;margin: 0 0 0 40px; border: none; padding: 0px;&quot;&gt;• Spring Boot REST API&lt;div&gt;• 14개 핵심 엔드포인트&lt;/div&gt;&lt;div&gt;• JWT 인증/권한 관리&lt;/div&gt;&lt;div&gt;• GradeUpdateEvent 처리&lt;/div&gt;&lt;div style=&quot;&quot;&gt;• JSON 기반 성적 계산&lt;/div&gt;&lt;/blockquote&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#005700;strokeWidth=2;fillColor=#008a00;fontSize=16;fontColor=#ffffff;align=left;" parent="1" vertex="1">
           <mxGeometry x="60" y="500" width="300" height="140" as="geometry" />
         </mxCell>
-        <mxCell id="database" value="🗄️ Database Layer" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#F57C00;strokeWidth=4;fillColor=#FFF3E0;fontSize=20;fontColor=#E65100;fontStyle=1;" parent="1" vertex="1">
+        <mxCell id="database" value="🗄️ Database Layer" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#BD7000;strokeWidth=4;fillColor=#f0a30a;fontSize=20;fontColor=#000000;fontStyle=1;" parent="1" vertex="1">
           <mxGeometry x="60.03" y="680" width="300" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="databaseDetail" value="• MariaDB 10.x&lt;div&gt;• JSON 기반 데이터 저장&lt;/div&gt;&lt;div&gt;• ENROLLMENT_DATA (LONGTEXT)&lt;/div&gt;&lt;div style=&quot;&quot;&gt;• ASSIGNMENT_DATA (LONGTEXT)&lt;/div&gt;&lt;div style=&quot;&quot;&gt;• 실시간 성적 계산 지원&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#F57C00;strokeWidth=2;fillColor=#FFFFFF;fontSize=16;fontColor=#EF6C00;align=left;" parent="1" vertex="1">
+        <mxCell id="databaseDetail" value="• MariaDB 10.x&lt;div&gt;• JSON 기반 데이터 저장&lt;/div&gt;&lt;div&gt;• ENROLLMENT_DATA (LONGTEXT)&lt;/div&gt;&lt;div style=&quot;&quot;&gt;• ASSIGNMENT_DATA (LONGTEXT)&lt;/div&gt;&lt;div style=&quot;&quot;&gt;• 실시간 성적 계산 지원&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#C73500;strokeWidth=2;fillColor=#fa6800;fontSize=16;fontColor=#000000;align=left;" parent="1" vertex="1">
           <mxGeometry x="60.03" y="760" width="300" height="140" as="geometry" />
         </mxCell>
         <mxCell id="arrow1" value="" style="endArrow=block;html=1;strokeWidth=4;strokeColor=#1976D2;endFill=1;edgeStyle=orthogonalEdgeStyle;" parent="1" source="frontend" target="backend" edge="1">
@@ -37,7 +37,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="arrow1Label" value="HTTP/REST API" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontColor=light-dark(#1A1A1A,#000000);fontStyle=1;" parent="1" vertex="1">
-          <mxGeometry x="390.03" y="320" width="120" height="30" as="geometry" />
+          <mxGeometry x="370" y="200" width="120" height="30" as="geometry" />
         </mxCell>
         <mxCell id="arrow2" value="" style="endArrow=block;html=1;strokeWidth=4;strokeColor=#388E3C;endFill=1;edgeStyle=orthogonalEdgeStyle;" parent="1" source="backend" target="database" edge="1">
           <mxGeometry relative="1" as="geometry">
@@ -48,46 +48,46 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="arrow2Label" value="JPA/Hibernate" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontColor=light-dark(#1A1A1A,#000000);fontStyle=1;" parent="1" vertex="1">
-          <mxGeometry x="390.03" y="600" width="120" height="30" as="geometry" />
+          <mxGeometry x="390" y="620" width="120" height="30" as="geometry" />
         </mxCell>
         <mxCell id="processTitle" value="🔄 6단계 성적 관리 프로세스" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;fontColor=light-dark(#1A1A1A,#000000);" parent="1" vertex="1">
-          <mxGeometry x="640.03" y="140" width="400" height="50" as="geometry" />
+          <mxGeometry x="620.03" y="140" width="400" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="step1" value="① 성적 구성 설정" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#2E7D32;strokeWidth=3;fillColor=#C8E6C9;fontSize=18;fontColor=#1B5E20;fontStyle=1;" parent="1" vertex="1">
-          <mxGeometry x="530.03" y="220" width="230" height="70" as="geometry" />
+        <mxCell id="step1" value="① 성적 구성 설정" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#2D7600;strokeWidth=3;fillColor=#60a917;fontSize=18;fontColor=#ffffff;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="439.97" y="240" width="230" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="step1Detail" value="POST /api/enrollments/grade-config&lt;div&gt;출석·과제·시험 비중 설정&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#2E7D32;strokeWidth=2;fillColor=#FFFFFF;fontSize=14;fontColor=#2E7D32;" parent="1" vertex="1">
-          <mxGeometry x="530.03" y="300" width="230" height="60" as="geometry" />
+        <mxCell id="step1Detail" value="POST /api/enrollments/grade-config&lt;div&gt;출석·과제·시험 비중 설정&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#005700;strokeWidth=2;fillColor=#008a00;fontSize=14;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="439.97" y="320" width="230" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="step2" value="② 출석 관리" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1976D2;strokeWidth=3;fillColor=#E3F2FD;fontSize=18;fontColor=#0D47A1;fontStyle=1;" parent="1" vertex="1">
-          <mxGeometry x="790.03" y="220" width="200" height="70" as="geometry" />
+        <mxCell id="step2" value="② 출석 관리" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#006EAF;strokeWidth=3;fillColor=#1ba1e2;fontSize=18;fontColor=#ffffff;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="699.97" y="240" width="200" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="step2Detail" value="POST /attendance/request&lt;div&gt;POST /attendance/approve&lt;/div&gt;&lt;div&gt;🔔 GradeUpdateEvent&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#1976D2;strokeWidth=2;fillColor=#FFFFFF;fontSize=14;fontColor=#1976D2;" parent="1" vertex="1">
-          <mxGeometry x="790.03" y="300" width="200" height="80" as="geometry" />
+        <mxCell id="step2Detail" value="POST /attendance/request&lt;div&gt;POST /attendance/approve&lt;/div&gt;&lt;div&gt;🔔 GradeUpdateEvent&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#001DBC;strokeWidth=2;fillColor=#0050ef;fontSize=14;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="699.97" y="320" width="200" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="step3" value="③ 과제 관리" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#7B1FA2;strokeWidth=3;fillColor=#F3E5F5;fontSize=18;fontColor=#4A148C;fontStyle=1;" parent="1" vertex="1">
-          <mxGeometry x="1030.03" y="220" width="220" height="70" as="geometry" />
+        <mxCell id="step3" value="③ 과제 관리" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#7B1FA2;strokeWidth=3;fillColor=light-dark(#7B1FA2,#45115B);fontSize=18;fontColor=#4A148C;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="939.97" y="240" width="220" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="step3Detail" value="POST /api/assignments&lt;div&gt;PUT /api/assignments/{id}/grade&lt;/div&gt;&lt;div&gt;🔔 GradeUpdateEvent&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#7B1FA2;strokeWidth=2;fillColor=#FFFFFF;fontSize=14;fontColor=#7B1FA2;" parent="1" vertex="1">
-          <mxGeometry x="1030.03" y="300" width="220" height="80" as="geometry" />
+        <mxCell id="step3Detail" value="POST /api/assignments&lt;div&gt;PUT /api/assignments/{id}/grade&lt;/div&gt;&lt;div&gt;🔔 GradeUpdateEvent&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#7B1FA2;strokeWidth=2;fillColor=light-dark(#7B1FA2,#FF66FF);fontSize=14;fontColor=light-dark(#7B1FA2,#45115B);" parent="1" vertex="1">
+          <mxGeometry x="939.97" y="320" width="220" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="step4" value="④ 성적 조회" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#F57F17;strokeWidth=3;fillColor=#FFF9C4;fontSize=18;fontColor=#F57F17;fontStyle=1;" parent="1" vertex="1">
-          <mxGeometry x="1280.03" y="220" width="210" height="70" as="geometry" />
+        <mxCell id="step4" value="④ 성적 조회" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#BD7000;strokeWidth=3;fillColor=#f0a30a;fontSize=18;fontColor=#000000;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1189.97" y="240" width="210" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="step4Detail" value="POST /enrollments/grade-info&lt;div&gt;POST /enrollments/grade-list&lt;/div&gt;&lt;div&gt;실시간 계산된 성적 반환&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#F57F17;strokeWidth=2;fillColor=#FFFFFF;fontSize=14;fontColor=#F57F17;" parent="1" vertex="1">
-          <mxGeometry x="1280.03" y="300" width="210" height="80" as="geometry" />
+        <mxCell id="step4Detail" value="POST /enrollments/grade-info&lt;div&gt;POST /enrollments/grade-list&lt;/div&gt;&lt;div&gt;실시간 계산된 성적 반환&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#C73500;strokeWidth=2;fillColor=#fa6800;fontSize=14;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="1189.97" y="320" width="210" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="step5" value="⑤ 자동 성적 계산" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#00695C;strokeWidth=3;fillColor=#B2DFDB;fontSize=18;fontColor=#004D40;fontStyle=1;" parent="1" vertex="1">
-          <mxGeometry x="590.03" y="430" width="200" height="70" as="geometry" />
+        <mxCell id="step5" value="⑤ 자동 성적 계산" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#B20000;strokeWidth=3;fillColor=light-dark(#E51400,#CCCC00);fontSize=18;fontColor=#ffffff;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="499.97" y="450" width="200" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="step5Detail" value="GradeCalculationService&lt;div&gt;JSON 기반 실시간 계산&lt;/div&gt;&lt;div&gt;출석·과제·시험 가중 합산&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#00695C;strokeWidth=2;fillColor=#FFFFFF;fontSize=14;fontColor=#00695C;" parent="1" vertex="1">
-          <mxGeometry x="590.03" y="510" width="200" height="80" as="geometry" />
+        <mxCell id="step5Detail" value="GradeCalculationService&lt;div&gt;JSON 기반 실시간 계산&lt;/div&gt;&lt;div&gt;출석·과제·시험 가중 합산&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#00695C;strokeWidth=2;fillColor=light-dark(#FFFFFF,#FFFF33);fontSize=14;fontColor=light-dark(#000000,#000000);" parent="1" vertex="1">
+          <mxGeometry x="499.97" y="530" width="200" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="step6" value="⑥ 최종 등급 배정" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#C62828;strokeWidth=3;fillColor=#FFEBEE;fontSize=18;fontColor=#B71C1C;fontStyle=1;" parent="1" vertex="1">
-          <mxGeometry x="860.03" y="430" width="260" height="70" as="geometry" />
+        <mxCell id="step6" value="⑥ 최종 등급 배정" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#6F0000;strokeWidth=3;fillColor=#a20025;fontSize=18;fontColor=#ffffff;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="769.97" y="450" width="260" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="step6Detail" value="POST /api/enrollments/grade-finalize&lt;div&gt;상대평가 알고리즘&lt;/div&gt;&lt;div&gt;A30/B40/C20/D10, 권외F&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#C62828;strokeWidth=2;fillColor=#FFFFFF;fontSize=14;fontColor=#C62828;" parent="1" vertex="1">
-          <mxGeometry x="860.03" y="510" width="260" height="80" as="geometry" />
+        <mxCell id="step6Detail" value="POST /api/enrollments/grade-finalize&lt;div&gt;상대평가 알고리즘&lt;/div&gt;&lt;div&gt;A30/B40/C20/D10, 권외F&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#B20000;strokeWidth=2;fillColor=#e51400;fontSize=14;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="769.97" y="530" width="260" height="80" as="geometry" />
         </mxCell>
         <mxCell id="processArrow1" value="" style="endArrow=block;html=1;strokeWidth=3;strokeColor=#388E3C;endFill=1;" parent="1" source="step1" target="step2" edge="1">
           <mxGeometry relative="1" as="geometry" />
@@ -101,9 +101,9 @@
         <mxCell id="processArrow4" value="" style="endArrow=block;html=1;strokeWidth=3;strokeColor=#F57F17;endFill=1;edgeStyle=orthogonalEdgeStyle;" parent="1" source="step4" target="step5" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1510.03" y="255" />
-              <mxPoint x="1510.03" y="400" />
-              <mxPoint x="740.03" y="400" />
+              <mxPoint x="1419.97" y="275" />
+              <mxPoint x="1419.97" y="420" />
+              <mxPoint x="649.97" y="420" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -111,24 +111,24 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="techTitle" value="🛠️ 핵심 기술 스택" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;fontColor=light-dark(#1A1A1A,#000000);" parent="1" vertex="1">
-          <mxGeometry x="1210" y="630" width="200" height="50" as="geometry" />
+          <mxGeometry x="1169.97" y="640" width="200" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="techStack" value="• Spring Boot 2.7.x&lt;div&gt;• Spring Data JPA&lt;/div&gt;&lt;div&gt;• MariaDB 10.x&lt;/div&gt;&lt;div&gt;• JSON 데이터 저장&lt;/div&gt;&lt;div&gt;• Event-Driven Architecture&lt;/div&gt;&lt;div&gt;• REST API 설계&lt;/div&gt;&lt;div&gt;• JWT 기반 인증&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#455A64;strokeWidth=2;fillColor=#ECEFF1;fontSize=16;fontColor=#37474F;align=left;" parent="1" vertex="1">
-          <mxGeometry x="1210" y="700" width="250" height="200" as="geometry" />
+        <mxCell id="techStack" value="• Spring Boot 2.7.x&lt;div&gt;• Spring Data JPA&lt;/div&gt;&lt;div&gt;• MariaDB 10.x&lt;/div&gt;&lt;div&gt;• JSON 데이터 저장&lt;/div&gt;&lt;div&gt;• Event-Driven Architecture&lt;/div&gt;&lt;div&gt;• REST API 설계&lt;/div&gt;&lt;div&gt;• JWT 기반 인증&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#314354;strokeWidth=2;fillColor=#647687;fontSize=16;fontColor=#ffffff;align=left;" parent="1" vertex="1">
+          <mxGeometry x="1169.97" y="700" width="250" height="200" as="geometry" />
         </mxCell>
         <mxCell id="dataTitle" value="📊 데이터 흐름 특징" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;fontColor=light-dark(#1A1A1A,#000000);" parent="1" vertex="1">
-          <mxGeometry x="460.03" y="700" width="200" height="50" as="geometry" />
+          <mxGeometry x="420" y="700" width="200" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="dataFlow" value="&lt;blockquote style=&quot;margin: 0 0 0 40px; border: none; padding: 0px;&quot;&gt;• JSON 기반 유연한 데이터 구조&lt;div&gt;• 실시간 성적 계산 및 캐싱&lt;/div&gt;&lt;div&gt;• 이벤트 기반 자동 업데이트&lt;/div&gt;&lt;div&gt;• 출석/과제/시험 통합 관리&lt;/div&gt;&lt;div&gt;• 상대평가 알고리즘 적용&lt;/div&gt;&lt;/blockquote&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#6A1B9A;strokeWidth=2;fillColor=#F3E5F5;fontSize=16;fontColor=#4A148C;align=left;" parent="1" vertex="1">
-          <mxGeometry x="460.03" y="760" width="330" height="140" as="geometry" />
+        <mxCell id="dataFlow" value="&lt;blockquote style=&quot;margin: 0 0 0 40px; border: none; padding: 0px;&quot;&gt;• JSON 기반 유연한 데이터 구조&lt;div&gt;• 실시간 성적 계산 및 캐싱&lt;/div&gt;&lt;div&gt;• 이벤트 기반 자동 업데이트&lt;/div&gt;&lt;div&gt;• 출석/과제/시험 통합 관리&lt;/div&gt;&lt;div&gt;• 상대평가 알고리즘 적용&lt;/div&gt;&lt;/blockquote&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#6A1B9A;strokeWidth=2;fillColor=light-dark(#7B1FA2,#FF66FF);fontSize=16;fontColor=light-dark(#7B1FA2,#45115B);align=left;" parent="1" vertex="1">
+          <mxGeometry x="420" y="760" width="330" height="140" as="geometry" />
         </mxCell>
         <mxCell id="featuresTitle" value="⭐ 시스템 특장점" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;fontColor=light-dark(#1A1A1A,#000000);" parent="1" vertex="1">
-          <mxGeometry x="840.03" y="660" width="200" height="50" as="geometry" />
+          <mxGeometry x="800" y="660" width="200" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="features" value="✅ 실시간 성적 계산&amp;nbsp;&lt;div&gt;✅ 이벤트 기반 자동 업데이트&lt;/div&gt;&lt;div&gt;✅ JSON 기반 확장 가능한 구조&lt;/div&gt;&lt;div&gt;✅ 상대평가 자동 등급 배정&lt;/div&gt;&lt;div&gt;✅ 출석 승인 프로세스&lt;/div&gt;&lt;div&gt;✅ 과제별 가중치 적용&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#D32F2F;strokeWidth=2;fillColor=#FFEBEE;fontSize=16;fontColor=#C62828;align=left;" parent="1" vertex="1">
-          <mxGeometry x="840.03" y="720" width="320" height="180" as="geometry" />
+        <mxCell id="features" value="✅ 실시간 성적 계산&amp;nbsp;&lt;div&gt;✅ 이벤트 기반 자동 업데이트&lt;/div&gt;&lt;div&gt;✅ JSON 기반 확장 가능한 구조&lt;/div&gt;&lt;div&gt;✅ 상대평가 자동 등급 배정&lt;/div&gt;&lt;div&gt;✅ 출석 승인 프로세스&lt;/div&gt;&lt;div&gt;✅ 과제별 가중치 적용&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#B20000;strokeWidth=2;fillColor=#e51400;fontSize=16;fontColor=#ffffff;align=left;" parent="1" vertex="1">
+          <mxGeometry x="800" y="720" width="320" height="180" as="geometry" />
         </mxCell>
-        <mxCell id="jZAWvvSaJ2RjPlwCvVLT-4" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;exitX=0.467;exitY=0;exitDx=0;exitDy=0;exitPerimeter=0;strokeColor=light-dark(#000000,#4D9900);" edge="1" parent="1" source="database">
+        <mxCell id="jZAWvvSaJ2RjPlwCvVLT-4" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;exitX=0.467;exitY=0;exitDx=0;exitDy=0;exitPerimeter=0;strokeColor=light-dark(#000000,#4D9900);" parent="1" source="database" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="270.03" y="670" as="sourcePoint" />
             <mxPoint x="200.03" y="642" as="targetPoint" />

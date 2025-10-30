@@ -1,19 +1,19 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" version="28.2.5">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" version="28.2.8">
   <diagram name="출석 관리 프로세스" id="attendance-process">
-    <mxGraphModel dx="3504" dy="863" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" background="light-dark(#FFFFFF,#FFFFFF)" math="0" shadow="0">
+    <mxGraphModel dx="3346" dy="777" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" background="light-dark(#FFFFFF,#FFFFFF)" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="title" value="출석 관리 프로세스 - 요청부터 자동 성적 계산까지" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=32;fontStyle=1;fontColor=light-dark(#1A1A1A,#000000);" parent="1" vertex="1">
           <mxGeometry x="-1780" y="30" width="1040" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="section1" value="📝 1단계: 출석 요청" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;strokeWidth=3;fontSize=18;fontColor=#0D47A1;fontStyle=1;" parent="1" vertex="1">
+        <mxCell id="section1" value="📝 1단계: 출석 요청" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;strokeWidth=3;fontSize=18;fontColor=#ffffff;fontStyle=1;" parent="1" vertex="1">
           <mxGeometry x="-1880" y="100" width="290" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="student1" value="👨‍🎓&#xa;학생" style="text;html=1;strokeColor=#1976D2;fillColor=#E3F2FD;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=14;fontColor=#0D47A1;fontStyle=1;strokeWidth=2;" parent="1" vertex="1">
+        <mxCell id="student1" value="👨‍🎓&#xa;학생" style="text;html=1;strokeColor=#001DBC;fillColor=#0050ef;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=14;fontColor=#ffffff;fontStyle=1;strokeWidth=2;" parent="1" vertex="1">
           <mxGeometry x="-1880" y="150" width="80" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="arrow1" value="" style="endArrow=block;html=1;strokeWidth=3;strokeColor=#1976D2;endFill=1;fontSize=14;edgeStyle=orthogonalEdgeStyle;exitX=1.031;exitY=0.425;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.532;entryY=0.025;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" edge="1" target="api1" source="student1">
+        <mxCell id="arrow1" value="" style="endArrow=block;html=1;strokeWidth=3;strokeColor=#1976D2;endFill=1;fontSize=14;edgeStyle=orthogonalEdgeStyle;exitX=1.031;exitY=0.425;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.532;entryY=0.025;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="student1" target="api1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="-1690" y="195" as="sourcePoint" />
             <mxPoint x="-1680" y="215" as="targetPoint" />
@@ -25,28 +25,32 @@
         <mxCell id="arrow1-label" value="출석 요청" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontColor=#1976D2;fontStyle=1;" parent="1" vertex="1">
           <mxGeometry x="-1770" y="175" width="100" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="api1" value="POST /api/attendance/request&#xa;{ lecSerial, sessionDate, status }" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1976D2;strokeWidth=2;fontSize=14;fontColor=#0D47A1;align=center;" parent="1" vertex="1">
+        <mxCell id="api1" value="POST /api/attendance/request&#xa;{ lecSerial, sessionDate, status }" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;strokeWidth=2;fontSize=14;fontColor=#ffffff;align=center;" parent="1" vertex="1">
           <mxGeometry x="-1880" y="220" width="220" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="db1" value="🗄️ DB 저장&#xa;pendingRequests[] 추가" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#F57C00;strokeWidth=2;fontSize=14;fontColor=#E65100;fontStyle=1;align=center;" parent="1" vertex="1">
+        <mxCell id="db1" value="🗄️ DB 저장&#xa;pendingRequests[] 추가" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fa6800;strokeColor=#C73500;strokeWidth=2;fontSize=14;fontColor=#000000;fontStyle=1;align=center;" parent="1" vertex="1">
           <mxGeometry x="-1880" y="300" width="220" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="db1-arrow" value="" style="endArrow=block;html=1;strokeWidth=2;strokeColor=#F57C00;endFill=1;dashed=1;fontSize=14;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" edge="1" target="db1" source="api1">
+        <mxCell id="db1-arrow" value="" style="endArrow=block;html=1;strokeWidth=2;strokeColor=#F57C00;endFill=1;dashed=1;fontSize=14;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=1.005;exitY=0.448;exitDx=0;exitDy=0;exitPerimeter=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="api1" target="db1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="-1510" y="230" as="sourcePoint" />
             <mxPoint x="-1510" y="250" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="-1630" y="247" />
+              <mxPoint x="-1630" y="325" />
+            </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="data1-box" value="pendingRequests: [&#xa;  { sessionNumber: 10,&#xa;    status: &quot;출&quot;,&#xa;    requestDate: &quot;...&quot; }&#xa;]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;strokeWidth=1;fontSize=14;fontColor=#0D47A1;align=left;fontFamily=Courier New;" parent="1" vertex="1">
+        <mxCell id="data1-box" value="pendingRequests: [&#xa;  { sessionNumber: 10,&#xa;    status: &quot;출&quot;,&#xa;    requestDate: &quot;...&quot; }&#xa;]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;strokeWidth=1;fontSize=14;fontColor=#ffffff;align=left;fontFamily=Courier New;" parent="1" vertex="1">
           <mxGeometry x="-1880" y="375" width="220" height="90" as="geometry" />
         </mxCell>
-        <mxCell id="section2" value="✅ 2단계: 출석 승인" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#388E3C;strokeWidth=3;fontSize=18;fontColor=#1B5E20;fontStyle=1;" parent="1" vertex="1">
+        <mxCell id="section2" value="✅ 2단계: 출석 승인" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#008a00;strokeColor=#005700;strokeWidth=3;fontSize=18;fontColor=#ffffff;fontStyle=1;" parent="1" vertex="1">
           <mxGeometry x="-1550" y="100" width="290" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="professor" value="👨‍🏫&#xa;교수" style="text;html=1;strokeColor=#388E3C;fillColor=#C8E6C9;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=14;fontColor=#1B5E20;fontStyle=1;strokeWidth=2;" parent="1" vertex="1">
+        <mxCell id="professor" value="👨‍🏫&#xa;교수" style="text;html=1;strokeColor=#005700;fillColor=#008a00;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=14;fontColor=#ffffff;fontStyle=1;strokeWidth=2;" parent="1" vertex="1">
           <mxGeometry x="-1550" y="150" width="80" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="arrow3" value="" style="endArrow=block;html=1;strokeWidth=3;strokeColor=#388E3C;endFill=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" edge="1" target="api2" source="professor">
+        <mxCell id="arrow3" value="" style="endArrow=block;html=1;strokeWidth=3;strokeColor=#388E3C;endFill=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="professor" target="api2" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="-1460" y="200" as="sourcePoint" />
             <mxPoint x="-1360" y="200" as="targetPoint" />
@@ -55,169 +59,173 @@
         <mxCell id="arrow3-label" value="승인&lt;br&gt;PRESENT/LATE/ABSENT" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontColor=#388E3C;fontStyle=1;" parent="1" vertex="1">
           <mxGeometry x="-1380" y="165" width="60" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="api2" value="POST /api/attendance/approve&#xa;{ lecSerial, studentIdx,&#xa;  sessionDate, status }" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#388E3C;strokeWidth=2;fontSize=14;fontColor=#1B5E20;align=center;" parent="1" vertex="1">
+        <mxCell id="api2" value="POST /api/attendance/approve&#xa;{ lecSerial, studentIdx,&#xa;  sessionDate, status }" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#008a00;strokeColor=#005700;strokeWidth=2;fontSize=14;fontColor=#ffffff;align=center;" parent="1" vertex="1">
           <mxGeometry x="-1550" y="220" width="220" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="db2" value="🗄️ DB 업데이트&#xa;pendingRequests → sessions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#F57C00;strokeWidth=2;fontSize=14;fontColor=#E65100;fontStyle=1;align=center;" parent="1" vertex="1">
+        <mxCell id="db2" value="🗄️ DB 업데이트&#xa;pendingRequests → sessions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fa6800;strokeColor=#C73500;strokeWidth=2;fontSize=14;fontColor=#000000;fontStyle=1;align=center;" parent="1" vertex="1">
           <mxGeometry x="-1550" y="305" width="220" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="db2-arrow" value="" style="endArrow=block;html=1;strokeWidth=2;strokeColor=#F57C00;endFill=1;dashed=1;fontSize=14;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" edge="1" target="db2" source="api2">
+        <mxCell id="db2-arrow" value="" style="endArrow=block;html=1;strokeWidth=2;strokeColor=#F57C00;endFill=1;dashed=1;fontSize=14;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="api2" target="db2" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="-1180" y="235" as="sourcePoint" />
-            <mxPoint x="-1180" y="255" as="targetPoint" />
+            <mxPoint x="-1310" y="340" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="-1300" y="255" />
+              <mxPoint x="-1300" y="330" />
+            </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="data2-box" value="sessions: [&#xa;  { sessionNumber: 10,&#xa;    status: &quot;출&quot;,&#xa;    approvedAt: &quot;...&quot;,&#xa;    approvedBy: 23 }  ✅&#xa;]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#388E3C;strokeWidth=1;fontSize=14;fontColor=#1B5E20;align=left;fontFamily=Courier New;" parent="1" vertex="1">
+        <mxCell id="data2-box" value="sessions: [&#xa;  { sessionNumber: 10,&#xa;    status: &quot;출&quot;,&#xa;    approvedAt: &quot;...&quot;,&#xa;    approvedBy: 23 }  ✅&#xa;]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#008a00;strokeColor=#005700;strokeWidth=1;fontSize=14;fontColor=#ffffff;align=left;fontFamily=Courier New;" parent="1" vertex="1">
           <mxGeometry x="-1550" y="375" width="220" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="section3" value="⚙️ 3단계: 자동 성적 계산" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEBEE;strokeColor=#D32F2F;strokeWidth=3;fontSize=18;fontColor=#B71C1C;fontStyle=1;" parent="1" vertex="1">
+        <mxCell id="section3" value="⚙️ 3단계: 자동 성적 계산" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#76608a;strokeColor=#432D57;strokeWidth=3;fontSize=18;fontColor=#ffffff;fontStyle=1;" parent="1" vertex="1">
           <mxGeometry x="-1230" y="100" width="330" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="event-box" value="🔔 GradeUpdateEvent 발행" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEBEE;strokeColor=#D32F2F;strokeWidth=2;fontSize=14;fontColor=#B71C1C;fontStyle=1;align=center;" parent="1" vertex="1">
+        <mxCell id="event-box" value="🔔 GradeUpdateEvent 발행" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#76608a;strokeColor=#432D57;strokeWidth=2;fontSize=14;fontColor=#ffffff;fontStyle=1;align=center;" parent="1" vertex="1">
           <mxGeometry x="-1230" y="150" width="200" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="arrow5" value="" style="endArrow=block;html=1;strokeWidth=3;strokeColor=#D32F2F;endFill=1;fontSize=14;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" edge="1" target="calc-box" source="event-box">
+        <mxCell id="arrow5" value="" style="endArrow=block;html=1;strokeWidth=3;strokeColor=#D32F2F;endFill=1;fontSize=14;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="event-box" target="calc-box" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="-1000" y="195" as="sourcePoint" />
             <mxPoint x="-940" y="195" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="calc-box" value="출석 점수 자동 계산&#xa;currentScore = (출석 × 만점 ÷ 전체) - (지각 × 감점)&#xa;예: (50 × 120 ÷ 80) - (5 × 0.75) = 75.5점" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1F5FE;strokeColor=#0288D1;strokeWidth=2;fontSize=14;fontColor=#01579B;align=left;" parent="1" vertex="1">
+        <mxCell id="calc-box" value="출석 점수 자동 계산&#xa;currentScore = (출석 × 만점 ÷ 전체) - (지각 × 감점)&#xa;예: (50 × 120 ÷ 80) - (5 × 0.75) = 75.5점" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;strokeWidth=2;fontSize=14;fontColor=#ffffff;align=left;" parent="1" vertex="1">
           <mxGeometry x="-1230" y="210" width="330" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="arrow6" value="" style="endArrow=block;html=1;strokeWidth=2;strokeColor=#D32F2F;endFill=1;dashed=1;fontSize=14;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.273;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" edge="1" target="db3" source="calc-box">
+        <mxCell id="arrow6" value="" style="endArrow=block;html=1;strokeWidth=2;strokeColor=#D32F2F;endFill=1;dashed=1;fontSize=14;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0.75;exitY=1;exitDx=0;exitDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="calc-box" target="db3" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="-780" y="235" as="sourcePoint" />
             <mxPoint x="-780" y="270" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="db3" value="🗄️ 최종 업데이트" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#F57C00;strokeWidth=2;fontSize=14;fontColor=#E65100;fontStyle=1;align=center;" parent="1" vertex="1">
-          <mxGeometry x="-1230" y="300" width="180" height="40" as="geometry" />
+        <mxCell id="db3" value="🗄️ 최종 업데이트" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fa6800;strokeColor=#C73500;strokeWidth=2;fontSize=14;fontColor=#000000;fontStyle=1;align=center;" parent="1" vertex="1">
+          <mxGeometry x="-1230" y="300" width="200" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="result-box" value="attendanceScore: {&#xa;  currentScore: 75.5  ✅&#xa;}&#xa;total: {&#xa;  currentScore: 120.5,  ✅&#xa;  percentage: 43.5  ✅&#xa;}" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#388E3C;strokeWidth=1;fontSize=14;fontColor=#1B5E20;align=left;fontFamily=Courier New;" parent="1" vertex="1">
+        <mxCell id="result-box" value="attendanceScore: {&#xa;  currentScore: 75.5  ✅&#xa;}&#xa;total: {&#xa;  currentScore: 120.5,  ✅&#xa;  percentage: 43.5  ✅&#xa;}" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#008a00;strokeColor=#005700;strokeWidth=1;fontSize=14;fontColor=#ffffff;align=left;fontFamily=Courier New;" parent="1" vertex="1">
           <mxGeometry x="-1230" y="365" width="200" height="120" as="geometry" />
         </mxCell>
-        <mxCell id="flow-title" value="🔄 전체 프로세스 플로우" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#9E9E9E;strokeWidth=2;fontSize=14;fontColor=#424242;fontStyle=1;" parent="1" vertex="1">
+        <mxCell id="flow-title" value="🔄 전체 프로세스 플로우" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#a20025;strokeColor=#6F0000;strokeWidth=2;fontSize=14;fontColor=#ffffff;fontStyle=1;" parent="1" vertex="1">
           <mxGeometry x="-860" y="100" width="220" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="flow1" value="1. 학생 출석 요청" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;strokeWidth=2;fontSize=14;fontColor=#0D47A1;fontStyle=1;" parent="1" vertex="1">
+        <mxCell id="flow1" value="1. 학생 출석 요청" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;strokeWidth=2;fontSize=14;fontColor=#ffffff;fontStyle=1;" parent="1" vertex="1">
           <mxGeometry x="-815" y="160" width="130" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="flow-arrow1" value="" style="endArrow=block;html=1;strokeWidth=3;strokeColor=light-dark(#424242,#0000CC);endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=14;" parent="1" edge="1" target="flow2" source="flow1">
+        <mxCell id="flow-arrow1" value="" style="endArrow=block;html=1;strokeWidth=3;strokeColor=light-dark(#424242,#0000CC);endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=14;" parent="1" source="flow1" target="flow2" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="-665" y="285" as="sourcePoint" />
             <mxPoint x="-595" y="285" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="flow2" value="2. API 처리" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#388E3C;strokeWidth=2;fontSize=14;fontColor=#1B5E20;fontStyle=1;" parent="1" vertex="1">
+        <mxCell id="flow2" value="2. API 처리" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#008a00;strokeColor=#005700;strokeWidth=2;fontSize=14;fontColor=#ffffff;fontStyle=1;" parent="1" vertex="1">
           <mxGeometry x="-815" y="235" width="130" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="flow-arrow2" value="" style="endArrow=block;html=1;strokeWidth=3;strokeColor=light-dark(#424242,#0000CC);endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=14;" parent="1" edge="1" target="flow3" source="flow2">
+        <mxCell id="flow-arrow2" value="" style="endArrow=block;html=1;strokeWidth=3;strokeColor=light-dark(#424242,#0000CC);endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=14;" parent="1" source="flow2" target="flow3" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="-895" y="335" as="sourcePoint" />
             <mxPoint x="-825" y="335" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="flow3" value="3. DB 저장&#xa;(pending)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F57F17;strokeWidth=2;fontSize=14;fontColor=#F57F17;fontStyle=1;" parent="1" vertex="1">
+        <mxCell id="flow3" value="3. DB 저장&#xa;(pending)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fa6800;strokeColor=#C73500;strokeWidth=2;fontSize=14;fontColor=#000000;fontStyle=1;" parent="1" vertex="1">
           <mxGeometry x="-815" y="310" width="130" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="flow-arrow3" value="" style="endArrow=block;html=1;strokeWidth=3;strokeColor=light-dark(#424242,#0000CC);endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=14;" parent="1" edge="1" target="flow4" source="flow3">
+        <mxCell id="flow-arrow3" value="" style="endArrow=block;html=1;strokeWidth=3;strokeColor=light-dark(#424242,#0000CC);endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=14;" parent="1" source="flow3" target="flow4" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="-1015" y="399.64" as="sourcePoint" />
             <mxPoint x="-945" y="399.64" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="flow4" value="4. 교수 승인" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#388E3C;strokeWidth=2;fontSize=14;fontColor=#1B5E20;fontStyle=1;" parent="1" vertex="1">
+        <mxCell id="flow4" value="4. 교수 승인" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#008a00;strokeColor=#005700;strokeWidth=2;fontSize=14;fontColor=#ffffff;fontStyle=1;" parent="1" vertex="1">
           <mxGeometry x="-815" y="385" width="130" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="flow-arrow4" value="" style="endArrow=block;html=1;strokeWidth=3;strokeColor=light-dark(#424242,#0000CC);endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=14;" parent="1" edge="1" target="flow5" source="flow4">
+        <mxCell id="flow-arrow4" value="" style="endArrow=block;html=1;strokeWidth=3;strokeColor=light-dark(#424242,#0000CC);endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=14;" parent="1" source="flow4" target="flow5" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="-915" y="460" as="sourcePoint" />
             <mxPoint x="-845" y="460" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="flow5" value="5. sessions 이동" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F57F17;strokeWidth=2;fontSize=14;fontColor=#F57F17;fontStyle=1;" parent="1" vertex="1">
+        <mxCell id="flow5" value="5. sessions 이동" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fa6800;strokeColor=#C73500;strokeWidth=2;fontSize=14;fontColor=#000000;fontStyle=1;" parent="1" vertex="1">
           <mxGeometry x="-815" y="460" width="130" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="flow-arrow5" value="" style="endArrow=block;html=1;strokeWidth=3;strokeColor=light-dark(#424242,#0000CC);endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=14;" parent="1" edge="1" target="flow6" source="flow5">
+        <mxCell id="flow-arrow5" value="" style="endArrow=block;html=1;strokeWidth=3;strokeColor=light-dark(#424242,#0000CC);endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=14;" parent="1" source="flow5" target="flow6" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="-1015" y="715" as="sourcePoint" />
             <mxPoint x="-945" y="715" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="flow6" value="6. Event 발행" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEBEE;strokeColor=#D32F2F;strokeWidth=2;fontSize=14;fontColor=#B71C1C;fontStyle=1;" parent="1" vertex="1">
+        <mxCell id="flow6" value="6. Event 발행" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#76608a;strokeColor=#432D57;strokeWidth=2;fontSize=14;fontColor=#ffffff;fontStyle=1;" parent="1" vertex="1">
           <mxGeometry x="-815" y="540" width="130" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="flow-arrow6" value="" style="endArrow=block;html=1;strokeWidth=3;strokeColor=light-dark(#424242,#0000CC);endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=14;" parent="1" edge="1" target="flow7" source="flow6">
+        <mxCell id="flow-arrow6" value="" style="endArrow=block;html=1;strokeWidth=3;strokeColor=light-dark(#424242,#0000CC);endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=14;" parent="1" source="flow6" target="flow7" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="-795" y="715" as="sourcePoint" />
             <mxPoint x="-725" y="715" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="flow7" value="7. 자동 계산" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1F5FE;strokeColor=#0288D1;strokeWidth=2;fontSize=14;fontColor=#01579B;fontStyle=1;" parent="1" vertex="1">
+        <mxCell id="flow7" value="7. 자동 계산" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;strokeWidth=2;fontSize=14;fontColor=#ffffff;fontStyle=1;" parent="1" vertex="1">
           <mxGeometry x="-815" y="620" width="130" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="flow-arrow7" value="" style="endArrow=block;html=1;strokeWidth=3;strokeColor=light-dark(#424242,#0000CC);endFill=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;fontSize=14;" parent="1" edge="1" target="flow8" source="flow7">
+        <mxCell id="flow-arrow7" value="" style="endArrow=block;html=1;strokeWidth=3;strokeColor=light-dark(#424242,#0000CC);endFill=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;fontSize=14;" parent="1" source="flow7" target="flow8" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="-575" y="715" as="sourcePoint" />
             <mxPoint x="-505" y="715" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="flow8" value="8. 성적 업데이트" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#388E3C;strokeWidth=2;fontSize=14;fontColor=#1B5E20;fontStyle=1;" parent="1" vertex="1">
+        <mxCell id="flow8" value="8. 성적 업데이트" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#008a00;strokeColor=#005700;strokeWidth=2;fontSize=14;fontColor=#ffffff;fontStyle=1;" parent="1" vertex="1">
           <mxGeometry x="-815" y="700" width="130" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="features-title" value="🎯 핵심 특징" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEBEE;strokeColor=#D32F2F;strokeWidth=3;fontSize=18;fontColor=#B71C1C;fontStyle=1;" parent="1" vertex="1">
+        <mxCell id="features-title" value="🎯 핵심 특징" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#76608a;strokeColor=#432D57;strokeWidth=3;fontSize=18;fontColor=#ffffff;fontStyle=1;" parent="1" vertex="1">
           <mxGeometry x="-1880" y="510" width="1000" height="45" as="geometry" />
         </mxCell>
-        <mxCell id="feature1" value="✅ 실시간 출석 요청: 학생이 직접 출석/지각/결석 요청" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;strokeWidth=2;fontSize=14;fontColor=#0D47A1;align=left;" parent="1" vertex="1">
+        <mxCell id="feature1" value="✅ 실시간 출석 요청: 학생이 직접 출석/지각/결석 요청" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;strokeWidth=2;fontSize=14;fontColor=#ffffff;align=left;" parent="1" vertex="1">
           <mxGeometry x="-1880" y="570" width="430" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="feature2" value="✅ 교수 승인 프로세스: pendingRequests → sessions 이동" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#388E3C;strokeWidth=2;fontSize=14;fontColor=#1B5E20;align=left;" parent="1" vertex="1">
+        <mxCell id="feature2" value="✅ 교수 승인 프로세스: pendingRequests → sessions 이동" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#008a00;strokeColor=#005700;strokeWidth=2;fontSize=14;fontColor=#ffffff;align=left;" parent="1" vertex="1">
           <mxGeometry x="-1400" y="570" width="450" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="feature3" value="✅ 이벤트 기반 자동 계산: GradeUpdateEvent → 출석 점수 재계산" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEBEE;strokeColor=#D32F2F;strokeWidth=2;fontSize=14;fontColor=#B71C1C;align=left;" parent="1" vertex="1">
+        <mxCell id="feature3" value="✅ 이벤트 기반 자동 계산: GradeUpdateEvent → 출석 점수 재계산" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#76608a;strokeColor=#432D57;strokeWidth=2;fontSize=14;fontColor=#ffffff;align=left;" parent="1" vertex="1">
           <mxGeometry x="-1880" y="690" width="430" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="feature4" value="✅ 실시간 성적 반영: 승인 즉시 grade.total.currentScore 자동 업데이트" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#388E3C;strokeWidth=2;fontSize=14;fontColor=#1B5E20;align=left;" parent="1" vertex="1">
+        <mxCell id="feature4" value="✅ 실시간 성적 반영: 승인 즉시 grade.total.currentScore 자동 업데이트" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#008a00;strokeColor=#005700;strokeWidth=2;fontSize=14;fontColor=#ffffff;align=left;" parent="1" vertex="1">
           <mxGeometry x="-1400" y="690" width="450" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="feature5" value="✅ 지각 감점 처리: latePenaltyPerSession 기준 자동 감점" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F57F17;strokeWidth=2;fontSize=14;fontColor=#F57F17;align=left;" parent="1" vertex="1">
+        <mxCell id="feature5" value="✅ 지각 감점 처리: latePenaltyPerSession 기준 자동 감점" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fa6800;strokeColor=#C73500;strokeWidth=2;fontSize=14;fontColor=#000000;align=left;" parent="1" vertex="1">
           <mxGeometry x="-1880" y="630" width="430" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="feature6" value="✅ 출석률 자동 계산: (출석+지각) / 전체세션 × 100" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1F5FE;strokeColor=#0288D1;strokeWidth=2;fontSize=14;fontColor=#01579B;align=left;" parent="1" vertex="1">
+        <mxCell id="feature6" value="✅ 출석률 자동 계산: (출석+지각) / 전체세션 × 100" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;strokeWidth=2;fontSize=14;fontColor=#ffffff;align=left;" parent="1" vertex="1">
           <mxGeometry x="-1400" y="630" width="450" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="feature7" value="✅ 투명한 이력: approvedAt, approvedBy로 승인자/시각 기록" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;strokeWidth=2;fontSize=14;fontColor=#4A148C;align=left;" parent="1" vertex="1">
+        <mxCell id="feature7" value="✅ 투명한 이력: approvedAt, approvedBy로 승인자/시각 기록" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#7B1FA2,#FF66FF);strokeColor=#3700CC;strokeWidth=2;fontSize=14;fontColor=#ffffff;align=left;" parent="1" vertex="1">
           <mxGeometry x="-1880" y="750" width="430" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="feature8" value="✅ JSON 확장성: 새로운 출석 유형 추가 시 스키마 변경 불필요" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#F57C00;strokeWidth=2;fontSize=14;fontColor=#E65100;align=left;" parent="1" vertex="1">
+        <mxCell id="feature8" value="✅ JSON 확장성: 새로운 출석 유형 추가 시 스키마 변경 불필요" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fa6800;strokeColor=#C73500;strokeWidth=2;fontSize=14;fontColor=#000000;align=left;" parent="1" vertex="1">
           <mxGeometry x="-1400" y="750" width="450" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="connect1" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#1976D2;dashed=1;dashPattern=8 8;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fontSize=14;exitX=0.5;exitY=0;exitDx=0;exitDy=0;fontColor=light-dark(default, #fb7b35);" parent="1" edge="1" target="db1" source="data1-box">
+        <mxCell id="connect1" value="" style="endArrow=none;html=1;strokeWidth=3;strokeColor=#1976D2;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fontSize=14;exitX=0.5;exitY=0;exitDx=0;exitDy=0;fontColor=light-dark(default, #fb7b35);" parent="1" source="data1-box" target="db1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="-1490" y="360" as="sourcePoint" />
             <mxPoint x="-1695" y="300" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="connect2" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#388E3C;dashed=1;dashPattern=8 8;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fontSize=14;fontColor=light-dark(default, #fb7b35);" parent="1" edge="1" target="db2">
+        <mxCell id="connect2" value="" style="endArrow=none;html=1;strokeWidth=3;strokeColor=#388E3C;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fontSize=14;fontColor=light-dark(default, #fb7b35);exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" target="db2" edge="1" source="data2-box">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="-1440" y="375" as="sourcePoint" />
+            <mxPoint x="-1450" y="370" as="sourcePoint" />
             <mxPoint x="-1380" y="330" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="connect3" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#D32F2F;dashed=1;dashPattern=8 8;exitX=0.5;exitY=1;exitDx=0;exitDy=0;fontSize=14;fontColor=light-dark(default, #fb7b35);" parent="1" edge="1" source="db3">
+        <mxCell id="connect3" value="" style="endArrow=none;html=1;strokeWidth=3;strokeColor=#D32F2F;exitX=0.5;exitY=1;exitDx=0;exitDy=0;fontSize=14;fontColor=light-dark(default, #fb7b35);entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="db3" edge="1" target="result-box">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="-1110" y="320" as="sourcePoint" />
-            <mxPoint x="-1140" y="360" as="targetPoint" />
+            <mxPoint x="-1150" y="360" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="label1" value="요청 데이터" style="text;html=1;strokeColor=#314354;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontColor=light-dark(#1A1A1A,#000000);fontStyle=2;labelBackgroundColor=none;" parent="1" vertex="1">
+        <mxCell id="label1" value="요청 데이터" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontColor=light-dark(#1A1A1A,#000000);fontStyle=2;labelBackgroundColor=none;" parent="1" vertex="1">
           <mxGeometry x="-1750" y="355" width="80" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="label2" value="승인 데이터" style="text;html=1;strokeColor=#314354;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontColor=light-dark(#1A1A1A,#000000);fontStyle=2;labelBackgroundColor=none;" parent="1" vertex="1">
+        <mxCell id="label2" value="승인 데이터" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontColor=light-dark(#1A1A1A,#000000);fontStyle=2;labelBackgroundColor=none;" parent="1" vertex="1">
           <mxGeometry x="-1420" y="355" width="80" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="label3" value="&lt;font&gt;계산 결과&lt;/font&gt;" style="text;html=1;strokeColor=#314354;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontColor=light-dark(#1A1A1A,#000000);fontStyle=2;labelBackgroundColor=none;" parent="1" vertex="1">
+        <mxCell id="label3" value="&lt;font&gt;계산 결과&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontColor=light-dark(#1A1A1A,#000000);fontStyle=2;labelBackgroundColor=none;" parent="1" vertex="1">
           <mxGeometry x="-1120" y="345" width="80" height="20" as="geometry" />
         </mxCell>
       </root>
