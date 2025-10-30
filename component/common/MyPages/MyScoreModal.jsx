@@ -22,6 +22,8 @@ function MyScoreModal({onClose, lecSerial, lecTitle}) {
             })
         if (!response.ok) throw new Error('성적 상세 정보를 불러오는데 실패했습니다.');
                 const data = await response.json();
+                
+    console.log("data : ", data);
                 setScoreDetail(data.data.grade);
             } catch (err) {
                 setError(err.message);
@@ -29,7 +31,6 @@ function MyScoreModal({onClose, lecSerial, lecTitle}) {
             }
         };
 
-    console.log("data : ", data);
 
     useEffect(() => {
         fetchMyScore();
