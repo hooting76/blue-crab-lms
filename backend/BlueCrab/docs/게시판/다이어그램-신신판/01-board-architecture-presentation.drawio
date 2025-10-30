@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" version="28.2.8">
   <diagram name="Board Architecture" id="board-arch">
-    <mxGraphModel dx="2037" dy="1110" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" background="light-dark(#FFFFFF,#FFFFFF)" math="0" shadow="0">
+    <mxGraphModel dx="864" dy="471" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" background="light-dark(#FFFFFF,#FFFFFF)" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -83,13 +83,13 @@
           <mxGeometry x="990" y="550" width="880" height="70" as="geometry" />
         </mxCell>
         <mxCell id="board-entity" value="BoardTbl&#xa;게시글 엔티티" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1976d2;strokeColor=#0d47a1;fontSize=16;fontColor=#ffffff;fontStyle=1;" parent="1" vertex="1">
-          <mxGeometry x="1140" y="640" width="280" height="60" as="geometry" />
+          <mxGeometry x="1140" y="670" width="280" height="60" as="geometry" />
         </mxCell>
         <mxCell id="attachment-entity" value="BoardAttachmentTbl&#xa;첨부파일 엔티티" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1976d2;strokeColor=#0d47a1;fontSize=16;fontColor=#ffffff;fontStyle=1;" parent="1" vertex="1">
-          <mxGeometry x="1440" y="640" width="280" height="60" as="geometry" />
+          <mxGeometry x="1440" y="670" width="280" height="60" as="geometry" />
         </mxCell>
         <mxCell id="database" value="MariaDB Database" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2e7d32;strokeColor=#1b5e20;fontSize=24;fontStyle=1;fontColor=#ffffff;" parent="1" vertex="1">
-          <mxGeometry x="990" y="780" width="880" height="70" as="geometry" />
+          <mxGeometry x="990" y="800" width="360" height="70" as="geometry" />
         </mxCell>
         <mxCell id="arrow1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=light-dark(#000000,#FF8000);strokeWidth=3;" parent="1" source="react-app" target="api-gateway" edge="1">
           <mxGeometry relative="1" as="geometry" />
@@ -134,12 +134,12 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="arrow8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=light-dark(#000000,#FF8000);strokeWidth=3;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="entity-layer" target="database" edge="1">
+        <mxCell id="arrow8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=light-dark(#000000,#FF8000);strokeWidth=3;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="board-entity" target="database" edge="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="1430" y="1050" as="targetPoint" />
             <Array as="points">
-              <mxPoint x="1430" y="760" />
-              <mxPoint x="1430" y="760" />
+              <mxPoint x="1280" y="760" />
+              <mxPoint x="1170" y="760" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -154,6 +154,37 @@
         </mxCell>
         <mxCell id="legend-attachment" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#8b0000;strokeColor=#5d0000;" parent="1" vertex="1">
           <mxGeometry x="599.9963157894738" y="837.5" width="46.31578947368421" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="XD8xZ8Es7YwOj_1-wu16-1" value="MinIO" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2e7d32;strokeColor=#1b5e20;fontSize=24;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="1510" y="800" width="360" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="XD8xZ8Es7YwOj_1-wu16-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=light-dark(#000000,#FF8000);strokeWidth=3;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="attachment-entity" target="XD8xZ8Es7YwOj_1-wu16-1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1610" y="780" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1580" y="770" />
+              <mxPoint x="1690" y="770" />
+            </Array>
+            <mxPoint x="1680" y="750" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="XD8xZ8Es7YwOj_1-wu16-3" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=light-dark(#000000,#FF8000);strokeWidth=3;exitX=0.004;exitY=0.49;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.997;entryY=0.485;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="XD8xZ8Es7YwOj_1-wu16-1" target="database">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1360" y="835" as="targetPoint" />
+            <mxPoint x="1410" y="840" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="XD8xZ8Es7YwOj_1-wu16-4" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;strokeColor=light-dark(#000000,#FF8000);edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="entity-layer" target="attachment-entity">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1460" y="730" as="sourcePoint" />
+            <mxPoint x="1510" y="680" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="XD8xZ8Es7YwOj_1-wu16-5" value="" style="endArrow=classic;html=1;rounded=0;strokeColor=light-dark(#000000,#FF8000);strokeWidth=3;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1.017;exitDx=0;exitDy=0;exitPerimeter=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="entity-layer" target="board-entity">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1420" y="650" as="sourcePoint" />
+            <mxPoint x="1330" y="660" as="targetPoint" />
+          </mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>
