@@ -29,11 +29,10 @@ function MyScoreModal({onClose, lecSerial, lecTitle}) {
             }
         };
 
+
     useEffect(() => {
         fetchMyScore();
     }, []);
-
-console.log("scoreDetail : ", scoreDetail);
 
     return (
         <div className="myScore-modal-container">
@@ -81,7 +80,7 @@ console.log("scoreDetail : ", scoreDetail);
                         <div>총점<br/>
                             <span>점수 : {scoreDetail.total.score}</span>
                             <span>만점 : {scoreDetail.total.maxScore}</span>
-                            <span>순위 백분율 : {scoreDetail.total.percentage}</span>
+                            <span>점수 백분율 : {scoreDetail.total.percentage}</span>
                         </div>
                     </>
                 ) : (

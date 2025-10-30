@@ -37,6 +37,12 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
   const [isGradeConfigModalOpen, setIsGradeConfigModalOpen] = useState(false);
   const [isMyScoreModalOpen, setIsMyScoreModalOpen] = useState(false);
 
+  const [distributionA, setDistributionA] = useState(30);
+  const [distributionB, setDistributionB] = useState(40);
+  const [distributionC, setDistributionC] = useState(20);
+  const [distributionD, setDistributionD] = useState(10);
+
+
 
   // 강의 목록 받아올 때 첫 강의로 기본 선택 설정
     useEffect(() => {
@@ -245,15 +251,6 @@ const gradeFinalize = async() => {
   const inputThreshold = prompt("통과 기준 점수를 입력하세요:");
     if (!inputThreshold) {
       alert("통과 기준 점수가 입력되지 않았습니다.");
-      return;
-    }
-
-  const distributionA = Number(prompt("A등급 학생의 비율(%)"));
-  const distributionB = Number(prompt("B등급 학생의 비율(%)"));
-  const distributionC = Number(prompt("C등급 학생의 비율(%)"));
-  const distributionD = Number(prompt("D등급 학생의 비율(%)"));
-    if (distributionA + distributionB + distributionC + distributionD != 100) {
-      alert("등급 비율 백분위 합계가 100이 아닙니다.");
       return;
     }
 
@@ -530,8 +527,17 @@ const gradeFinalize = async() => {
               onClose={closeGradeConfigModal}
               lecSerial={selectedLectureSerial}
               lecTitle={getSelectedLectureTitle()}
+              distributionA={distributionA}
+              distributionB={distributionB}
+              distributionC={distributionC}
+              distributionD={distributionD}
+              setDistributionA={setDistributionA}
+              setDistributionB={setDistributionB}
+              setDistributionC={setDistributionC}
+              setDistributionD={setDistributionD}
             />
           )}
+
 
           {isMyScoreModalOpen && (
             <MyScoreModal
@@ -590,9 +596,11 @@ const gradeFinalize = async() => {
             </table>
           </div>
 
+        {isProf &&
           <div>
             <button onClick={gradeFinalize} className='gradeFinalizeBtn'>최종 등급 배정</button>
           </div>
+        }  
 
           {isProf && isAssignmentCreateModalOpen && (
             <AssignmentCreateModal

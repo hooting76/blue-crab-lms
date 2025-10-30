@@ -2,18 +2,26 @@ import { useState } from "react";
 import {UseUser} from "../../../hook/UseUser";
 import "../../../css/MyPages/GradeConfigModal.css";
 
-const GradeConfigModal = ({onClose, lecSerial, lecTitle}) => {
+function GradeConfigModal({
+  onClose,
+  lecSerial,
+  lecTitle,
+  distributionA,
+  distributionB,
+  distributionC,
+  distributionD,
+  setDistributionA,
+  setDistributionB,
+  setDistributionC,
+  setDistributionD
+}) {
+
     const {user} = UseUser();
     const accessToken = user.data.accessToken;
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
     const [attendanceMaxScore, setAttendanceMaxScore] = useState(20);
-    const [assignmentTotalScore, setAssignmentTotalScore] = useState(50);
     const [latePenaltyPerSession, setLatePenaltyPerSession] = useState(0);
-    const [distributionA, setDistributionA] = useState(30);
-    const [distributionB, setDistributionB] = useState(40);
-    const [distributionC, setDistributionC] = useState(20);
-    const [distributionD, setDistributionD] = useState(10);
 
     const submitGradeConfig = async () => {
     // 등급 비율 합계 확인
@@ -37,7 +45,7 @@ const GradeConfigModal = ({onClose, lecSerial, lecTitle}) => {
         action: "set-config",
         lecSerial: lecSerial,
         attendanceMaxScore: Number(attendanceMaxScore),
-        assignmentTotalScore: Number(assignmentTotalScore),
+        assignmentTotalScore: 50,
         latePenaltyPerSession: Number(latePenaltyPerSession),
         gradeDistribution: {
             A: Number(distributionA),
@@ -75,12 +83,6 @@ const GradeConfigModal = ({onClose, lecSerial, lecTitle}) => {
                      onChange={(e) => setAttendanceMaxScore(e.target.value)}
                      required/>
                 </div>
-                <div>과제 총점 :
-                    <input type="number"
-                     value={assignmentTotalScore}
-                     onChange={(e) => setAssignmentTotalScore(e.target.value)}
-                     required/>
-                </div>
                 <div>지각당 감점 : (0 ~ 1)
                     <input type="number"
                      value={latePenaltyPerSession}
@@ -91,22 +93,22 @@ const GradeConfigModal = ({onClose, lecSerial, lecTitle}) => {
                         A : 
                     <input type="number"
                      value={distributionA}
-                     onChange={(e) => setDistributionA(e.target.value)}
+                     onChange={(e) => setDistributionA(Number(e.target.value))}
                      required/>%<br/>
                         B :
                      <input type="number"
                      value={distributionB}
-                     onChange={(e) => setDistributionB(e.target.value)}
+                     onChange={(e) => setDistributionB(Number(e.target.value))}
                      required/>%<br/>
                         C :
                      <input type="number"
                      value={distributionC}
-                     onChange={(e) => setDistributionC(e.target.value)}
+                     onChange={(e) => setDistributionC(Number(e.target.value))}
                      required/>%<br/>
                         D :
                      <input type="number"
                      value={distributionD}
-                     onChange={(e) => setDistributionD(e.target.value)}
+                     onChange={(e) => setDistributionD(Number(e.target.value))}
                      required/>%
                 </div>
 
