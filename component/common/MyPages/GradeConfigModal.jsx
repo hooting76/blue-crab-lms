@@ -8,7 +8,6 @@ const GradeConfigModal = ({onClose, lecSerial, lecTitle}) => {
     const BASE_URL = 'https://bluecrab.chickenkiller.com/BlueCrab-1.0.0/api';
 
     const [attendanceMaxScore, setAttendanceMaxScore] = useState(20);
-    const [assignmentTotalScore, setAssignmentTotalScore] = useState(50);
     const [latePenaltyPerSession, setLatePenaltyPerSession] = useState(0);
     const [distributionA, setDistributionA] = useState(30);
     const [distributionB, setDistributionB] = useState(40);
@@ -37,7 +36,7 @@ const GradeConfigModal = ({onClose, lecSerial, lecTitle}) => {
         action: "set-config",
         lecSerial: lecSerial,
         attendanceMaxScore: Number(attendanceMaxScore),
-        assignmentTotalScore: Number(assignmentTotalScore),
+        assignmentTotalScore: 50,
         latePenaltyPerSession: Number(latePenaltyPerSession),
         gradeDistribution: {
             A: Number(distributionA),
@@ -75,11 +74,7 @@ const GradeConfigModal = ({onClose, lecSerial, lecTitle}) => {
                      onChange={(e) => setAttendanceMaxScore(e.target.value)}
                      required/>
                 </div>
-                <div>과제 총점 :
-                    <input type="number"
-                     value={assignmentTotalScore}
-                     onChange={(e) => setAssignmentTotalScore(e.target.value)}
-                     required/>
+                <div>과제 총점 : 50
                 </div>
                 <div>지각당 감점 : (0 ~ 1)
                     <input type="number"
