@@ -37,10 +37,10 @@ function ClassAttending({ currentPage, setCurrentPage, selectedLectureSerial, se
   const [isGradeConfigModalOpen, setIsGradeConfigModalOpen] = useState(false);
   const [isMyScoreModalOpen, setIsMyScoreModalOpen] = useState(false);
 
-  const [distributionA, setDistributionA] = useState(0);
-  const [distributionB, setDistributionB] = useState(0);
-  const [distributionC, setDistributionC] = useState(0);
-  const [distributionD, setDistributionD] = useState(0);
+  const [distributionA, setDistributionA] = useState(30);
+  const [distributionB, setDistributionB] = useState(40);
+  const [distributionC, setDistributionC] = useState(20);
+  const [distributionD, setDistributionD] = useState(10);
 
 
 

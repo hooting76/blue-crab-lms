@@ -22,10 +22,6 @@ function GradeConfigModal({
 
     const [attendanceMaxScore, setAttendanceMaxScore] = useState(20);
     const [latePenaltyPerSession, setLatePenaltyPerSession] = useState(0);
-    const [distributionA, setDistributionA] = useState(30);
-    const [distributionB, setDistributionB] = useState(40);
-    const [distributionC, setDistributionC] = useState(20);
-    const [distributionD, setDistributionD] = useState(10);
 
     const submitGradeConfig = async () => {
     // 등급 비율 합계 확인
