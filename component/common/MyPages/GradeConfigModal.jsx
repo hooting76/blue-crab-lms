@@ -74,8 +74,6 @@ const GradeConfigModal = ({onClose, lecSerial, lecTitle}) => {
                      onChange={(e) => setAttendanceMaxScore(e.target.value)}
                      required/>
                 </div>
-                <div>과제 총점 : 50
-                </div>
                 <div>지각당 감점 : (0 ~ 1)
                     <input type="number"
                      value={latePenaltyPerSession}
