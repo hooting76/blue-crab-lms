@@ -590,9 +590,11 @@ const gradeFinalize = async() => {
             </table>
           </div>
 
+        {isProf &&
           <div>
             <button onClick={gradeFinalize} className='gradeFinalizeBtn'>최종 등급 배정</button>
           </div>
+        }  
 
           {isProf && isAssignmentCreateModalOpen && (
             <AssignmentCreateModal
