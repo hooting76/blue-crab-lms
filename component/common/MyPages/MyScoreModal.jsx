@@ -29,6 +29,8 @@ function MyScoreModal({onClose, lecSerial, lecTitle}) {
             }
         };
 
+    console.log("data : ", data);
+
     useEffect(() => {
         fetchMyScore();
     }, []);
