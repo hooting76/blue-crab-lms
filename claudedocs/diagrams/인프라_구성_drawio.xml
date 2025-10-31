@@ -1,0 +1,83 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="인프라 구성" id="infrastructure">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- 팀장님 NAS 서버 그룹 -->
+        <mxCell id="nas-group" value="팀장님 NAS 서버" style="swimlane;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#FF6F00;strokeWidth=3;fontSize=16;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="80" y="200" width="280" height="300" as="geometry" />
+        </mxCell>
+
+        <!-- React Frontend -->
+        <mxCell id="react" value="React Frontend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4FC3F7;strokeColor=#01579B;fontColor=#FFFFFF;fontSize=14;fontStyle=1;" parent="nas-group" vertex="1">
+          <mxGeometry x="40" y="60" width="200" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- MariaDB -->
+        <mxCell id="mariadb" value="MariaDB&lt;br&gt;Database" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#EF5350;strokeColor=#C62828;fontColor=#FFFFFF;fontSize=14;fontStyle=1;" parent="nas-group" vertex="1">
+          <mxGeometry x="65" y="180" width="150" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- 본인 백엔드 서버 그룹 -->
+        <mxCell id="backend-group" value="본인 백엔드 서버" style="swimlane;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=3;fontSize=16;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="500" y="200" width="280" height="400" as="geometry" />
+        </mxCell>
+
+        <!-- Spring Boot Tomcat -->
+        <mxCell id="tomcat" value="Spring Boot&lt;br&gt;Tomcat" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#66BB6A;strokeColor=#2E7D32;fontColor=#FFFFFF;fontSize=14;fontStyle=1;" parent="backend-group" vertex="1">
+          <mxGeometry x="40" y="60" width="200" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Redis -->
+        <mxCell id="redis" value="Redis&lt;br&gt;Cache" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#EC407A;strokeColor=#AD1457;fontColor=#FFFFFF;fontSize=14;fontStyle=1;" parent="backend-group" vertex="1">
+          <mxGeometry x="40" y="180" width="90" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- MinIO -->
+        <mxCell id="minio" value="MinIO&lt;br&gt;Storage" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#AB47BC;strokeColor=#6A1B9A;fontColor=#FFFFFF;fontSize=14;fontStyle=1;" parent="backend-group" vertex="1">
+          <mxGeometry x="150" y="180" width="90" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- 연결선: React -> Tomcat -->
+        <mxCell id="arrow1" value="API 호출&lt;br&gt;REST / WebSocket" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#1976D2;fontSize=12;fontColor=#1976D2;fontStyle=1;" parent="1" source="react" target="tomcat" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="430" y="300" />
+              <mxPoint x="640" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 연결선: Tomcat -> MariaDB -->
+        <mxCell id="arrow2" value="데이터 조회/저장&lt;br&gt;JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#D32F2F;fontSize=12;fontColor=#D32F2F;fontStyle=1;dashed=1;" parent="1" source="tomcat" target="mariadb" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="640" y="350" />
+              <mxPoint x="430" y="350" />
+              <mxPoint x="430" y="455" />
+              <mxPoint x="220" y="455" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 연결선: Tomcat -> Redis -->
+        <mxCell id="arrow3" value="캐싱" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#C2185B;fontSize=12;fontColor=#C2185B;fontStyle=1;" parent="1" source="tomcat" target="redis" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 연결선: Tomcat -> MinIO -->
+        <mxCell id="arrow4" value="파일 저장" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#7B1FA2;fontSize=12;fontColor=#7B1FA2;fontStyle=1;" parent="1" source="tomcat" target="minio" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 제목 -->
+        <mxCell id="title" value="Blue Crab LMS 인프라 구성" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;fontColor=#263238;" parent="1" vertex="1">
+          <mxGeometry x="240" y="80" width="400" height="40" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

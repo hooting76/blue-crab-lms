@@ -1,0 +1,129 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Simple 4-Layer">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- 제목 -->
+        <mxCell id="title" value="Blue Crab LMS 백엔드 레이어 아키텍처" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="340" y="40" width="480" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- 클라이언트 -->
+        <mxCell id="client" value="클라이언트&#xa;React Frontend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;strokeWidth=3;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="460" y="120" width="240" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Controller Layer -->
+        <mxCell id="controller" value="Controller 계층&#xa;(표현 계층)&#xa;&#xa;HTTP 요청/응답 처리" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#42A5F5;strokeColor=#1565C0;strokeWidth=3;fontSize=16;fontColor=#FFFFFF;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="460" y="260" width="240" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Service Layer -->
+        <mxCell id="service" value="Service 계층&#xa;(비즈니스 계층)&#xa;&#xa;비즈니스 로직 처리" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#66BB6A;strokeColor=#2E7D32;strokeWidth=3;fontSize=16;fontColor=#FFFFFF;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="460" y="400" width="240" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Repository Layer -->
+        <mxCell id="repository" value="Repository 계층&#xa;(영속 계층)&#xa;&#xa;데이터 접근 처리" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFA726;strokeColor=#E65100;strokeWidth=3;fontSize=16;fontColor=#FFFFFF;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="460" y="540" width="240" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Database -->
+        <mxCell id="database" value="Database&#xa;MariaDB" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#EF5350;strokeColor=#C62828;strokeWidth=3;fontSize=16;fontColor=#FFFFFF;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="510" y="680" width="140" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- 화살표: Client -> Controller -->
+        <mxCell id="arrow1" value="HTTP Request" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#1976D2;fontSize=13;fontStyle=1;endArrow=block;endFill=1" edge="1" parent="1" source="client" target="controller">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 화살표: Controller -> Service -->
+        <mxCell id="arrow2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#424242;fontSize=13;fontStyle=1;endArrow=block;endFill=1" edge="1" parent="1" source="controller" target="service">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 화살표: Service -> Repository -->
+        <mxCell id="arrow3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#424242;fontSize=13;fontStyle=1;endArrow=block;endFill=1" edge="1" parent="1" source="service" target="repository">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 화살표: Repository -> Database -->
+        <mxCell id="arrow4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#424242;fontSize=13;fontStyle=1;endArrow=block;endFill=1" edge="1" parent="1" source="repository" target="database">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 화살표: Database -> Repository (응답) -->
+        <mxCell id="arrow5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#757575;fontSize=13;fontStyle=1;endArrow=block;endFill=1;dashed=1" edge="1" parent="1" source="database" target="repository">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="760" y="720" />
+              <mxPoint x="760" y="585" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 화살표: Repository -> Service (응답) -->
+        <mxCell id="arrow6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#757575;fontSize=13;fontStyle=1;endArrow=block;endFill=1;dashed=1" edge="1" parent="1" source="repository" target="service">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="760" y="585" />
+              <mxPoint x="760" y="445" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 화살표: Service -> Controller (응답) -->
+        <mxCell id="arrow7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#757575;fontSize=13;fontStyle=1;endArrow=block;endFill=1;dashed=1" edge="1" parent="1" source="service" target="controller">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="760" y="445" />
+              <mxPoint x="760" y="305" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 화살표: Controller -> Client (응답) -->
+        <mxCell id="arrow8" value="HTTP Response" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#1976D2;fontSize=13;fontStyle=1;endArrow=block;endFill=1;dashed=1" edge="1" parent="1" source="controller" target="client">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="760" y="305" />
+              <mxPoint x="760" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 설명 박스 (우측) -->
+        <mxCell id="description-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F57F17;strokeWidth=2;verticalAlign=top;align=left;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="820" y="260" width="280" height="370" as="geometry" />
+        </mxCell>
+
+        <mxCell id="desc-title" value="계층별 역할" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="820" y="270" width="280" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="desc-controller" value="📌 Controller&#xa;• REST API 엔드포인트&#xa;• 요청 검증&#xa;• 응답 생성" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=13" vertex="1" parent="1">
+          <mxGeometry x="840" y="320" width="240" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="desc-service" value="📌 Service&#xa;• 비즈니스 로직 구현&#xa;• 트랜잭션 관리&#xa;• 이벤트 발행" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=13" vertex="1" parent="1">
+          <mxGeometry x="840" y="410" width="240" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="desc-repository" value="📌 Repository&#xa;• 데이터 CRUD&#xa;• JPA 쿼리&#xa;• 엔티티 매핑" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=13" vertex="1" parent="1">
+          <mxGeometry x="840" y="500" width="240" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="desc-database" value="📌 Database&#xa;• MariaDB (영구 데이터)&#xa;• Redis (캐시)&#xa;• MinIO (파일)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=13" vertex="1" parent="1">
+          <mxGeometry x="840" y="580" width="240" height="70" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

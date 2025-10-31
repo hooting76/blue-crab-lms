@@ -1,0 +1,104 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="FCM 토큰 DB 스키마" id="fcm-token-schema">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- 제목 -->
+        <mxCell id="title" value="FCM 토큰 데이터베이스 스키마" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="350" y="40" width="500" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- FCM 테이블 -->
+        <mxCell id="table-fcm" value="FCM (MariaDB)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#FFCCBC;strokeColor=#E64A19;strokeWidth=3;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="300" y="120" width="380" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="table-fcm-pk" value="🔑 FCM_IDX : INT (PK, AUTO_INCREMENT)" style="text;strokeColor=none;fillColor=#FFE0B2;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontStyle=1;fontSize=13;" vertex="1" parent="table-fcm">
+          <mxGeometry y="30" width="380" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="table-fcm-fk" value="🔗 USER_IDX : INT (FK → 사용자 테이블)" style="text;strokeColor=#1976D2;fillColor=#E3F2FD;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontStyle=1;fontSize=13;strokeWidth=2;" vertex="1" parent="table-fcm">
+          <mxGeometry y="65" width="380" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="table-fcm-code" value="USER_CODE : VARCHAR(255)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;" vertex="1" parent="table-fcm">
+          <mxGeometry y="100" width="380" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="table-fcm-android" value="📱 FCM_TOKEN_ANDROID : VARCHAR(255)" style="text;strokeColor=none;fillColor=#C8E6C9;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;fontStyle=1;" vertex="1" parent="table-fcm">
+          <mxGeometry y="128" width="380" height="28" as="geometry" />
+        </mxCell>
+  <mxCell id="table-fcm-android-date" value="FCM_TOKEN_ANDROID_LAST_USED : DATETIME" style="text;strokeColor=none;fillColor=#E8F5E9;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;" vertex="1" parent="table-fcm">
+          <mxGeometry y="156" width="380" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="table-fcm-ios" value="🍎 FCM_TOKEN_IOS : VARCHAR(255)" style="text;strokeColor=none;fillColor=#BBDEFB;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;fontStyle=1;" vertex="1" parent="table-fcm">
+          <mxGeometry y="184" width="380" height="28" as="geometry" />
+        </mxCell>
+  <mxCell id="table-fcm-ios-date" value="FCM_TOKEN_IOS_LAST_USED : DATETIME" style="text;strokeColor=none;fillColor=#E3F2FD;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;" vertex="1" parent="table-fcm">
+          <mxGeometry y="212" width="380" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="table-fcm-web" value="🌐 FCM_TOKEN_WEB : VARCHAR(255)" style="text;strokeColor=none;fillColor=#FFF9C4;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;fontStyle=1;" vertex="1" parent="table-fcm">
+          <mxGeometry y="240" width="380" height="28" as="geometry" />
+        </mxCell>
+  <mxCell id="table-fcm-web-date" value="FCM_TOKEN_WEB_LAST_USED : DATETIME" style="text;strokeColor=none;fillColor=#FFFDE7;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;" vertex="1" parent="table-fcm">
+          <mxGeometry y="268" width="380" height="28" as="geometry" />
+        </mxCell>
+  <mxCell id="table-fcm-android-flag" value="FCM_TOKEN_ANDROID_KEEP_SIGNED_IN : TINYINT(1)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;fontColor=#666666;" vertex="1" parent="table-fcm">
+          <mxGeometry y="296" width="380" height="26" as="geometry" />
+        </mxCell>
+  <mxCell id="table-fcm-ios-flag" value="FCM_TOKEN_IOS_KEEP_SIGNED_IN : TINYINT(1)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;fontColor=#666666;" vertex="1" parent="table-fcm">
+          <mxGeometry y="322" width="380" height="26" as="geometry" />
+        </mxCell>
+  <mxCell id="table-fcm-web-flag" value="FCM_TOKEN_WEB_KEEP_SIGNED_IN : TINYINT(1)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=11;fontColor=#666666;" vertex="1" parent="table-fcm">
+          <mxGeometry y="348" width="380" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="table-fcm-updated" value="⏱️ UPDATED_AT : DATETIME (current_timestamp)" style="text;strokeColor=none;fillColor=#F3E5F5;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;fontStyle=1;" vertex="1" parent="table-fcm">
+          <mxGeometry y="374" width="380" height="26" as="geometry" />
+        </mxCell>
+
+        <!-- 설명 박스 1: 멀티 디바이스 지원 -->
+        <mxCell id="desc1-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#388E3C;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="740" y="120" width="380" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="desc1-title" value="📱 멀티 디바이스 지원 구조" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=15;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="755" y="130" width="350" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="desc1-content" value="✅ 한 사용자가 여러 디바이스에서 로그인 가능&#xa;&#xa;• 📱 Android: FCM_TOKEN_ANDROID&#xa;• 🍎 iOS: FCM_TOKEN_IOS&#xa;• 🌐 Web: FCM_TOKEN_WEB&#xa;&#xa;✅ 각 디바이스별 독립적인 토큰 저장&#xa;✅ 마지막 사용 시각 추적 (갱신 시점 확인)&#xa;✅ 디바이스별 활성화/비활성화 제어 가능" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=12;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="755" y="160" width="350" height="110" as="geometry" />
+        </mxCell>
+
+  <!-- 설명 박스 2: KEEP_SIGNED_IN 플래그 용도 -->
+        <mxCell id="desc2-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#F57C00;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="740" y="310" width="380" height="140" as="geometry" />
+        </mxCell>
+  <mxCell id="desc2-title" value="🔔 KEEP_SIGNED_IN 플래그 용도" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=15;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="755" y="320" width="350" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="desc2-content" value="✅ 디바이스별 &#39;로그인 유지&#39; 상태 저장&#xa;&#xa;• 1 (TRUE): 로그인 유지, 토큰 자동 재사용&#xa;• 0 (FALSE): 해당 디바이스는 재인증 필요&#xa;&#xa;💡 사용 예시:&#xa;   &#39;모바일에서만 로그인 유지&#39; → 웹 KEEP_SIGNED_IN = 0&#xa;   &#39;특정 디바이스 로그인 해제&#39; → 해당 KEEP_SIGNED_IN = 0" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=12;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="755" y="350" width="350" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- 설명 박스 3: NULL 허용 이유 -->
+        <mxCell id="desc3-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="560" width="380" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="desc3-title" value="❓ NULL 허용 이유" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=15;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="315" y="570" width="350" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="desc3-content" value="✅ 모든 사용자가 모든 디바이스를 사용하지 않음&#xa;&#xa;• Android만 사용 → iOS/WEB 토큰 = NULL&#xa;• 웹만 사용 → Android/iOS 토큰 = NULL&#xa;&#xa;✅ 불필요한 빈 문자열 저장 방지&#xa;✅ NULL 체크로 실제 등록된 디바이스만 알림 전송" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=12;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="315" y="600" width="350" height="85" as="geometry" />
+        </mxCell>
+
+        <!-- 설명 박스 4: DATE 필드 활용 -->
+        <mxCell id="desc4-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="740" y="490" width="380" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="desc4-title" value="⏱️ DATE 필드 활용" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=15;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="755" y="500" width="350" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="desc4-content" value="✅ 각 디바이스별 마지막 토큰 갱신 시각 추적&#xa;&#xa;💡 활용 시나리오:&#xa;&#xa;1️⃣ 토큰 만료 감지&#xa;   • 90일 이상 업데이트 없으면 만료 가능성&#xa;   • 오래된 토큰 자동 정리&#xa;&#xa;2️⃣ 디바이스 활성도 분석&#xa;   • 사용자가 어떤 디바이스를 주로 사용하는지&#xa;   • 최근 사용 디바이스 우선 알림 전송&#xa;&#xa;3️⃣ 디버깅 및 모니터링&#xa;   • 토큰 갱신 실패 원인 분석" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=12;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="755" y="530" width="350" height="150" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

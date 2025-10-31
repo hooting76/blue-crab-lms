@@ -33,7 +33,7 @@
 
 ## Back End
 - [ OS : Debian 12 (bookworm) / Linux 서버 ]   
-- [ JavaSE LTS / 컴파일:17 / 실행: 21 ]   
+- [ JavaSE LTS 21 / 컴파일 및 실행: Java 21 ]   
 - [ Spring Boot 2.x (eGovFrame 4.3.1 기반) ]   
 - [ API Doc : Springdoc OpenAPI ]   
 - [ Web Server : Apache Tomcat 9.0.108 / WAR 배포 ]   

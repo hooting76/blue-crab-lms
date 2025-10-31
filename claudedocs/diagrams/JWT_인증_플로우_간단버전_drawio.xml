@@ -1,0 +1,201 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="JWT 인증 플로우" id="jwt-auth-flow">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- 제목 -->
+        <mxCell id="title" value="JWT 인증 플로우" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;fontColor=#263238;" parent="1" vertex="1">
+          <mxGeometry x="400" y="30" width="360" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ========== 1단계: 로그인 ========== -->
+        <mxCell id="stage1-title" value="1️⃣ 로그인" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#1976D2;" parent="1" vertex="1">
+          <mxGeometry x="80" y="100" width="120" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="client1" value="클라이언트" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;strokeWidth=2;fontSize=13;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="80" y="150" width="120" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="auth-ctrl1" value="AuthController" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#42A5F5;strokeColor=#1565C0;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#FFFFFF;" parent="1" vertex="1">
+          <mxGeometry x="250" y="150" width="120" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="auth-svc1" value="AuthService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#66BB6A;strokeColor=#2E7D32;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#FFFFFF;" parent="1" vertex="1">
+          <mxGeometry x="420" y="150" width="120" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="db1" value="MariaDB" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#EF5350;strokeColor=#C62828;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#FFFFFF;" parent="1" vertex="1">
+          <mxGeometry x="590" y="145" width="80" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- 화살표: 로그인 -->
+        <mxCell id="arr1-1" value="POST /login" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#1976D2;fontSize=11;fontStyle=1;" parent="1" source="client1" target="auth-ctrl1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="arr1-2" value="authenticate()" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#388E3C;fontSize=11;fontStyle=1;" parent="1" source="auth-ctrl1" target="auth-svc1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="arr1-3" value="사용자 조회" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#C62828;fontSize=11;fontStyle=1;" parent="1" source="auth-svc1" target="db1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="arr1-4" value="accessToken + refreshToken" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#1976D2;fontSize=11;fontStyle=1;dashed=1;" parent="1" source="auth-svc1" target="client1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="480" y="240" />
+              <mxPoint x="140" y="240" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ========== 2단계: 인증 API 호출 ========== -->
+        <mxCell id="stage2-title" value="2️⃣ 인증된 API 호출" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#F57C00;" parent="1" vertex="1">
+          <mxGeometry x="80" y="290" width="180" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="client2" value="클라이언트" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;strokeWidth=2;fontSize=13;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="80" y="340" width="120" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="filter2" value="JwtAuthenticationFilter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#AB47BC;strokeColor=#6A1B9A;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#FFFFFF;" parent="1" vertex="1">
+          <mxGeometry x="250" y="340" width="150" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ctrl2" value="Controller" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#42A5F5;strokeColor=#1565C0;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#FFFFFF;" parent="1" vertex="1">
+          <mxGeometry x="450" y="340" width="110" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="svc2" value="Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#66BB6A;strokeColor=#2E7D32;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#FFFFFF;" parent="1" vertex="1">
+          <mxGeometry x="610" y="340" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- 화살표: 인증 API -->
+        <mxCell id="arr2-1" value="GET /api/lectures&#xa;+ Bearer Token" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#1976D2;fontSize=11;fontStyle=1;" parent="1" source="client2" target="filter2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="arr2-2" value="토큰 검증 ✅" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#6A1B9A;fontSize=11;fontStyle=1;" parent="1" source="filter2" target="ctrl2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="arr2-3" value="비즈니스 로직" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#388E3C;fontSize=11;fontStyle=1;" parent="1" source="ctrl2" target="svc2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="arr2-4" value="200 OK + 데이터" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#1976D2;fontSize=11;fontStyle=1;dashed=1;" parent="1" source="svc2" target="client2" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="660" y="430" />
+              <mxPoint x="140" y="430" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ========== 3단계: 토큰 갱신 ========== -->
+        <mxCell id="stage3-title" value="3️⃣ Access Token 만료 시 갱신" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#388E3C;" parent="1" vertex="1">
+          <mxGeometry x="80" y="480" width="280" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="client3" value="클라이언트" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;strokeWidth=2;fontSize=13;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="80" y="530" width="120" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="auth-ctrl3" value="AuthController" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#42A5F5;strokeColor=#1565C0;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#FFFFFF;" parent="1" vertex="1">
+          <mxGeometry x="250" y="530" width="120" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="auth-svc3" value="AuthService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#66BB6A;strokeColor=#2E7D32;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#FFFFFF;" parent="1" vertex="1">
+          <mxGeometry x="420" y="530" width="120" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="redis3" value="Redis" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#EC407A;strokeColor=#C62828;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#FFFFFF;" parent="1" vertex="1">
+          <mxGeometry x="590" y="525" width="80" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- 화살표: 토큰 갱신 -->
+        <mxCell id="arr3-1" value="POST /refresh" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#1976D2;fontSize=11;fontStyle=1;" parent="1" source="client3" target="auth-ctrl3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="arr3-2" value="refreshToken()" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#388E3C;fontSize=11;fontStyle=1;" parent="1" source="auth-ctrl3" target="auth-svc3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="arr3-3" value="토큰 검증" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#C62828;fontSize=11;fontStyle=1;" parent="1" source="auth-svc3" target="redis3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="arr3-4" value="새 accessToken + refreshToken" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#1976D2;fontSize=11;fontStyle=1;dashed=1;" parent="1" source="auth-svc3" target="client3" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="480" y="620" />
+              <mxPoint x="140" y="620" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ========== 4단계: 로그아웃 ========== -->
+        <mxCell id="stage4-title" value="4️⃣ 로그아웃 (토큰 무효화)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#C62828;" parent="1" vertex="1">
+          <mxGeometry x="780" y="100" width="280" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="client4" value="클라이언트" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;strokeWidth=2;fontSize=13;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="780" y="150" width="120" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="auth-ctrl4" value="AuthController" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#42A5F5;strokeColor=#1565C0;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#FFFFFF;" parent="1" vertex="1">
+          <mxGeometry x="780" y="250" width="120" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="blacklist4" value="TokenBlacklistService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E65100;strokeColor=#BF360C;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#FFFFFF;" parent="1" vertex="1">
+          <mxGeometry x="780" y="350" width="160" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="redis4" value="Redis&#xa;Blacklist" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#EC407A;strokeColor=#C62828;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#FFFFFF;" parent="1" vertex="1">
+          <mxGeometry x="820" y="450" width="80" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- 화살표: 로그아웃 -->
+        <mxCell id="arr4-1" value="POST /logout" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#C62828;fontSize=11;fontStyle=1;" parent="1" source="client4" target="auth-ctrl4" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="arr4-2" value="logout()" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#BF360C;fontSize=11;fontStyle=1;" parent="1" source="auth-ctrl4" target="blacklist4" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="arr4-3" value="토큰 블랙리스트 추가" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#C62828;fontSize=11;fontStyle=1;" parent="1" source="blacklist4" target="redis4" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="arr4-4" value="✅ 로그아웃 성공" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#388E3C;fontSize=11;fontStyle=1;dashed=1;" parent="1" source="redis4" target="client4" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1000" y="480" />
+              <mxPoint x="1000" y="175" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 설명 박스 -->
+        <mxCell id="info-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F57F17;strokeWidth=2;verticalAlign=top;align=left;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="780" y="550" width="340" height="170" as="geometry" />
+        </mxCell>
+
+        <mxCell id="info-title" value="🔐 JWT 보안 메커니즘" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="780" y="560" width="340" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="info-text" value="• Access Token: 15분 (짧은 만료시간)&#xa;&#xa;• Refresh Token: 24시간 (긴 만료시간)&#xa;&#xa;• 토큰 블랙리스트: 로그아웃 시 무효화&#xa;&#xa;• Redis 저장: 만료시간까지만 보관&#xa;&#xa;• 비밀번호 해싱: SHA-256" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=13;" parent="1" vertex="1">
+          <mxGeometry x="800" y="600" width="300" height="110" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

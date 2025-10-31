@@ -1,6 +1,6 @@
 # 🦀 BlueCrab Backend Application
 
-[![Java](https://img.shields.io/badge/Java-11+-orange.svg)](https://openjdk.java.net/)
+[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.java.net/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.7.x-green.svg)](https://spring.io/projects/spring-boot)
 [![Oracle](https://img.shields.io/badge/Database-Oracle-red.svg)](https://www.oracle.com/database/)
 
@@ -27,9 +27,9 @@ BlueCrab은 Spring Boot 기반의 웹 애플리케이션으로, JWT 인증과 �
 ## 🚀 **빠른 시작**
 
 ### **1. 개발 환경 요구사항**
-- Java 11+
+- Java 21 (LTS)
 - Maven 3.6+
-- Oracle Database
+- MariaDB 10.x
 
 ### **2. 로컬 실행**
 ```bash

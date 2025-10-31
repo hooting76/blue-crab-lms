@@ -1,0 +1,121 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="인프라 구성 (테스트 서버 포함)" id="infrastructure-with-test">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- 제목 -->
+        <mxCell id="title" value="Blue Crab LMS 인프라 구성" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;fontColor=#263238;" parent="1" vertex="1">
+          <mxGeometry x="240" y="40" width="400" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- 개발 환경 그룹 -->
+        <mxCell id="dev-group" value="개발 환경" style="swimlane;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F57F17;strokeWidth=2;fontSize=14;fontStyle=1;dashed=1;dashPattern=5 5;" parent="1" vertex="1">
+          <mxGeometry x="80" y="120" width="280" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- 프론트엔드 테스트 서버 -->
+        <mxCell id="dev-frontend" value="프론트엔드 테스트 서버&lt;br&gt;태준님 노트북 (Linux)&lt;br&gt;React 빌드 테스트" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE082;strokeColor=#F57F17;fontColor=#263238;fontSize=12;fontStyle=1;" parent="dev-group" vertex="1">
+          <mxGeometry x="30" y="50" width="220" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- 운영 환경 라벨 -->
+        <mxCell id="prod-label" value="운영 환경" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#263238;" parent="1" vertex="1">
+          <mxGeometry x="80" y="290" width="120" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- 팀장님 NAS 서버 그룹 -->
+        <mxCell id="nas-group" value="팀장님 NAS 서버 (프로덕션)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#FF6F00;strokeWidth=3;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="80" y="330" width="280" height="280" as="geometry" />
+        </mxCell>
+
+        <!-- React Frontend -->
+        <mxCell id="react" value="React Frontend&lt;br&gt;프로덕션 배포" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4FC3F7;strokeColor=#01579B;fontColor=#FFFFFF;fontSize=13;fontStyle=1;" parent="nas-group" vertex="1">
+          <mxGeometry x="40" y="50" width="200" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- MariaDB -->
+        <mxCell id="mariadb" value="MariaDB" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#EF5350;strokeColor=#C62828;fontColor=#FFFFFF;fontSize=13;fontStyle=1;" parent="nas-group" vertex="1">
+          <mxGeometry x="65" y="160" width="150" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- 본인 백엔드 서버 그룹 -->
+        <mxCell id="backend-group" value="본인 백엔드 서버" style="swimlane;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=3;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="500" y="330" width="280" height="380" as="geometry" />
+        </mxCell>
+
+        <!-- Spring Boot Tomcat -->
+        <mxCell id="tomcat" value="Spring Boot&lt;br&gt;Tomcat" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#66BB6A;strokeColor=#2E7D32;fontColor=#FFFFFF;fontSize=13;fontStyle=1;" parent="backend-group" vertex="1">
+          <mxGeometry x="40" y="50" width="200" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Redis -->
+        <mxCell id="redis" value="Redis" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#EC407A;strokeColor=#AD1457;fontColor=#FFFFFF;fontSize=13;fontStyle=1;" parent="backend-group" vertex="1">
+          <mxGeometry x="40" y="160" width="90" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- MinIO -->
+        <mxCell id="minio" value="MinIO" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#AB47BC;strokeColor=#6A1B9A;fontColor=#FFFFFF;fontSize=13;fontStyle=1;" parent="backend-group" vertex="1">
+          <mxGeometry x="150" y="160" width="90" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- 연결선: 테스트 서버 -> 프로덕션 (배포) -->
+        <mxCell id="arrow-deploy" value="테스트 완료 후&lt;br&gt;프로덕션 배포" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#F57F17;fontSize=11;fontColor=#F57F17;fontStyle=1;dashed=1;dashPattern=8 8;" parent="1" source="dev-frontend" target="react" edge="1">
+          <mxGeometry x="0.1" y="10" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 연결선: 테스트 서버 -> 백엔드 (개발 중) -->
+        <mxCell id="arrow-dev-api" value="개발 중&lt;br&gt;API 호출" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#FFA726;fontSize=11;fontColor=#E65100;fontStyle=1;dashed=1;dashPattern=5 5;" parent="1" source="dev-frontend" target="tomcat" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="430" y="200" />
+              <mxPoint x="430" y="280" />
+              <mxPoint x="640" y="280" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 연결선: React -> Tomcat -->
+        <mxCell id="arrow1" value="API 호출&lt;br&gt;REST / WebSocket" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#1976D2;fontSize=12;fontColor=#1976D2;fontStyle=1;" parent="1" source="react" target="tomcat" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="430" y="415" />
+              <mxPoint x="430" y="415" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 연결선: Tomcat -> MariaDB -->
+        <mxCell id="arrow2" value="데이터 조회/저장&lt;br&gt;JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#D32F2F;fontSize=12;fontColor=#D32F2F;fontStyle=1;dashed=1;" parent="1" source="tomcat" target="mariadb" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="640" y="450" />
+              <mxPoint x="430" y="450" />
+              <mxPoint x="430" y="565" />
+              <mxPoint x="220" y="565" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 연결선: Tomcat -> Redis -->
+        <mxCell id="arrow3" value="캐싱" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#C2185B;fontSize=12;fontColor=#C2185B;fontStyle=1;" parent="1" source="tomcat" target="redis" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 연결선: Tomcat -> MinIO -->
+        <mxCell id="arrow4" value="파일 저장" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#7B1FA2;fontSize=12;fontColor=#7B1FA2;fontStyle=1;" parent="1" source="tomcat" target="minio" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 설명 박스 -->
+        <mxCell id="note" value="💡 개발 환경&lt;br&gt;• NAS 서버 직접 관리 불편함 해결&lt;br&gt;• 태준님이 노트북에 Linux 설치&lt;br&gt;• 프론트엔드 빠른 빌드 &amp; 테스트 가능&lt;br&gt;• 백엔드 API 연동 테스트" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FFFDE7;strokeColor=#F9A825;fontColor=#263238;fontSize=11;align=left;verticalAlign=top;size=15;" parent="1" vertex="1">
+          <mxGeometry x="820" y="330" width="280" height="140" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
